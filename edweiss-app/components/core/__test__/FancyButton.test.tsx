@@ -4,7 +4,7 @@ import { act, fireEvent, render } from "@testing-library/react-native";
 
 describe("FancyButton", () => {
 	test("calls onPress function when pressed", async () => {
-		jest.useFakeTimers();
+		// jest.useFakeTimers();
 
 		const mockFunction = jest.fn();
 		const { getByTestId } = render(<FancyButton onPress={mockFunction}>Click me</FancyButton>);
