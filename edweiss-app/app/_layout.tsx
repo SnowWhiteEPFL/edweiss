@@ -2,6 +2,9 @@ import Colors from '@/constants/Colors';
 import useTheme from '@/hooks/theme/useTheme';
 import { Theme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
+import { useEffect } from 'react';
+
+import * as SystemUI from 'expo-system-ui';
 
 const Light: Theme = {
 	dark: false,
@@ -13,7 +16,7 @@ const Light: Theme = {
 		primary: Colors.light.tint,
 		text: Colors.light.text
 	}
-}
+};
 
 const Dark: Theme = {
 	dark: true,
@@ -25,13 +28,19 @@ const Dark: Theme = {
 		primary: Colors.dark.tint,
 		text: Colors.dark.text,
 	}
-}
+};
 
 export default function RootLayout() {
-	const colorScheme = useTheme();
+	const theme = useTheme();
+
+	useEffect(() => {
+		(async () => {
+			await SystemUI.setBackgroundColorAsync(Colors[theme].background);
+		})();
+	}, []);
 
 	return (
-		<ThemeProvider value={colorScheme === 'light' ? Light : Dark}>
+		<ThemeProvider value={theme === 'light' ? Light : Dark}>
 			<Stack>
 				<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 				<Stack.Screen name="+not-found" />
