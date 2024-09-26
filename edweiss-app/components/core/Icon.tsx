@@ -1,11 +1,12 @@
 import { Color } from '@/constants/Colors';
 import { MarginProps, PredefinedSizes, Size, computeMargins, computeSize } from '@/constants/Sizes';
 import { IconType } from '@/constants/Style';
+import { Testable } from '@/constants/Tests';
 import useThemeColor from '@/hooks/theme/useThemeColor';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleProp, TextStyle } from 'react-native';
 
-export type IconProps = MarginProps & {
+export type IconProps = MarginProps & Testable & {
 	name: IconType,
 	size?: Size,
 	color?: Color,
@@ -14,7 +15,7 @@ export type IconProps = MarginProps & {
 	style?: StyleProp<TextStyle>
 };
 
-export default function Icon({ name, size = 16, color = 'icon', light, dark, style, ...rest }: IconProps) {
+export default function Icon({ name, size = 16, color = 'icon', light, dark, style, testID, ...rest }: IconProps) {
 	const computedColor = useThemeColor({ light, dark }, color);
 
 	return <Ionicons
@@ -22,6 +23,7 @@ export default function Icon({ name, size = 16, color = 'icon', light, dark, sty
 		size={computeSize(size, iconSizes)}
 		color={computedColor}
 		style={[computeMargins(rest), style]}
+		testID={testID}
 	/>
 }
 
