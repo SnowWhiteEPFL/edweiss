@@ -49,10 +49,6 @@ export default function HomeScreen() {
 					Create Deck
 				</FancyButton>
 
-				<FancyButton m={'xs'} onPress={() => router.push("/settings")} icon='settings'>
-					Go to settings
-				</FancyButton>
-
 				{
 					decks ?
 						decks.map(deck => <DeckDisplay key={deck.id} deck={deck.data} id={deck.id} />) :
@@ -96,47 +92,3 @@ function QuestionDisplay({ question }: { question: CardQuestion }) {
 		)
 	}
 }
-
-// export default function HomeScreen() {
-// 	const [msg, setMsg] = useState<string>();
-
-// 	async function call() {
-// 		setMsg("");
-
-// 		const res = await callFunction(Functions.helloWorld, { request: "My request" });
-
-// 		if (res.status == 1) {
-// 			setMsg(res.data.message);
-// 		} else {
-// 			setMsg(`Error: ${res.error}`);
-// 		}
-// 	}
-
-// 	return (
-// 		<>
-// 			<Stack.Screen
-// 				options={{
-// 					headerTitleAlign: 'center'
-// 				}}
-// 			/>
-// 			<TScrollView p={'md'}>
-// 				<TView>
-// 					<TText bold size={'xl'}>This is a huge title! 👋</TText>
-// 				</TView>
-
-// 				<FancyButton icon='logo-firebase' onPress={call} mt={'md'} mb={'md'}>
-// 					Call Firebase function
-// 				</FancyButton>
-// 				<FancyButton icon='close' outlined backgroundColor='red' textColor='white' onPress={() => setMsg(undefined)} disabled={msg == undefined} mb={'md'}>
-// 					Clear message
-// 				</FancyButton>
-
-// 				<TouchableOpacity onPress={call}>
-// 					<TText>
-// 						{msg}
-// 					</TText>
-// 				</TouchableOpacity>
-// 			</TScrollView>
-// 		</>
-// 	);
-// }
