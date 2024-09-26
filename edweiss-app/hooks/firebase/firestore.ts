@@ -1,0 +1,89 @@
+import { Collection, Document, DocumentData, DocumentOf, Query, getDocument, getDocuments } from '@/config/firebase';
+import { doc, onSnapshot } from '@react-native-firebase/firestore';
+import { useCallback, useEffect, useState } from 'react';
+
+export function useDoc<Type extends DocumentData>(collection: Collection<Type>, id: string): Document<Type> | undefined {
+	const [document, setDocument] = useState<Document<Type>>();
+
+	useEffect(() => {
+		(async () => {
+			const fetchedDocument = await getDocument(collection, id);
+			setDocument(fetchedDocument);
+		})();
+	}, []);
+
+	return document;
+}
+
+export function usePrefetchedDynamicDoc<Type extends DocumentData>(collection: Collection<Type>, id: string, prefetched: Document<Type> | undefined): [Document<Type> | undefined, boolean] {
+	const [document, setDocument] = useState<Document<Type> | undefined>(prefetched);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		const unsubscribe = onSnapshot(doc(collection, id), (doc) => {
+			setDocument(DocumentOf<Type>(doc));
+			setLoading(false);
+		});
+		return unsubscribe;
+	}, []);
+
+	return [document, loading] as const;
+}
+
+export function useRefreshableDoc<Type extends DocumentData>(collection: Collection<Type>, id: string): [Document<Type> | undefined, () => void] {
+	const [document, setDocument] = useState<Document<Type>>();
+
+	const refresh = useCallback(() => {
+		(async () => {
+			const fetchedDocument = await getDocument(collection, id);
+			setDocument(fetchedDocument);
+		})();
+	}, []);
+
+	useEffect(refresh, []);
+
+	return [document, refresh] as const;
+}
+
+export function useDocs<Type extends DocumentData>(query: Query<Type>, deps?: React.DependencyList): Document<Type>[] | undefined {
+	const [documents, setDocuments] = useState<Document<Type>[]>();
+
+	useEffect(() => {
+		(async () => {
+			const fetchedDocuments = await getDocuments(query);
+			setDocuments(fetchedDocuments);
+		})();
+	}, deps || []);
+
+	return documents;
+}
+
+export function useRefreshableDocs<Type extends DocumentData>(query: Query<Type>): [Document<Type>[] | undefined, () => void] {
+	const [documents, setDocuments] = useState<Document<Type>[]>();
+
+	const refresh = useCallback(() => {
+		(async () => {
+			const fetchedDocuments = await getDocuments(query);
+			setDocuments(fetchedDocuments);
+		})();
+	}, []);
+
+	useEffect(refresh, []);
+
+	return [documents, refresh] as const;
+}
+
+export function useDynamicDocs<Type extends DocumentData>(query: Query<Type>) {
+	const [documents, setDocuments] = useState<Document<Type>[]>();
+
+	useEffect(() => {
+		const unsubscribe = query.onSnapshot(querySnapshot => {
+			setDocuments(querySnapshot.docs.map(DocumentOf<Type>));
+		}, error => {
+			console.log("ERROR: " + error);
+		});
+		return unsubscribe;
+	}, []);
+
+	return documents;
+}
