@@ -1,6 +1,6 @@
 # EdWeiss - Education made easy
 <p align="center">
-    <img src="https://github.com/user-attachments/assets/955a157f-9515-425d-9592-f9afea34a868" width="480">
+    <img src="https://github.com/user-attachments/assets/e99269de-b772-4064-8a23-1c5cc9cfa896" width="480">
 </p>
 
 ## EdWeiss Application
