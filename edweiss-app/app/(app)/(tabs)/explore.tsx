@@ -2,7 +2,7 @@
 import { TText } from '@/components/core/TText';
 import { TView } from '@/components/core/TView';
 import FancyButton from '@/components/input/FancyButton';
-import { Href, router } from 'expo-router';
+import { router } from 'expo-router';
 
 export default function TabTwoScreen() {
 	return (
@@ -11,11 +11,23 @@ export default function TabTwoScreen() {
 			<TText>
 				A second tab ? Amazing !
 			</TText>
-			<FancyButton mb={'md'} onPress={() => router.push("/members/adamm" as Href)}>
+			<FancyButton mb={'md'} onPress={() => router.push("/members/adamm")}>
 				Go to Adamm's page
 			</FancyButton>
-			<FancyButton onPress={() => router.push("/members/ferdinand" as Href)}>
+			<FancyButton onPress={() => router.push("/members/ferdinand")}>
 				Go to Ferdinand's page
+			</FancyButton>
+			<FancyButton onPress={() => router.push("/members/gustavo")}>
+				Go to Gustavo's page
+			</FancyButton>
+			<FancyButton onPress={() => router.push("/members/gwenael")}>
+				Go to Gwenael's page
+			</FancyButton>
+			<FancyButton onPress={() => router.push("/members/florian")}>
+				Go to Florian's page
+			</FancyButton>
+			<FancyButton onPress={() => router.push("/members/tuan")}>
+				Go to Tuan's page
 			</FancyButton>
 		</TView>
 	);
