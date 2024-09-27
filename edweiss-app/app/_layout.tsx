@@ -37,12 +37,12 @@ export default function RootLayout() {
 		(async () => {
 			await SystemUI.setBackgroundColorAsync(Colors[theme].background);
 		})();
-	}, []);
+	}, [theme]);
 
 	return (
 		<ThemeProvider value={theme === 'light' ? Light : Dark}>
 			<Stack>
-				<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+				<Stack.Screen name="(app)" options={{ headerShown: false }} />
 				<Stack.Screen name="+not-found" />
 			</Stack>
 		</ThemeProvider>
