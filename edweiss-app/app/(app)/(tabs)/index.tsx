@@ -1,5 +1,5 @@
 
-import { TActivityIndicator } from '@/components/core/TActivityIndicator';
+import For from '@/components/core/For';
 import { TText } from '@/components/core/TText';
 import { TTouchableOpacity } from '@/components/core/TTouchableOpacity';
 import { TView } from '@/components/core/TView';
@@ -49,11 +49,16 @@ export default function HomeScreen() {
 					Create Deck
 				</FancyButton>
 
-				{
+				{/* {
 					decks ?
 						decks.map(deck => <DeckDisplay key={deck.id} deck={deck.data} id={deck.id} />) :
 						<TActivityIndicator size={40} />
-				}
+				} */}
+
+				<For each={decks}>
+					{deck => <DeckDisplay key={deck.id} deck={deck.data} id={deck.id} />}
+				</For>
+
 			</TView>
 		</>
 	);
