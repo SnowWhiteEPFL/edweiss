@@ -32,10 +32,10 @@ const FancyButton = ({ backgroundColor = 'blue', textColor = 'white', outlined, 
 	const computedBorderWidth = outlined ? 1 : 1;
 
 	async function onPress() {
-		setLoading(true);
+		// setLoading(true);
 		if (props.onPress)
 			await props.onPress();
-		setLoading(false);
+		// setLoading(false);
 	}
 
 	return (
