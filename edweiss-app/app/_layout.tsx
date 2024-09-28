@@ -4,6 +4,7 @@ import { Theme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { useEffect } from 'react';
 
+import { AuthContextProvider } from '@/contexts/AuthContext';
 import * as SystemUI from 'expo-system-ui';
 
 const Light: Theme = {
@@ -40,11 +41,13 @@ export default function RootLayout() {
 	}, [theme]);
 
 	return (
-		<ThemeProvider value={theme === 'light' ? Light : Dark}>
-			<Stack>
-				<Stack.Screen name="(app)" options={{ headerShown: false }} />
-				<Stack.Screen name="+not-found" />
-			</Stack>
-		</ThemeProvider>
+		<AuthContextProvider>
+			<ThemeProvider value={theme === 'light' ? Light : Dark}>
+				<Stack>
+					<Stack.Screen name="(app)" options={{ headerShown: false }} />
+					<Stack.Screen name="+not-found" />
+				</Stack>
+			</ThemeProvider>
+		</AuthContextProvider>
 	);
 }
