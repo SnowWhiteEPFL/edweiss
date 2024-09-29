@@ -1,3 +1,3 @@
 
-cd edweiss-functions
+cd edweiss-firebase
 firebase deploy --only functions
