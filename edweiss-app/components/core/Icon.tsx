@@ -15,7 +15,7 @@ export type IconProps = MarginProps & Testable & {
 	style?: StyleProp<TextStyle>
 };
 
-export default function Icon({ name, size = 16, color = 'icon', light, dark, style, testID, ...rest }: IconProps) {
+export default function Icon({ name, size = 16, color = 'subtext0', light, dark, style, testID, ...rest }: IconProps) {
 	const computedColor = useThemeColor({ light, dark }, color);
 
 	return <Ionicons
