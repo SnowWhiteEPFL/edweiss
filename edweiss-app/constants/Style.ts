@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleProp, ViewStyle } from 'react-native';
 import { Color, LightDarkProps } from './Colors';
-import { BoxModelProps, Size, computeSizeOpt, gapSizes, radiusSizes } from './Sizes';
+import { BoxModelProps, Size, computeBoxModelSize, computeSizeOpt, gapSizes, radiusSizes } from './Sizes';
 
 export type IconType = keyof typeof Ionicons.glyphMap;
 
@@ -13,6 +13,7 @@ export type AlignItems = "center" | "flex-start" | "flex-end" | "stretch" | "bas
 
 export type ContainerProps = & LightDarkProps & BoxModelProps & {
 	backgroundColor?: Color,
+	borderColor?: Color,
 	flex?: boolean,
 	flexDirection?: FlexDirection,
 	justifyContent?: JustifyContent,
@@ -20,12 +21,11 @@ export type ContainerProps = & LightDarkProps & BoxModelProps & {
 	rowGap?: Size,
 	columnGap?: Size,
 	radius?: Size,
-	borderColor?: Color,
 };
 
 export type ContainerStyle = StyleProp<ViewStyle>
 
-export function computeContainerStyle(props: ContainerProps, backgroundColor: string, borderColor: string) {
+export function computeContainerStyle(props: ContainerProps, backgroundColor: string | undefined, borderColor: string | undefined): ContainerStyle {
 	return {
 		backgroundColor,
 		display: props.flex ? 'flex' : undefined,
@@ -36,5 +36,6 @@ export function computeContainerStyle(props: ContainerProps, backgroundColor: st
 		alignItems: props.alignItems,
 		rowGap: computeSizeOpt(props.rowGap, gapSizes),
 		columnGap: computeSizeOpt(props.columnGap, gapSizes),
+		...computeBoxModelSize(props)
 	}
 }
