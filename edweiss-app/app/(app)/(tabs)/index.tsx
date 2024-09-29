@@ -1,5 +1,6 @@
 
 import For from '@/components/core/For';
+import { TScrollView } from '@/components/core/TScrollView';
 import { TText } from '@/components/core/TText';
 import { TTouchableOpacity } from '@/components/core/TTouchableOpacity';
 import { TView } from '@/components/core/TView';
@@ -8,9 +9,8 @@ import { Collections, callFunction } from '@/config/firebase';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import Functions from '@/model/functions';
 import { Card, CardQuestion, Deck } from '@/model/memento';
-import { router } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import React, { useState } from 'react';
-import { TextInput } from 'react-native';
 
 export default function HomeScreen() {
 	const [name, setName] = useState("");
@@ -40,12 +40,23 @@ export default function HomeScreen() {
 
 	return (
 		<>
-			<TView>
-				<TextInput value={name} onChangeText={n => setName(n)} placeholder='Deck name' placeholderTextColor={'#555'} style={{ borderWidth: 1, borderColor: '#777', padding: 8, color: 'white', borderRadius: 6 }}>
+			<Stack.Screen
+				options={{
+					title: "Home",
+					headerTitleAlign: "center"
+				}}
+			/>
+			<TScrollView>
 
-				</TextInput>
+				{/* <TextInput value={name} onChangeText={n => setName(n)} placeholder='Deck name' placeholderTextColor={'#555'} style={{ borderWidth: 1, borderColor: '#777', padding: 8, color: 'white', borderRadius: 6 }}>
 
-				<FancyButton disabled={name.length == 0} outlined={name.length == 0} m={'xs'} onPress={call} icon='logo-firebase'>
+				</TextInput> */}
+
+				{/* <FancyButton disabled={name.length == 0} m={'xs'} onPress={call} icon='logo-firebase'>
+					Create Deck
+				</FancyButton> */}
+
+				<FancyButton backgroundColor='base' mt={'md'} mb={'sm'} ml={'md'} mr={'md'} textColor='blue' onPress={call} icon='logo-firebase'>
 					Create Deck
 				</FancyButton>
 
@@ -58,17 +69,19 @@ export default function HomeScreen() {
 				<For each={decks}>
 					{deck => <DeckDisplay key={deck.id} deck={deck.data} id={deck.id} />}
 				</For>
-
-			</TView>
+			</TScrollView>
 		</>
 	);
 }
 
 function DeckDisplay({ deck, id }: { deck: Deck, id: string }) {
 	return (
-		<TTouchableOpacity onPress={() => router.push(`/deck/${id}`)} m='md' p='lg' borderColor='borderColor' b={1} radius='lg'>
-			<TText mb='md'>
+		<TTouchableOpacity bb={0} onPress={() => router.push(`/deck/${id}`)} m='md' mt={'sm'} mb={'sm'} p='lg' backgroundColor='base' borderColor='crust' radius='lg'>
+			<TText>
 				{deck.name}
+			</TText>
+			<TText mb='md' color='subtext0' size={'sm'}>
+				2h ago
 			</TText>
 			{
 				deck.cards.map(card => <CardDisplay key={card.answer} card={card} />)
@@ -81,7 +94,7 @@ function CardDisplay({ card }: { card: Card }) {
 	return (
 		<TView>
 			<QuestionDisplay question={card.question} />
-			<TText>
+			<TText ml={'sm'} color='mauve'>
 				{card.answer}
 			</TText>
 		</TView>

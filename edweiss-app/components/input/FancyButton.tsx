@@ -22,7 +22,7 @@ interface FancyButtonProps {
 	disableInnerLoading?: boolean
 }
 
-const FancyButton = ({ backgroundColor = 'blue', textColor = 'white', outlined, ...props }: FancyButtonProps & MarginProps) => {
+const FancyButton = ({ backgroundColor = 'base', textColor = 'blue', outlined, ...props }: FancyButtonProps & MarginProps) => {
 	const [innerLoading, setLoading] = useState(false);
 
 	const loading = (innerLoading && props.disableInnerLoading != true) || props.loading;
@@ -39,7 +39,7 @@ const FancyButton = ({ backgroundColor = 'blue', textColor = 'white', outlined, 
 	}
 
 	return (
-		<TTouchableOpacity onPress={onPress} disabled={loading || props.disabled} backgroundColor={computedBackgroundColor} flex flexDirection='row' justifyContent='center' columnGap={'md'} alignItems='center' radius={'xl'} pt={12} pb={12} style={[{ borderWidth: computedBorderWidth, borderColor: backgroundColor }, computeMargins(props), props.style]} testID='pressable'>
+		<TTouchableOpacity onPress={onPress} disabled={loading || props.disabled} backgroundColor={computedBackgroundColor} borderColor={computedBackgroundColor} flex flexDirection='row' justifyContent='center' columnGap={'md'} alignItems='center' radius={'xl'} pt={12} pb={12} b={computedBorderWidth} style={[computeMargins(props), props.style]} testID='pressable'>
 			{
 				loading ?
 					<TActivityIndicator size={24} color={computedTextColor} /> :
