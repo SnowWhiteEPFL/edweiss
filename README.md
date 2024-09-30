@@ -3,23 +3,20 @@
     <img src="https://github.com/user-attachments/assets/e99269de-b772-4064-8a23-1c5cc9cfa896" width="480">
 </p>
 
-## EdWeiss Application
-To run the app on Android, run `./start-expo.sh`.
+## 📱 EdWeiss Application
+This is the main Android and iOS EdWeiss app, we are using React Native with Expo benefiting its massive ecosystem of libraries and utilities.
 
-Make sure that you have the execution write on `start-expo.sh`, if not, please run `sudo chmod +x start-expo.sh`, also make sure you downloaded the latest developer build on Expo.
+To start the application, install the Expo development build on [Expo website](https://www.expo.dev/) then run one of the "Start application" VSCode tasks (or alternatively, use `npx expo start` directly in the `edweiss-app` folder).
 
-## EdWeiss Cloud Functions
-To deploy the functions to Firebase, run `./deploy-functions.sh`.
+## 🔥 EdWeiss Firebase
+This is the EdWeiss backend, using Google's Firebase cloud infrastructure. We use Cloud Functions for all our sensitive business logic (basically any write to the database) for security and planning reasons.
 
-Make sure that you have the execution write on `deploy-functions.sh`, if not, please run `sudo chmod +x deploy-functions.sh`.
-Make sure you have the Firebase CLI tools installed on your system.
+To deploy the functions to the Cloud, run the "Deploy functions" VSCode task (or alternatively, use `firebase deploy --only functions` directly in the `edweiss-functions` folder).
 
-## EdWeiss Model
-To update the model in the application and cloud functions, run `./update-model.sh`.
+## 🧊 EdWeiss Model
+This represents all the core types and functions of the app, any changes to this folder should be updated using the "Update model" task.
 
-Make sure that you have the execution write on `update-model.sh`, if not, please run `sudo chmod +x update-model.sh`.
-
-## Recommended VSCode extensions
+## 🛠️ Recommended VSCode extensions
 `ES7+ React/Redux/React-Native snippets` to quickly generate React Native code snippet (use `rnfe`).
 
 `Expo Tools` to get intellisense for Expo config.
@@ -32,5 +29,5 @@ Make sure that you have the execution write on `update-model.sh`, if not, please
 
 Also, please turn on VSCode formatting !
 
-## Ressources
-[Figma](https://www.figma.com/design/BBD2dqgIbEF96IhNpyv7MW/EdWeiss?node-id=0-1&t=qQd63l3nEltoppuT-1)
+## 📚 Ressources
+Check our [Figma](https://www.figma.com/design/BBD2dqgIbEF96IhNpyv7MW/EdWeiss?node-id=0-1&t=qQd63l3nEltoppuT-1) design.
