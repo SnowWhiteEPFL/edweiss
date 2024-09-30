@@ -1,6 +1,6 @@
 import { TActivityIndicator } from '@/components/core/TActivityIndicator';
 import { TText } from '@/components/core/TText';
-import { TView } from '@/components/core/TView';
+import { TView } from '@/components/core/containers/TView';
 import { Collections } from '@/config/firebase';
 import { useDoc } from '@/hooks/firebase/firestore';
 import { Redirect, Stack, useLocalSearchParams } from 'expo-router';
