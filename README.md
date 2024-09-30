@@ -1,4 +1,4 @@
-# EdWeiss - Education made easy
+# EdWeiss - Education Reinvented
 <p align="center">
     <img src="https://github.com/user-attachments/assets/e99269de-b772-4064-8a23-1c5cc9cfa896" width="480">
 </p>
@@ -27,3 +27,6 @@ Make sure that you have the execution write on `update-model.sh`, if not, please
 `Expo Tools` provides intellisense for Expo app development.
 
 Also, please turn on VSCode formatting !
+
+## Ressources
+[Figma](https://www.figma.com/design/BBD2dqgIbEF96IhNpyv7MW/EdWeiss?node-id=0-1&t=qQd63l3nEltoppuT-1)
