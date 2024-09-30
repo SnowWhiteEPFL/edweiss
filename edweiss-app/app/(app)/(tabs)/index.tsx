@@ -6,6 +6,7 @@ import { TTouchableOpacity } from '@/components/core/containers/TTouchableOpacit
 import { TView } from '@/components/core/containers/TView';
 import FancyButton from '@/components/input/FancyButton';
 import { Collections, callFunction } from '@/config/firebase';
+import { t } from '@/config/i18config';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import Functions from '@/model/functions';
 import { Card, CardQuestion, Deck } from '@/model/memento';
@@ -57,7 +58,7 @@ export default function HomeScreen() {
 				</FancyButton> */}
 
 				<FancyButton backgroundColor='base' mt={'md'} mb={'sm'} ml={'md'} mr={'md'} textColor='blue' onPress={call} icon='logo-firebase'>
-					Create Deck
+					{t("memento.create_deck")}
 				</FancyButton>
 
 				{/* {
