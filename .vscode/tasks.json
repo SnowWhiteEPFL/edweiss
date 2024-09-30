@@ -2,9 +2,54 @@
 	"version": "2.0.0",
     "tasks": [
         {
-            "label": "Update model - EdWeiss",
+            "label": "⟳ Update model - EdWeiss",
 			"detail": "Copies the model folder into the application and cloud functions",
             "command": "cd edweiss-model; ./copy.sh",
+            "type": "shell",
+            "problemMatcher": [],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
+        },
+		{
+            "label": "🔥 Deploy functions - EdWeiss",
+			"detail": "Deploys cloud functions",
+            "command": "cd edweiss-firebase; firebase deploy --only functions",
+            "type": "shell",
+            "problemMatcher": [],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
+        },
+		{
+            "label": "📱 Start application on device via USB - EdWeiss",
+			"detail": "Starts application using Expo's dev build",
+            "command": "cd edweiss-app; npx expo start --dev-client --clear --localhost --android",
+            "type": "shell",
+            "problemMatcher": [],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
+        },
+		{
+            "label": "📱 Start application with QR Code - EdWeiss",
+			"detail": "Starts application using Expo's dev build",
+            "command": "cd edweiss-app; npx expo start",
             "type": "shell",
             "problemMatcher": [],
 			"presentation": {
