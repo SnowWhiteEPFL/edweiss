@@ -4,7 +4,7 @@
         {
             "label": "⟳ Update model - EdWeiss",
 			"detail": "Copies the model folder into the application and cloud functions",
-            "command": "cd edweiss-model; ./copy.sh",
+            "command": "cd model; ./update.sh",
             "type": "shell",
             "problemMatcher": [],
 			"presentation": {
