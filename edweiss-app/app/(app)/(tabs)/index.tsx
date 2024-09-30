@@ -1,9 +1,9 @@
 
 import For from '@/components/core/For';
-import { TScrollView } from '@/components/core/TScrollView';
 import { TText } from '@/components/core/TText';
-import { TTouchableOpacity } from '@/components/core/TTouchableOpacity';
-import { TView } from '@/components/core/TView';
+import { TScrollView } from '@/components/core/containers/TScrollView';
+import { TTouchableOpacity } from '@/components/core/containers/TTouchableOpacity';
+import { TView } from '@/components/core/containers/TView';
 import FancyButton from '@/components/input/FancyButton';
 import { Collections, callFunction } from '@/config/firebase';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';

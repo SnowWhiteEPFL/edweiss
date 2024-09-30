@@ -5,7 +5,7 @@ import { ReactNode, useState } from 'react'
 import Icon from '../core/Icon'
 import { TActivityIndicator } from '../core/TActivityIndicator'
 import { TText } from '../core/TText'
-import { TTouchableOpacity } from '../core/TTouchableOpacity'
+import { TTouchableOpacity } from '../core/containers/TTouchableOpacity'
 
 interface FancyButtonProps {
 	backgroundColor?: Color,

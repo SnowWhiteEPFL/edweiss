@@ -1,6 +1,6 @@
 
 import { TText } from '@/components/core/TText';
-import { TView } from '@/components/core/TView';
+import { TView } from '@/components/core/containers/TView';
 import FancyButton from '@/components/input/FancyButton';
 import { router } from 'expo-router';
 
