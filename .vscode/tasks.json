@@ -60,6 +60,21 @@
 				"showReuseMessage": true,
 				"clear": false
 			}
+        },
+		{
+            "label": "💻 Start web application using Vite - EdWeiss",
+			"detail": "Starts Vite+React web application on localhost",
+            "command": "cd edweiss-web; npm run dev",
+            "type": "shell",
+            "problemMatcher": [],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
         }
     ]
 }
