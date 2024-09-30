@@ -7,7 +7,8 @@
     "android": "expo start --dev-client --clear --localhost --android",
     "ios": "expo start --ios",
     "test": "jest",
-    "lint": "expo lint"
+    "lint": "expo lint",
+	"tscheck": "tsc --noEmit"
   },
   "jest": {
     "preset": "jest-expo"
