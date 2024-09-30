@@ -22,9 +22,13 @@ Make sure that you have the execution write on `update-model.sh`, if not, please
 ## Recommended VSCode extensions
 `ES7+ React/Redux/React-Native snippets` to quickly generate React Native code snippet (use `rnfe`).
 
-`Git Graph` to show the current git graph with branch features and all.
+`Expo Tools` to get intellisense for Expo config.
 
-`Expo Tools` provides intellisense for Expo app development.
+`Git Graph` to view the branches and commit history.
+
+`Git Lens` to have better Git implementation (see who modified each line).
+
+`Jest` to be able to run tests from each file more easily.
 
 Also, please turn on VSCode formatting !
 
