@@ -1,15 +1,12 @@
+import { Routes } from '@generouted/react-router'
 import { NextUIProvider } from '@nextui-org/react'
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
 import './index.css'
 
 createRoot(document.getElementById('root')!).render(
-	<StrictMode>
-		<NextUIProvider>
-			<main className="dark text-foreground bg-background h-screen">
-				<App />
-			</main>
-		</NextUIProvider>
-	</StrictMode>
+	<NextUIProvider>
+		<main className="h-screen dark text-foreground bg-background">
+			<Routes />
+		</main>
+	</NextUIProvider>
 )
