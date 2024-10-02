@@ -1,6 +1,6 @@
 import i18next from 'i18next';
 
-import { Leaves, typeCheck } from '@/utils/types';
+import { typeCheck } from '@/utils/types';
 import AsyncStoragePlugin from 'i18next-react-native-async-storage';
 import { initReactI18next } from 'react-i18next';
 
@@ -10,7 +10,6 @@ import en_memento from "@/locales/en/memento.json";
 export type Locale = "en";
 export type LocaleNamespace = typeof namespaces[number];
 export type LocaleResource = { [l in Locale]: { [ns in LocaleNamespace]: any } };
-export type LocaleKey = Leaves<typeof resources[typeof defaultLang]>
 
 export const defaultLang: Locale = "en" as const;
 export const defaultNS: LocaleNamespace = "common";
@@ -33,11 +32,15 @@ i18next.use(AsyncStoragePlugin(defaultLang)).use(initReactI18next).init({
 	interpolation: {
 		escapeValue: false
 	},
-	nsSeparator: "."
+	nsSeparator: ":"
 });
 
-export default i18next;
+const t = i18next.t;
 
-export function t(k: LocaleKey, args?: { [x: string]: string }) {
-	return i18next.t(k, args);
-}
+export default t;
+
+// export default i18next;
+
+// export function t(k: LocaleKey, args?: { [x: string]: string }) {
+// 	return i18next.t(k, args);
+// }
