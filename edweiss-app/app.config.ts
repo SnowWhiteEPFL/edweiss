@@ -18,10 +18,10 @@ const config: ExpoConfig = {
 		"supportsTablet": true,
 		"bundleIdentifier": "com.edweiss",
 		"usesAppleSignIn": false,
+		"googleServicesFile": "./GoogleService-Info.plist",
 		"entitlements": {
 			"aps-environment": "production"
-		},
-		"googleServicesFile": "./GoogleService-Info.plist"
+		}
 	},
 	"android": {
 		"adaptiveIcon": {
@@ -29,12 +29,12 @@ const config: ExpoConfig = {
 			"backgroundColor": "#ffffff"
 		},
 		"package": "com.edweiss",
+		"googleServicesFile": "./google-services.json",
 		"permissions": [
 			"android.permission.ACCESS_COARSE_LOCATION",
 			"android.permission.ACCESS_FINE_LOCATION",
 			"android.permission.RECORD_AUDIO"
 		],
-		"googleServicesFile": "./google-services.json"
 	},
 	"web": {
 		"bundler": "metro",
