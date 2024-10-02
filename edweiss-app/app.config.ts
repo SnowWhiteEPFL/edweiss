@@ -20,7 +20,8 @@ const config: ExpoConfig = {
 		"usesAppleSignIn": false,
 		"entitlements": {
 			"aps-environment": "production"
-		}
+		},
+		"googleServicesFile": "./GoogleService-Info.plist"
 	},
 	"android": {
 		"adaptiveIcon": {
@@ -44,6 +45,7 @@ const config: ExpoConfig = {
 		"expo-router",
 		"@react-native-firebase/app",
 		"@react-native-firebase/app-check",
+		"@react-native-google-signin/google-signin",
 		[
 			"expo-build-properties",
 			{

@@ -8,7 +8,7 @@
     "ios": "expo start --ios",
     "test": "jest",
     "lint": "expo lint",
-	"tscheck": "tsc --noEmit"
+    "tscheck": "tsc --noEmit"
   },
   "jest": {
     "preset": "jest-expo"
@@ -22,6 +22,7 @@
     "@react-native-firebase/functions": "^20.5.0",
     "@react-native-firebase/messaging": "^20.5.0",
     "@react-native-firebase/storage": "^20.5.0",
+    "@react-native-google-signin/google-signin": "^13.1.0",
     "@react-navigation/native": "^6.0.2",
     "expo": "~51.0.28",
     "expo-build-properties": "~0.12.5",
