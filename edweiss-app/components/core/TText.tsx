@@ -23,7 +23,8 @@ export function TText({ style, light, dark, size = 'md', bold = false, lineHeigh
 					fontSize: computeSize(size, textSizes),
 					lineHeight: computeSize(size, lineHeightSizes),
 					fontWeight: bold ? 600 : 'normal',
-					textAlign: align
+					textAlign: align,
+					fontFamily: "Inter"
 				},
 				computeBoxModelSize(rest),
 				style

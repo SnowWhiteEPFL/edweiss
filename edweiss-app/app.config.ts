@@ -78,6 +78,12 @@ const config: ExpoConfig = {
 			{
 				"calendarPermission": "EdWeiss needs to access your calendar."
 			}
+		],
+		[
+			"expo-font",
+			{
+				"fonts": ["./assets/fonts/Inter.ttf"]
+			}
 		]
 	],
 	"experiments": {
