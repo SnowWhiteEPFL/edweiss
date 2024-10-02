@@ -13,6 +13,9 @@ const Header = ({ align = "center", ...props }: HeaderProps) => {
 	return <Stack.Screen
 		options={{
 			title: props.title,
+			headerTitleStyle: {
+				fontFamily: "Inter"
+			},
 			headerTitleAlign: align,
 			headerLeft: props.left,
 			headerRight: props.right,
