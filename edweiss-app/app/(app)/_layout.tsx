@@ -1,15 +1,25 @@
-import { Stack } from 'expo-router';
+import { TText } from '@/components/core/TText';
+import { TView } from '@/components/core/containers/TView';
+import { useAuth } from '@/contexts/auth';
+import { useUser } from '@/contexts/user';
+import { Redirect, Stack } from 'expo-router';
 import React from 'react';
 
-// function useAuth() {
-// 	return { authentified: true };
-// }
-
 const _layout = () => {
-	// const { authentified } = useAuth();
+	const { userLoggedIn, isLoading } = useAuth();
+	const { user, loaded } = useUser();
 
-	// if (!authentified)
-	// 	return <Redirect href={'/login' as Href} />
+	if (isLoading || !loaded) {
+		return <TView><TText>Loading authentification {JSON.stringify({ userLoggedIn, isLoading, user, loaded })}</TText></TView>;
+	}
+
+	if (!userLoggedIn) {
+		return <Redirect href="/login" />;
+	}
+
+	if (!user) {
+		return <Redirect href="/login" />;
+	}
 
 	return (
 		<Stack>

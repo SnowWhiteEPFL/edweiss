@@ -2,9 +2,10 @@ import Colors from '@/constants/Colors';
 import useTheme from '@/hooks/theme/useTheme';
 import { Theme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
-import { AuthContextProvider } from '@/contexts/AuthContext';
+import { AuthSessionProvider } from '@/contexts/auth';
+import { UserProvider } from '@/contexts/user';
 import * as SystemUI from 'expo-system-ui';
 
 // const Light: Theme = {
@@ -53,13 +54,16 @@ export default function RootLayout() {
 	}, [theme]);
 
 	return (
-		<AuthContextProvider>
-			<ThemeProvider value={ThemeObj}>
-				<Stack>
-					<Stack.Screen name="(app)" options={{ headerShown: false }} />
-					<Stack.Screen name="+not-found" />
-				</Stack>
-			</ThemeProvider>
-		</AuthContextProvider>
+		<AuthSessionProvider>
+			<UserProvider>
+				<ThemeProvider value={ThemeObj}>
+					<Stack>
+						<Stack.Screen name="(app)" options={{ headerShown: false }} />
+						<Stack.Screen name="login" options={{ headerShown: false }} />
+						<Stack.Screen name="+not-found" />
+					</Stack>
+				</ThemeProvider>
+			</UserProvider>
+		</AuthSessionProvider>
 	);
 }
