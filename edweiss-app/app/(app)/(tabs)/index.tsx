@@ -1,16 +1,17 @@
 
 import For from '@/components/core/For';
+import Header from '@/components/core/Header';
 import { TText } from '@/components/core/TText';
 import { TScrollView } from '@/components/core/containers/TScrollView';
 import { TTouchableOpacity } from '@/components/core/containers/TTouchableOpacity';
 import { TView } from '@/components/core/containers/TView';
 import FancyButton from '@/components/input/FancyButton';
 import { Collections, callFunction } from '@/config/firebase';
-import { t } from '@/config/i18config';
+import t from '@/config/i18config';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import Functions from '@/model/functions';
 import { Card, CardQuestion, Deck } from '@/model/memento';
-import { Stack, router } from 'expo-router';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 
 export default function HomeScreen() {
@@ -41,12 +42,7 @@ export default function HomeScreen() {
 
 	return (
 		<>
-			<Stack.Screen
-				options={{
-					title: "Home",
-					headerTitleAlign: "center"
-				}}
-			/>
+			<Header title='Home' />
 			<TScrollView>
 
 				{/* <TextInput value={name} onChangeText={n => setName(n)} placeholder='Deck name' placeholderTextColor={'#555'} style={{ borderWidth: 1, borderColor: '#777', padding: 8, color: 'white', borderRadius: 6 }}>
@@ -57,8 +53,11 @@ export default function HomeScreen() {
 					Create Deck
 				</FancyButton> */}
 
-				<FancyButton backgroundColor='base' mt={'md'} mb={'sm'} ml={'md'} mr={'md'} textColor='blue' onPress={call} icon='logo-firebase'>
+				{/* <FancyButton backgroundColor='base' mt={'md'} mb={'sm'} ml={'md'} mr={'md'} textColor='blue' onPress={call} icon='logo-firebase'>
 					{t("memento.create_deck")}
+				</FancyButton> */}
+				<FancyButton backgroundColor='blue' mt={'md'} mb={'sm'} ml={'md'} mr={'md'} textColor='crust' onPress={call} icon='logo-firebase'>
+					{t("memento:create-deck")}
 				</FancyButton>
 
 				{/* {
@@ -78,7 +77,7 @@ export default function HomeScreen() {
 function DeckDisplay({ deck, id }: { deck: Deck, id: string }) {
 	return (
 		<TTouchableOpacity bb={0} onPress={() => router.push(`/deck/${id}`)} m='md' mt={'sm'} mb={'sm'} p='lg' backgroundColor='base' borderColor='crust' radius='lg'>
-			<TText>
+			<TText bold>
 				{deck.name}
 			</TText>
 			<TText mb='md' color='subtext0' size={'sm'}>

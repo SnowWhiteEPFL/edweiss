@@ -1,12 +1,17 @@
 
+import Header from '@/components/core/Header'
 import { TText } from '@/components/core/TText'
 import React from 'react'
 
 const profile = () => {
 	return (
-		<TText>
-			My profile page
-		</TText>
+		<>
+			<Header title={"Profile"} />
+
+			<TText>
+				My profile page
+			</TText>
+		</>
 	)
 }
 
