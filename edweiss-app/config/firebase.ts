@@ -5,6 +5,14 @@ import storage from '@react-native-firebase/storage';
 
 import { CallResult, FirebaseFunction } from '@/model/functions';
 import { Deck } from '@/model/memento';
+import { AppUser } from '@/model/users';
+
+import {
+	GoogleSignin,
+	isErrorWithCode,
+	isSuccessResponse,
+	statusCodes
+} from '@react-native-google-signin/google-signin';
 
 export function signOut() {
 	return auth().signOut();
@@ -45,7 +53,8 @@ export function CollectionCast<Type extends DocumentData>(col: Collection<any>) 
 }
 
 export const Collections = {
-	deck: CollectionOf<Deck>("decks")
+	deck: CollectionOf<Deck>("decks"),
+	users: CollectionOf<AppUser>("users")
 }
 
 export async function getDocument<Type extends DocumentData>(collection: Collection<Type>, id: string) {
@@ -70,3 +79,30 @@ export interface Document<Type> {
 export function DocumentOf<Type extends DocumentData>(v: FirebaseFirestoreTypes.DocumentSnapshot<Type>): Document<Type> {
 	return { id: v.id, data: v.data() as Type };
 }
+
+export const signInWithGoogle = async () => {
+	try {
+		await GoogleSignin.hasPlayServices();
+		const response = await GoogleSignin.signIn();
+		if (isSuccessResponse(response)) {
+			return response;
+		} else {
+			return undefined;
+		}
+	} catch (error) {
+		if (isErrorWithCode(error)) {
+			switch (error.code) {
+				case statusCodes.IN_PROGRESS:
+					// operation (eg. sign in) already in progress
+					break;
+				case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+					// Android only, play services not available or outdated
+					break;
+				default:
+				// some other error happened
+			}
+		} else {
+			// an error that's not related to google sign in occurred
+		}
+	}
+};
