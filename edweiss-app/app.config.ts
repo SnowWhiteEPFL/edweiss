@@ -18,7 +18,7 @@ const config: ExpoConfig = {
 		"supportsTablet": true,
 		"bundleIdentifier": "com.edweiss",
 		"usesAppleSignIn": false,
-		"googleServicesFile": "./GoogleService-Info.plist",
+		"googleServicesFile": process.env.GOOGLE_SERVICES_IOS,// "./GoogleService-Info.plist",
 		"entitlements": {
 			"aps-environment": "production"
 		}
@@ -29,7 +29,7 @@ const config: ExpoConfig = {
 			"backgroundColor": "#ffffff"
 		},
 		"package": "com.edweiss",
-		"googleServicesFile": "./google-services.json",
+		"googleServicesFile": process.env.GOOGLE_SERVICES_ANDROID, // "./google-services.json",
 		"permissions": [
 			"android.permission.ACCESS_COARSE_LOCATION",
 			"android.permission.ACCESS_FINE_LOCATION",
