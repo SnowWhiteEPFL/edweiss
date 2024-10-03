@@ -5,7 +5,7 @@ import { useOptionalColor, useOptionalThemeColor } from '@/hooks/theme/useThemeC
 
 export type TViewProps = ViewProps & ContainerProps;
 
-export function TView({ backgroundColor, style, ...props }: TViewProps) {
+export default function TView({ backgroundColor, style, ...props }: TViewProps) {
 	const computedBackgroundColor = useOptionalThemeColor({ light: props.light, dark: props.dark }, backgroundColor);
 	const computedBorderColor = useOptionalColor(props.borderColor);
 

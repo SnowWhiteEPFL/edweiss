@@ -1,6 +1,6 @@
 
 import React, { ReactNode } from 'react';
-import { TActivityIndicator, TActivityIndicatorProps } from './TActivityIndicator';
+import TActivityIndicator, { TActivityIndicatorProps } from './TActivityIndicator';
 
 export default function For<T>(props: { each: T[] | undefined, children: (item: T, index: number) => ReactNode, loader?: TActivityIndicatorProps, fallback?: ReactNode }) {
 	if (!props.each) {

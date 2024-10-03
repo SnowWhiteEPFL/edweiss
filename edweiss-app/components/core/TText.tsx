@@ -12,7 +12,7 @@ export type TTextProps = TextProps & LightDarkProps & BoxModelProps & {
 	align?: "auto" | "left" | "right" | "center" | "justify"
 }
 
-export function TText({ style, light, dark, size = 'md', bold = false, lineHeight = 'md', color = 'text', align, ...rest }: TTextProps) {
+export default function TText({ style, light, dark, size = 'md', bold = false, lineHeight = 'md', color = 'text', align, ...rest }: TTextProps) {
 	const computedColor = useThemeColor({ light, dark }, color);
 
 	return (

@@ -9,7 +9,7 @@ export type TActivityIndicatorProps = ActivityIndicatorProps & LightDarkProps & 
 	size?: Size,
 }
 
-export function TActivityIndicator({ style, light, dark, color = 'text', ...rest }: TActivityIndicatorProps) {
+export default function TActivityIndicator({ style, light, dark, color = 'text', ...rest }: TActivityIndicatorProps) {
 	const computedColor = useThemeColor({ light, dark }, color);
 
 	return (

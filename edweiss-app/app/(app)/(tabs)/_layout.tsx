@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import TabBarIcon from '@/components/navigation/TabBarIcon';
 import Colors from '@/constants/Colors';
 import useTheme from '@/hooks/theme/useTheme';
 
@@ -13,6 +13,9 @@ export default function TabLayout() {
 			screenOptions={{
 				tabBarActiveTintColor: Colors[theme].blue,
 				headerShown: true,
+				tabBarLabelStyle: {
+					fontFamily: "Inter"
+				}
 			}}>
 			<Tabs.Screen
 				name="index"

@@ -1,5 +1,6 @@
-import { TText } from '@/components/core/TText';
-import { TView } from '@/components/core/containers/TView';
+
+import TView from '@/components/core/containers/TView';
+import TText from '@/components/core/TText';
 import { useAuth } from '@/contexts/auth';
 import { useUser } from '@/contexts/user';
 import { Redirect, Stack } from 'expo-router';

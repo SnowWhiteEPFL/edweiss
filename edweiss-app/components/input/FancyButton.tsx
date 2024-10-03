@@ -3,9 +3,9 @@ import { MarginProps, computeMargins } from '@/constants/Sizes'
 import { ContainerStyle, IconType } from '@/constants/Style'
 import { ReactNode, useState } from 'react'
 import Icon from '../core/Icon'
-import { TActivityIndicator } from '../core/TActivityIndicator'
-import { TText } from '../core/TText'
-import { TTouchableOpacity } from '../core/containers/TTouchableOpacity'
+import TActivityIndicator from '../core/TActivityIndicator'
+import TText from '../core/TText'
+import TTouchableOpacity from '../core/containers/TTouchableOpacity'
 
 interface FancyButtonProps {
 	backgroundColor?: Color,
@@ -39,7 +39,7 @@ const FancyButton = ({ backgroundColor = 'blue', textColor = 'crust', outlined, 
 	}
 
 	return (
-		<TTouchableOpacity onPress={onPress} disabled={loading || props.disabled} backgroundColor={computedBackgroundColor} borderColor={computedBackgroundColor} flex flexDirection='row' justifyContent='center' columnGap={'md'} alignItems='center' radius={'xl'} pt={12} pb={12} b={computedBorderWidth} style={[computeMargins(props), props.style]} testID='pressable'>
+		<TTouchableOpacity onPress={onPress} disabled={loading || props.disabled} backgroundColor={computedBackgroundColor} borderColor={computedBackgroundColor} flexDirection='row' justifyContent='center' columnGap={'md'} alignItems='center' radius={'xl'} pt={12} pb={12} b={computedBorderWidth} style={[computeMargins(props), props.style]} testID='pressable'>
 			{
 				loading ?
 					<TActivityIndicator size={24} color={computedTextColor} /> :

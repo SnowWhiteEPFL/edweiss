@@ -1,6 +1,6 @@
-import Header from '@/components/core/Header'
-import { TText } from '@/components/core/TText'
-import { TView } from '@/components/core/containers/TView'
+import TText from '@/components/core/TText'
+import TView from '@/components/core/containers/TView'
+import Header from '@/components/core/header/Header'
 import FancyButton from '@/components/input/FancyButton'
 import { callFunction, signInWithGoogle } from '@/config/firebase'
 import { useAuth } from '@/contexts/auth'
@@ -15,9 +15,12 @@ const index = () => {
 
 	async function signIn() {
 		setLoading(true);
+
 		const res = await signInWithGoogle();
+
 		if (res != undefined) {
 			const accountRes = await callFunction(Functions.createAccount, { name: res.user.displayName });
+
 			if (accountRes.status == 1) {
 				router.replace("/");
 			} else {

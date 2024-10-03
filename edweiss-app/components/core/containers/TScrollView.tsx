@@ -5,7 +5,7 @@ import { useOptionalColor, useOptionalThemeColor } from '@/hooks/theme/useThemeC
 
 export type TScrollViewProps = ScrollViewProps & ContainerProps;
 
-export function TScrollView({ style, ...props }: TScrollViewProps) {
+export default function TScrollView({ style, ...props }: TScrollViewProps) {
 	const computedBackgroundColor = useOptionalThemeColor({ light: props.light, dark: props.dark }, props.backgroundColor);
 	const computedBorderColor = useOptionalColor(props.borderColor);
 

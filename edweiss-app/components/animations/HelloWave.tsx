@@ -6,7 +6,7 @@ import Animated, {
 	withSequence,
 	withTiming,
 } from 'react-native-reanimated';
-import { TText } from '../core/TText';
+import TText from '../core/TText';
 
 export function HelloWave() {
 	const rotationAnimation = useSharedValue(0);
