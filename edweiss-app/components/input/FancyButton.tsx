@@ -22,7 +22,7 @@ interface FancyButtonProps {
 	disableInnerLoading?: boolean
 }
 
-const FancyButton = ({ backgroundColor = 'base', textColor = 'blue', outlined, ...props }: FancyButtonProps & MarginProps) => {
+const FancyButton = ({ backgroundColor = 'blue', textColor = 'crust', outlined, ...props }: FancyButtonProps & MarginProps) => {
 	const [innerLoading, setLoading] = useState(false);
 
 	const loading = (innerLoading && props.disableInnerLoading != true) || props.loading;
