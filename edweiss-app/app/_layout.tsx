@@ -6,7 +6,9 @@ import React, { useEffect } from 'react';
 
 import { AuthSessionProvider } from '@/contexts/auth';
 import { UserProvider } from '@/contexts/user';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import * as SystemUI from 'expo-system-ui';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // const Light: Theme = {
 // 	dark: false,
@@ -57,11 +59,15 @@ export default function RootLayout() {
 		<AuthSessionProvider>
 			<UserProvider>
 				<ThemeProvider value={ThemeObj}>
-					<Stack>
-						<Stack.Screen name="(app)" options={{ headerShown: false }} />
-						<Stack.Screen name="login" options={{ headerShown: false }} />
-						<Stack.Screen name="+not-found" />
-					</Stack>
+					<GestureHandlerRootView style={{ flex: 1 }}>
+						<BottomSheetModalProvider>
+							<Stack>
+								<Stack.Screen name="(app)" options={{ headerShown: false }} />
+								<Stack.Screen name="login" options={{ headerShown: false }} />
+								<Stack.Screen name="+not-found" />
+							</Stack>
+						</BottomSheetModalProvider>
+					</GestureHandlerRootView>
 				</ThemeProvider>
 			</UserProvider>
 		</AuthSessionProvider>

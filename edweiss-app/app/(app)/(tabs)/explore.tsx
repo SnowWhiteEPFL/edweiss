@@ -1,19 +1,30 @@
 
-import Header from '@/components/core/Header';
-import { TText } from '@/components/core/TText';
-import { TView } from '@/components/core/containers/TView';
+import TText from '@/components/core/TText';
+import Header from '@/components/core/header/Header';
+import ModalContainer from '@/components/core/modal/ModalContainer';
+import FancyButton from '@/components/input/FancyButton';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useRef } from 'react';
 
 export default function TabTwoScreen() {
+	const modalRef = useRef<BottomSheetModal>(null);
+
 	return (
 		<>
 			<Header title={"Explore"} />
 
-			<TView>
-				<TText bold size={'xl'}>Explore</TText>
+			<FancyButton onPress={() => modalRef.current?.present()}>
+				Open Modal
+			</FancyButton>
+
+			<ModalContainer modalRef={modalRef}>
 				<TText>
-					Please modify me and experiment with me !
+					Hello, I'm a Modal !
 				</TText>
-			</TView>
+				<FancyButton backgroundColor='red' onPress={() => modalRef.current?.close()}>
+					Close modal
+				</FancyButton>
+			</ModalContainer>
 		</>
 	);
 }
