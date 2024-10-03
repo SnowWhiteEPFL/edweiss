@@ -2,6 +2,7 @@
 import admin = require('firebase-admin');
 
 import { DocumentData, OrderByDirection, WhereFilterOp } from 'firebase-admin/firestore';
+import { AppUser } from '../model/users';
 
 export interface Document<Type> {
 	data: Type,
@@ -42,7 +43,7 @@ export function CollectionOf<Type extends DocumentData>(path: string): Collectio
 }
 
 export const Collections = {
-	// users: CollectionOf<AppUser>("users")
+	users: CollectionOf<AppUser>("users")
 }
 
 export function query<Type extends DocumentData>(collection: Collection<Type>, ...constraints: QueryConstraint<Type>[]) {

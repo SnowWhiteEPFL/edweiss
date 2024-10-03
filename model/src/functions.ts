@@ -26,9 +26,10 @@ export interface FailedCallResult<Error> {
 
 export type CallResult<R, E> = SuccessfulCallResult<R> | FailedCallResult<E>;
 
-const Functions = {
-	helloWorld: FunctionOf<{ request: string }, { message: string }, 'request_empty'>("helloWorld"),
-	createDeck: FunctionOf<{ deck: Deck }, { id: string }, 'empty_deck'>("createDeck"),
+export namespace Functions {
+	export const helloWorld = FunctionOf<{ request: string }, { message: string }, 'request_empty'>("helloWorld");
+	export const createDeck = FunctionOf<{ deck: Deck }, { id: string }, 'empty_deck'>("createDeck");
+	export const createAccount = FunctionOf<{ name: string }, {}, 'already_existing_account'>("createAccount");
 }
 
 export default Functions;
