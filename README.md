@@ -29,5 +29,21 @@ This represents all the core types and functions of the app, any changes to this
 
 Also, please turn on VSCode formatting !
 
+## 📋 Branch Naming Conventions
+
+- _**feature**/feature-name_  :  This type of commit indicates the addition of a new feature to the code. It can be a major or minor new feature.
+  
+- _**bugfix**/issue-number_  :  Used when a bug fix is made. It solves an existing problem in the code.
+  
+- _**documentation**/documented-feature-name_  :  This type is used for documentation-related changes. It does not involve changes to the source code, but rather to README files, comments or other documents.
+  
+- _**codestyle**/reformated-feature-name_  :  Represents formatting changes that do not affect the logic of the code. This includes the correction of indentation, the addition or deletion of spaces, or formatting adjustments in the code.
+  
+- _**refractoring**/modified_structure_  :  Used when you modify the structure of the code without changing its behavior. This is typically done to improve readability, maintainability or code architecture.
+  
+- _**tests**/[unit , ui]/tested-element_  :  This concerns additions or modifications to tests. This includes writing new tests, modifying existing tests, or correcting tests.
+  
+- _**chore**/dependancies_  :  Used for changes that do not concern functionality or bug fixes or bug fixes, but are necessary for the project to run smoothly. This may include updates to dependencies, configurations or scripts.
+
 ## 📚 Ressources
 Check our [Figma](https://www.figma.com/design/BBD2dqgIbEF96IhNpyv7MW/EdWeiss?node-id=0-1&t=qQd63l3nEltoppuT-1) design.
