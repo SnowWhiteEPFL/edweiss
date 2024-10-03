@@ -4,8 +4,10 @@ import React, { ReactNode } from 'react'
 interface HeaderProps {
 	title?: string,
 	align?: "center" | "left",
-	left?: (props: { canGoBack: boolean, tintColor?: string | undefined }) => ReactNode,
-	right?: (props: { canGoBack: boolean, tintColor?: string | undefined }) => ReactNode,
+	// left?: (props: { canGoBack: boolean, tintColor?: string | undefined }) => ReactNode,
+	// right?: (props: { canGoBack: boolean, tintColor?: string | undefined }) => ReactNode,
+	left?: ReactNode,
+	right?: ReactNode,
 	disabled?: boolean
 }
 
@@ -17,8 +19,10 @@ const Header = ({ align = "center", ...props }: HeaderProps) => {
 				fontFamily: "Inter"
 			},
 			headerTitleAlign: align,
-			headerLeft: props.left,
-			headerRight: props.right,
+			// headerLeft: props.left,
+			// headerRight: props.right,
+			headerLeft: _ => props.left,
+			headerRight: _ => props.right,
 			headerShown: props.disabled != true,
 			headerShadowVisible: false
 		}}
