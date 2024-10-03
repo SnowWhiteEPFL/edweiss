@@ -77,10 +77,18 @@ export function useDynamicDocs<Type extends DocumentData>(query: Query<Type>) {
 	const [documents, setDocuments] = useState<Document<Type>[]>();
 
 	useEffect(() => {
+		getDocuments(query).then(docs => setDocuments(docs));
+
+		let firstTime = true;
 		const unsubscribe = query.onSnapshot(querySnapshot => {
+			if (firstTime == true) {
+				firstTime = false;
+				return;
+			}
+
 			setDocuments(querySnapshot.docs.map(DocumentOf<Type>));
 		}, error => {
-			console.log("ERROR: " + error);
+			console.log(`Snapshot Error: ${error}`);
 		});
 		return unsubscribe;
 	}, []);
