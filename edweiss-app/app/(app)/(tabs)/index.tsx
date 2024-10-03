@@ -8,24 +8,26 @@ import { TView } from '@/components/core/containers/TView';
 import FancyButton from '@/components/input/FancyButton';
 import { Collections, callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
+import Colors from '@/constants/Colors';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import Functions from '@/model/functions';
 import { Card, CardQuestion, Deck } from '@/model/memento';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
+import { TextInput } from 'react-native';
 
 export default function HomeScreen() {
-	const [name, setName] = useState("");
+	const [deckName, setDeckName] = useState("");
 
 	const decks = useDynamicDocs(Collections.deck);
 
 	async function call() {
-		if (name.length == 0)
+		if (deckName.length == 0)
 			return;
 
 		const res = await callFunction(Functions.createDeck, {
 			deck: {
-				name,
+				name: deckName,
 				cards: [
 					{
 						question: { type: "text", text: "What's the radius of the earth ?" },
@@ -42,29 +44,15 @@ export default function HomeScreen() {
 
 	return (
 		<>
-			<Header title='Home' />
+			<Header title={"Home"} />
 			<TScrollView>
+				<TextInput value={deckName} onChangeText={n => setDeckName(n)} placeholder='Deck name' placeholderTextColor={'#555'} style={{ borderWidth: 1, borderColor: Colors.dark.overlay0, padding: 8, paddingHorizontal: 16, margin: 16, marginBottom: 0, color: 'white', borderRadius: 14, fontFamily: "Inter" }}>
 
-				{/* <TextInput value={name} onChangeText={n => setName(n)} placeholder='Deck name' placeholderTextColor={'#555'} style={{ borderWidth: 1, borderColor: '#777', padding: 8, color: 'white', borderRadius: 6 }}>
+				</TextInput>
 
-				</TextInput> */}
-
-				{/* <FancyButton disabled={name.length == 0} m={'xs'} onPress={call} icon='logo-firebase'>
-					Create Deck
-				</FancyButton> */}
-
-				{/* <FancyButton backgroundColor='base' mt={'md'} mb={'sm'} ml={'md'} mr={'md'} textColor='blue' onPress={call} icon='logo-firebase'>
-					{t("memento.create_deck")}
-				</FancyButton> */}
 				<FancyButton backgroundColor='blue' mt={'md'} mb={'sm'} ml={'md'} mr={'md'} textColor='crust' onPress={call} icon='logo-firebase'>
 					{t("memento:create-deck")}
 				</FancyButton>
-
-				{/* {
-					decks ?
-						decks.map(deck => <DeckDisplay key={deck.id} deck={deck.data} id={deck.id} />) :
-						<TActivityIndicator size={40} />
-				} */}
 
 				<For each={decks}>
 					{deck => <DeckDisplay key={deck.id} deck={deck.data} id={deck.id} />}

@@ -1,16 +1,27 @@
 
 import Header from '@/components/core/Header'
 import { TText } from '@/components/core/TText'
+import { TView } from '@/components/core/containers/TView'
+import FancyButton from '@/components/input/FancyButton'
+import { signOut } from '@/config/firebase'
+import { useUser } from '@/contexts/user'
 import React from 'react'
 
 const profile = () => {
+	const { user } = useUser();
 	return (
 		<>
 			<Header title={"Profile"} />
 
-			<TText>
-				My profile page
-			</TText>
+			<TView p={'md'}>
+				<TText mb={'md'}>
+					Connected as: {user.name}
+				</TText>
+
+				<FancyButton backgroundColor='red' icon='log-out' onPress={signOut}>
+					Disconnect
+				</FancyButton>
+			</TView>
 		</>
 	)
 }
