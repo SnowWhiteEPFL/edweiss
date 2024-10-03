@@ -1,5 +1,6 @@
-import { TText } from '@/components/core/TText';
-import { TView } from '@/components/core/containers/TView';
+
+import TView from '@/components/core/containers/TView';
+import TText from '@/components/core/TText';
 import { Link, Stack } from 'expo-router';
 import { StyleSheet } from 'react-native';
 
