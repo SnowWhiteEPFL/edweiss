@@ -14,7 +14,7 @@ export type AlignItems = "center" | "flex-start" | "flex-end" | "stretch" | "bas
 export type ContainerProps = & LightDarkProps & BoxModelProps & {
 	backgroundColor?: Color,
 	borderColor?: Color,
-	flex?: boolean,
+	flex?: number,
 	flexDirection?: FlexDirection,
 	justifyContent?: JustifyContent,
 	alignItems?: AlignItems,
@@ -28,7 +28,8 @@ export type ContainerStyle = StyleProp<ViewStyle>
 export function computeContainerStyle(props: ContainerProps, backgroundColor: string | undefined, borderColor: string | undefined): ContainerStyle {
 	return {
 		backgroundColor,
-		display: props.flex ? 'flex' : undefined,
+		flex: props.flex,
+		display: props.flexDirection != undefined ? 'flex' : undefined,
 		flexDirection: props.flexDirection,
 		borderRadius: computeSizeOpt(props.radius, radiusSizes),
 		borderColor,
