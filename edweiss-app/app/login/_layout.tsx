@@ -7,7 +7,7 @@ const _layout = () => {
 	const { user } = useUser();
 
 	if (user != undefined)
-		return <Redirect href="/(app)/(tabs)/explore" />;
+		return <Redirect href="/" />;
 
 	return <Stack />
 }
