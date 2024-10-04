@@ -10,7 +10,7 @@
 		"prefix": ["rnce"],
 		"body": [
 			"import ReactComponent from '@/constants/Component';",
-			"import TText from '@/components/core/containers/TText';",
+			"import TText from '@/components/core/TText';",
 			"import TView from '@/components/core/containers/TView';",
 			"",
 			"const ${1:$TM_FILENAME_BASE}: ReactComponent<{$2}> = (props) => {",
