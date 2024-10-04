@@ -27,6 +27,32 @@
 		"scope": "typescriptreact"
 	},
 
+	"React Native page": {
+		"prefix": ["rnp"],
+		"body": [
+			"import {ReactPage} from '@/constants/Component';",
+			"import TText from '@/components/core/TText';",
+			"import TView from '@/components/core/containers/TView';",
+			"import Header from '@/components/core/header/Header';",
+			"",
+			"const ${1:$TM_FILENAME_BASE}: ReactPage = (props) => {",
+				"\treturn (",
+					"\t\t<>"
+					"\t\t\t<Header title='$1'/>"
+					"\t\t\t"
+					"\t\t\t<TView>",
+						"\t\t\t\t<TText>Page $1</TText>",
+					"\t\t\t</TView>",
+					"\t\t</>"
+				"\t)",
+			"}",
+			"",
+			"export default ${1:$TM_FILENAME_BASE}"
+		],
+		"description": "React Native component with props",
+		"scope": "typescriptreact"
+	},
+
 	"Quick useState Hook": {
 		"prefix": ["us"],
 		"body": [
