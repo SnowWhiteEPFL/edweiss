@@ -1,0 +1,9 @@
+{
+	"editor.defaultFormatter": "vscode.typescript-language-features",
+	"editor.formatOnPaste": true,
+	"editor.formatOnSave": true,
+	"editor.codeActionsOnSave": {
+		"source.addMissingImports": "always",
+		"source.organizeImports": "always"
+	}
+}
