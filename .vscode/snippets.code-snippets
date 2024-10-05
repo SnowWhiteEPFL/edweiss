@@ -1,7 +1,13 @@
 {
 	"React Native component with props": {
 		"prefix": ["rnc"],
-		"body": ["const ${1:Component}: ReactComponent<{$2}> = (props) => {", "\treturn <>$0</>", "}"],
+		"body": [
+			"const ${1:Component}: ReactComponent<{$2}> = (props) => {",
+			"\treturn (",
+				"\t\t<>$0</>"
+			"\t);",
+			"};"
+		],
 		"description": "React Native component with props",
 		"scope": "typescriptreact"
 	},
@@ -10,6 +16,7 @@
 		"prefix": ["rnce"],
 		"body": [
 			"import ReactComponent from '@/constants/Component';",
+			"",
 			"import TText from '@/components/core/TText';",
 			"import TView from '@/components/core/containers/TView';",
 			"",
@@ -18,36 +25,39 @@
 					"\t\t<TView>",
 						"\t\t\t<TText>$1</TText>",
 					"\t\t</TView>",
-				"\t)",
-			"}",
+				"\t);",
+			"};",
 			"",
-			"export default ${1:$TM_FILENAME_BASE}"
+			"export default ${1:$TM_FILENAME_BASE};",
+			""
 		],
 		"description": "React Native component with props",
 		"scope": "typescriptreact"
 	},
 
 	"React Native page": {
-		"prefix": ["rnp"],
+		"prefix": ["rnr"],
 		"body": [
-			"import {ReactPage} from '@/constants/Component';",
+			"import RouteHeader from '@/components/core/header/RouteHeader';",
+			"import { ApplicationRoute } from '@/constants/Component';",
+			""
 			"import TText from '@/components/core/TText';",
 			"import TView from '@/components/core/containers/TView';",
-			"import Header from '@/components/core/header/Header';",
 			"",
-			"const ${1:$TM_FILENAME_BASE}: ReactPage = (props) => {",
+			"const Route: ApplicationRoute = () => {",
 				"\treturn (",
 					"\t\t<>"
-					"\t\t\t<Header title='$1'/>"
+					"\t\t\t<RouteHeader title='$1'/>"
 					"\t\t\t"
 					"\t\t\t<TView>",
 						"\t\t\t\t<TText>Page $1</TText>",
 					"\t\t\t</TView>",
 					"\t\t</>"
-				"\t)",
-			"}",
+				"\t);",
+			"};",
 			"",
-			"export default ${1:$TM_FILENAME_BASE}"
+			"export default Route;",
+			""
 		],
 		"description": "React Native component with props",
 		"scope": "typescriptreact"
@@ -59,22 +69,21 @@
 			"const [ ${1}, set${1/(.*)/${1:/capitalize}/} ] = useState($2);"
 		],
 		"description": "React / React Native useState hook",
-		"scope": "typescriptreact"
+		"scope": ["typescript", "typescriptreact"]
 	},
 
 	"Basic Firebase cloud function": {
 		"prefix": ["cfunc"],
 		"body": [
-			"import Functions from '../model/functions';",
-			"import { onAuthentifiedCall } from '../utils/firebase';",
-			"import { ok } from '../utils/status';",
+			"import { onAuthentifiedCall } from 'utils/firebase';",
+			"import { ok } from 'utils/status';",
 			"",
-			"const $1 = onAuthentifiedCall(Functions.$1, async (userId, args) => {",
-			"\treturn ok({})",
-			"});",
-			"",
-			"export default $1;"
+			"export const $TM_FILENAME_BASE = onAuthentifiedCall($1, async (userId, args) => {",
+				"\treturn ok({});",
+			"});"
+			""
 		],
-		"description": "React Native component with props"
+		"description": "React Native component with props",
+		"scope": "typescript"
 	}
 }
