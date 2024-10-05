@@ -2,7 +2,7 @@
 	"version": "2.0.0",
     "tasks": [
         {
-            "label": "⟳ Update model - EdWeiss",
+            "label": "⟳ Update model on Linux - EdWeiss",
 			"detail": "Copies the model folder into the application and cloud functions",
             "command": "cd model; ./update.sh",
             "type": "shell",
@@ -17,7 +17,7 @@
 			}
         },
 		{
-            "label": "⟳ Update model on WINDOWS - EdWeiss",
+            "label": "⟳ Update model on Windows - EdWeiss",
 			"detail": "Copies the model folder into the application and cloud functions",
             "command": "cd model; ./update-windows.sh",
             "type": "shell",

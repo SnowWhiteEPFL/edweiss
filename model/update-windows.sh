@@ -1,6 +1,4 @@
 
-@echo off
-
 rmdir /S /Q ../edweiss-app/model
 xcopy "src\." "../edweiss-app/model/" /E /I
 for /r ../edweiss-app/model/ %%f in (*) do ( icacls "%%f" /deny *S-1-1-0:(W) )
