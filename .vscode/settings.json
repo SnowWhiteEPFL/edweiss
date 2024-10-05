@@ -5,5 +5,10 @@
 	"editor.codeActionsOnSave": {
 		"source.addMissingImports": "always",
 		"source.organizeImports": "always"
-	}
+	},
+	"files.readonlyFromPermissions": true,
+	"typescript.preferences.quoteStyle": "single",
+	"git.autofetch": true,
+	"editor.tabSize": 4,
+	"typescript.format.semicolons": "remove"
 }
