@@ -25,7 +25,7 @@ type FancyButtonProps = MarginProps & {
 };
 
 const FancyButton: ReactComponent<FancyButtonProps> = ({ backgroundColor = 'blue', textColor = 'crust', outlined, ...props }) => {
-	const [innerLoading, setLoading] = useState(false);
+	const [innerLoading, setInnerLoading] = useState(false);
 
 	const loading = (innerLoading && props.disableInnerLoading != true) || props.loading;
 
@@ -34,10 +34,10 @@ const FancyButton: ReactComponent<FancyButtonProps> = ({ backgroundColor = 'blue
 	const computedBorderWidth = outlined ? 1 : 1;
 
 	async function onPress() {
-		// setLoading(true);
+		// setInnerLoading(true);
 		if (props.onPress)
 			await props.onPress();
-		// setLoading(false);
+		// setInnerLoading(false);
 	}
 
 	return (
