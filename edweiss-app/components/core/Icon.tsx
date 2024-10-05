@@ -1,3 +1,5 @@
+import ReactComponent from '@/constants/Component';
+
 import { Color } from '@/constants/Colors';
 import { MarginProps, PredefinedSizes, Size, computeMargins, computeSize } from '@/constants/Sizes';
 import { IconType } from '@/constants/Style';
@@ -12,20 +14,22 @@ export type IconProps = MarginProps & Testable & {
 	color?: Color,
 	light?: string,
 	dark?: string,
-	style?: StyleProp<TextStyle>
+	style?: StyleProp<TextStyle>;
 };
 
-export default function Icon({ name, size = 16, color = 'subtext0', light, dark, style, testID, ...rest }: IconProps) {
+const Icon: ReactComponent<IconProps> = ({ name, size = 16, color = 'subtext0', light, dark, style, testID, ...props }) => {
 	const computedColor = useThemeColor({ light, dark }, color);
 
 	return <Ionicons
 		name={name}
 		size={computeSize(size, iconSizes)}
 		color={computedColor}
-		style={[computeMargins(rest), style]}
+		style={[computeMargins(props), style]}
 		testID={testID}
-	/>
-}
+	/>;
+};
+
+export default Icon;
 
 const iconSizes: PredefinedSizes = {
 	xs: 10,
@@ -33,4 +37,4 @@ const iconSizes: PredefinedSizes = {
 	md: 16,
 	lg: 20,
 	xl: 28
-}
+};

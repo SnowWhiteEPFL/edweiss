@@ -1,18 +1,19 @@
-import { Text, type TextProps } from 'react-native';
+import ReactComponent from '@/constants/Component';
 
 import { Color, LightDarkProps } from '@/constants/Colors';
 import { BoxModelProps, Size, computeBoxModelSize, computeSize, lineHeightSizes, textSizes } from '@/constants/Sizes';
 import useThemeColor from '@/hooks/theme/useThemeColor';
+import { Text, type TextProps } from 'react-native';
 
 export type TTextProps = TextProps & LightDarkProps & BoxModelProps & {
 	color?: Color,
 	size?: Size,
 	bold?: boolean,
 	lineHeight?: Size,
-	align?: "auto" | "left" | "right" | "center" | "justify"
-}
+	align?: "auto" | "left" | "right" | "center" | "justify";
+};
 
-export default function TText({ style, light, dark, size = 'md', bold = false, lineHeight = 'md', color = 'text', align, ...rest }: TTextProps) {
+const TText: ReactComponent<TTextProps> = ({ style, light, dark, size = 'md', bold = false, lineHeight = 'md', color = 'text', align, ...props }) => {
 	const computedColor = useThemeColor({ light, dark }, color);
 
 	return (
@@ -26,10 +27,12 @@ export default function TText({ style, light, dark, size = 'md', bold = false, l
 					textAlign: align,
 					fontFamily: "Inter"
 				},
-				computeBoxModelSize(rest),
+				computeBoxModelSize(props),
 				style
 			]}
-			{...rest}
+			{...props}
 		/>
 	);
-}
+};
+
+export default TText;

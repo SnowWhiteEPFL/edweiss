@@ -1,32 +1,25 @@
+import { ApplicationRoute } from '@/constants/Component';
 
-import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
-import { Link, Stack } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import TView from '@/components/core/containers/TView';
+import RouteHeader from '@/components/core/header/RouteHeader';
+import { Link } from 'expo-router';
+import React from 'react';
 
-export default function NotFoundScreen() {
+const NotFound: ApplicationRoute = () => {
 	return (
 		<>
-			<Stack.Screen options={{ title: 'Oops!' }} />
-			<TView style={styles.container}>
-				<TText bold size={'xl'}>This screen doesn't exist.</TText>
-				<Link href="/" style={styles.link}>
-					<TText size={'md'}>Go to home screen!</TText>
+			<RouteHeader title='Nope.' />
+
+			<TView flex={1} alignItems='center' justifyContent='center' p={20}>
+				<TText bold size={'xl'}>You typed the route wrong.</TText>
+
+				<Link href="/">
+					<TText mt={15} pt={15} pb={15} color='blue' size={'md'}>Go to home screen!</TText>
 				</Link>
 			</TView>
 		</>
 	);
-}
+};
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		alignItems: 'center',
-		justifyContent: 'center',
-		padding: 20,
-	},
-	link: {
-		marginTop: 15,
-		paddingVertical: 15,
-	},
-});
+export default NotFound;

@@ -1,28 +1,30 @@
-import { Color } from '@/constants/Colors'
-import { MarginProps, computeMargins } from '@/constants/Sizes'
-import { ContainerStyle, IconType } from '@/constants/Style'
-import { ReactNode, useState } from 'react'
-import Icon from '../core/Icon'
-import TActivityIndicator from '../core/TActivityIndicator'
-import TText from '../core/TText'
-import TTouchableOpacity from '../core/containers/TTouchableOpacity'
+import ReactComponent from '@/constants/Component';
 
-interface FancyButtonProps {
+import { Color } from '@/constants/Colors';
+import { MarginProps, computeMargins } from '@/constants/Sizes';
+import { ContainerStyle, IconType } from '@/constants/Style';
+import { ReactNode, useState } from 'react';
+import Icon from '../core/Icon';
+import TActivityIndicator from '../core/TActivityIndicator';
+import TText from '../core/TText';
+import TTouchableOpacity from '../core/containers/TTouchableOpacity';
+
+type FancyButtonProps = MarginProps & {
 	backgroundColor?: Color,
 	textColor?: Color,
 	style?: ContainerStyle,
 	icon?: IconType,
-	outlined?: boolean
+	outlined?: boolean;
 
 	onPress?(): Promise<void> | void,
 	children?: ReactNode,
 	loading?: boolean,
 	disabled?: boolean,
 
-	disableInnerLoading?: boolean
-}
+	disableInnerLoading?: boolean;
+};
 
-const FancyButton = ({ backgroundColor = 'blue', textColor = 'crust', outlined, ...props }: FancyButtonProps & MarginProps) => {
+const FancyButton: ReactComponent<FancyButtonProps> = ({ backgroundColor = 'blue', textColor = 'crust', outlined, ...props }) => {
 	const [innerLoading, setLoading] = useState(false);
 
 	const loading = (innerLoading && props.disableInnerLoading != true) || props.loading;
@@ -51,7 +53,7 @@ const FancyButton = ({ backgroundColor = 'blue', textColor = 'crust', outlined, 
 					</>
 			}
 		</TTouchableOpacity>
-	)
-}
+	);
+};
 
-export default FancyButton
+export default FancyButton;

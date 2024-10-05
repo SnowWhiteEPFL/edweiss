@@ -4,20 +4,19 @@ import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
-import Header from '@/components/core/header/Header';
+import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
 import { Collections, callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
 import Colors from '@/constants/Colors';
-import ReactComponent from '@/constants/Component';
+import ReactComponent, { ApplicationRoute } from '@/constants/Component';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
-import Functions from '@/model/functions';
-import { Card, CardQuestion, Deck } from '@/model/memento';
+import Memento from '@/model/memento';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { TextInput } from 'react-native';
 
-export default function HomeScreen() {
+const HomeTab: ApplicationRoute = () => {
 	const [deckName, setDeckName] = useState("");
 
 	const decks = useDynamicDocs(Collections.deck);
@@ -26,7 +25,7 @@ export default function HomeScreen() {
 		if (deckName.length == 0)
 			return;
 
-		const res = await callFunction(Functions.createDeck, {
+		const res = await callFunction(Memento.Functions.creation.createDeck, {
 			deck: {
 				name: deckName,
 				cards: [
@@ -45,7 +44,8 @@ export default function HomeScreen() {
 
 	return (
 		<>
-			<Header title={"Home"} />
+			<RouteHeader title={"Home"} />
+
 			<TScrollView>
 				<TextInput value={deckName} onChangeText={n => setDeckName(n)} placeholder='Deck name' placeholderTextColor={'#555'} style={{ borderWidth: 1, borderColor: Colors.dark.overlay0, padding: 8, paddingHorizontal: 16, margin: 16, marginBottom: 0, color: 'white', borderRadius: 14, fontFamily: "Inter" }}>
 
@@ -61,9 +61,11 @@ export default function HomeScreen() {
 			</TScrollView>
 		</>
 	);
-}
+};
 
-const DeckDisplay: ReactComponent<{ deck: Deck, id: string }> = ({ deck, id }) => {
+export default HomeTab;
+
+const DeckDisplay: ReactComponent<{ deck: Memento.Deck, id: string; }> = ({ deck, id }) => {
 	return (
 		<TTouchableOpacity bb={0} onPress={() => router.push(`/deck/${id}`)} m='md' mt={'sm'} mb={'sm'} p='lg' backgroundColor='base' borderColor='crust' radius='lg'>
 			<TText bold>
@@ -76,10 +78,10 @@ const DeckDisplay: ReactComponent<{ deck: Deck, id: string }> = ({ deck, id }) =
 				deck.cards.map(card => <CardDisplay key={card.answer} card={card} />)
 			}
 		</TTouchableOpacity>
-	)
-}
+	);
+};
 
-function CardDisplay({ card }: { card: Card }) {
+const CardDisplay: ReactComponent<{ card: Memento.Card; }> = ({ card }) => {
 	return (
 		<TView>
 			<QuestionDisplay question={card.question} />
@@ -87,23 +89,15 @@ function CardDisplay({ card }: { card: Card }) {
 				{card.answer}
 			</TText>
 		</TView>
-	)
-}
+	);
+};
 
-const index: ReactComponent<{}> = (props) => {
-	return (
-		<TView>
-			<TText>index</TText>
-		</TView>
-	)
-}
-
-function QuestionDisplay({ question }: { question: CardQuestion }) {
+const QuestionDisplay: ReactComponent<{ question: Memento.CardQuestion; }> = ({ question }) => {
 	if (question.type == 'text') {
 		return (
 			<TText>
 				{question.text}
 			</TText>
-		)
+		);
 	}
-}
+};

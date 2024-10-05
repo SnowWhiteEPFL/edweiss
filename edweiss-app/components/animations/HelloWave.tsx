@@ -1,3 +1,5 @@
+import ReactComponent from '@/constants/Component';
+
 import { StyleSheet } from 'react-native';
 import Animated, {
 	useAnimatedStyle,
@@ -8,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import TText from '../core/TText';
 
-export function HelloWave() {
+const HelloWave: ReactComponent<{}> = () => {
 	const rotationAnimation = useSharedValue(0);
 
 	rotationAnimation.value = withRepeat(
@@ -25,7 +27,9 @@ export function HelloWave() {
 			<TText style={styles.text}>👋</TText>
 		</Animated.View>
 	);
-}
+};
+
+export default HelloWave;
 
 const styles = StyleSheet.create({
 	text: {

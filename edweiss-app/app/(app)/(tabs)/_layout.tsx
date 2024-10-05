@@ -1,11 +1,12 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { ApplicationLayout } from '@/constants/Component';
 
 import TabBarIcon from '@/components/navigation/TabBarIcon';
 import Colors from '@/constants/Colors';
 import useTheme from '@/hooks/theme/useTheme';
+import { Tabs } from 'expo-router';
+import React from 'react';
 
-export default function TabLayout() {
+const TabLayout: ApplicationLayout = () => {
 	const theme = useTheme();
 
 	return (
@@ -46,4 +47,6 @@ export default function TabLayout() {
 			/>
 		</Tabs>
 	);
-}
+};
+
+export default TabLayout;

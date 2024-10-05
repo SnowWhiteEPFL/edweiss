@@ -1,7 +1,7 @@
 
-export type Theme = 'light' | 'dark';
+export type Theme = 'light' | 'dark'
 
-export type LightDarkProps = { light?: string, dark?: string };
+export type LightDarkProps = { light?: string, dark?: string }
 
 export type Color = keyof typeof Colors.light & keyof typeof Colors.dark
 
@@ -66,6 +66,6 @@ const Colors = {
 		mantle: "#181825",
 		crust: "#11111b"
 	},
-};
+}
 
-export default Colors;
+export default Colors

@@ -1,11 +1,12 @@
-import { ScrollView, type ScrollViewProps } from 'react-native';
+import ReactComponent from '@/constants/Component';
 
 import { ContainerProps, computeContainerStyle } from '@/constants/Style';
 import { useOptionalColor, useOptionalThemeColor } from '@/hooks/theme/useThemeColor';
+import { ScrollView, type ScrollViewProps } from 'react-native';
 
 export type TScrollViewProps = ScrollViewProps & ContainerProps;
 
-export default function TScrollView({ style, ...props }: TScrollViewProps) {
+const TScrollView: ReactComponent<TScrollViewProps> = ({ style, ...props }) => {
 	const computedBackgroundColor = useOptionalThemeColor({ light: props.light, dark: props.dark }, props.backgroundColor);
 	const computedBorderColor = useOptionalColor(props.borderColor);
 
@@ -18,31 +19,6 @@ export default function TScrollView({ style, ...props }: TScrollViewProps) {
 		}
 		{...props}
 	/>;
-}
+};
 
-// export function TScrollView({ style, light, dark, backgroundColor, flex, flexDirection, alignItems, justifyContent, radius, borderColor, ...rest }: TScrollViewProps) {
-// 	const computedBackgroundColor = useOptionalThemeColor({ light, dark }, backgroundColor);
-// 	const computedBorderColor = useOptionalColor(borderColor);
-
-// 	return <ScrollView
-// 		style={
-// 			[
-// 				// {
-// 				// 	backgroundColor: computedBackgroundColor,
-// 				// 	display: flex ? 'flex' : undefined,
-// 				// 	flexDirection,
-// 				// 	borderRadius: computeSizeOpt(radius, radiusSizes),
-// 				// 	borderColor: computedBorderColor,
-// 				// 	justifyContent,
-// 				// 	alignItems,
-// 				// 	rowGap: computeSizeOpt(rest.rowGap, gapSizes),
-// 				// 	columnGap: computeSizeOpt(rest.columnGap, gapSizes),
-// 				// },
-// 				computeContainerStyle(rest),
-// 				computeBoxModelSize(rest),
-// 				style
-// 			]
-// 		}
-// 		{...rest}
-// 	/>;
-// }
+export default TScrollView;

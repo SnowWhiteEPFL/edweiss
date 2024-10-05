@@ -1,3 +1,4 @@
+import { ApplicationLayout } from '@/constants/Component';
 
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
@@ -6,8 +7,8 @@ import { useUser } from '@/contexts/user';
 import { Redirect, Stack } from 'expo-router';
 import React from 'react';
 
-const _layout = () => {
-	const { userLoggedIn, isLoading } = useAuth();
+const AppLayout: ApplicationLayout = () => {
+	const { isUserLoggedIn: userLoggedIn, isLoading } = useAuth();
 	const { user, loaded } = useUser();
 
 	if (isLoading || !loaded) {
@@ -26,7 +27,7 @@ const _layout = () => {
 		<Stack>
 			<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 		</Stack>
-	)
-}
+	);
+};
 
-export default _layout
+export default AppLayout;

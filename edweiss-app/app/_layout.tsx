@@ -1,40 +1,17 @@
-import Colors from '@/constants/Colors';
-import useTheme from '@/hooks/theme/useTheme';
-import { Theme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import React, { useEffect } from 'react';
+import { ApplicationLayout } from '@/constants/Component';
 
+import Colors from '@/constants/Colors';
 import { AuthSessionProvider } from '@/contexts/auth';
 import { UserProvider } from '@/contexts/user';
+import useTheme from '@/hooks/theme/useTheme';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { Theme, ThemeProvider } from '@react-navigation/native';
+import { Stack } from 'expo-router';
 import * as SystemUI from 'expo-system-ui';
+import React, { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-// const Light: Theme = {
-// 	dark: false,
-// 	colors: {
-// 		background: Colors.light.mantle,
-// 		border: Colors.light.base,
-// 		card: Colors.light.base,
-// 		notification: Colors.light.blue,
-// 		primary: Colors.light.blue,
-// 		text: Colors.light.text
-// 	}
-// };
-
-// const Dark: Theme = {
-// 	dark: true,
-// 	colors: {
-// 		background: Colors.dark.mantle,
-// 		border: Colors.dark.base,
-// 		card: Colors.dark.base,
-// 		notification: Colors.dark.blue,
-// 		primary: Colors.dark.blue,
-// 		text: Colors.dark.text,
-// 	}
-// };
-
-export default function RootLayout() {
+const RootLayout: ApplicationLayout = () => {
 	const theme = useTheme();
 
 	const ThemeObj: Theme = {
@@ -47,7 +24,7 @@ export default function RootLayout() {
 			primary: Colors[theme].blue,
 			text: Colors[theme].text,
 		}
-	}
+	};
 
 	useEffect(() => {
 		(async () => {
@@ -72,4 +49,6 @@ export default function RootLayout() {
 			</UserProvider>
 		</AuthSessionProvider>
 	);
-}
+};
+
+export default RootLayout;

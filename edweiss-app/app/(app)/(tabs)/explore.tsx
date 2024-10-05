@@ -1,30 +1,21 @@
+import { ApplicationRoute } from '@/constants/Component';
 
 import TText from '@/components/core/TText';
-import Header from '@/components/core/header/Header';
-import ModalContainer from '@/components/core/modal/ModalContainer';
-import FancyButton from '@/components/input/FancyButton';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useRef } from 'react';
+import TView from '@/components/core/containers/TView';
+import RouteHeader from '@/components/core/header/RouteHeader';
 
-export default function TabTwoScreen() {
-	const modalRef = useRef<BottomSheetModal>(null);
-
+const ExploreTab: ApplicationRoute = () => {
 	return (
 		<>
-			<Header title={"Explore"} />
+			<RouteHeader title={"Explore"} />
 
-			<FancyButton onPress={() => modalRef.current?.present()}>
-				Open Modal
-			</FancyButton>
-
-			<ModalContainer modalRef={modalRef}>
+			<TView>
 				<TText>
-					Hello, I'm a Modal !
+					Explore and experiment in explore.tsx !
 				</TText>
-				<FancyButton backgroundColor='red' onPress={() => modalRef.current?.close()}>
-					Close modal
-				</FancyButton>
-			</ModalContainer>
+			</TView>
 		</>
 	);
-}
+};
+
+export default ExploreTab;

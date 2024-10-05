@@ -1,10 +1,12 @@
+import ReactComponent from '@/constants/Component';
+
 import { useColor } from '@/hooks/theme/useThemeColor';
 import useBottomSheetBackHandler from '@/hooks/useBottomSheetBackHandler';
-import { BottomSheetBackdrop, BottomSheetModal, BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { ReactNode, useCallback } from 'react';
 
-export default function ModalContainer(props: { snapPoints?: (string | number)[], modalRef: React.RefObject<BottomSheetModalMethods>, children?: ReactNode }) {
+const ModalContainer: ReactComponent<{ snapPoints?: (string | number)[], modalRef: React.RefObject<BottomSheetModalMethods>, children?: ReactNode; }> = (props) => {
 	const backgroundColor = useColor("mantle");
 	const handleIndicatorColor = useColor("base");
 
@@ -12,7 +14,7 @@ export default function ModalContainer(props: { snapPoints?: (string | number)[]
 
 	const renderBackdrop = useBackdrop();
 
-	const snapPoints = props.snapPoints == undefined ? [] : props.snapPoints;
+	const snapPoints = props.snapPoints ?? [];
 
 	return (
 		<BottomSheetModal
@@ -33,39 +35,41 @@ export default function ModalContainer(props: { snapPoints?: (string | number)[]
 			</BottomSheetView>
 		</BottomSheetModal>
 	);
-}
+};
 
-export function ModalContainerScrollView(props: { snapPoints?: (string | number)[], modalRef: React.RefObject<BottomSheetModalMethods>, children?: ReactNode }) {
-	const backgroundColor = useColor("mantle");
-	const handleIndicatorColor = useColor("base");
+export default ModalContainer;
 
-	const { handleSheetPositionChange } = useBottomSheetBackHandler(props.modalRef);
+// export function ModalContainerScrollView(props: { snapPoints?: (string | number)[], modalRef: React.RefObject<BottomSheetModalMethods>, children?: ReactNode }) {
+// 	const backgroundColor = useColor("mantle");
+// 	const handleIndicatorColor = useColor("base");
 
-	const renderBackdrop = useBackdrop();
+// 	const { handleSheetPositionChange } = useBottomSheetBackHandler(props.modalRef);
 
-	const snapPoints = props.snapPoints == undefined ? [] : props.snapPoints;
+// 	const renderBackdrop = useBackdrop();
 
-	return (
-		<BottomSheetModal
-			ref={props.modalRef}
-			index={0}
-			snapPoints={snapPoints}
-			backdropComponent={renderBackdrop}
+// 	const snapPoints = props.snapPoints == undefined ? [] : props.snapPoints;
 
-			enableContentPanningGesture={false}
-			enableHandlePanningGesture={false}
+// 	return (
+// 		<BottomSheetModal
+// 			ref={props.modalRef}
+// 			index={0}
+// 			snapPoints={snapPoints}
+// 			backdropComponent={renderBackdrop}
 
-			handleIndicatorStyle={{ backgroundColor: handleIndicatorColor }}
-			backgroundStyle={{ backgroundColor }}
+// 			enableContentPanningGesture={false}
+// 			enableHandlePanningGesture={false}
 
-			onChange={handleSheetPositionChange}
-		>
-			<BottomSheetScrollView>
-				{props.children}
-			</BottomSheetScrollView>
-		</BottomSheetModal>
-	);
-}
+// 			handleIndicatorStyle={{ backgroundColor: handleIndicatorColor }}
+// 			backgroundStyle={{ backgroundColor }}
+
+// 			onChange={handleSheetPositionChange}
+// 		>
+// 			<BottomSheetScrollView>
+// 				{props.children}
+// 			</BottomSheetScrollView>
+// 		</BottomSheetModal>
+// 	);
+// }
 
 const useBackdrop = () => {
 	const renderBackdrop = useCallback((props: any) => (
@@ -78,4 +82,4 @@ const useBackdrop = () => {
 	), []);
 
 	return renderBackdrop;
-}
+};

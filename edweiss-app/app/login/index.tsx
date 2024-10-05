@@ -1,14 +1,16 @@
-import TText from '@/components/core/TText'
-import TView from '@/components/core/containers/TView'
-import Header from '@/components/core/header/Header'
-import FancyButton from '@/components/input/FancyButton'
-import { callFunction, signInWithGoogle } from '@/config/firebase'
-import { useAuth } from '@/contexts/auth'
-import Functions from '@/model/functions'
-import { router } from 'expo-router'
-import React, { useState } from 'react'
+import { ApplicationRoute } from '@/constants/Component';
 
-const index = () => {
+import TText from '@/components/core/TText';
+import TView from '@/components/core/containers/TView';
+import RouteHeader from '@/components/core/header/RouteHeader';
+import FancyButton from '@/components/input/FancyButton';
+import { callFunction, signInWithGoogle } from '@/config/firebase';
+import { useAuth } from '@/contexts/auth';
+import { Auth } from '@/model/users';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
+
+const Login: ApplicationRoute = () => {
 	const auth = useAuth();
 
 	const [loading, setLoading] = useState(false);
@@ -19,7 +21,7 @@ const index = () => {
 		const res = await signInWithGoogle();
 
 		if (res != undefined) {
-			const accountRes = await callFunction(Functions.createAccount, { name: res.user.displayName });
+			const accountRes = await callFunction(Auth.Functions.createAccount, { name: res.user.displayName });
 
 			if (accountRes.status == 1) {
 				router.replace("/");
@@ -32,7 +34,7 @@ const index = () => {
 
 	return (
 		<>
-			<Header title='Login' />
+			<RouteHeader title='Login' />
 
 			<TView pl={'lg'} pr={'lg'}>
 				<TText mb={'md'}>
@@ -48,7 +50,7 @@ const index = () => {
 				</TText>
 			</TView>
 		</>
-	)
-}
+	);
+};
 
-export default index
+export default Login;
