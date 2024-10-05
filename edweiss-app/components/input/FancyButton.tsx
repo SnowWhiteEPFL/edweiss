@@ -31,7 +31,7 @@ const FancyButton: ReactComponent<FancyButtonProps> = ({ backgroundColor = 'blue
 
 	const computedBackgroundColor = outlined ? 'transparent' : backgroundColor;
 	const computedTextColor = outlined ? backgroundColor : textColor;
-	const computedBorderWidth = outlined ? 1 : 1;
+	const computedBorderWidth = 1;
 
 	async function onPress() {
 		// setInnerLoading(true);
@@ -41,7 +41,7 @@ const FancyButton: ReactComponent<FancyButtonProps> = ({ backgroundColor = 'blue
 	}
 
 	return (
-		<TTouchableOpacity onPress={onPress} disabled={loading || props.disabled} backgroundColor={computedBackgroundColor} borderColor={computedBackgroundColor} flexDirection='row' justifyContent='center' columnGap={'md'} alignItems='center' radius={'xl'} pt={12} pb={12} b={computedBorderWidth} style={[computeMargins(props), props.style]} testID='pressable'>
+		<TTouchableOpacity onPress={onPress} disabled={loading || props.disabled} backgroundColor={computedBackgroundColor} borderColor={backgroundColor} flexDirection='row' justifyContent='center' columnGap={'md'} alignItems='center' radius={'xl'} pt={12} pb={12} b={computedBorderWidth} style={[computeMargins(props), props.style]} testID='pressable'>
 			{
 				loading ?
 					<TActivityIndicator size={24} color={computedTextColor} /> :
