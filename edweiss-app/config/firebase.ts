@@ -70,7 +70,7 @@ export function CollectionOf<Type extends DocumentData>(path: string): Collectio
 }
 
 export function CollectionCast<Type extends DocumentData>(col: Collection<any>) {
-	return col as Collection<Type>;
+	return col;
 }
 
 export const Collections = {
