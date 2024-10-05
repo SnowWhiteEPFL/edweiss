@@ -1,14 +1,22 @@
 {
+	"git.autofetch": true,
+	"files.readonlyFromPermissions": true,
+
 	"editor.defaultFormatter": "vscode.typescript-language-features",
 	"editor.formatOnPaste": true,
 	"editor.formatOnSave": true,
+	"editor.tabSize": 4,
+	
 	"editor.codeActionsOnSave": {
 		"source.addMissingImports": "always",
-		"source.organizeImports": "always"
+		"source.organizeImports": "always",
 	},
-	"files.readonlyFromPermissions": true,
+	
 	"typescript.preferences.quoteStyle": "single",
-	"git.autofetch": true,
-	"editor.tabSize": 4,
-	"typescript.format.semicolons": "remove"
+	"typescript.format.semicolons": "insert",
+	"typescript.format.insertSpaceAfterSemicolonInForStatements": true,
+	
+	"javascript.format.semicolons": "insert",
+	"javascript.preferences.quoteStyle": "single",
+	"javascript.format.insertSpaceAfterSemicolonInForStatements": true,
 }
