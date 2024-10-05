@@ -1,5 +1,7 @@
 {
 	"compilerOptions": {
-		"strict": true,
+		"allowJs": false,
+		"target": "ES2017",
+		"strict": true
 	}
 }

@@ -1,12 +1,3 @@
-import { Deck } from './memento';
-
-export interface FirebaseFunction<Args, Result, Error> {
-	name: string
-}
-
-function FunctionOf<Args, Result, Error>(name: string): FirebaseFunction<Args, Result, Error> {
-	return { name };
-}
 
 export type NoArgs = {};
 
@@ -14,22 +5,43 @@ export type NoResult = {};
 
 export type NoError = {};
 
+export interface FunctionSignature<Args, Result, Error> {
+	originalName: string;
+	path: string;
+	exportedName: string;
+}
+
+export function FunctionOf<Args, Result, Error>(name: string): FunctionSignature<Args, Result, Error> {
+	return { originalName: name, path: name, exportedName: name };
+}
+
 export interface SuccessfulCallResult<Result> {
 	status: 1,
-	data: Result
+	data: Result;
 }
 
 export interface FailedCallResult<Error> {
 	status: 0,
-	error: Error
+	error: Error;
 }
 
 export type CallResult<R, E> = SuccessfulCallResult<R> | FailedCallResult<E>;
 
-export namespace Functions {
-	export const helloWorld = FunctionOf<{ request: string }, { message: string }, 'request_empty'>("helloWorld");
-	export const createDeck = FunctionOf<{ deck: Deck }, { id: string }, 'empty_deck'>("createDeck");
-	export const createAccount = FunctionOf<{ name: string }, {}, 'already_existing_account'>("createAccount");
-}
+export function FunctionFolder<T>(folder: string, declared: T): T {
+	if (folder === ".")
+		return declared;
 
-export default Functions;
+	const functions = Object.values(declared as any) as any;
+
+	for (let i = 0; i < functions.length; i++) {
+		if (functions[i].path == undefined) {
+			FunctionFolder(folder, functions[i]);
+			continue;
+		}
+
+		functions[i].path = `${folder}/${functions[i].path}`;
+		functions[i].exportedName = `${folder}_${functions[i].exportedName}`;
+	}
+
+	return declared;
+}

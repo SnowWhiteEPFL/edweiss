@@ -2,11 +2,11 @@
 import admin = require('firebase-admin');
 
 import { DocumentData, OrderByDirection, WhereFilterOp } from 'firebase-admin/firestore';
-import { AppUser } from '../model/users';
+import { AppUser } from 'model/users';
 
 export interface Document<Type> {
 	data: Type,
-	id: string
+	id: string;
 }
 
 export type Collection<Type extends DocumentData> = admin.firestore.CollectionReference<Type, admin.firestore.DocumentData>;
@@ -16,22 +16,22 @@ export type DocumentReference<Type> = admin.firestore.DocumentReference<Type, ad
 type QueryConstraintType = 'where' | 'order-by' | 'limit';
 
 export interface QueryConstraint<Type> {
-	type: QueryConstraintType
+	type: QueryConstraintType;
 }
 
 export interface TypedWhere<Type> extends QueryConstraint<Type> {
 	key: keyof Type,
 	opStr: WhereFilterOp,
-	value: any
+	value: any;
 }
 
 export interface TypedOrderBy<Type> extends QueryConstraint<Type> {
 	key: keyof Type,
-	directionStr?: OrderByDirection
+	directionStr?: OrderByDirection;
 }
 
 export interface TypedLimit<Type> extends QueryConstraint<Type> {
-	limit: number
+	limit: number;
 }
 
 export function DocumentOf<Type>(doc: FirebaseFirestore.QueryDocumentSnapshot<Type, FirebaseFirestore.DocumentData>): Document<Type> {
@@ -44,7 +44,7 @@ export function CollectionOf<Type extends DocumentData>(path: string): Collectio
 
 export const Collections = {
 	users: CollectionOf<AppUser>("users")
-}
+};
 
 export function query<Type extends DocumentData>(collection: Collection<Type>, ...constraints: QueryConstraint<Type>[]) {
 	let current = collection;
@@ -75,15 +75,15 @@ export function query<Type extends DocumentData>(collection: Collection<Type>, .
 }
 
 export function where<Type extends DocumentData>(key: keyof Type, opStr: WhereFilterOp, value: any): TypedWhere<Type> {
-	return { type: 'where', key, opStr, value }
+	return { type: 'where', key, opStr, value };
 }
 
 export function orderBy<Type extends DocumentData>(key: keyof Type, directionStr: OrderByDirection): TypedOrderBy<Type> {
-	return { type: 'order-by', key, directionStr }
+	return { type: 'order-by', key, directionStr };
 }
 
 export function limit<Type extends DocumentData>(limit: number): TypedLimit<Type> {
-	return { type: 'limit', limit }
+	return { type: 'limit', limit };
 }
 
 export async function addDocument<Type extends DocumentData>(collection: Collection<Type>, data: Type) {
@@ -135,7 +135,7 @@ export async function getDocument<Type extends DocumentData>(collection: Collect
  * @param errorCode The error
  * @returns The typed document data
  */
-export async function getRequiredDocument<Type extends DocumentData>(collection: Collection<Type>, id: string, errorCode: { error_code: string; status: 0 }) {
+export async function getRequiredDocument<Type extends DocumentData>(collection: Collection<Type>, id: string, errorCode: { error_code: string; status: 0; }) {
 	const doc = await getDocument(collection, id);
 	if (!doc)
 		throw errorCode;
