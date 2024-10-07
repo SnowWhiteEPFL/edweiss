@@ -19,7 +19,7 @@
 		{
             "label": "⟳ Update model on Windows - EdWeiss",
 			"detail": "Copies the model folder into the application and cloud functions",
-            "command": "cd model; ./update-windows.sh",
+            "command": "cd model; update-windows.bat",
             "type": "shell",
             "problemMatcher": [],
 			"presentation": {

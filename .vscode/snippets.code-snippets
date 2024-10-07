@@ -1,4 +1,21 @@
 {
+	"React component with export": {
+		"prefix": ["rce"],
+		"body": [
+			"import ReactComponent from '@/constants/Component';",
+			""
+			"const ${1:$TM_FILENAME_BASE}: ReactComponent<{$2}> = (props) => {",
+			"\treturn (",
+				"\t\t<>$0</>"
+			"\t);",
+			"};",
+			"",
+			"export default ${1:$TM_FILENAME_BASE};"
+		],
+		"description": "React Native component with props",
+		"scope": "typescriptreact"
+	},
+	
 	"React Native component with props": {
 		"prefix": ["rnc"],
 		"body": [
@@ -85,5 +102,5 @@
 		],
 		"description": "React Native component with props",
 		"scope": "typescript"
-	}
+	},
 }
