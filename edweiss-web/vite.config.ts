@@ -1,11 +1,10 @@
 
-import generouted from '@generouted/react-router/plugin';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from "url";
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-	plugins: [react(), generouted()],
+	plugins: [react()],
 	resolve: {
 		alias: [
 			{ find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
@@ -14,4 +13,4 @@ export default defineConfig({
 		// 	'@': path.resolve(__dirname, './src')
 		// }
 	}
-})
+});
