@@ -1,4 +1,4 @@
-import { average, sum } from '../math';
+import { average, sum } from '@/utils/math';
 
 describe("math", () => {
 	it("generic sum", () => {
