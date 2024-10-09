@@ -6,15 +6,14 @@ import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
+import FancyTextInput from '@/components/input/FancyTextInput';
 import { Collections, callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
-import Colors from '@/constants/Colors';
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import Memento from '@/model/memento';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { TextInput } from 'react-native';
 
 const HomeTab: ApplicationRoute = () => {
 	const [deckName, setDeckName] = useState("");
@@ -47,11 +46,22 @@ const HomeTab: ApplicationRoute = () => {
 			<RouteHeader title={"Home"} />
 
 			<TScrollView>
-				<TextInput value={deckName} onChangeText={n => setDeckName(n)} placeholder='Deck name' placeholderTextColor={'#555'} style={{ borderWidth: 1, borderColor: Colors.dark.overlay0, padding: 8, paddingHorizontal: 16, margin: 16, marginBottom: 0, color: 'white', borderRadius: 14, fontFamily: "Inter" }}>
+				{/* <TextInput value={deckName} onChangeText={n => setDeckName(n)} placeholder='Deck name' placeholderTextColor={'#555'} style={{ backgroundColor: Colors.dark.crust, borderColor: Colors.dark.blue, borderWidth: 1, padding: 8, paddingHorizontal: 16, margin: 16, marginBottom: 0, color: 'white', borderRadius: 14, fontFamily: "Inter" }}>
 
-				</TextInput>
+				</TextInput> */}
 
-				<FancyButton backgroundColor='blue' mt={'md'} mb={'sm'} ml={'md'} mr={'md'} textColor='crust' onPress={call} icon='logo-firebase'>
+				<FancyTextInput
+					value={deckName}
+					onChangeText={n => setDeckName(n)}
+					placeholder='My amazing deck'
+					icon='dice'
+					label='Deck name'
+					// error='Invalid deck name'
+					multiline
+					numberOfLines={3}
+				/>
+
+				<FancyButton backgroundColor='blue' mt={'md'} mb={'sm'} onPress={call} icon='logo-firebase'>
 					{t("memento:create-deck")}
 				</FancyButton>
 
@@ -75,7 +85,7 @@ const DeckDisplay: ReactComponent<{ deck: Memento.Deck, id: string; }> = ({ deck
 				2h ago
 			</TText>
 			{
-				deck.cards.map(card => <CardDisplay key={card.answer} card={card} />)
+				deck.cards.map((card, index) => <CardDisplay key={index} card={card} />)
 			}
 		</TTouchableOpacity>
 	);
