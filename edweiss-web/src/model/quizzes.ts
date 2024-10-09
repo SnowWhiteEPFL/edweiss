@@ -33,9 +33,7 @@ namespace Quizzes {
     }
 
     export const Functions = FunctionFolder("action", {
-        creation: FunctionFolder("creation", {
-            createQuiz: FunctionOf<{ quiz: Quizzes.Quiz; }, { id: string; }, "empty_quiz" | "invalid_name">("createQuiz"),
-        })
+        createQuiz: FunctionOf<{ quiz: Quizzes.Quiz; }, { id: string; }, "empty_quiz" | "invalid_name">("createQuiz"),
     });
 
 }
