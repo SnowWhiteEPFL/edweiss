@@ -4,14 +4,14 @@
 
 @font-face {
 	font-family: 'Whitney';
-	src: url(assets/fonts/whitneylight.otf);
+	src: url(assets/fonts/whitneybook.otf);
 	font-weight: 300;
 	font-style: normal;
 }
 
 @font-face {
 	font-family: 'Whitney';
-	src: url(assets/fonts/whitneybook.otf);
+	src: url(assets/fonts/whitneymedium.otf);
 	font-weight: normal;
 	font-style: normal;
 }

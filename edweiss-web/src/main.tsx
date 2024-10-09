@@ -7,9 +7,7 @@ import './index.css';
 createRoot(document.getElementById('root')!).render(
 	<NextUIProvider>
 		<BrowserRouter>
-			<main className="min-h-screen dark mocha text-text bg-crust">
-				<RootLayout />
-			</main>
+			<RootLayout />
 		</BrowserRouter>
 	</NextUIProvider>
 );

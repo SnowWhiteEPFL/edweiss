@@ -6,12 +6,14 @@ import LoginLayout from './login/_layout';
 
 const RootLayout: ApplicationLayout = () => {
 	return (
-		<AuthProvider>
-			<Routes>
-				<Route path='/login/' element={<LoginLayout />} />
-				<Route path='/*' element={<AppLayout />} />
-			</Routes>
-		</AuthProvider>
+		<main className="min-h-screen dark mocha text-text bg-crust">
+			<AuthProvider>
+				<Routes>
+					<Route path='/login/' element={<LoginLayout />} />
+					<Route path='/*' element={<AppLayout />} />
+				</Routes>
+			</AuthProvider>
+		</main>
 	);
 };
 
