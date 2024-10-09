@@ -1,4 +1,5 @@
 import { FunctionFolder, FunctionOf } from './functions';
+import { CourseID } from './school/courses';
 
 namespace Quizzes {
 
@@ -14,14 +15,16 @@ namespace Quizzes {
 
     export interface MCQ {
         question: string;
-        imageUrl?: string;
+        imageURL?: string;
         propositions: MCQProposition[]; // 2 to 8 propositions
         answersIndices: number[]; // the indices point to the correct propositions
+        type: "MCQ";
     }
     export interface TF {
         question: string;
-        image?: string;
+        imageURL?: string;
         answer: true | false;
+        type: "TF";
     }
 
     export type Exercise = MCQ | TF;
@@ -33,7 +36,7 @@ namespace Quizzes {
     }
 
     export const Functions = FunctionFolder("action", {
-        createQuiz: FunctionOf<{ quiz: Quizzes.Quiz; }, { id: string; }, "empty_quiz" | "invalid_name">("createQuiz"),
+        createQuiz: FunctionOf<{ quiz: Quizzes.Quiz; courseId: CourseID; }, { id: string; }, "empty_quiz" | "invalid_name" | "not_authorized">("createQuiz"),
     });
 
 }
