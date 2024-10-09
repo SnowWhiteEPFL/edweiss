@@ -1,17 +1,26 @@
-import 'dotenv/config';
+// import 'dotenv/config';
+// require('dotenv').config();
+
+import ENV from "./.api_key.json";
 
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 
 import { CallResult, FunctionSignature } from '@/model/functions';
-import { getAuth } from 'firebase/auth';
+import { NextOrObserver, User, getAuth, onAuthStateChanged, signInWithPopup } from 'firebase/auth';
 import * as FS from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { getStorage } from 'firebase/storage';
+
+import { GoogleAuthProvider } from "firebase/auth";
+
+const googleProvider = new GoogleAuthProvider();
+
+// console.log("Hello");
+// console.log(process);
 
 const app = firebase.initializeApp({
-	apiKey: process.env.FIREBASE_API_KEY,
+	apiKey: ENV.FIREBASE_API_KEY,
 	authDomain: "edweiss-dev.firebaseapp.com",
 	projectId: "edweiss-dev",
 	storageBucket: "edweiss-dev.appspot.com",
@@ -21,8 +30,12 @@ const app = firebase.initializeApp({
 
 const auth = getAuth(app);
 const db = FS.getFirestore(app);
-const storage = getStorage(app);
+// const storage = getStorage(app);
 const functions = getFunctions(app);
+
+export function listenForAuthStateChange(callback: NextOrObserver<User>) {
+	return onAuthStateChanged(auth, callback);
+}
 
 function getFunction(functionName: string) {
 	return httpsCallable(functions, functionName);
@@ -80,3 +93,17 @@ export async function getDocuments<Type>(query: TypedQuery<Type>) {
 	const docsRef = await FS.getDocs(query);
 	return docsRef.docs.map(DocumentOf<Type>);
 }
+
+export function googleSignIn() {
+	signInWithPopup(auth, googleProvider)
+		.then((result) => {
+			const credential = GoogleAuthProvider.credentialFromResult(result);
+			if (credential == null)
+				return;
+
+			console.log("Google sign in success ! " + JSON.stringify(result.user));
+		}).catch((error) => {
+			console.log("Google sign in failure " + JSON.stringify(error));
+		});
+}
+
