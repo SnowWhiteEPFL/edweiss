@@ -37,7 +37,7 @@ export interface BorderProps {
 
 export type BoxModelProps = PaddingProps & MarginProps & BorderProps;
 
-const marginSizes: PredefinedSizes = {
+export const marginSizes: PredefinedSizes = {
 	xs: 4,
 	sm: 8,
 	md: 16,
@@ -45,7 +45,7 @@ const marginSizes: PredefinedSizes = {
 	xl: 64
 };
 
-const paddingSizes: PredefinedSizes = {
+export const paddingSizes: PredefinedSizes = {
 	xs: 4,
 	sm: 8,
 	md: 16,
@@ -53,7 +53,7 @@ const paddingSizes: PredefinedSizes = {
 	xl: 32
 };
 
-const borderSizes: PredefinedSizes = {
+export const borderSizes: PredefinedSizes = {
 	xs: 0.25,
 	sm: 0.5,
 	md: 1,
