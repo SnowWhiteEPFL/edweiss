@@ -6,6 +6,11 @@
 	},
 
 	"todolist_header": "My Todos",
-	"create_header": "New Todo"
+	"create_header": "New Todo",
+	"edit_header": "Edit Todo",
+	"name_placeholder": "Daily Workout",
+	"description_placeholder": "Go to the Gym",
+	"save_button": "Save",
+	"edit_button": "Edit"
 
 }

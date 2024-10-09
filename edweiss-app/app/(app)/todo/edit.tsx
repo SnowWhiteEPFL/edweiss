@@ -1,15 +1,17 @@
+import TScrollView from '@/components/core/containers/TScrollView';
+import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
-import FancyButton from '@/components/input/FancyButton';
+import Icon from '@/components/core/Icon';
+import TText from '@/components/core/TText';
+import FancyTextInput from '@/components/input/FancyTextInput';
 import { callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import Todolist from '@/model/todo';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { TextInput } from 'react-native';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { StatusChanger } from '.';
+import { sameTodos, StatusChanger } from '.';
 import TodoStatus = Todolist.TodoStatus;
 import Todo = Todolist.Todo;
 import Functions = Todolist.Functions;
@@ -24,7 +26,7 @@ const editTodo: ApplicationRoute = () => {
     const [description, setDescription] = useState(todo.description || "");
     const [status, setStatus] = useState<TodoStatus>(todo.status);
     const newTodo: Todo = { name, description: (description == "") ? undefined : description, status };
-    const isInvalid = name == "";
+    const isValid: boolean = sameTodos(todo, newTodo);
 
     async function editTodoAction() {
         const res = await callFunction(Functions.updateTodo, { id, newTodo });
@@ -32,7 +34,7 @@ const editTodo: ApplicationRoute = () => {
         if (res.status) {
             // Toast
             console.log("Succefully todo modified the todo");
-            router.push("/(app)/todo" as any);
+            router.push("/(app)/todo");
         } else {
             console.log(res.error);
         }
@@ -42,14 +44,41 @@ const editTodo: ApplicationRoute = () => {
 
     return (
         <>
-            <RouteHeader title={t(`todo:create_header`)} />
+            <RouteHeader title={t(`todo:edit_header`)} />
 
-            <TView>
-                <TextInput value={name} onChangeText={n => setName(n)} placeholder='Name' placeholderTextColor={'#555'} style={{ borderWidth: 1, borderColor: Colors.dark.overlay0, padding: 8, paddingHorizontal: 16, margin: 16, marginBottom: 0, color: 'text', borderRadius: 14, fontFamily: "Inter" }}></TextInput>
-                <TextInput value={description} onChangeText={n => setDescription(n)} placeholder='Description' placeholderTextColor={'#555'} style={{ borderWidth: 1, borderColor: Colors.dark.overlay0, padding: 8, paddingVertical: 64, paddingHorizontal: 16, margin: 16, marginBottom: 0, color: 'text', borderRadius: 14, fontFamily: "Inter" }}></TextInput>
+            <TScrollView>
+
+                <TView>
+                    <FancyTextInput
+                        value={name}
+                        onChangeText={n => setName(n)}
+                        placeholder={t(`todo:name_placeholder`)}
+                        icon='people'
+                        label='Name'
+                    />
+                    <FancyTextInput
+                        value={description}
+                        onChangeText={n => setDescription(n)}
+                        placeholder={t(`todo:description_placeholder`)}
+                        icon='list'
+                        label='Description'
+                        multiline
+                        numberOfLines={4}
+                        mt={'sm'}
+                    />
+                </TView>
+
                 <StatusChanger status={status} setStatus={setStatus}></StatusChanger>
-                <FancyButton backgroundColor={(isInvalid) ? 'text' : 'blue'} disabled={isInvalid} onPress={editTodoAction} mt='xl' ml='xl' mr='xl'>Save</FancyButton>
-            </TView>
+
+            </TScrollView>
+
+            <TTouchableOpacity backgroundColor={(isValid) ? 'text' : 'blue'} disabled={isValid} onPress={editTodoAction} mt='xl' ml='xl' mr='xl' p={12} radius={'xl'}
+                style={{ position: 'absolute', bottom: 15, left: 0, right: 0, zIndex: 100 }}>
+                <TView flexDirection='row' justifyContent='center' alignItems='center'>
+                    <Icon name="create" color='base' size={'md'} />
+                    <TText color='base' ml={10}>{t(`todo:edit_button`)}</TText>
+                </TView>
+            </TTouchableOpacity >
 
         </>
     );
