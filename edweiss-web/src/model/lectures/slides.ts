@@ -3,9 +3,9 @@ import { FunctionFolder, FunctionOf } from '../functions';
 namespace SlidesDisplay {
 
     export interface PdfPageImage {
-       url: string;
-       height: number;
-       width: number;
+        uri: string;
+        height: number;
+        width: number;
     }
 
     export type PdfPage = PdfPageImage;
@@ -20,9 +20,7 @@ namespace SlidesDisplay {
     }
 
     export const Functions = FunctionFolder("slides", {
-        load: FunctionFolder("load", {
-            loadSlide: FunctionOf<{ slide: SlidesDisplay.Slides; }, { id: string; }, 'empty_PDF'>("loadSlide"),
-        })
+        loadSlide: FunctionOf<{ slide: SlidesDisplay.Slides; }, { id: string; }, 'empty_PDF'>("loadSlide"),
     });
 }
 

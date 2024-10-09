@@ -1,9 +1,9 @@
-import SlidesDisplay from 'model/showtime/slides';
+import SlidesDisplay from 'model/lectures/slides';
 import { onAuthentifiedCall } from 'utils/firebase';
 import { CollectionOf } from 'utils/firestore';
 import { fail, ok } from 'utils/status';
 
-export const loadSlide = onAuthentifiedCall(SlidesDisplay.Functions.load.loadSlide, async (userId, args) => {
+export const loadSlide = onAuthentifiedCall(SlidesDisplay.Functions.loadSlide, async (userId, args) => {
     if (args.slide.images.length == 0)
         return fail("empty_PDF");
 
