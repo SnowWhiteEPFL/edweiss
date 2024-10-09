@@ -1,0 +1,11 @@
+{
+	"status": {
+		"yet" : "To be done, soon.",
+		"in_progress": "Work in progress ...",
+		"done": "Finished, congrats !" 
+	},
+
+	"todolist_header": "My Todos",
+	"create_header": "New Todo"
+
+}
