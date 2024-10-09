@@ -3,45 +3,33 @@ import ReactComponent from '@/constants/Component';
 import { Color } from '@/constants/Colors';
 import { MarginProps, computeMargins } from '@/constants/Sizes';
 import { ContainerStyle, IconType } from '@/constants/Style';
-import { ReactNode, useState } from 'react';
+import { Testable } from '@/constants/Tests';
+import { ReactNode } from 'react';
 import Icon from '../core/Icon';
 import TActivityIndicator from '../core/TActivityIndicator';
 import TText from '../core/TText';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 
-type FancyButtonProps = MarginProps & {
+type FancyButtonProps = MarginProps & Testable & {
 	backgroundColor?: Color,
 	textColor?: Color,
 	style?: ContainerStyle,
 	icon?: IconType,
 	outlined?: boolean;
 
-	onPress?(): Promise<void> | void,
+	onPress?(): void,
 	children?: ReactNode,
 	loading?: boolean,
 	disabled?: boolean,
-
-	disableInnerLoading?: boolean;
 };
 
-const FancyButton: ReactComponent<FancyButtonProps> = ({ backgroundColor = 'blue', textColor = 'crust', outlined, ...props }) => {
-	const [innerLoading, setInnerLoading] = useState(false);
-
-	const loading = (innerLoading && props.disableInnerLoading != true) || props.loading;
-
+const FancyButton: ReactComponent<FancyButtonProps> = ({ backgroundColor = 'blue', textColor = 'crust', outlined, loading, ...props }) => {
 	const computedBackgroundColor = outlined ? 'transparent' : backgroundColor;
 	const computedTextColor = outlined ? backgroundColor : textColor;
 	const computedBorderWidth = 1;
 
-	async function onPress() {
-		// setInnerLoading(true);
-		if (props.onPress)
-			await props.onPress();
-		// setInnerLoading(false);
-	}
-
 	return (
-		<TTouchableOpacity onPress={onPress} disabled={loading || props.disabled} backgroundColor={computedBackgroundColor} borderColor={backgroundColor} flexDirection='row' justifyContent='center' columnGap={'md'} alignItems='center' radius={'xl'} pt={12} pb={12} b={computedBorderWidth} style={[computeMargins(props), props.style]} testID='pressable'>
+		<TTouchableOpacity onPress={props.onPress} disabled={loading || props.disabled} backgroundColor={computedBackgroundColor} borderColor={backgroundColor} flexDirection='row' justifyContent='center' columnGap={'md'} alignItems='center' radius={'xl'} pt={12} pb={12} b={computedBorderWidth} style={[computeMargins({ mx: "md", ...props }), props.style]} testID={props.testID}>
 			{
 				loading ?
 					<TActivityIndicator size={24} color={computedTextColor} /> :
