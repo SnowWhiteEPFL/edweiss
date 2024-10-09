@@ -28,11 +28,16 @@ namespace Action {
         answer: true | false;
     }
     // could define a type "Exercise = MCQ | TF"
-    export type Quiz = (MCQ | TF)[];
+    export type Exercise = MCQ | TF;
+
+    export interface Quiz {
+        name: string;
+        exercises: Exercise[];
+    }
 
     export const Functions = FunctionFolder("action", {
         creation: FunctionFolder("creation", {
-            createQuiz: FunctionOf<{ quiz: Action.Quiz; }, { id: string; }, "Empty_Quiz" | "Empty_exercise">("createQuiz"),
+            createQuiz: FunctionOf<{ quiz: Action.Quiz; }, { id: string; }, "empty_quiz" | "invalid_name">("createQuiz"),
         })
     });
 
