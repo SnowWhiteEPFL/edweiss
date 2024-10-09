@@ -18,10 +18,6 @@ namespace SlidesDisplay {
     export interface Slides {
         images: Image[];
     }
-
-    export const Functions = FunctionFolder("slides", {
-        loadSlide: FunctionOf<{ slide: SlidesDisplay.Slides; }, { id: string; }, 'empty_PDF'>("loadSlide"),
-    });
 }
 
 export default SlidesDisplay;
