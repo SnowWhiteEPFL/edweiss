@@ -15,7 +15,7 @@ import TodoStatus = Todolist.TodoStatus;
 import Functions = Todolist.Functions;
 
 
-const createTodo: ApplicationRoute = () => {
+const CreateTodoScreen: ApplicationRoute = () => {
 
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
@@ -66,7 +66,7 @@ const createTodo: ApplicationRoute = () => {
                 </TView>
             </TScrollView>
 
-            <TTouchableOpacity backgroundColor={(isInvalid) ? 'text' : 'blue'} disabled={isInvalid} onPress={saveAction} mt='xl' ml='xl' mr='xl' p={12} radius={'xl'}
+            <TTouchableOpacity backgroundColor={(isInvalid) ? 'text' : 'blue'} disabled={isInvalid} onPress={saveAction} ml={100} mr={100} p={12} radius={'xl'}
                 style={{ position: 'absolute', bottom: 15, left: 0, right: 0, zIndex: 100, borderRadius: 9999 }}>
                 <TView flexDirection='row' justifyContent='center' alignItems='center'>
                     <Icon name="save" color='base' size={'md'} />
@@ -78,5 +78,5 @@ const createTodo: ApplicationRoute = () => {
     );
 };
 
-export default createTodo;
+export default CreateTodoScreen;
 

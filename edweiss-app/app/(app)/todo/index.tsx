@@ -8,7 +8,7 @@ import FancyButton from '@/components/input/FancyButton';
 import { callFunction, CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import { Color, LightDarkProps } from '@/constants/Colors';
-import ReactComponent from '@/constants/Component';
+import ReactComponent, { ApplicationRoute } from '@/constants/Component';
 import { IconType } from '@/constants/Style';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
@@ -30,7 +30,7 @@ import Functions = Todolist.Functions;
 // ----------------------- TodoScreen -------------------------
 // ------------------------------------------------------------
 
-const TodoScreen: ReactComponent<{}> = (props) => {
+const TodoListScreen: ApplicationRoute = () => {
     const auth = useAuth();
     const todosData = useDynamicDocs(CollectionOf<Todo>(`users/${auth.authUser.uid}/todos_aas`));
     const todos = todosData ? todosData.map(doc => ({ id: doc.id, data: doc.data })) : [];
@@ -71,7 +71,7 @@ const TodoScreen: ReactComponent<{}> = (props) => {
     );
 };
 
-export default TodoScreen;
+export default TodoListScreen;
 
 
 
@@ -108,20 +108,13 @@ const TodoDisplay: React.FC<{ key: string, id: string, todo: Todo; setTodoToDisp
     const handleGestureEnd = (event: any) => {
         const { translationX } = event.nativeEvent;
 
-        // Threshold activated
+        // Threshold activated then archive the todo
         if (Math.abs(translationX) > threshold) {
             Animated.timing(translateX, {
                 toValue: 0,
                 duration: 200,
                 useNativeDriver: true
-            }).start(() => {
-
-                // TODO: change this with archive
-
-                // Navigate to edit screen after resetting position
-                router.push({ pathname: "/(app)/todo/edit", params: { idString: id, todoJSON: JSON.stringify(todo) } });
-            });
-
+            }).start(() => { toogleArchivityOfTodo(id, todo); });
 
         }
 
@@ -142,29 +135,27 @@ const TodoDisplay: React.FC<{ key: string, id: string, todo: Todo; setTodoToDisp
     const onHandlerStateChange = (event: any) => {
         const { state, translationY, translationX } = event.nativeEvent;
 
+        // Note: Record the starting position of the gesture
         if (state === State.BEGAN) {
-            // Record the starting position of the gesture
             gestureStartX.current = event.nativeEvent.x;
             gestureStartY.current = event.nativeEvent.y;
             isEdgeSwipe.current = (gestureStartX.current <= edgeZoneWidth || gestureStartX.current >= screenWidth - edgeZoneWidth);
         }
 
+        /* Note: Check if the user started the gesture near the 
+         * edges and privilledge the vertical scroll            */
         if (state === State.ACTIVE) {
-            // Check if the user started the gesture near the edges
             if (isEdgeSwipe.current) {
-                // If the vertical movement is greater than horizontal, prioritize vertical scrolling
                 if (Math.abs(translationY) > Math.abs(translationX)) {
-                    // Do nothing and let vertical scrolling take precedence
                     return;
                 }
-
-                // Directly update translateX instead of calling handlePanGestureEvent
-                translateX.setValue(translationX); // Use `setValue` to manually update `translateX`
+                translateX.setValue(translationX);
             }
         }
 
+        // Note: Handle snapping back or going to the edit screen
         if (state === State.END) {
-            handleGestureEnd(event); // This will handle snapping back or going to the edit screen
+            handleGestureEnd(event);
         }
     };
 
@@ -176,7 +167,8 @@ const TodoDisplay: React.FC<{ key: string, id: string, todo: Todo; setTodoToDisp
             <TView >
 
                 {/* Background Archive Text */}
-                <BackgroundArchiveText />
+                <BackgroundArchiveText todo={todo} />
+
 
                 {/* Front Card Display */}
                 <PanGestureHandler
@@ -250,9 +242,9 @@ const TodoDisplay: React.FC<{ key: string, id: string, todo: Todo; setTodoToDisp
 // -----------------------    Utils    ------------------------
 // ------------------------------------------------------------
 
-const BackgroundArchiveText: React.FC = () => {
+const BackgroundArchiveText: React.FC<{ todo: Todo; }> = ({ todo }) => {
 
-
+    const bg_text = todo.status === "archived" ? t(`todo:archive_bg_when_archived`) : t(`todo:archive_bg_when_active`);
 
     return (
         <TView
@@ -273,7 +265,7 @@ const BackgroundArchiveText: React.FC = () => {
             <TText></TText>
             <Icon name="archive" color='text' size='lg' />
             <TText color='text' ml="sm" mr="sm">
-                {t(`todo:archive_background`)}
+                {bg_text}
             </TText>
             <Icon name="archive" color='text' size='lg' />
             <TText></TText>
@@ -282,9 +274,6 @@ const BackgroundArchiveText: React.FC = () => {
 };
 
 
-
-// Animated version of the Icon component
-const AnimatedIcon = Animated.createAnimatedComponent(Icon);
 
 const TodoStatusDisplay: ReactComponent<{ id: string, todo: Todo, status: TodoStatus; }> = ({ id, todo, status }) => {
 
@@ -297,7 +286,7 @@ const TodoStatusDisplay: ReactComponent<{ id: string, todo: Todo, status: TodoSt
 
 export const StatusChanger: ReactComponent<{ status: TodoStatus, setStatus: Dispatch<SetStateAction<TodoStatus>>; }> = ({ status, setStatus }) => {
     return <>
-        <FancyButton onPress={() => setStatus(statusNextMap[status])} icon={statusIconMap[status]} m={'xl'} backgroundColor={'text'} outlined>
+        <FancyButton onPress={() => setStatus(statusNextMap[status])} icon={statusIconMap[status]} m={'md'} backgroundColor={'text'} outlined>
             {t(`todo:status.${status}`)}
         </FancyButton>
 
@@ -354,19 +343,23 @@ const TodoModalDisplay: ReactComponent<{ modalRef: React.RefObject<BottomSheetMo
 export const statusIconMap: Record<TodoStatus, IconType> = {
     yet: "alert-circle",
     in_progress: "construct",
-    done: "checkmark-done-circle"
+    done: "checkmark-done-circle",
+    archived: "archive"
 };
 
 export const statusColorMap: Record<TodoStatus, Color> = {
     yet: "red",
     in_progress: "yellow",
-    done: "green"
+    done: "green",
+    archived: "overlay0"
+
 };
 
 export const statusNextMap: Record<TodoStatus, TodoStatus> = {
     yet: 'in_progress',
     in_progress: 'done',
-    done: 'yet'
+    done: 'yet',
+    archived: 'archived'
 };
 
 const statusNextAction = async (id: string, todo: Todo) => {
@@ -387,6 +380,26 @@ const statusNextAction = async (id: string, todo: Todo) => {
         console.error('Error updating todo:', error);
     }
 };
+
+const toogleArchivityOfTodo = async (id: string, todo: Todo) => {
+    const newTodo = {
+        ...todo,
+        status: todo.status !== "archived" ? "archived" : "yet"
+    };
+    try {
+
+        const res = await callFunction(Functions.updateTodo, { id, newTodo });
+
+        if (res.status) {
+            console.log('Todo updated successfully');
+        } else {
+            console.error('Failed to update todo:', res.error);
+        }
+    } catch (error) {
+        console.error('Error updating todo:', error);
+    }
+};
+
 
 export const sameTodos = (todo1: Todo, todo2: Todo): boolean => {
     return todo1.name === todo2.name && todo1.description === todo2.description && todo1.status === todo2.status;

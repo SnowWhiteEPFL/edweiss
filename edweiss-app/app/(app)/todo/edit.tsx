@@ -4,6 +4,7 @@ import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import Icon from '@/components/core/Icon';
 import TText from '@/components/core/TText';
+import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
@@ -17,7 +18,7 @@ import Todo = Todolist.Todo;
 import Functions = Todolist.Functions;
 
 
-const editTodo: ApplicationRoute = () => {
+const EditTodoScreen: ApplicationRoute = () => {
     const { idString, todoJSON } = useLocalSearchParams();
     const id = idString as string;
     const todo = JSON.parse(todoJSON as string) as Todo;
@@ -38,8 +39,18 @@ const editTodo: ApplicationRoute = () => {
         } else {
             console.log(res.error);
         }
+    }
 
+    async function deleteTodoAction() {
+        const res = await callFunction(Functions.deleteTodo, { id });
 
+        if (res.status) {
+            // Toast
+            console.log("Successfully deleted the todo");
+            router.push("/(app)/todo");
+        } else {
+            console.log(res.error);
+        }
     }
 
     return (
@@ -70,9 +81,15 @@ const editTodo: ApplicationRoute = () => {
 
                 <StatusChanger status={status} setStatus={setStatus}></StatusChanger>
 
+                <FancyButton icon='trash' textColor='red' backgroundColor='red' activeOpacity={0.2} outlined onPress={deleteTodoAction}>
+                    {t(`todo:delete_btn_title`)}
+                </FancyButton>
+
             </TScrollView>
 
-            <TTouchableOpacity backgroundColor={(isValid) ? 'text' : 'blue'} disabled={isValid} onPress={editTodoAction} ml='xl' mr='xl' p={12} radius={'xl'}
+
+
+            <TTouchableOpacity backgroundColor={(isValid) ? 'text' : 'blue'} disabled={isValid} onPress={editTodoAction} ml={100} mr={100} p={12} radius={'xl'}
                 style={{ position: 'absolute', bottom: 15, left: 0, right: 0, zIndex: 100 }}>
                 <TView flexDirection='row' justifyContent='center' alignItems='center'>
                     <Icon name="create" color='base' size={'md'} />
@@ -84,5 +101,5 @@ const editTodo: ApplicationRoute = () => {
     );
 };
 
-export default editTodo;
+export default EditTodoScreen;
 

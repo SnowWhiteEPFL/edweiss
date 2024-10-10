@@ -2,7 +2,8 @@
 	"status": {
 		"yet" : "To be done, soon.",
 		"in_progress": "Work in progress ...",
-		"done": "Finished, congrats !" 
+		"done": "Finished, congrats !",
+		"archived": "Archived, well done !"
 	},
 
 	"todolist_header": "My Todos",
@@ -12,6 +13,9 @@
 	"description_placeholder": "Go to the Gym",
 	"save_button": "Save",
 	"edit_button": "Edit",
-	"archive_background": "Archive this Todo"
+	"archive_bg_when_active": "Archive this Todo",
+	"archive_bg_when_archived": "De-archive this Todo",
+	"delete_btn_title": "Delete"
+
 
 }
