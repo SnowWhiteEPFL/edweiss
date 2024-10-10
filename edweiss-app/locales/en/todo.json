@@ -11,6 +11,7 @@
 	"name_placeholder": "Daily Workout",
 	"description_placeholder": "Go to the Gym",
 	"save_button": "Save",
-	"edit_button": "Edit"
+	"edit_button": "Edit",
+	"archive_background": "Archive this Todo"
 
 }

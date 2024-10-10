@@ -173,91 +173,74 @@ const TodoDisplay: React.FC<{ key: string, id: string, todo: Todo; setTodoToDisp
     return (
 
         <>
-            <PanGestureHandler
-                onGestureEvent={handlePanGestureEvent}
-                onHandlerStateChange={onHandlerStateChange}
-            >
+            <TView >
 
-                {/* The Animated TODO Card */}
-                <Animated.View
-                    style={{
-                        transform: [{ translateX }],
-                        borderRadius: 20,
-                        backgroundColor: bgColor,
-                        margin: 13,
-                        overflow: 'hidden',
-                        zIndex: 100
-                    }}
+                {/* Background Archive Text */}
+                <BackgroundArchiveText />
+
+                {/* Front Card Display */}
+                <PanGestureHandler
+                    onGestureEvent={handlePanGestureEvent}
+                    onHandlerStateChange={onHandlerStateChange}
                 >
-                    <TTouchableOpacity
-                        b={'lg'}
-                        m='sm'
-                        p='lg'
-                        backgroundColor='base'
-                        borderColor='surface0'
-                        radius='lg'
+
+
+                    {/* The Animated TODO Card */}
+                    <Animated.View
+                        style={{
+                            transform: [{ translateX }],
+                            borderRadius: 20,
+                            backgroundColor: bgColor,
+                            margin: 13,
+                            overflow: 'hidden',
+                            zIndex: 100
+                        }}
                     >
-                        <TView flexDirection='row' justifyContent='space-between'>
-                            <TView flex={1} mr='md'>
-                                <TTouchableOpacity
-                                    // Display the modal on simple press
+                        <TTouchableOpacity
+                            b={'lg'}
+                            m='sm'
+                            p='lg'
+                            backgroundColor='base'
+                            borderColor='surface0'
+                            radius='lg'
+                        >
+                            <TView flexDirection='row' justifyContent='space-between'>
+                                <TView flex={1} mr='md'>
+                                    <TTouchableOpacity
+                                        // Display the modal on simple press
 
-                                    onPress={() => { setTodoToDisplay(todo); modalRef.current?.present(); }}
+                                        onPress={() => { setTodoToDisplay(todo); modalRef.current?.present(); }}
 
-                                    // Navigate to edit screen on long press
-                                    onLongPress={() => { router.push({ pathname: "/(app)/todo/edit", params: { idString: id, todoJSON: JSON.stringify(todo) } }); }}
-                                >
+                                        // Navigate to edit screen on long press
+                                        onLongPress={() => { router.push({ pathname: "/(app)/todo/edit", params: { idString: id, todoJSON: JSON.stringify(todo) } }); }}
+                                    >
 
-                                    <TText color='text' bold numberOfLines={1} ellipsizeMode='tail'>
-                                        {todo.name}
-                                    </TText>
-
-                                    {todo.description && (
-                                        <TText color='subtext0' size={'sm'} bold numberOfLines={1} ellipsizeMode='tail'>
-                                            {todo.description}
+                                        <TText color='text' bold numberOfLines={1} ellipsizeMode='tail'>
+                                            {todo.name}
                                         </TText>
-                                    )}
 
-                                    <TText size='xs' color={statusColorMap[todo.status]} bold numberOfLines={1} ellipsizeMode='tail'>
-                                        {t(`todo:status.${todo.status}`)}
-                                    </TText>
+                                        {todo.description && (
+                                            <TText color='subtext0' size={'sm'} bold numberOfLines={1} ellipsizeMode='tail'>
+                                                {todo.description}
+                                            </TText>
+                                        )}
+
+                                        <TText size='xs' color={statusColorMap[todo.status]} bold numberOfLines={1} ellipsizeMode='tail'>
+                                            {t(`todo:status.${todo.status}`)}
+                                        </TText>
 
 
-                                </TTouchableOpacity>
+                                    </TTouchableOpacity>
+                                </TView>
+
+                                <TodoStatusDisplay id={id} todo={todo} status={todo.status}></TodoStatusDisplay>
+
+
                             </TView>
-
-                            <TodoStatusDisplay id={id} todo={todo} status={todo.status}></TodoStatusDisplay>
-
-
-                        </TView>
-                    </TTouchableOpacity>
-                </Animated.View>
-
-            </PanGestureHandler>
-
-
-
-            {/* <TView
-                style={{
-                    position: 'absolute',
-                    top: 0,
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    zIndex: 10,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexDirection: 'row',
-                    backgroundColor: 'transparent'
-                }}
-            >
-                <Icon name="archive" color='surface0' size='lg' />
-                <TText color='surface0' ml="sm" mr="sm">
-                    Archive
-                </TText>
-                <Icon name="archive" color='surface0' size='lg' />
-            </TView> */}
-
+                        </TTouchableOpacity>
+                    </Animated.View>
+                </PanGestureHandler >
+            </TView>
         </>
     );
 };
@@ -266,6 +249,42 @@ const TodoDisplay: React.FC<{ key: string, id: string, todo: Todo; setTodoToDisp
 // ------------------------------------------------------------
 // -----------------------    Utils    ------------------------
 // ------------------------------------------------------------
+
+const BackgroundArchiveText: React.FC = () => {
+
+
+
+    return (
+        <TView
+            style={{
+                position: 'absolute',
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0,
+                zIndex: 10,
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexDirection: 'row',
+                backgroundColor: 'transparent',
+                paddingHorizontal: 20
+            }}
+        >
+            <TText></TText>
+            <Icon name="archive" color='text' size='lg' />
+            <TText color='text' ml="sm" mr="sm">
+                {t(`todo:archive_background`)}
+            </TText>
+            <Icon name="archive" color='text' size='lg' />
+            <TText></TText>
+        </TView>
+    );
+};
+
+
+
+// Animated version of the Icon component
+const AnimatedIcon = Animated.createAnimatedComponent(Icon);
 
 const TodoStatusDisplay: ReactComponent<{ id: string, todo: Todo, status: TodoStatus; }> = ({ id, todo, status }) => {
 
