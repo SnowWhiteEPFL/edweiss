@@ -10,10 +10,16 @@ fs.readdirSync('./src/functions', { recursive: true }).forEach(file => {
 	if (typeof file != "string" || !file.endsWith(".ts"))
 		return;
 
-	const path = file.substring(0, file.length - 3);
+	let path = file.substring(0, file.length - 3);
+	let indx = path.indexOf("\\");
+	while (indx != -1) {
+		path = path.replace("\\", "/");
+		indx = path.indexOf("\\");
+	}
+
 	let pathStartIndex = path.lastIndexOf("/");
-	if (pathStartIndex == -1)
-		pathStartIndex = path.lastIndexOf("\\"); // Windows is terrible, switch to Linux already :/
+	// if (pathStartIndex == -1)
+	// 	pathStartIndex = path.lastIndexOf("\\"); // Windows is terrible, switch to Linux already :/
 	const name = pathStartIndex == -1 ? path : path.substring(pathStartIndex + 1, path.length);
 
 	const FunctionImplementation = eval('require' /** Evil Shenanigans */)(`./functions/${path}`)[name] as FunctionImplementation;
