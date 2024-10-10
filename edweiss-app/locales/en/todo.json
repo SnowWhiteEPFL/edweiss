@@ -1,4 +1,11 @@
 {
+	"name": {
+		"yet" : "Not Yet",
+		"in_progress": "In Progress",
+		"done": "Finished",
+		"archived": "Archived"
+	},
+
 	"status": {
 		"yet" : "To be done, soon.",
 		"in_progress": "Work in progress ...",
@@ -15,7 +22,12 @@
 	"edit_button": "Edit",
 	"archive_bg_when_active": "Archive this Todo",
 	"archive_bg_when_archived": "De-archive this Todo",
-	"delete_btn_title": "Delete"
+	"delete_btn_title": "Delete",
+	"filter_modal_title": "Filter Todos",
+	"close_btn": "Close",
+	"list_empty": "No Todos yet, create one !",
+	"archived_success_toast": "Todo archived !",
+	"unarchived_success_toast": "Todo unarchived !"
 
 
 }

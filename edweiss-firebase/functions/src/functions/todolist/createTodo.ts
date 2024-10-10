@@ -10,7 +10,7 @@ export const createTodo = onAuthentifiedCall(Functions.createTodo, async (userId
     if (!args.todo)
         return fail("invalid_todo");
 
-    const todoCollection = CollectionOf<Todo>(`users/${userId}/todos_aas`);
+    const todoCollection = CollectionOf<Todo>(`users/${userId}/todos`);
 
     const res = await todoCollection.add(args.todo);
 

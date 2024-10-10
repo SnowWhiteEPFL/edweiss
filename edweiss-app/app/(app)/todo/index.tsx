@@ -1,5 +1,6 @@
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
+import HeaderButton from '@/components/core/header/HeaderButton';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import Icon from '@/components/core/Icon';
 import ModalContainer from '@/components/core/modal/ModalContainer';
@@ -17,7 +18,7 @@ import { default as Todolist } from '@/model/todo';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { router, useRouter } from 'expo-router';
-import React, { Dispatch, SetStateAction, useRef } from 'react';
+import React, { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { Animated, Dimensions } from 'react-native';
 import { GestureHandlerRootView, NativeViewGestureHandler, PanGestureHandler, ScrollView, State } from 'react-native-gesture-handler';
 
@@ -32,31 +33,50 @@ import Functions = Todolist.Functions;
 
 const TodoListScreen: ApplicationRoute = () => {
     const auth = useAuth();
-    const todosData = useDynamicDocs(CollectionOf<Todo>(`users/${auth.authUser.uid}/todos_aas`));
+    const todosData = useDynamicDocs(CollectionOf<Todo>(`users/${auth.authUser.uid}/todos`));
     const todos = todosData ? todosData.map(doc => ({ id: doc.id, data: doc.data })) : [];
     const [todoToDisplay, setTodoToDisplay] = React.useState<Todo>();
-    const modalRef = useRef<BottomSheetModal>(null);
+    const modalRefTodoInfo = useRef<BottomSheetModal>(null);
+    const modalRefFilter = useRef<BottomSheetModal>(null);
+    const [selectedStatus, setSelectedStatus] = useState<{ [key in TodoStatus]: boolean }>({
+        yet: true,
+        in_progress: true,
+        done: false,
+        archived: false,
+    });
+    const todos_filtered = todos.filter(todo => selectedStatus[todo.data.status]);
+
 
 
     return (
         <>
-            <RouteHeader title={t(`todo:todolist_header`)} />
-            <GestureHandlerRootView style={{ flex: 1 }}>
-                <NativeViewGestureHandler>
-                    <ScrollView>
-                        {todos.map((todo) => (
-                            <TodoDisplay
-                                key={todo.id}
-                                id={todo.id}
-                                todo={todo.data}
-                                setTodoToDisplay={setTodoToDisplay}
-                                modalRef={modalRef}
-                            />
-                        ))}
-                        <TView mt={50} mb={75}></TView>
-                    </ScrollView>
-                </NativeViewGestureHandler>
-            </GestureHandlerRootView>
+            <RouteHeader
+                title={t(`todo:todolist_header`)}
+                right={<HeaderButton icon="funnel-outline" onPress={() => modalRefFilter.current?.present()} />}
+            />
+
+            {todos_filtered.length > 0 ? (
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                    <NativeViewGestureHandler>
+                        <ScrollView>
+                            {todos_filtered.map((todo) => (
+                                <TodoDisplay
+                                    key={todo.id}
+                                    id={todo.id}
+                                    todo={todo.data}
+                                    setTodoToDisplay={setTodoToDisplay}
+                                    modalRef={modalRefTodoInfo}
+                                />
+                            ))}
+                            <TView mt={50} mb={75}></TView>
+                        </ScrollView>
+                    </NativeViewGestureHandler>
+                </GestureHandlerRootView>
+            ) : (
+                <TView justifyContent="center" alignItems="center" flex={1}>
+                    <TText>{t('todo:list_empty')}</TText>
+                </TView>
+            )}
 
 
             <TTouchableOpacity onPress={() => router.push('/(app)/todo/create' as any)} p={6} m='md' mt={'sm'} mb={'sm'} radius={'lg'} backgroundColor='base' b={'sm'} borderColor='overlay0' style={{ position: 'absolute', bottom: 30, right: 10, zIndex: 100 }}>
@@ -64,8 +84,9 @@ const TodoListScreen: ApplicationRoute = () => {
             </TTouchableOpacity >
 
 
-            <TodoModalDisplay modalRef={modalRef} todo={todoToDisplay} onClose={() => { setTodoToDisplay(undefined); modalRef.current?.close(); }} />
+            <TodoModalDisplay modalRef={modalRefTodoInfo} todo={todoToDisplay} onClose={() => { setTodoToDisplay(undefined); modalRefTodoInfo.current?.close(); }} />
 
+            <FilterModalDisplay modalRef={modalRefFilter} selectedStatus={selectedStatus} setSelectedStatus={setSelectedStatus} onClose={() => modalRefFilter.current?.close()} />
 
         </>
     );
@@ -238,6 +259,115 @@ const TodoDisplay: React.FC<{ key: string, id: string, todo: Todo; setTodoToDisp
 };
 
 
+
+// ------------------------------------------------------------
+// -----------------------    Modal    ------------------------
+// ------------------------------------------------------------
+
+const FilterModalDisplay: ReactComponent<{
+    modalRef: React.RefObject<BottomSheetModalMethods>;
+    selectedStatus: { [key in TodoStatus]: boolean };
+    setSelectedStatus: React.Dispatch<React.SetStateAction<{ [key in TodoStatus]: boolean }>>;
+    onClose: () => void;
+}> = ({ modalRef, selectedStatus, setSelectedStatus, onClose }) => {
+
+    const toggleCheckbox = (status: TodoStatus) => {
+        setSelectedStatus((prevState) => ({
+            ...prevState,
+            [status]: !prevState[status],
+        }));
+        console.log(`${status} ${!selectedStatus[status] ? 'checked' : 'unchecked'}`);
+    };
+
+    return (
+
+        <ModalContainer modalRef={modalRef}>
+            <>
+
+                <TView justifyContent='center' alignItems='center' mb='sm'>
+                    <TText bold size='lg' mb='sm'>{t(`todo:filter_modal_title`)}</TText>
+                </TView>
+
+                <TView justifyContent='center' alignItems='baseline' mb='md' ml='lg'>
+                    <TView>
+                        {(['yet', 'in_progress', 'done', 'archived'] as TodoStatus[]).map((status) => (
+
+                            <TView key={status} flexDirection='row' alignItems='center' mb='sm' >
+
+                                <TTouchableOpacity onPress={() => toggleCheckbox(status)} ml='sm' mr='md'>
+                                    <Icon
+                                        name={selectedStatus[status] ? 'checkbox-outline' : 'square-outline'}
+                                        color={selectedStatus[status] ? 'green' : 'text'}
+                                        size={25}
+                                    />
+                                </TTouchableOpacity>
+
+
+                                <TText ml='md' color={selectedStatus[status] ? 'text' : 'surface0'}>
+                                    {t(`todo:name.${status}`)}
+                                </TText>
+                            </TView>
+                        ))}
+                    </TView>
+                </TView>
+
+                <FancyButton backgroundColor='subtext0' mb='md' onPress={() => onClose()} outlined>
+                    {t(`todo:close_btn`)}
+                </FancyButton>
+            </>
+        </ModalContainer>
+    );
+};
+
+
+
+
+
+
+const TodoModalDisplay: ReactComponent<{ modalRef: React.RefObject<BottomSheetModalMethods>; todo?: Todo; onClose: () => void; }> = ({ modalRef, todo, onClose }) => {
+
+    return (
+
+        <ModalContainer modalRef={modalRef}>
+            {todo && <>
+
+                <TView justifyContent='center' alignItems='center' mb='sm'>
+                    <TText bold size='lg' mb='sm'>{todo.name}</TText>
+                </TView>
+
+
+                <TView justifyContent='center' alignItems='baseline' mb='md' ml='lg'>
+                    {todo.description && (
+                        <TView>
+                            {todo.description.split('\n').map((line, index) => (
+                                <TText key={index} color='subtext0' size='md' mb='sm'>
+                                    {`• ${line}`}
+                                </TText>
+                            ))}
+                        </TView>
+                    )}
+                </TView>
+
+                <TView mb='lg' pl={'md'} pr={'md'} flexDirection='row' alignItems='center'>
+                    <Icon name={statusIconMap[todo.status]} color={statusColorMap[todo.status]} size={'xl'} />
+                    <TText size='sm' color={statusColorMap[todo.status]} ml='md'>
+                        {t(`todo:status.${todo.status}`)}
+                    </TText>
+                </TView>
+
+                <TView mb={20}></TView>
+
+                <FancyButton backgroundColor='subtext0' mb='md' onPress={() => onClose()} outlined>
+                    {t(`todo:close_btn`)}
+                </FancyButton>
+            </>
+            }
+        </ModalContainer>
+    );
+};
+
+
+
 // ------------------------------------------------------------
 // -----------------------    Utils    ------------------------
 // ------------------------------------------------------------
@@ -295,47 +425,6 @@ export const StatusChanger: ReactComponent<{ status: TodoStatus, setStatus: Disp
 
 
 
-const TodoModalDisplay: ReactComponent<{ modalRef: React.RefObject<BottomSheetModalMethods>; todo?: Todo; onClose: () => void; }> = ({ modalRef, todo, onClose }) => {
-
-    return (
-
-        <ModalContainer modalRef={modalRef}>
-            {todo && <>
-
-                <TView justifyContent='center' alignItems='center' mb='sm'>
-                    <TText bold size='lg' mb='sm'>{todo.name}</TText>
-                </TView>
-
-
-                <TView justifyContent='center' alignItems='baseline' mb='md' ml='lg'>
-                    {todo.description && (
-                        <TView>
-                            {todo.description.split('\n').map((line, index) => (
-                                <TText key={index} color='subtext0' size='md' mb='sm'>
-                                    {`• ${line}`}
-                                </TText>
-                            ))}
-                        </TView>
-                    )}
-                </TView>
-
-                <TView mb='lg' pl={'md'} pr={'md'} flexDirection='row' alignItems='center'>
-                    <Icon name={statusIconMap[todo.status]} color={statusColorMap[todo.status]} size={'xl'} />
-                    <TText size='sm' color={statusColorMap[todo.status]} ml='md'>
-                        {t(`todo:status.${todo.status}`)}
-                    </TText>
-                </TView>
-
-                <TView mb={20}></TView>
-
-                <FancyButton backgroundColor='subtext0' mb='md' onPress={() => onClose()} outlined>
-                    Close
-                </FancyButton>
-            </>
-            }
-        </ModalContainer>
-    );
-};
 
 
 
@@ -392,6 +481,13 @@ const toogleArchivityOfTodo = async (id: string, todo: Todo) => {
 
         if (res.status) {
             console.log('Todo updated successfully');
+
+            // TODO: Add Toast
+            // Toast.show({
+            //     type: 'success',
+            //     text1: todo.status !== "archived" ? t(`todo:archived_success_toast`) : t(`todo:unarchived_success_toast`),
+            // });
+
         } else {
             console.error('Failed to update todo:', res.error);
         }

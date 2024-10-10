@@ -12,7 +12,7 @@ export const updateTodo = onAuthentifiedCall(Functions.updateTodo, async (userId
     if (!args.id)
         return fail("invalid_id");
 
-    const [todo, todoRef] = await getDocumentAndRef(CollectionOf<Todo>(`users/${userId}/todos_aas/`), args.id);
+    const [todo, todoRef] = await getDocumentAndRef(CollectionOf<Todo>(`users/${userId}/todos/`), args.id);
 
     if (todo == undefined)
         return fail("firebase_error");
