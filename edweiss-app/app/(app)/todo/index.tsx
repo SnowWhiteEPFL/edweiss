@@ -1,7 +1,5 @@
-import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
-import For from '@/components/core/For';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import Icon from '@/components/core/Icon';
 import ModalContainer from '@/components/core/modal/ModalContainer';
@@ -9,22 +7,24 @@ import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
 import { callFunction, CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
-import { Color } from '@/constants/Colors';
+import { Color, LightDarkProps } from '@/constants/Colors';
 import ReactComponent from '@/constants/Component';
 import { IconType } from '@/constants/Style';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
+import useThemeColor from '@/hooks/theme/useThemeColor';
 import { default as Todolist } from '@/model/todo';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { router } from 'expo-router';
+import { router, useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useRef } from 'react';
+import { Animated, Dimensions } from 'react-native';
+import { GestureHandlerRootView, NativeViewGestureHandler, PanGestureHandler, ScrollView, State } from 'react-native-gesture-handler';
+
 import Todo = Todolist.Todo;
 import TodoStatus = Todolist.TodoStatus;
 import Functions = Todolist.Functions;
 
-
-const MAX_CHAR_PER_LINE = 30;
 
 // ------------------------------------------------------------
 // ----------------------- TodoScreen -------------------------
@@ -41,15 +41,25 @@ const TodoScreen: ReactComponent<{}> = (props) => {
     return (
         <>
             <RouteHeader title={t(`todo:todolist_header`)} />
+            <GestureHandlerRootView style={{ flex: 1 }}>
+                <NativeViewGestureHandler>
+                    <ScrollView>
+                        {todos.map((todo) => (
+                            <TodoDisplay
+                                key={todo.id}
+                                id={todo.id}
+                                todo={todo.data}
+                                setTodoToDisplay={setTodoToDisplay}
+                                modalRef={modalRef}
+                            />
+                        ))}
+                        <TView mt={50} mb={75}></TView>
+                    </ScrollView>
+                </NativeViewGestureHandler>
+            </GestureHandlerRootView>
 
-            <TScrollView>
-                <For each={todos}>
-                    {todo => <TodoDisplay key={todo.id} id={todo.id} todo={todo.data} setTodoToDisplay={setTodoToDisplay} modalRef={modalRef} />}
-                </For>
-                <TView mt={50} mb={75}></TView>
-            </TScrollView>
 
-            <TTouchableOpacity onPress={() => router.push('/(app)/todo/create' as any)} p='xs' m='md' mt={'sm'} mb={'sm'} radius={'lg'} backgroundColor='base' b={'sm'} borderColor='overlay0' style={{ position: 'absolute', bottom: 30, right: 10, zIndex: 100 }}>
+            <TTouchableOpacity onPress={() => router.push('/(app)/todo/create' as any)} p={6} m='md' mt={'sm'} mb={'sm'} radius={'lg'} backgroundColor='base' b={'sm'} borderColor='overlay0' style={{ position: 'absolute', bottom: 30, right: 10, zIndex: 100 }}>
                 <Icon name="duplicate" color='blue' size={50}></Icon>
             </TTouchableOpacity >
 
@@ -69,47 +79,184 @@ export default TodoScreen;
 // ----------------------- TodoDisplay ------------------------
 // ------------------------------------------------------------
 
+const TodoDisplay: React.FC<{ key: string, id: string, todo: Todo; setTodoToDisplay: React.Dispatch<React.SetStateAction<Todo | undefined>>; modalRef: React.RefObject<BottomSheetModalMethods>; } & LightDarkProps> = ({ id, light, dark, todo, setTodoToDisplay, modalRef }) => {
 
-const TodoDisplay: ReactComponent<{ key: string, id: string, todo: Todo; setTodoToDisplay: React.Dispatch<React.SetStateAction<Todo | undefined>>; modalRef: React.RefObject<BottomSheetModalMethods>; }> = ({ id, todo, setTodoToDisplay, modalRef }) => {
+    // Screen Properties
+    const screenWidth = Dimensions.get('window').width;
+    const router = useRouter();
+    const threshold = screenWidth / 2.5;                            // Threshold for swipe gesture
+    const edgeZoneWidth = screenWidth / 10;                         // Width of the edge zone where the swipe gesture starts
+    const bgColor = useThemeColor({ light, dark }, 'crust');        // Background color of the todo card
+
+    // Animation Listeners            
+    const translateX = useRef(new Animated.Value(0)).current;       // Animated value for horizontal movement
+    const gestureStartX = useRef(0);                                // Stores where the gesture starts
+    const gestureStartY = useRef(0);                                // Stores the vertical position where the gesture starts
+    const isEdgeSwipe = useRef(false);                              // Determines if the swipe started at the edges
+
+
+    // Gesture Handlers throw X axis
+    const handlePanGestureEvent = Animated.event(
+        [{ nativeEvent: { translationX: translateX } }],
+        { useNativeDriver: true }
+    );
+
+    /**
+     * Handle the end of the gesture to snap back 
+     * or navigate to the edit screen (fix me)
+     */
+    const handleGestureEnd = (event: any) => {
+        const { translationX } = event.nativeEvent;
+
+        // Threshold activated
+        if (Math.abs(translationX) > threshold) {
+            Animated.timing(translateX, {
+                toValue: 0,
+                duration: 200,
+                useNativeDriver: true
+            }).start(() => {
+
+                // TODO: change this with archive
+
+                // Navigate to edit screen after resetting position
+                router.push({ pathname: "/(app)/todo/edit", params: { idString: id, todoJSON: JSON.stringify(todo) } });
+            });
+
+
+        }
+
+        // Snap back to original position
+        else {
+            Animated.spring(translateX, {
+                toValue: 0,
+                useNativeDriver: true
+            }).start();
+        }
+    };
+
+    /**
+     * Handle the gesture state change
+     * Note: this function manages the distinction between a
+     *  vertical/horizontal scroll
+     */
+    const onHandlerStateChange = (event: any) => {
+        const { state, translationY, translationX } = event.nativeEvent;
+
+        if (state === State.BEGAN) {
+            // Record the starting position of the gesture
+            gestureStartX.current = event.nativeEvent.x;
+            gestureStartY.current = event.nativeEvent.y;
+            isEdgeSwipe.current = (gestureStartX.current <= edgeZoneWidth || gestureStartX.current >= screenWidth - edgeZoneWidth);
+        }
+
+        if (state === State.ACTIVE) {
+            // Check if the user started the gesture near the edges
+            if (isEdgeSwipe.current) {
+                // If the vertical movement is greater than horizontal, prioritize vertical scrolling
+                if (Math.abs(translationY) > Math.abs(translationX)) {
+                    // Do nothing and let vertical scrolling take precedence
+                    return;
+                }
+
+                // Directly update translateX instead of calling handlePanGestureEvent
+                translateX.setValue(translationX); // Use `setValue` to manually update `translateX`
+            }
+        }
+
+        if (state === State.END) {
+            handleGestureEnd(event); // This will handle snapping back or going to the edit screen
+        }
+    };
+
+
 
     return (
+
         <>
-            <TTouchableOpacity
-                b={'lg'}
-                m='md'
-                mt={'sm'}
-                mb={'sm'}
-                p='lg'
-                backgroundColor='base'
-                borderColor='surface0'
-                radius='lg'
+            <PanGestureHandler
+                onGestureEvent={handlePanGestureEvent}
+                onHandlerStateChange={onHandlerStateChange}
             >
-                <TView flexDirection='row' justifyContent='space-between'>
-                    <TView flex={1} mr='md'>
-                        <TTouchableOpacity
-                            onPress={() => { setTodoToDisplay(todo); modalRef.current?.present(); }}
-                            onLongPress={() => { console.log('Long Pressed'); router.push({ pathname: "/(app)/todo/edit", params: { idString: id, todoJSON: JSON.stringify(todo) } }); }}>
 
-                            <TText color='text' bold numberOfLines={1} ellipsizeMode='tail'>
-                                {todo.name}
-                            </TText>
-                            {
-                                todo.description &&
-                                <TText color='subtext0' size={'sm'} bold numberOfLines={1} ellipsizeMode='tail'>
-                                    {todo.description}
-                                </TText>
-                            }
-                            <TText size='xs' color={statusColorMap[todo.status]} bold numberOfLines={1} ellipsizeMode='tail'>
-                                {t(`todo:status.${todo.status}`)}
-                            </TText>
+                {/* The Animated TODO Card */}
+                <Animated.View
+                    style={{
+                        transform: [{ translateX }],
+                        borderRadius: 20,
+                        backgroundColor: bgColor,
+                        margin: 13,
+                        overflow: 'hidden',
+                        zIndex: 100
+                    }}
+                >
+                    <TTouchableOpacity
+                        b={'lg'}
+                        m='sm'
+                        p='lg'
+                        backgroundColor='base'
+                        borderColor='surface0'
+                        radius='lg'
+                    >
+                        <TView flexDirection='row' justifyContent='space-between'>
+                            <TView flex={1} mr='md'>
+                                <TTouchableOpacity
+                                    // Display the modal on simple press
 
-                        </TTouchableOpacity>
-                    </TView>
+                                    onPress={() => { setTodoToDisplay(todo); modalRef.current?.present(); }}
 
-                    <TodoStatusDisplay id={id} todo={todo} status={todo.status}></TodoStatusDisplay>
+                                    // Navigate to edit screen on long press
+                                    onLongPress={() => { router.push({ pathname: "/(app)/todo/edit", params: { idString: id, todoJSON: JSON.stringify(todo) } }); }}
+                                >
 
-                </TView>
-            </TTouchableOpacity >
+                                    <TText color='text' bold numberOfLines={1} ellipsizeMode='tail'>
+                                        {todo.name}
+                                    </TText>
+
+                                    {todo.description && (
+                                        <TText color='subtext0' size={'sm'} bold numberOfLines={1} ellipsizeMode='tail'>
+                                            {todo.description}
+                                        </TText>
+                                    )}
+
+                                    <TText size='xs' color={statusColorMap[todo.status]} bold numberOfLines={1} ellipsizeMode='tail'>
+                                        {t(`todo:status.${todo.status}`)}
+                                    </TText>
+
+
+                                </TTouchableOpacity>
+                            </TView>
+
+                            <TodoStatusDisplay id={id} todo={todo} status={todo.status}></TodoStatusDisplay>
+
+
+                        </TView>
+                    </TTouchableOpacity>
+                </Animated.View>
+
+            </PanGestureHandler>
+
+
+
+            {/* <TView
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 10,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    backgroundColor: 'transparent'
+                }}
+            >
+                <Icon name="archive" color='surface0' size='lg' />
+                <TText color='surface0' ml="sm" mr="sm">
+                    Archive
+                </TText>
+                <Icon name="archive" color='surface0' size='lg' />
+            </TView> */}
 
         </>
     );
@@ -142,7 +289,6 @@ export const StatusChanger: ReactComponent<{ status: TodoStatus, setStatus: Disp
 
 const TodoModalDisplay: ReactComponent<{ modalRef: React.RefObject<BottomSheetModalMethods>; todo?: Todo; onClose: () => void; }> = ({ modalRef, todo, onClose }) => {
 
-
     return (
 
         <ModalContainer modalRef={modalRef}>
@@ -174,7 +320,7 @@ const TodoModalDisplay: ReactComponent<{ modalRef: React.RefObject<BottomSheetMo
 
                 <TView mb={20}></TView>
 
-                <FancyButton backgroundColor='base' textColor='text' mb='md' onPress={() => onClose()}>
+                <FancyButton backgroundColor='subtext0' mb='md' onPress={() => onClose()} outlined>
                     Close
                 </FancyButton>
             </>

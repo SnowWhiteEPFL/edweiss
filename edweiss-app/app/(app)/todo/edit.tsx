@@ -72,7 +72,7 @@ const editTodo: ApplicationRoute = () => {
 
             </TScrollView>
 
-            <TTouchableOpacity backgroundColor={(isValid) ? 'text' : 'blue'} disabled={isValid} onPress={editTodoAction} mt='xl' ml='xl' mr='xl' p={12} radius={'xl'}
+            <TTouchableOpacity backgroundColor={(isValid) ? 'text' : 'blue'} disabled={isValid} onPress={editTodoAction} ml='xl' mr='xl' p={12} radius={'xl'}
                 style={{ position: 'absolute', bottom: 15, left: 0, right: 0, zIndex: 100 }}>
                 <TView flexDirection='row' justifyContent='center' alignItems='center'>
                     <Icon name="create" color='base' size={'md'} />
