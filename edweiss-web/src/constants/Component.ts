@@ -9,4 +9,6 @@ export type ApplicationLayout = React.FC<{}>;
 
 export type Setter<T> = React.Dispatch<React.SetStateAction<T>>;
 
+export type ClassName = React.HTMLAttributes<HTMLDivElement>["className"];
+
 export default ReactComponent;
