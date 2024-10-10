@@ -12,7 +12,7 @@ const ExploreTab: ApplicationRoute = () => {
 			<RouteHeader title={"Explore"} />
 
 			<TView>
-				<FancyButton onPress={() => {router.push('/(app)/lectures/slides/index.tsx')}} >
+				<FancyButton onPress={() => { router.push('/(app)/lectures/slides/'); }} >
 					<TText> Go To Lecture's slide</TText>
 				</FancyButton>
 			</TView>
