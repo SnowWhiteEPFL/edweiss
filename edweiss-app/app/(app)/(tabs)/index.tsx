@@ -1,6 +1,5 @@
 import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
-<<<<<<< HEAD
 import TText from '@/components/core/TText';
 import { Course } from '@/model/school/courses';
 import { firebase } from '@react-native-firebase/auth';
@@ -13,18 +12,6 @@ import ReactComponent from '@/constants/Component';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, TouchableOpacity } from 'react-native';
-=======
-import RouteHeader from '@/components/core/header/RouteHeader';
-import FancyButton from '@/components/input/FancyButton';
-import FancyTextInput from '@/components/input/FancyTextInput';
-import { Collections, callFunction } from '@/config/firebase';
-import t from '@/config/i18config';
-import ReactComponent, { ApplicationRoute } from '@/constants/Component';
-import { useDynamicDocs } from '@/hooks/firebase/firestore';
-import Memento from '@/model/memento';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
->>>>>>> 6e7f49d3f468f46252eea352fca5a2ed96f357ac
 
 const courses: Course[] = [
 	{
@@ -331,35 +318,11 @@ const HomeTab = () => {
 			<RouteHeader title={"Home"} />
 
 			<TScrollView>
-<<<<<<< HEAD
 				<For each={courses_.map((doc) => {
 					const course = doc.data() as Course; // Explicitly cast doc.data() to Course type
 					return { ...course, id: doc.id };    // Merge course data with the document id
 				})}>
 					{course => <CourseDisplay key={course.id} course={course} id={course.id} />}
-=======
-				{/* <TextInput value={deckName} onChangeText={n => setDeckName(n)} placeholder='Deck name' placeholderTextColor={'#555'} style={{ backgroundColor: Colors.dark.crust, borderColor: Colors.dark.blue, borderWidth: 1, padding: 8, paddingHorizontal: 16, margin: 16, marginBottom: 0, color: 'white', borderRadius: 14, fontFamily: "Inter" }}>
-
-				</TextInput> */}
-
-				<FancyTextInput
-					value={deckName}
-					onChangeText={n => setDeckName(n)}
-					placeholder='My amazing deck'
-					icon='dice'
-					label='Deck name'
-					// error='Invalid deck name'
-					multiline
-					numberOfLines={3}
-				/>
-
-				<FancyButton backgroundColor='blue' mt={'md'} mb={'sm'} onPress={call} icon='logo-firebase'>
-					{t("memento:create-deck")}
-				</FancyButton>
-
-				<For each={decks}>
-					{deck => <DeckDisplay key={deck.id} deck={deck.data} id={deck.id} />}
->>>>>>> 6e7f49d3f468f46252eea352fca5a2ed96f357ac
 				</For>
 
 			</TScrollView>
@@ -387,15 +350,6 @@ const CourseDisplay: ReactComponent<{ course: Course, id: string; }> = ({ course
 			<TText bold>
 				{course.name}
 			</TText>
-<<<<<<< HEAD
-=======
-			<TText mb='md' color='subtext0' size={'sm'}>
-				2h ago
-			</TText>
-			{
-				deck.cards.map((card, index) => <CardDisplay key={index} card={card} />)
-			}
->>>>>>> 6e7f49d3f468f46252eea352fca5a2ed96f357ac
-		</TTouchableOpacity>
+		</TTouchableOpacity >
 	);
 };
