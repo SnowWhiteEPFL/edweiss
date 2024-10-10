@@ -1,15 +1,15 @@
-import { Ionicons } from '@expo/vector-icons'
-import { StyleProp, ViewStyle } from 'react-native'
-import { Color, LightDarkProps } from './Colors'
-import { BoxModelProps, Size, computeBoxModelSize, computeSizeOpt, gapSizes, radiusSizes } from './Sizes'
+import { Ionicons } from '@expo/vector-icons';
+import { StyleProp, ViewStyle } from 'react-native';
+import { Color, LightDarkProps } from './Colors';
+import { BoxModelProps, Size, computeBoxModelSize, computeSizeOpt, gapSizes, radiusSizes } from './Sizes';
 
-export type IconType = keyof typeof Ionicons.glyphMap
+export type IconType = keyof typeof Ionicons.glyphMap;
 
-export type FlexDirection = 'row' | 'row-reverse' | 'column' | 'column-reverse'
+export type FlexDirection = 'row' | 'row-reverse' | 'column' | 'column-reverse';
 
-export type JustifyContent = "center" | "flex-start" | "flex-end" | "space-between" | "space-around" | "space-evenly"
+export type JustifyContent = "center" | "flex-start" | "flex-end" | "space-between" | "space-around" | "space-evenly";
 
-export type AlignItems = "center" | "flex-start" | "flex-end" | "stretch" | "baseline"
+export type AlignItems = "center" | "flex-start" | "flex-end" | "stretch" | "baseline";
 
 export type ContainerProps = & LightDarkProps & BoxModelProps & {
 	backgroundColor?: Color,
@@ -18,12 +18,12 @@ export type ContainerProps = & LightDarkProps & BoxModelProps & {
 	flexDirection?: FlexDirection,
 	justifyContent?: JustifyContent,
 	alignItems?: AlignItems,
-	rowGap?: Size,
-	columnGap?: Size,
+	flexRowGap?: Size,
+	flexColumnGap?: Size,
 	radius?: Size,
-}
+};
 
-export type ContainerStyle = StyleProp<ViewStyle>
+export type ContainerStyle = StyleProp<ViewStyle>;
 
 export function computeContainerStyle(props: ContainerProps, backgroundColor: string | undefined, borderColor: string | undefined): ContainerStyle {
 	return {
@@ -35,8 +35,8 @@ export function computeContainerStyle(props: ContainerProps, backgroundColor: st
 		borderColor,
 		justifyContent: props.justifyContent,
 		alignItems: props.alignItems,
-		rowGap: computeSizeOpt(props.rowGap, gapSizes),
-		columnGap: computeSizeOpt(props.columnGap, gapSizes),
+		rowGap: computeSizeOpt(props.flexRowGap, gapSizes),
+		columnGap: computeSizeOpt(props.flexColumnGap, gapSizes),
 		...computeBoxModelSize(props)
-	}
+	};
 }
