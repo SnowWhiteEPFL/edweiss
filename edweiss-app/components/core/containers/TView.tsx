@@ -6,9 +6,9 @@ import { View, type ViewProps } from 'react-native';
 
 export type TViewProps = ViewProps & ContainerProps;
 
-const TView: ReactComponent<TViewProps> = ({ backgroundColor, style, ...props }) => {
+const TView: ReactComponent<TViewProps> = ({ backgroundColor, borderColor, style, ...props }) => {
 	const computedBackgroundColor = useOptionalThemeColor({ light: props.light, dark: props.dark }, backgroundColor);
-	const computedBorderColor = useOptionalColor(props.borderColor);
+	const computedBorderColor = useOptionalColor(borderColor);
 
 	return <View
 		style={
