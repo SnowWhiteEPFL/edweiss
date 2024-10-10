@@ -1,4 +1,5 @@
 import { FunctionFolder, FunctionOf } from './functions';
+import { Timestamp } from './time';
 
 
 namespace Todolist {
@@ -8,7 +9,8 @@ namespace Todolist {
     export interface Todo {
         name: string,
         description?: string,
-        status: TodoStatus;
+        status: TodoStatus,
+        dueDate: Timestamp,
     }
 
 

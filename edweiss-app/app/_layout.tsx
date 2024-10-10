@@ -10,6 +10,7 @@ import { Stack } from 'expo-router';
 import * as SystemUI from 'expo-system-ui';
 import React, { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Toast from 'react-native-toast-message';
 
 const RootLayout: ApplicationLayout = () => {
 	const theme = useTheme();
@@ -43,6 +44,7 @@ const RootLayout: ApplicationLayout = () => {
 								<Stack.Screen name="login" options={{ headerShown: false }} />
 								<Stack.Screen name="+not-found" />
 							</Stack>
+							<Toast />
 						</BottomSheetModalProvider>
 					</GestureHandlerRootView>
 				</ThemeProvider>

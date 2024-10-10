@@ -21,6 +21,7 @@ import { router, useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { Animated, Dimensions } from 'react-native';
 import { GestureHandlerRootView, NativeViewGestureHandler, PanGestureHandler, ScrollView, State } from 'react-native-gesture-handler';
+import Toast from 'react-native-toast-message';
 
 import Todo = Todolist.Todo;
 import TodoStatus = Todolist.TodoStatus;
@@ -52,7 +53,7 @@ const TodoListScreen: ApplicationRoute = () => {
         <>
             <RouteHeader
                 title={t(`todo:todolist_header`)}
-                right={<HeaderButton icon="funnel-outline" onPress={() => modalRefFilter.current?.present()} />}
+                right={<HeaderButton icon="options-outline" onPress={() => modalRefFilter.current?.present()} />}
             />
 
             {todos_filtered.length > 0 ? (
@@ -276,7 +277,6 @@ const FilterModalDisplay: ReactComponent<{
             ...prevState,
             [status]: !prevState[status],
         }));
-        console.log(`${status} ${!selectedStatus[status] ? 'checked' : 'unchecked'}`);
     };
 
     return (
@@ -483,10 +483,10 @@ const toogleArchivityOfTodo = async (id: string, todo: Todo) => {
             console.log('Todo updated successfully');
 
             // TODO: Add Toast
-            // Toast.show({
-            //     type: 'success',
-            //     text1: todo.status !== "archived" ? t(`todo:archived_success_toast`) : t(`todo:unarchived_success_toast`),
-            // });
+            Toast.show({
+                type: 'success',
+                text1: todo.status !== "archived" ? t(`todo:archived_success_toast`) : t(`todo:unarchived_success_toast`),
+            });
 
         } else {
             console.error('Failed to update todo:', res.error);

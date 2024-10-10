@@ -4,11 +4,14 @@ import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import Icon from '@/components/core/Icon';
 import TText from '@/components/core/TText';
+import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import Todolist from '@/model/todo';
+import { Time } from '@/utils/time';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import TodoStatus = Todolist.TodoStatus;
@@ -20,11 +23,28 @@ const CreateTodoScreen: ApplicationRoute = () => {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [status, setStatus] = useState<TodoStatus>("yet");
-    const isInvalid = name == "";
+    const [date, setDate] = useState(new Date());
+    const [showPickerDate, setShowPickerDate] = useState(false);
+    const [showPickerTime, setShowPickerTime] = useState(false);
+
+
+    // Toogle the save button only when valid
+    const isInvalid = name === "" || !date;
+
+    const onChangeDate = (event: any, selectedDate: Date | undefined) => {
+        if (selectedDate) {
+            setDate(selectedDate);
+            setShowPickerDate(false);
+            setShowPickerTime(false);
+            console.log(`Date changed to ${date}`);
+        }
+    };
+
+
 
     async function saveAction() {
         const res = await callFunction(Functions.createTodo, {
-            todo: { name, description: (description == "") ? undefined : description, status }
+            todo: { name, description: (description == "") ? undefined : description, status, dueDate: Time.fromDate(date) }
         }
         );
 
@@ -63,6 +83,42 @@ const CreateTodoScreen: ApplicationRoute = () => {
                         numberOfLines={4}
                         mt={'sm'}
                     />
+                </TView>
+
+                <TView>
+
+                    <FancyButton icon='calendar' onPress={() => setShowPickerDate(true)}>
+                        Show date picker
+                    </FancyButton>
+
+                    <FancyButton icon='alarm' onPress={() => setShowPickerTime(true)}>
+                        Show time picker
+                    </FancyButton>
+
+                    {showPickerDate && (
+                        <DateTimePicker
+                            testID="dateTimePicker"
+                            value={date}
+                            mode='date'
+                            is24Hour={true}
+                            display="default"
+                            onChange={onChangeDate}
+                        />
+                    )}
+
+                    {showPickerTime && (
+                        <DateTimePicker
+                            testID="dateTimePicker"
+                            value={date}
+                            mode='time'
+                            is24Hour={true}
+                            display="default"
+                            onChange={onChangeDate}
+                        />
+                    )}
+
+
+
                 </TView>
             </TScrollView>
 
