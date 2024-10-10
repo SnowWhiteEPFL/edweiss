@@ -12,9 +12,8 @@ import Quizzes from '@/model/quizzes';
 import { router } from 'expo-router';
 
 const QuizzesList: ApplicationRoute = () => {
-    const path = "courses/exampleCourseId/quizzes";
+    const path = "courses/placeholderCourseId/quizzes";
     const myQuizzes = useDocs(CollectionOf<Quizzes.Quiz>(path));
-    myQuizzes;
     return (
         <>
             <RouteHeader title='My quizzes' />
@@ -33,15 +32,15 @@ const QuizzesList: ApplicationRoute = () => {
 
 export default QuizzesList;
 
-const QuizzOuterDisplay: ReactComponent<{ quiz: Quizzes.Quiz, id: string; }> = (props) => {
+const QuizzOuterDisplay: ReactComponent<{ quiz: Quizzes.Quiz, id: string; }> = ({ quiz, id }) => {
 
     return (
-        <TTouchableOpacity onPress={() => router.push(`/quiz/${props.id}` as any)}>
+        <TTouchableOpacity onPress={() => router.push(`/quiz/${id}` as any)}>
             <TText>
-                {props.quiz.name}
+                {quiz.name}
             </TText>
             <TText>
-                {props.quiz.deadline == undefined ? "No deadline" : "Until " + props.quiz.deadline + " to submit"}
+                {quiz.deadline == undefined ? "No deadline" : "Until " + quiz.deadline + " to submit"}
             </TText>
             <TText>
                 Attempts:

@@ -11,6 +11,7 @@ namespace Quizzes {
         description: string;
         imageUrl?: string;
         id: number;
+        type: "MCQProposition";
     }
 
     export interface MCQ {
@@ -23,7 +24,7 @@ namespace Quizzes {
     export interface TF {
         question: string;
         imageURL?: string;
-        answer: true | false;
+        answer: boolean;
         type: "TF";
     }
 
