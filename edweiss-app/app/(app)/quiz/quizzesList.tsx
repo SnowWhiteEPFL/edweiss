@@ -23,7 +23,7 @@ const QuizzesList: ApplicationRoute = () => {
                     {quiz => <QuizzOuterDisplay quiz={quiz.data} id={quiz.id}></QuizzOuterDisplay>}
                 </For>
             </TScrollView>
-            <FancyButton>
+            <FancyButton mb={"md"}>
                 Create new Quiz
             </FancyButton>
         </>
@@ -35,8 +35,8 @@ export default QuizzesList;
 const QuizzOuterDisplay: ReactComponent<{ quiz: Quizzes.Quiz, id: string; }> = ({ quiz, id }) => {
 
     return (
-        <TTouchableOpacity onPress={() => router.push(`/quiz/${id}` as any)}>
-            <TText>
+        <TTouchableOpacity onPress={() => router.push(`/quiz/${id}` as any)} backgroundColor='surface0' radius={'lg'} m={"sm"} p={"md"}>
+            <TText mb={"sm"}>
                 {quiz.name}
             </TText>
             <TText>

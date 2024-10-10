@@ -6,19 +6,21 @@ import TView from '@/components/core/containers/TView';
 import For from '@/components/core/For';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
-import FancyButton from '@/components/input/FancyButton';
 import { CollectionOf } from '@/config/firebase';
 import { useDoc } from '@/hooks/firebase/firestore';
 import Quizzes from '@/model/quizzes';
 import QuizzesAttempts from '@/model/quizzesAttempts';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 
+import TSafeArea from '@/components/core/containers/TSafeArea';
+import RouteHeader from '@/components/core/header/RouteHeader';
+import FancyButton from '@/components/input/FancyButton';
+import { Color } from '@/constants/Colors';
 import { ApplicationRoute } from '@/constants/Component';
 
-
-
 const QuizzDisplay: ApplicationRoute = () => {
+    //console.log("ALl refresh");
 
     const { id } = useLocalSearchParams();
     if (typeof id != 'string')
@@ -30,9 +32,11 @@ const QuizzDisplay: ApplicationRoute = () => {
     const [studentAnswers, setStudentAnswers] = useState<QuizzesAttempts.Answer[]>([]);
 
     useEffect(() => {
-        if (quiz == undefined) {
+        //console.log("I'm being used. kinky");
+
+        if (quiz == undefined)
             return;
-        }
+
         const defaultAnswer = quiz.data.exercises.map(answ => {
             if (answ.type == "MCQ") {
                 return [] as number[];
@@ -44,147 +48,174 @@ const QuizzDisplay: ApplicationRoute = () => {
         setStudentAnswers(defaultAnswer);
     }, [quiz]);
 
+    const onUpdate = useCallback((newAnswer: QuizzesAttempts.Answer, id: number) => {
+        setStudentAnswers((oldStudentAnswers) => {
+            const newStudentAnswers = [...oldStudentAnswers];
+            newStudentAnswers[id] = newAnswer;
+            return newStudentAnswers;
+        });
+    }, []);
 
     if (quiz == undefined) {
         return <TActivityIndicator />;
     }
-    const exercises = quiz?.data.exercises;
 
-    const onUpdate = (newAnswer: QuizzesAttempts.Answer, id: number) => {
-        const newStudentAnswers = [...studentAnswers];
-        newStudentAnswers[id] = newAnswer;
-        setStudentAnswers(newStudentAnswers);
-    };
+    const exercises = quiz.data.exercises;
 
     return ( // for now, returns a scroll view instead of the "tiktok" format
-        <TView>
-            <FancyButton onPress={() => router.push("/quiz/quizzesList" as any)}>
-                <TText>
-                    Save and go back
-                </TText>
-            </FancyButton>
-            <TScrollView>
-                <For each={exercises}>
-                    {
-                        thisExercise => {
-                            const thisIndex = exercises.indexOf(thisExercise);
-
-                            if (thisExercise.type == "MCQ") {
-                                return (<MCQDisplay exercise={thisExercise} onUpdate={onUpdate} exId={thisIndex} />);
+        <>
+            <RouteHeader disabled />
+            <TSafeArea>
+                <TScrollView>
+                    <TText>
+                        {JSON.stringify(studentAnswers)}
+                    </TText>
+                    <For each={exercises}>
+                        {
+                            (thisExercise, index) => {
+                                if (thisExercise.type == "MCQ") {
+                                    return (<MCQDisplay key={thisExercise.question} exercise={thisExercise} selectedIds={studentAnswers[index] as QuizzesAttempts.MCQAnswersIndices} onUpdate={onUpdate} exId={index} />);
+                                }
+                                else { // if type == "TF"
+                                    return (<TFDisplay key={thisExercise.question} exercise={thisExercise} selected={studentAnswers[index] as QuizzesAttempts.TFAnswer} onUpdate={onUpdate} exId={index} />);
+                                };
                             }
-                            else { // if type == "TF"
-                                return (<TFDisplay exercise={thisExercise} onUpdate={onUpdate} exId={thisIndex} />);
-                            };
                         }
-                    }
-                </For>
-            </TScrollView>
+                    </For>
 
-        </TView >
+                    <FancyButton mt={"md"} mb={"md"} onPress={() => router.push("/quiz/quizzesList" as any)}>
+                        Save and exit
+                    </FancyButton>
+                </TScrollView>
+            </TSafeArea >
+        </>
     );
 };
 
 export default QuizzDisplay;
 
-const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, onUpdate: (answer: QuizzesAttempts.Answer, id: number) => void, exId: number; }> = ({ exercise, onUpdate, exId }) => {
-    // selectedIds represents the indices of the propositions that were selected by the student, in this exercise.
-    const [selectedIds, setSelectedIds] = useState<QuizzesAttempts.MCQAnswersIndices>([]);
-
-
+const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: QuizzesAttempts.MCQAnswersIndices, onUpdate: (answer: QuizzesAttempts.Answer, id: number) => void, exId: number; }> = memo(({ exercise, selectedIds, onUpdate, exId }) => {
     const handleSelection = (propId: number) => {
         if (selectedIds.includes(propId)) {
-            setSelectedIds(selectedIds.filter(currentId => currentId != propId)); // unselects proposition, removes id
+            const newAnswer = selectedIds.filter(currentId => currentId != propId);
+            onUpdate(newAnswer, exId);
+            // unselects proposition, removes id
         }
-        else {
-            setSelectedIds(selectedIds.concat([propId])); // adds id to list
+        else if (exercise.numberOfAnswers > selectedIds.length) {
+            const newAnswer = selectedIds.concat([propId]);
+            onUpdate(newAnswer, exId); // adds id to list
         }
-        onUpdate(selectedIds, exId); // updates answers at index exId
-
+        // updates answers at index exId
     };
-    const handleColor = (propId: number) => {
+    const handleColor = (propId: number): Color => {
+        if (selectedIds == undefined) {
+            return "surface0";
+        }
         if (selectedIds.includes(propId)) {
             return "blue";
         }
         else {
+            return "surface0";
+        }
+    };
+
+    const handleColorText = (propId: number): Color => {
+        if (selectedIds == undefined) {
+            return 'text';
+        }
+        if (selectedIds.includes(propId)) {
             return "base";
+        }
+        else {
+            return 'text';
         }
     };
 
     return (
-        <TView mb={"xl"} backgroundColor='surface1' m={"md"}>
+        <TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"}>
 
             <TView mb={"lg"} radius={999} p={"md"}>
-                <TText>
+                <TText size={"lg"}>
                     {exercise.question}
                 </TText>
             </TView>
 
 
             <For each={exercise.propositions}>
-                {proposition =>
-                    <TTouchableOpacity
-                        onPress={() => handleSelection(exercise.propositions.indexOf(proposition))}
-                        backgroundColor={handleColor(exercise.propositions.indexOf(proposition))}
-                        mb={"md"} mr={"md"} ml={"md"}
-                    >
-                        <TText>
-                            {proposition.description}
-                        </TText>
-                    </TTouchableOpacity>
+                {
+                    (proposition, index) =>
+                        <TTouchableOpacity
+                            onPress={() => handleSelection(index)}
+                            backgroundColor={handleColor(index)}
+                            mb={"md"} mr={"md"} ml={"md"} p={"sm"} px={"md"}
+                            radius={"xl"}
+                        >
+                            <TText color={handleColorText(index)}>
+                                {proposition.description}
+                            </TText>
+                        </TTouchableOpacity>
                 }
             </For>
 
         </TView>
 
     );
-};
+});
 
-const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, onUpdate: (answer: QuizzesAttempts.Answer, id: number) => void, exId: number; }> = ({ exercise, onUpdate, exId }) => {
+const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: QuizzesAttempts.TFAnswer, onUpdate: (answer: QuizzesAttempts.Answer, id: number) => void, exId: number; }> = memo(({ exercise, selected, onUpdate, exId }) => {
     // selected represents the option (true or false) selected by the student, in this exercise.
-    const [selected, setSelected] = useState<QuizzesAttempts.TFAnswer>(undefined);
+    //console.log("TFDisplay refreshed");
 
     const handleSelection = (value: boolean) => {
         if (selected == undefined || selected != value) {
-            setSelected(value);
-
+            onUpdate(value, exId);
         } else {
-            setSelected(undefined); // de-select the option
+            onUpdate(undefined, exId); // de-select the option
         }
-        onUpdate(selected, exId);
-
     };
 
-    const handleColor = (value: boolean) => {
+    const handleColor = (value: boolean): Color => {
         if ((selected == undefined) || selected != value) {
-            return "base";
+            return "surface0";
         } else {
             return "blue";
         }
     };
-    //test github
+    const handleColorText = (value: boolean): Color => {
+        if ((selected == undefined) || selected != value) {
+            return "text";
+        } else {
+            return "base";
+        }
+    };
 
     return (
-        <TView mb={"md"}>
+        <TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"} pb={"xl"}>
 
-            <TView mb={"lg"} radius={999} p={"md"} backgroundColor='surface0'>
-                <TText>
+            <TView mb={"lg"} radius={"xl"} p={"md"}>
+                <TText size={"lg"}>
                     {exercise.question}
                 </TText>
             </TView>
 
-            <TTouchableOpacity onPress={() => handleSelection(true)} radius={999} p={"md"} backgroundColor={handleColor(true)}>
-                <TText>
-                    True
-                </TText>
-            </TTouchableOpacity>
+            <TView flexDirection='row' flexColumnGap={"xl"}>
+                <TTouchableOpacity flex={1} onPress={() => handleSelection(true)} radius={"xl"} p={"md"} backgroundColor={handleColor(true)}>
+                    <TText align='center' color={handleColorText(true)}>
+                        True
+                    </TText>
+                </TTouchableOpacity>
 
-            <TTouchableOpacity onPress={() => handleSelection(false)} radius={999} p={"md"} backgroundColor={handleColor(false)}>
-                <TText>
-                    False
-                </TText>
-            </TTouchableOpacity>
+                <TTouchableOpacity flex={1} onPress={() => handleSelection(false)} radius={"xl"} p={"md"} backgroundColor={handleColor(false)}>
+                    <TText align='center' color={handleColorText(false)}>
+                        False
+                    </TText>
+                </TTouchableOpacity>
+
+            </TView>
+
+
 
         </TView>
 
     );
-};
+});

@@ -20,6 +20,7 @@ namespace Quizzes {
         propositions: MCQProposition[]; // 2 to 8 propositions
         answersIndices: number[]; // the indices point to the correct propositions
         type: "MCQ";
+        numberOfAnswers: number;
     }
     export interface TF {
         question: string;
