@@ -10,8 +10,8 @@ namespace Memento {
 
 	export type CardQuestion = CardQuestionText;
 
-	export interface Card {
-		question: CardQuestion,
+	export interface Card { // For an image, we could have a URL
+		question: string, // For now, just a string
 		answer: string;
 		learning_status: LearningStatus;
 	}
@@ -23,35 +23,15 @@ namespace Memento {
 		cards: Card[];
 	}
 
-	export const createDeck = FunctionFolder("memento", {
-		creation: FunctionFolder("creation", {
-			createDeck: FunctionOf<{ deck: Memento.Deck; }, { id: string; }, 'empty_deck'>("createDeck"),
-		})
+	export const Functions = FunctionFolder("memento", {
+		createDeck: FunctionOf<{ deck: Memento.Deck; }, { id: string; }, 'empty_deck'>("createDeck"),
+		deleteDeck: FunctionOf<{ deckId: string; }, { id: string; }, 'deck_not_found'>("deleteDeck"),
+		createCard: FunctionOf<{ deckId: any; card: Memento.Card; }, { id: string; }, 'deck_not_found'>("createCard"),
+		deleteCard: FunctionOf<{ deckId: string; cardIndex: number; }, { id: string; }, 'deck_not_found'>("deleteCard"),
+		updateDeck: FunctionOf<{ deckId: any; card: Memento.Card; }, { id: string; }, 'deck_not_found'>("updateDeck"),
+		updateCard: FunctionOf<{ deckId: any; newCard: Memento.Card; cardIndex: number; }, { id: string; }, {}>("updateCard"),
 	});
 
-	export const deleteDeck = FunctionFolder("memento", {
-		deletion: FunctionFolder("deletion", {
-			deleteDeck: FunctionOf<{ deckId: string; }, { id: string; }, 'deck_not_found'>("deleteDeck"),
-		})
-	});
-
-	export const createCard = FunctionFolder("memento", {
-		creation: FunctionFolder("creation", {
-			createCard: FunctionOf<{ deckId: any; card: Memento.Card; }, { id: string; }, 'deck_not_found'>("createCard"),
-		})
-	});
-
-	export const deleteCard = FunctionFolder("memento", {
-		deletion: FunctionFolder("deletion", {
-			deleteCard: FunctionOf<{ deckId: string; cardId: string; }, { id: string; }, 'deck_not_found'>("deleteCard"),
-		})
-	});
-
-	export const updateDeck = FunctionFolder("memento", {
-		update: FunctionFolder("update", {
-			updateDeck: FunctionOf<{ deckId: any; card: Memento.Card; }, { id: string; }, 'deck_not_found'>("updateDeck"),
-		})
-	});
 }
 
 export default Memento;
