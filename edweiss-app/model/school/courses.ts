@@ -7,6 +7,12 @@ export type CourseID = string & {};
 export type Credits = number & {};
 
 export type Section = "IN" | "COM" | "PH" | "MT";
+export const courseColors = {
+	lecture: 'lightblue',
+	exercises: 'lightgreen',
+	lab: 'lightyellow',
+	project: 'lightcoral',
+};
 
 export interface CourseTimePeriod extends CyclicTimePeriod {
 	type: CourseTimePeriodType;
@@ -21,7 +27,7 @@ export interface Course {
 	section: Section;
 	credits: Credits;
 	newAssignments: boolean;
-	assignements: AssignmentBase[];
+	assignments: Assignment[];
 }
 
 export type AssignmentType = "quiz" | "submit";
