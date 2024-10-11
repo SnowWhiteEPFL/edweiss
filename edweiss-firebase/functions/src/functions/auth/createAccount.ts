@@ -12,7 +12,8 @@ export const createAccount = onAuthentifiedCall(Auth.Functions.createAccount, as
 
 	await userRef.set({
 		createdAt: Time.now(),
-		name: args.name
+		name: args.name,
+		type: "student"
 	});
 
 	return OK;
