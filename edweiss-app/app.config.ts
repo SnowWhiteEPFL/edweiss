@@ -46,6 +46,7 @@ const config: ExpoConfig = {
 		"@react-native-firebase/app",
 		"@react-native-firebase/app-check",
 		"@react-native-google-signin/google-signin",
+		"@react-native-voice/voice",
 		[
 			"expo-build-properties",
 			{

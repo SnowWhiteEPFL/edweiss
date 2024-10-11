@@ -4,7 +4,6 @@ import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import Icon from '@/components/core/Icon';
 import TText from '@/components/core/TText';
-import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
@@ -24,19 +23,29 @@ const CreateTodoScreen: ApplicationRoute = () => {
     const [description, setDescription] = useState("");
     const [status, setStatus] = useState<TodoStatus>("yet");
     const [date, setDate] = useState(new Date());
+    const [dateChanged, setDateChanged] = useState(false);
+    const [timeChanged, setTimeChanged] = useState(false);
     const [showPickerDate, setShowPickerDate] = useState(false);
     const [showPickerTime, setShowPickerTime] = useState(false);
 
-
     // Toogle the save button only when valid
-    const isInvalid = name === "" || !date;
+    const isInvalid = name === "";
 
     const onChangeDate = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
+            setDateChanged(true);
             setDate(selectedDate);
             setShowPickerDate(false);
             setShowPickerTime(false);
-            console.log(`Date changed to ${date}`);
+        }
+    };
+
+    const onChangeTime = (event: any, selectedDate: Date | undefined) => {
+        if (selectedDate) {
+            setTimeChanged(true);
+            setDate(selectedDate);
+            setShowPickerDate(false);
+            setShowPickerTime(false);
         }
     };
 
@@ -51,7 +60,7 @@ const CreateTodoScreen: ApplicationRoute = () => {
         if (res.status) {
             // Toast
             console.log("Succefully todo added");
-            router.push("/(app)/todo" as any);
+            router.back();
         } else {
             console.log(res.error);
         }
@@ -62,6 +71,7 @@ const CreateTodoScreen: ApplicationRoute = () => {
     return (
         <>
             <RouteHeader title={t(`todo:create_header`)} />
+
 
             <TScrollView>
 
@@ -81,46 +91,63 @@ const CreateTodoScreen: ApplicationRoute = () => {
                         label='Description'
                         multiline
                         numberOfLines={4}
-                        mt={'sm'}
+                        mt={'md'}
+                        mb={'sm'}
                     />
                 </TView>
 
-                <TView>
 
-                    <FancyButton icon='calendar' onPress={() => setShowPickerDate(true)}>
-                        Show date picker
-                    </FancyButton>
-
-                    <FancyButton icon='alarm' onPress={() => setShowPickerTime(true)}>
-                        Show time picker
-                    </FancyButton>
-
-                    {showPickerDate && (
-                        <DateTimePicker
-                            testID="dateTimePicker"
-                            value={date}
-                            mode='date'
-                            is24Hour={true}
-                            display="default"
-                            onChange={onChangeDate}
-                        />
-                    )}
-
-                    {showPickerTime && (
-                        <DateTimePicker
-                            testID="dateTimePicker"
-                            value={date}
-                            mode='time'
-                            is24Hour={true}
-                            display="default"
-                            onChange={onChangeDate}
-                        />
-                    )}
+                <TView flexDirection='row' justifyContent='space-between' alignItems='center' mr={'md'} ml={'md'} mt={'sm'} mb={'sm'}>
 
 
+                    <TView backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column'>
+
+                        <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`todo:date_btn_title`)}</TText>
+
+                        <TTouchableOpacity onPress={() => { setShowPickerDate(true); setShowPickerTime(false); }}
+
+                            pr={'sm'} pl={'md'} pb={'sm'}
+                            flexDirection='row' justifyContent='flex-start' alignItems='center'>
+
+                            <Icon name='calendar' size='md' color='overlay0' />
+                            <TText ml={10} color={dateChanged ? 'text' : 'overlay0'}>{date.toDateString()}</TText>
+                        </TTouchableOpacity>
+                    </TView>
+
+
+
+
+                    <TTouchableOpacity onPress={() => { setShowPickerTime(true); setShowPickerDate(false); }} backgroundColor='crust' borderColor='surface0' radius={14} mr={'md'} mt={'sm'} mb={'sm'} p={'md'} pr={'lg'} pl={'lg'} flexDirection='row' alignItems='center'>
+                        <Icon name='alarm' size='md' color='overlay0' />
+                        <TText ml={10} color={timeChanged ? 'text' : 'overlay0'}>{date.toTimeString().split(':').slice(0, 2).join(':')}</TText>
+                    </TTouchableOpacity>
 
                 </TView>
-            </TScrollView>
+
+
+                {showPickerDate && (
+                    <DateTimePicker
+                        testID="dateTimePicker"
+                        value={date}
+                        mode='date'
+                        is24Hour={true}
+                        display="default"
+                        onChange={onChangeDate}
+                    />
+                )}
+
+                {showPickerTime && (
+                    <DateTimePicker
+                        testID="dateTimePicker"
+                        value={date}
+                        mode='time'
+                        is24Hour={true}
+                        display="default"
+                        onChange={onChangeTime}
+                    />
+                )}
+
+            </TScrollView >
 
             <TTouchableOpacity backgroundColor={(isInvalid) ? 'text' : 'blue'} disabled={isInvalid} onPress={saveAction} ml={100} mr={100} p={12} radius={'xl'}
                 style={{ position: 'absolute', bottom: 15, left: 0, right: 0, zIndex: 100, borderRadius: 9999 }}>

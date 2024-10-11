@@ -19,7 +19,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { router, useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useRef, useState } from 'react';
-import { Animated, Dimensions } from 'react-native';
+import { Animated, Dimensions, Vibration } from 'react-native';
 import { GestureHandlerRootView, NativeViewGestureHandler, PanGestureHandler, ScrollView, State } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
 
@@ -226,7 +226,10 @@ const TodoDisplay: React.FC<{ key: string, id: string, todo: Todo; setTodoToDisp
                                         onPress={() => { setTodoToDisplay(todo); modalRef.current?.present(); }}
 
                                         // Navigate to edit screen on long press
-                                        onLongPress={() => { router.push({ pathname: "/(app)/todo/edit", params: { idString: id, todoJSON: JSON.stringify(todo) } }); }}
+                                        onLongPress={() => {
+                                            Vibration.vibrate(100);
+                                            router.push({ pathname: "/(app)/todo/edit", params: { idString: id, todoJSON: JSON.stringify(todo) } });
+                                        }}
                                     >
 
                                         <TText color='text' bold numberOfLines={1} ellipsizeMode='tail'>
@@ -480,12 +483,10 @@ const toogleArchivityOfTodo = async (id: string, todo: Todo) => {
         const res = await callFunction(Functions.updateTodo, { id, newTodo });
 
         if (res.status) {
-            console.log('Todo updated successfully');
-
-            // TODO: Add Toast
             Toast.show({
                 type: 'success',
-                text1: todo.status !== "archived" ? t(`todo:archived_success_toast`) : t(`todo:unarchived_success_toast`),
+                text1: todo.name + " was " + (todo.status !== "archived" ? t(`todo:archived_success_toast`) : t(`todo:unarchived_success_toast`)),
+                text2: todo.status !== "archived" ? t(`todo:archived_success_toast_sub`) : t(`todo:unarchived_success_toast_sub`),
             });
 
         } else {

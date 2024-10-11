@@ -1,5 +1,6 @@
 import { ApplicationLayout } from '@/constants/Component';
 
+import toastConfig from '@/config/toast-config';
 import Colors from '@/constants/Colors';
 import { AuthSessionProvider } from '@/contexts/auth';
 import { UserProvider } from '@/contexts/user';
@@ -44,7 +45,7 @@ const RootLayout: ApplicationLayout = () => {
 								<Stack.Screen name="login" options={{ headerShown: false }} />
 								<Stack.Screen name="+not-found" />
 							</Stack>
-							<Toast />
+							<Toast config={toastConfig} />
 						</BottomSheetModalProvider>
 					</GestureHandlerRootView>
 				</ThemeProvider>
