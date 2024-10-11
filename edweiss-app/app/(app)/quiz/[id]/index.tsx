@@ -6,10 +6,9 @@ import TView from '@/components/core/containers/TView';
 import For from '@/components/core/For';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
-import { CollectionOf } from '@/config/firebase';
+import { callFunction, CollectionOf } from '@/config/firebase';
 import { useDoc } from '@/hooks/firebase/firestore';
-import Quizzes from '@/model/quizzes';
-import QuizzesAttempts from '@/model/quizzesAttempts';
+import Quizzes, { QuizzesAttempts } from '@/model/quizzes';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import React, { memo, useCallback, useEffect, useState } from 'react';
 
@@ -18,6 +17,8 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
 import { Color } from '@/constants/Colors';
 import { ApplicationRoute } from '@/constants/Component';
+import { useAuth } from '@/contexts/auth';
+import { ActivityIndicator } from 'react-native';
 
 const QuizzDisplay: ApplicationRoute = () => {
     //console.log("ALl refresh");
@@ -28,30 +29,41 @@ const QuizzDisplay: ApplicationRoute = () => {
 
     const courseId = "placeholderCourseId";
 
+    const { uid } = useAuth();
+
     const quiz = useDoc(CollectionOf<Quizzes.Quiz>("courses/" + courseId + "/quizzes"), id);
+    const previousAttempt = useDoc(CollectionOf<QuizzesAttempts.QuizAttempt>("courses/" + courseId + "/quizzes/" + id + "/attempts"), uid);
     const [studentAnswers, setStudentAnswers] = useState<QuizzesAttempts.Answer[]>([]);
 
     useEffect(() => {
         //console.log("I'm being used. kinky");
 
-        if (quiz == undefined)
+        if (quiz == undefined || quiz.data == undefined || quiz.data.exercises == undefined)
             return;
 
-        const defaultAnswer = quiz.data.exercises.map(answ => {
-            if (answ.type == "MCQ") {
-                return [] as number[];
+        const defaultAnswers = quiz.data.exercises.map(ex => {
+            if (ex.type == "MCQ") {
+                const MCQAnswer: QuizzesAttempts.MCQAnswersIndices = {
+                    type: "MCQAnswersIndices",
+                    value: []
+                };
+                return MCQAnswer;
             }
             else {
-                return undefined;
+                const TFAnswer: QuizzesAttempts.TFAnswer = {
+                    type: "TFAnswer",
+                    value: undefined
+                };
+                return TFAnswer;
             }
         });
-        setStudentAnswers(defaultAnswer);
+        setStudentAnswers(defaultAnswers);
     }, [quiz]);
 
-    const onUpdate = useCallback((newAnswer: QuizzesAttempts.Answer, id: number) => {
+    const onUpdate = useCallback((newAnswer: number[] | boolean | undefined, id: number) => {
         setStudentAnswers((oldStudentAnswers) => {
             const newStudentAnswers = [...oldStudentAnswers];
-            newStudentAnswers[id] = newAnswer;
+            newStudentAnswers[id].value = newAnswer;
             return newStudentAnswers;
         });
     }, []);
@@ -62,29 +74,54 @@ const QuizzDisplay: ApplicationRoute = () => {
 
     const exercises = quiz.data.exercises;
 
+    async function send() {
+        const attempts = previousAttempt?.data == undefined ? 1 : previousAttempt.data?.attempts + 1;
+
+        const res = await callFunction(QuizzesAttempts.Functions.createQuizAttempt, {
+            quizAttempt: {
+                attempts: attempts,
+                answers: studentAnswers
+            },
+            courseId: courseId,
+            quizId: quiz?.id
+        });
+        if (res.status == 1) {
+            console.log(`OKAY, submitted quiz with id ${res.data.id}`);
+        }
+    }
+
     return ( // for now, returns a scroll view instead of the "tiktok" format
         <>
             <RouteHeader disabled />
             <TSafeArea>
                 <TScrollView>
                     <TText>
-                        {JSON.stringify(studentAnswers)}
+                        {JSON.stringify(studentAnswers.map(a => a.value))}
                     </TText>
                     <For each={exercises}>
                         {
                             (thisExercise, index) => {
-                                if (thisExercise.type == "MCQ") {
-                                    return (<MCQDisplay key={thisExercise.question} exercise={thisExercise} selectedIds={studentAnswers[index] as QuizzesAttempts.MCQAnswersIndices} onUpdate={onUpdate} exId={index} />);
+                                if (thisExercise.type == "MCQ" && studentAnswers[index] != undefined) {
+
+                                    return (<MCQDisplay key={thisExercise.question} exercise={thisExercise} selectedIds={studentAnswers[index].value as number[]} onUpdate={onUpdate} exId={index} />);
                                 }
-                                else { // if type == "TF"
-                                    return (<TFDisplay key={thisExercise.question} exercise={thisExercise} selected={studentAnswers[index] as QuizzesAttempts.TFAnswer} onUpdate={onUpdate} exId={index} />);
-                                };
+                                else if (thisExercise.type == "TF" && studentAnswers[index] != undefined) { // if type == "TF"
+                                    return (<TFDisplay key={thisExercise.question} exercise={thisExercise} selected={studentAnswers[index].value as boolean | undefined} onUpdate={onUpdate} exId={index} />);
+                                } else {
+                                    return (<ActivityIndicator />);
+                                }
                             }
                         }
                     </For>
 
-                    <FancyButton mt={"md"} mb={"md"} onPress={() => router.push("/quiz/quizzesList" as any)}>
-                        Save and exit
+                    <FancyButton
+                        mt={"md"} mb={"md"}
+                        onPress={() => {
+                            send();
+                            router.back();
+                        }}
+                        icon='save-sharp'>
+                        Submit and exit
                     </FancyButton>
                 </TScrollView>
             </TSafeArea >
@@ -94,18 +131,22 @@ const QuizzDisplay: ApplicationRoute = () => {
 
 export default QuizzDisplay;
 
-const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: QuizzesAttempts.MCQAnswersIndices, onUpdate: (answer: QuizzesAttempts.Answer, id: number) => void, exId: number; }> = memo(({ exercise, selectedIds, onUpdate, exId }) => {
+const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: number[], onUpdate: (answer: number[] | boolean | undefined, id: number) => void, exId: number; }> = memo(({ exercise, selectedIds, onUpdate, exId }) => {
     const handleSelection = (propId: number) => {
-        if (selectedIds.includes(propId)) {
-            const newAnswer = selectedIds.filter(currentId => currentId != propId);
-            onUpdate(newAnswer, exId);
-            // unselects proposition, removes id
-        }
-        else if (exercise.numberOfAnswers > selectedIds.length) {
-            const newAnswer = selectedIds.concat([propId]);
-            onUpdate(newAnswer, exId); // adds id to list
-        }
-        // updates answers at index exId
+        requestAnimationFrame(() => {
+            if (selectedIds.includes(propId)) {
+                const newAnswer = selectedIds.filter(currentId => currentId != propId);
+                onUpdate(newAnswer, exId);
+                // unselects proposition, removes id
+            }
+            else if (exercise.numberOfAnswers > selectedIds.length) {
+                const newAnswer = selectedIds.concat([propId]);
+                onUpdate(newAnswer, exId); // adds id to list
+            }
+            // updates answers at index exId
+
+        });
+
     };
     const handleColor = (propId: number): Color => {
         if (selectedIds == undefined) {
@@ -162,16 +203,19 @@ const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: QuizzesAt
     );
 });
 
-const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: QuizzesAttempts.TFAnswer, onUpdate: (answer: QuizzesAttempts.Answer, id: number) => void, exId: number; }> = memo(({ exercise, selected, onUpdate, exId }) => {
+const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean | undefined, onUpdate: (answer: number[] | boolean | undefined, id: number) => void, exId: number; }> = memo(({ exercise, selected, onUpdate, exId }) => {
     // selected represents the option (true or false) selected by the student, in this exercise.
     //console.log("TFDisplay refreshed");
 
     const handleSelection = (value: boolean) => {
-        if (selected == undefined || selected != value) {
-            onUpdate(value, exId);
-        } else {
-            onUpdate(undefined, exId); // de-select the option
-        }
+        requestAnimationFrame(() => {
+            if (selected == undefined || selected != value) {
+                onUpdate(value, exId);
+            } else {
+                onUpdate(undefined, exId); // de-select the option
+            }
+        });
+
     };
 
     const handleColor = (value: boolean): Color => {
@@ -199,7 +243,7 @@ const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: QuizzesAttempt
             </TView>
 
             <TView flexDirection='row' flexColumnGap={"xl"}>
-                <TTouchableOpacity flex={1} onPress={() => handleSelection(true)} radius={"xl"} p={"md"} backgroundColor={handleColor(true)}>
+                <TTouchableOpacity flex={1} onPress={() => handleSelection(true)} radius={"xl"} p={"md"} backgroundColor={handleColor(true)} >
                     <TText align='center' color={handleColorText(true)}>
                         True
                     </TText>
