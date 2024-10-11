@@ -3,12 +3,11 @@ import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import { Course } from '@/model/school/courses';
 import { firebase } from '@react-native-firebase/auth';
-import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import For from '@/components/core/For';
 import { CollectionOf } from '@/config/firebase';
-import ReactComponent from '@/constants/Component';
+import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView, TouchableOpacity } from 'react-native';
@@ -105,7 +104,7 @@ const courses: Course[] = [
 		description: "description",
 		periods: [
 			{
-				type: "lecture",
+				type: "lab",
 				dayIndex: 1,
 				start: 915, // 12:00 PM
 				end: 1020, // 1:00 PM
@@ -201,7 +200,7 @@ const Calendar = ({ cyclicPeriods }: { cyclicPeriods: { type: string; dayIndex: 
 										>
 											<TView flexDirection="column">
 												<TView flexDirection="row" justifyContent="space-between">
-													<TText color="surface0" numberOfLines={1} p={5} style={{ fontSize: 15, lineHeight: 16 }}>
+													<TText color="surface0" numberOfLines={1} size={15} p={5}>
 														{`${period.type.charAt(0).toUpperCase() + period.type.slice(1)}`}</TText>
 													<TText pr={10} pt={7} color="overlay2" numberOfLines={1} size={12}>
 														{`${period.rooms.map((room) => room.name).join(", ")}`}
@@ -221,7 +220,6 @@ const Calendar = ({ cyclicPeriods }: { cyclicPeriods: { type: string; dayIndex: 
 								})}
 							</TView>
 						</TView>
-
 					))}
 					<TView
 						backgroundColor='red'
@@ -240,26 +238,7 @@ const Calendar = ({ cyclicPeriods }: { cyclicPeriods: { type: string; dayIndex: 
 
 const HomeTab = () => {
 
-	const [courseName, setCourseName] = useState("");
-	const [courses_, setCourses] = useState<FirebaseFirestoreTypes.QueryDocumentSnapshot[]>([]);
-
-
-	useEffect(() => {
-		const fetchCourses = async () => {
-			try {
-				const cours = await CollectionOf<Course>('courses').get();
-				setCourses(cours.docs);
-			} catch (error) {
-				console.error("Error fetching courses: ", error);
-			}
-		};
-
-		fetchCourses();
-	}, []);
-
-
-
-
+	const courses_2 = useDynamicDocs(CollectionOf<Course>("courses")) ?? [];
 
 	const cyclicPeriods = courses.flatMap(course =>
 		course.periods.map(period => ({
@@ -273,83 +252,37 @@ const HomeTab = () => {
 	);
 
 	return (
-
-
-		<TView flex={1} p={16} backgroundColor='base' style={{
-
-		}}>
+		<TView flex={1} p={16} backgroundColor='base'>
 			<Calendar cyclicPeriods={cyclicPeriods} />
 			<TScrollView flex={1} horizontal={false} showsVerticalScrollIndicator={true}>
 				<TText align='center'>List of courses</TText>
-				<For each={courses_.map((doc) => {
-					const course = doc.data() as Course;
-					return { ...course, id: doc.id };
-				})}>
+				<For each={courses_2}>
 					{course =>
 						<TTouchableOpacity onPress={() => router.push(`/(app)/courses/${course.id}`)} b={2} radius={10} flexDirection='row' p={5} borderColor='overlay2' backgroundColor='overlay0' mb={8} key={course.id}>
 							<TView flexDirection='column' >
 								<TView flexDirection='row' >
-									<TText p={5} pb={0} pt={0} color='flamingo'>{course.name}</TText>
-									{course.newAssignments && <TText color='green'>New!</TText>}
+									<TText p={5} pb={0} pt={0} color='flamingo'>{course.data.name}</TText>
+									{course.data.newAssignments && <TText color='green'>New!</TText>}
 								</TView>
-								<TText p={5} >{course.description}</TText>
+								<TText p={5} >{course.data.description}</TText>
 								<TView flexDirection='row' >
-									<TText p={5} pt={0}>Crédits: {course.credits}</TText>
+									<TText p={5} pt={0}>Crédits: {course.data.credits}</TText>
 									<TView pl={10}>
-										{course.assignements?.length > 0 ? (
-											<TView style={{ borderColor: 'red', borderWidth: 1, borderRadius: 10 }} >
-												<TText pl={10} pr={10} >assignements : {course.assignements.length}</TText>
+										{course.data.assignements &&
+											<TView borderColor='red' b={1} radius={3} >
+												{course.data.assignements.length > 0 && <TText pl={10} pr={10} >assignements : {course.data.assignements.length}</TText>}
 											</TView>
-										) : null}
-
-
+										}
 									</TView>
 								</TView>
 							</TView>
-
-						</TTouchableOpacity>}
+						</TTouchableOpacity>
+					}
 				</For>
-
 			</TScrollView>
 		</TView>
-
-		/*
-		<>
-			<RouteHeader title={"Home"} />
-
-			<TScrollView>
-				<For each={courses_.map((doc) => {
-					const course = doc.data() as Course; // Explicitly cast doc.data() to Course type
-					return { ...course, id: doc.id };    // Merge course data with the document id
-				})}>
-					{course => <CourseDisplay key={course.id} course={course} id={course.id} />}
-				</For>
-
-			</TScrollView>
-		</>
-		*/
 	);
 };
 
 export default HomeTab;
 
-
-const CourseDisplay: ReactComponent<{ course: Course, id: string; }> = ({ course, id }) => {
-	return (
-		<TTouchableOpacity
-			bb={0}
-			onPress={() => router.push(`/(app)/courses/${id}`)}
-			m='md'
-			mt={'sm'}
-			mb={'sm'}
-			p='lg'
-			backgroundColor='base'
-			borderColor='crust'
-			radius='lg'
-		>
-			<TText bold>
-				{course.name}
-			</TText>
-		</TTouchableOpacity >
-	);
-};
