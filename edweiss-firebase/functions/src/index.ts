@@ -10,11 +10,12 @@ fs.readdirSync('./src/functions', { recursive: true }).forEach(file => {
 	if (typeof file != "string" || !file.endsWith(".ts"))
 		return;
 
+	console.log(`Exporting ${file}.`);
+
 	let path = file.substring(0, file.length - 3);
-	let indx = path.indexOf("\\");
-	while (indx != -1) {
+
+	while (path.indexOf("\\") != -1) {
 		path = path.replace("\\", "/");
-		indx = path.indexOf("\\");
 	}
 
 	let pathStartIndex = path.lastIndexOf("/");
