@@ -48,7 +48,7 @@ const config: ExpoConfig = {
 		"@config-plugins/react-native-blob-util",
 		"@config-plugins/react-native-pdf",
 		"@react-native-google-signin/google-signin",
-		[	
+		[
 			"expo-build-properties",
 			{
 				"ios": {
@@ -85,6 +85,12 @@ const config: ExpoConfig = {
 			"expo-font",
 			{
 				"fonts": ["./assets/fonts/Inter.ttf"]
+			}
+		],
+		[
+			"expo-screen-orientation",
+			{
+				"initialOrientation": "DEFAULT"
 			}
 		]
 	],
