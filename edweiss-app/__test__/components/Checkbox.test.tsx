@@ -17,7 +17,7 @@ const Checkbox: ReactComponent<{}> = (_) => {
 };
 
 describe("Checkbox", () => {
-	test("calls onPress function when pressed", async () => {
+	it("changes internal state", async () => {
 		const screen = render(<Checkbox />);
 
 		expect(screen.getByText("Not checked")).toBeTruthy();

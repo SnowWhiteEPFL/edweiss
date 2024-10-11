@@ -50,6 +50,10 @@ const HomeTab: ApplicationRoute = () => {
 
 				</TextInput> */}
 
+				<TView m={"lg"} ml={"xs"} my={"md"}>
+					<TText>Hello</TText>
+				</TView>
+
 				<FancyTextInput
 					value={deckName}
 					onChangeText={n => setDeckName(n)}

@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleProp, ViewStyle } from 'react-native';
 import { Color, LightDarkProps } from './Colors';
-import { BoxModelProps, Size, computeBoxModelSize, computeSizeOpt, gapSizes, radiusSizes } from './Sizes';
+import { BoxModelProps, Size, computeBorders, computeMargins, computePaddings, computeSizeOpt, gapSizes, radiusSizes } from './Sizes';
 
 export type IconType = keyof typeof Ionicons.glyphMap;
 
@@ -25,7 +25,7 @@ export type ContainerProps = & LightDarkProps & BoxModelProps & {
 
 export type ContainerStyle = StyleProp<ViewStyle>;
 
-export function computeContainerStyle(props: ContainerProps, backgroundColor: string | undefined, borderColor: string | undefined): ContainerStyle {
+export function computeContainerStyle(props: ContainerProps, backgroundColor: string | undefined, borderColor: string | undefined): ViewStyle {
 	return {
 		backgroundColor,
 		flex: props.flex,
@@ -37,6 +37,8 @@ export function computeContainerStyle(props: ContainerProps, backgroundColor: st
 		alignItems: props.alignItems,
 		rowGap: computeSizeOpt(props.flexRowGap, gapSizes),
 		columnGap: computeSizeOpt(props.flexColumnGap, gapSizes),
-		...computeBoxModelSize(props)
+		...computePaddings(props),
+		...computeMargins(props),
+		...computeBorders(props),
 	};
 }
