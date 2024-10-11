@@ -29,7 +29,7 @@ const FancyButton: ReactComponent<FancyButtonProps> = ({ backgroundColor = 'blue
 	const computedBorderWidth = 1;
 
 	return (
-		<TTouchableOpacity onPress={props.onPress} disabled={loading || props.disabled} backgroundColor={computedBackgroundColor} borderColor={backgroundColor} flexDirection='row' justifyContent='center' columnGap={'md'} alignItems='center' radius={'xl'} pt={12} pb={12} b={computedBorderWidth} style={[computeMargins({ mx: "md", ...props }), props.style]} testID={props.testID}>
+		<TTouchableOpacity onPress={props.onPress} disabled={loading || props.disabled} backgroundColor={computedBackgroundColor} borderColor={backgroundColor} flexDirection='row' justifyContent='center' flexColumnGap={'md'} alignItems='center' radius={'xl'} pt={12} pb={12} b={computedBorderWidth} style={[computeMargins({ mx: "md", ...props }), props.style]} testID={props.testID}>
 			{
 				loading ?
 					<TActivityIndicator size={24} color={computedTextColor} /> :
