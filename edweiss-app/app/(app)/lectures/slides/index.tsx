@@ -4,18 +4,22 @@ import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import Icon from '@/components/core/Icon';
 import TText from '@/components/core/TText';
+import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { getDownloadURL } from '@/config/firebase';
 import { ApplicationRoute } from '@/constants/Component';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, Linking } from 'react-native';
+import { ActivityIndicator, Linking } from 'react-native';
 import Pdf from 'react-native-pdf';
 
 const Slide: ApplicationRoute = () => {
     const [numPages, setNumPages] = useState<number>(0);  // Number of pages in the PDF
-    const [page, setPage] = useState<number>(1);  // Current page, starting from 1
+    const [page, setPage] = useState<number>(0);  // Current page, starting from 1
     //const [images, setImages] = useState<SlidesDisplay.Slides>();  // Loading state
     const [url, setUrl] = useState<string>('');  // Loading state
+    const [goToQuiz, setGoToQuiz] = useState<boolean>(false);
+    const [width, setWidth] = useState<number>(100);
+    const [height, setHeight] = useState<number>(100);
 
     // Function to go to the next page
     function pageForward() {
@@ -58,6 +62,8 @@ const Slide: ApplicationRoute = () => {
                         <Icon size={'xl'} name={'arrow-up-circle-outline'} dark='text'></Icon>
                     </TTouchableOpacity>
 
+                    <TText color='red'>{page}/{numPages}</TText>
+
                     <TTouchableOpacity backgroundColor='base' onPress={pageForward}>
                         <Icon size={'xl'} name={'arrow-down-circle-outline'} dark='text'></Icon>
                     </TTouchableOpacity>
@@ -66,21 +72,28 @@ const Slide: ApplicationRoute = () => {
                 <Pdf
                     trustAllCerts={false}
                     source={{ uri: url }}
-                    spacing={1}
                     renderActivityIndicator={() =>
                         <ActivityIndicator size={'large'} />
                     }
                     enablePaging={true}
                     //onLoadProgress={(percentage) => console.log(`Loading : ${percentage}`)}
-                    //onLoadComplete={() => console.log("Loading Complete")}
-                    onPageChanged={(page, totalPages) => setNumPages(totalPages)}
+                    onLoadComplete={(totalPages, path, { width, height }) => {
+                        setWidth(width * 0.5);
+                        setHeight(height * 0.5);
+                        setNumPages(totalPages);
+                    }}
+                    onPageChanged={(page, totalPages) => {
+                        setPage(page);
+                        (page == 3) ? setGoToQuiz(true) : setGoToQuiz(false);
+                    }}
                     onError={(error) => console.log(error)}
                     //onPageSingleTap={(page) => console.log(page)}
                     onPressLink={(link) => Linking.openURL(link)}
                     page={page}
-                    style={{ flex: 1, width: Dimensions.get('window').width * 0.8, height: Dimensions.get('window').width }} />
-
+                    style={{ flex: 1, width: width, height: height }} />
             </TView>
+            <TView>{goToQuiz ? <FancyButton backgroundColor='red' onPress={() => console.log("Go to quiz")}></FancyButton> : <TView></TView>}</TView>
+
             <TView flexDirection='row' style={{ height: "100%" }}>
                 <TScrollView flex={0.7} b={'sm'} mr={'md'}>
                     <FancyTextInput label='Ask your questions' mt={'xl'} icon='chatbubbles-outline'></FancyTextInput>
