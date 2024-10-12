@@ -53,7 +53,7 @@ const CreateTodoScreen: ApplicationRoute = () => {
 
     async function saveAction() {
         const res = await callFunction(Functions.createTodo, {
-            todo: { name, description: (description == "") ? undefined : description, status, dueDate: Time.fromDate(date) }
+            todo: { name, description: (description == "") ? undefined : description, status, dueDate: (dateChanged || timeChanged) ? Time.fromDate(date) : undefined }
         }
         );
 
@@ -100,7 +100,7 @@ const CreateTodoScreen: ApplicationRoute = () => {
                 <TView flexDirection='row' justifyContent='space-between' alignItems='center' mr={'md'} ml={'md'} mt={'sm'} mb={'sm'}>
 
 
-                    <TView backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column'>
+                    <TView backgroundColor='crust' borderColor='surface0' radius={14} flex={2} flexDirection='column' mr='sm'>
 
                         <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`todo:date_btn_title`)}</TText>
 
@@ -110,17 +110,24 @@ const CreateTodoScreen: ApplicationRoute = () => {
                             flexDirection='row' justifyContent='flex-start' alignItems='center'>
 
                             <Icon name='calendar' size='md' color='overlay0' />
-                            <TText ml={10} color={dateChanged ? 'text' : 'overlay0'}>{date.toDateString()}</TText>
+                            <TText ml={14} color={dateChanged ? 'text' : 'overlay0'}>{date.toDateString()}</TText>
                         </TTouchableOpacity>
                     </TView>
 
 
+                    <TView backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
 
+                        <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`todo:time_btn_title`)}</TText>
 
-                    <TTouchableOpacity onPress={() => { setShowPickerTime(true); setShowPickerDate(false); }} backgroundColor='crust' borderColor='surface0' radius={14} mr={'md'} mt={'sm'} mb={'sm'} p={'md'} pr={'lg'} pl={'lg'} flexDirection='row' alignItems='center'>
-                        <Icon name='alarm' size='md' color='overlay0' />
-                        <TText ml={10} color={timeChanged ? 'text' : 'overlay0'}>{date.toTimeString().split(':').slice(0, 2).join(':')}</TText>
-                    </TTouchableOpacity>
+                        <TTouchableOpacity onPress={() => { setShowPickerDate(false); setShowPickerTime(true); }}
+
+                            pr={'sm'} pl={'md'} pb={'sm'}
+                            flexDirection='row' justifyContent='flex-start' alignItems='center'>
+
+                            <Icon name='alarm' size='md' color='overlay0' />
+                            <TText ml={10} color={timeChanged ? 'text' : 'overlay0'}>{date.toTimeString().split(':').slice(0, 2).join(':')}</TText>
+                        </TTouchableOpacity>
+                    </TView>
 
                 </TView>
 
@@ -132,7 +139,14 @@ const CreateTodoScreen: ApplicationRoute = () => {
                         mode='date'
                         is24Hour={true}
                         display="default"
-                        onChange={onChangeDate}
+                        onChange={(event, selectedDate) => {
+                            if (event.type === "dismissed") {
+                                setShowPickerDate(false);
+                                setShowPickerTime(false);
+                            } else {
+                                onChangeDate(event, selectedDate);
+                            }
+                        }}
                     />
                 )}
 
@@ -143,7 +157,14 @@ const CreateTodoScreen: ApplicationRoute = () => {
                         mode='time'
                         is24Hour={true}
                         display="default"
-                        onChange={onChangeTime}
+                        onChange={(event, selectedDate) => {
+                            if (event.type === "dismissed") {
+                                setShowPickerDate(false);
+                                setShowPickerTime(false);
+                            } else {
+                                onChangeTime(event, selectedDate);
+                            }
+                        }}
                     />
                 )}
 

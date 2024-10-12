@@ -228,7 +228,7 @@ const TodoDisplay: React.FC<{ key: string, id: string, todo: Todo; setTodoToDisp
                                         // Navigate to edit screen on long press
                                         onLongPress={() => {
                                             Vibration.vibrate(100);
-                                            router.push({ pathname: "/(app)/todo/edit", params: { idString: id, todoJSON: JSON.stringify(todo) } });
+                                            router.push({ pathname: "/(app)/todo/edit" as any, params: { idString: id, todoJSON: JSON.stringify(todo) } });
                                         }}
                                     >
 

@@ -35,7 +35,7 @@ const EditTodoScreen: ApplicationRoute = () => {
         if (res.status) {
             // Toast
             console.log("Succefully todo modified the todo");
-            router.push("/(app)/todo");
+            router.back();
         } else {
             console.log(res.error);
         }
@@ -47,7 +47,7 @@ const EditTodoScreen: ApplicationRoute = () => {
         if (res.status) {
             // Toast
             console.log("Successfully deleted the todo");
-            router.push("/(app)/todo");
+            router.back();
         } else {
             console.log(res.error);
         }
