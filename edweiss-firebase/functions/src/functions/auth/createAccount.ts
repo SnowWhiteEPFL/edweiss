@@ -13,7 +13,8 @@ export const createAccount = onAuthentifiedCall(Auth.Functions.createAccount, as
 	await userRef.set({
 		createdAt: Time.now(),
 		name: args.name,
-		type: "student"
+		type: "student",
+		courses: []
 	});
 
 	return OK;
