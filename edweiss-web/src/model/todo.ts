@@ -10,7 +10,7 @@ namespace Todolist {
         name: string,
         description?: string,
         status: TodoStatus,
-        dueDate: Timestamp,
+        dueDate?: Timestamp,
     }
 
 
