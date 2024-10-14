@@ -20,7 +20,8 @@ const Slide: ApplicationRoute = () => {
     //const [images, setImages] = useState<SlidesDisplay.Slides>();  // Loading state
     const [url, setUrl] = useState<string>('');  // Loading state
     const [goToQuiz, setGoToQuiz] = useState<boolean>(false);
-    const [screenOrientation, setScreenOrientation] = useState(ScreenOrientation.Orientation.PORTRAIT_UP);
+    //const [isLandscape, setIsLandscape] = useState(false);
+    const [isFullscreen, setIsFullscreen] = useState(false);
 
     useListenToMessages((msg) => {
         if (msg.type == "go_to_slide") {
@@ -64,13 +65,36 @@ const Slide: ApplicationRoute = () => {
     useEffect(() => {
         getUrl();
         setLandscape();
+
+        /*
+        // Orientation change listener
+        const subscription = ScreenOrientation.addOrientationChangeListener(({ orientationInfo }) => {
+            const { orientation } = orientationInfo;
+            // If the orientation is portrait (either portrait up or down), trigger setPortrait
+            if (
+                orientation === ScreenOrientation.Orientation.PORTRAIT_UP ||
+                orientation === ScreenOrientation.Orientation.PORTRAIT_DOWN
+            ) {
+                setPortrait();
+                setIsLandscape(false);
+            } else {
+                setLandscape();
+                setIsLandscape(true);
+            }
+        }); 
+
+        // Cleanup function to remove listener when component unmounts
+        return () => {
+            ScreenOrientation.removeOrientationChangeListener(subscription);
+        };*/
+
     }, []);
 
     return (
 
         <>
             <RouteHeader title={"Lecture's Slides"} />
-            <TView flexDirection='row' flex={1} style={{ width: "100%" }}>
+            <TView flexDirection={'row'} flex={1} style={{ width: "100%" }}>
                 <TView mr={'lg'} flexDirection='column' flex={1}>
                     <Pdf
                         trustAllCerts={false}
@@ -79,20 +103,18 @@ const Slide: ApplicationRoute = () => {
                             <ActivityIndicator size={'large'} />
                         }
                         enablePaging={true}
-                        //onLoadProgress={(percentage) => console.log(`Loading : ${percentage}`)}
                         onLoadComplete={(totalPages) => setNumPages(totalPages)}
                         onPageChanged={(page) => {
                             setPage(page);
                             (page == 3) ? setGoToQuiz(true) : setGoToQuiz(false);
                         }}
                         onError={(error) => console.log(error)}
-                        //onPageSingleTap={(page) => console.log(page)}
                         onPressLink={(link) => Linking.openURL(link)}
                         page={page}
                         horizontal
-                        style={{ flex: 1, width: Dimensions.get('window').height, height: 10 }} />
+                        style={{ flex: 1, width: isFullscreen ? Dimensions.get('window').width : Dimensions.get('window').height, height: Dimensions.get('window').height }} />
 
-                    <TView flexDirection='row' justifyContent='space-between'>
+                    <TView flexDirection='row' justifyContent='space-between' >
                         <TTouchableOpacity backgroundColor='base' onPress={pageBack}>
                             <Icon size={'xl'} name={'arrow-back-circle-outline'} dark='text'></Icon>
                         </TTouchableOpacity>
@@ -102,18 +124,25 @@ const Slide: ApplicationRoute = () => {
                         <TTouchableOpacity backgroundColor='base' onPress={pageForward}>
                             <Icon size={'xl'} name={'arrow-forward-circle-outline'} dark='text'></Icon>
                         </TTouchableOpacity>
+
+                        <TTouchableOpacity backgroundColor='base' onPress={() => setIsFullscreen(!isFullscreen)}>
+                            <Icon size={'xl'} name={'expand-outline'} dark='text'></Icon>
+                        </TTouchableOpacity>
                     </TView>
                 </TView>
 
                 <TView>{goToQuiz ? <FancyButton backgroundColor='red' onPress={() => console.log("Go to quiz")}></FancyButton> : <TView></TView>}</TView>
 
-                <TView flexDirection='column' style={{ width: "50%" }}>
-                    <TScrollView b={'sm'} mb={'md'} >
-                        <TText> Speech to Text here</TText>
-                    </TScrollView>
-                    <TScrollView flex={0.5} b={'xs'} mb={'md'}>
-                        <FancyTextInput label='Ask your questions' mt={'xl'} icon='chatbubbles-outline'></FancyTextInput>
-                    </TScrollView>
+                <TView flexDirection='column' style={{ width: isFullscreen ? "0%" : "50%" }}>
+                    {isFullscreen ?
+                        <TView></TView> :
+                        <>
+                            <TScrollView b={'sm'} mb={'md'}>
+                                <TText> Speech to Text here</TText>
+                            </TScrollView><TScrollView flex={0.5} b={'xs'} mb={'md'}>
+                                <FancyTextInput label='Ask your questions' mt={'xl'} icon='chatbubbles-outline' />
+                            </TScrollView>
+                        </>}
                 </TView>
             </TView>
         </>
