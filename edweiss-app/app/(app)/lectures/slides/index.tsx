@@ -7,17 +7,17 @@ import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { getDownloadURL } from '@/config/firebase';
-import { ApplicationRoute } from '@/constants/Component';
 import useListenToMessages from '@/hooks/useListenToMessages';
+import LectureDisplay from '@/model/lectures/lectureDoc';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, Linking } from 'react-native';
 import Pdf from 'react-native-pdf';
+import Lecture = LectureDisplay.Lecture;
 
-const Slide: ApplicationRoute = () => {
+const Slide: React.FC<{ lectureDoc: Lecture; }> = ({ lectureDoc }) => {
     const [numPages, setNumPages] = useState<number>(0);  // Number of pages in the PDF
     const [page, setPage] = useState<number>(0);  // Current page, starting from 1
-    //const [images, setImages] = useState<SlidesDisplay.Slides>();  // Loading state
     const [url, setUrl] = useState<string>('');  // Loading state
     const [goToQuiz, setGoToQuiz] = useState<boolean>(false);
     //const [isLandscape, setIsLandscape] = useState(false);
@@ -48,18 +48,8 @@ const Slide: ApplicationRoute = () => {
 
     // Funtion to set Url to the desired one from firebase storage
     async function getUrl() {
-        setUrl(await getDownloadURL('China-101.pdf'));
+        setUrl(await getDownloadURL(lectureDoc.uri));
     }
-
-    /*
-    function loadPdf() {
-        const imgList: SlidesDisplay.PdfPage[] = [];
-        let count = 0;
-        imgList.push({ path: 'https://api.printnode.com/static/test/pdf/multipage.pdf', index: count });
-        setImages({ images: imgList });
-        console.log(images?.images[0].path);
-        setLoading(false);
-    }*/
 
     // Load images when the component mounts
     useEffect(() => {
@@ -91,11 +81,12 @@ const Slide: ApplicationRoute = () => {
     }, []);
 
     return (
-
+        //Overlay quiz
         <>
+            { }
             <RouteHeader title={"Lecture's Slides"} />
             <TView flexDirection={'row'} flex={1} style={{ width: "100%" }}>
-                <TView mr={'lg'} flexDirection='column' flex={1}>
+                <TView mr={'lg'} flexDirection='column' style={{ width: isFullscreen ? "100%" : "60%" }}>
                     <Pdf
                         trustAllCerts={false}
                         source={{ uri: url }}
@@ -112,7 +103,7 @@ const Slide: ApplicationRoute = () => {
                         onPressLink={(link) => Linking.openURL(link)}
                         page={page}
                         horizontal
-                        style={{ flex: 1, width: isFullscreen ? Dimensions.get('window').width : Dimensions.get('window').height, height: Dimensions.get('window').height }} />
+                        style={{ flex: 1, width: isFullscreen ? Dimensions.get('window').width : Dimensions.get('window').width * 0.6, height: Dimensions.get('window').height }} />
 
                     <TView flexDirection='row' justifyContent='space-between' >
                         <TTouchableOpacity backgroundColor='base' onPress={pageBack}>
@@ -126,14 +117,19 @@ const Slide: ApplicationRoute = () => {
                         </TTouchableOpacity>
 
                         <TTouchableOpacity backgroundColor='base' onPress={() => setIsFullscreen(!isFullscreen)}>
-                            <Icon size={'xl'} name={'expand-outline'} dark='text'></Icon>
+                            <Icon size={'xl'} name={isFullscreen ? 'contract-outline' : 'expand-outline'} dark='text'></Icon>
                         </TTouchableOpacity>
                     </TView>
                 </TView>
 
-                <TView>{goToQuiz ? <FancyButton backgroundColor='red' onPress={() => console.log("Go to quiz")}></FancyButton> : <TView></TView>}</TView>
+                <>{lectureDoc.currentEvent && (
+                    <TView justifyContent='center' backgroundColor='base' style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 1000 }}>
+                        <TText mb={'md'} align='center' >This is the quiz</TText>
+                        <FancyButton icon='bookmark-outline' onPress={() => setGoToQuiz(false)}><TText>Save Answer</TText></FancyButton>
+                    </TView>
+                )}</>
 
-                <TView flexDirection='column' style={{ width: isFullscreen ? "0%" : "50%" }}>
+                <TView flexDirection='column' style={{ width: isFullscreen ? "0%" : "40%" }}>
                     {isFullscreen ?
                         <TView></TView> :
                         <>

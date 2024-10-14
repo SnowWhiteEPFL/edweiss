@@ -1,9 +1,8 @@
-import { FunctionFolder, FunctionOf } from '../functions';
 import Quizzes from '../quizzes';
 
 namespace LectureDisplay {
 
-    export type LectureEvents = "quiz" ;
+    export type LectureEvents = "quiz";
 
     interface LectureEventBase {
         type: LectureEvents;
@@ -19,6 +18,7 @@ namespace LectureDisplay {
     export interface Lecture {
         uri: string;
         audioRecording: string[];
+        currentEvent?: LectureEventBase;
         events: LectureEventBase[];
     }
 }
