@@ -7,21 +7,71 @@ import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { getDownloadURL } from '@/config/firebase';
+import { ApplicationRoute } from '@/constants/Component';
 import useListenToMessages from '@/hooks/useListenToMessages';
 import LectureDisplay from '@/model/lectures/lectureDoc';
+import Quizzes from '@/model/quizzes';
+import { Timestamp } from '@react-native-firebase/firestore';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, Linking } from 'react-native';
 import Pdf from 'react-native-pdf';
-import Lecture = LectureDisplay.Lecture;
 
-const Slide: React.FC<{ lectureDoc: Lecture; }> = ({ lectureDoc }) => {
+// type Lecture = LectureDisplay.Lecture;
+
+const Slide: ApplicationRoute = () => {
+    const tmp: Quizzes.Quiz = {
+        name: "Sample Quiz 1",
+        deadline: "2024-12-31", // Optional deadline (can be omitted if not needed)
+        exercises: [
+            // Multiple Choice Question (MCQ)
+            {
+                question: "What is the capital of France?",
+                imageURL: undefined, // No image URL for this question
+                propositions: [
+                    { id: 1, description: "Paris", type: "MCQProposition" },
+                    { id: 2, description: "London", type: "MCQProposition" },
+                    { id: 3, description: "Berlin", type: "MCQProposition" },
+                    { id: 4, description: "Madrid", type: "MCQProposition" }
+                ],
+                answersIndices: [0], // The correct answer is "Paris"
+                numberOfAnswers: 1, // Only one correct answer
+                type: "MCQ"
+            },
+            // True or False Question (TF)
+            {
+                question: "The Earth is flat.",
+                imageURL: undefined, // No image URL for this question
+                answer: false, // The answer is false
+                type: "TF"
+            }
+        ],
+        answers: [
+            // Example of how the answers might look for this quiz
+            {
+                type: "MCQAnswersIndices",
+                value: [0] // Answered "Paris" for the first question
+            },
+            {
+                type: "TFAnswer",
+                value: false // Answered "False" for the second question
+            }
+        ]
+    };
+    const quiz1: LectureDisplay.QuizLectureEvent = {
+        type: 'quiz', quizModel: tmp,
+        done: false,
+        pageNumber: 1
+    };
+    const [lectureDoc, setLectureDoc] = useState<LectureDisplay.Lecture>({ uri: 'China-101.pdf', audioRecording: [], events: [], availableToStudents: true, ends: new Timestamp(0, 0), starts: new Timestamp(0, 0) });
     const [numPages, setNumPages] = useState<number>(0);  // Number of pages in the PDF
     const [page, setPage] = useState<number>(0);  // Current page, starting from 1
     const [url, setUrl] = useState<string>('');  // Loading state
     const [goToQuiz, setGoToQuiz] = useState<boolean>(false);
     //const [isLandscape, setIsLandscape] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
+
+
 
     useListenToMessages((msg) => {
         if (msg.type == "go_to_slide") {
@@ -122,10 +172,24 @@ const Slide: React.FC<{ lectureDoc: Lecture; }> = ({ lectureDoc }) => {
                     </TView>
                 </TView>
 
-                <>{lectureDoc.currentEvent && (
+                <FancyButton onPress={() => {
+                    console.log("Toogle events |||"); (lectureDoc.currentEvent) ? setLectureDoc(prevLectureDoc => ({
+                        ...prevLectureDoc,      // Spread operator to keep other properties
+                        currentEvent: undefined  // Only update currentEvent
+                    })) : setLectureDoc(prevLectureDoc => ({
+                        ...prevLectureDoc,      // Spread operator to keep other properties
+                        currentEvent: quiz1  // Only update currentEvent
+                    }));
+                }} >
+                    <TText> Toogle Quiz</TText>
+                </FancyButton>
+                <>{lectureDoc.currentEvent != undefined && (
                     <TView justifyContent='center' backgroundColor='base' style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 1000 }}>
                         <TText mb={'md'} align='center' >This is the quiz</TText>
-                        <FancyButton icon='bookmark-outline' onPress={() => setGoToQuiz(false)}><TText>Save Answer</TText></FancyButton>
+                        <FancyButton icon='bookmark-outline' onPress={() => setLectureDoc(prevLectureDoc => ({
+                            ...prevLectureDoc,      // Spread operator to keep other properties
+                            currentEvent: undefined  // Only update currentEvent
+                        }))}><TText>Save Answer</TText></FancyButton>
                     </TView>
                 )}</>
 

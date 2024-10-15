@@ -1,3 +1,4 @@
+import { Timestamp } from '@react-native-firebase/firestore';
 import Quizzes from '../quizzes';
 
 namespace LectureDisplay {
@@ -20,6 +21,9 @@ namespace LectureDisplay {
         audioRecording: string[];
         currentEvent?: LectureEventBase;
         events: LectureEventBase[];
+        availableToStudents: boolean;
+        starts: Timestamp;
+        ends: Timestamp;
     }
 }
 
