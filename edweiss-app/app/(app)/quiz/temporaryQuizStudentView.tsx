@@ -21,21 +21,18 @@ import { useAuth } from '@/contexts/auth';
 import { ActivityIndicator } from 'react-native';
 
 const TempQuizStudentViewPage: ApplicationRoute = () => {
-    //console.log("ALl refresh");
-    // 1 vue prof: results et quizzes
-    // élèves: pareil
-    // + done
 
-    const { quizId, path } = useLocalSearchParams();
+    const { quizId, path, courseId } = useLocalSearchParams();
     if (typeof quizId != 'string')
         return <Redirect href={'/'} />;
 
-    const courseId = "placeholderCourseId";
+    //const courseId = "placeholderCourseId";
+    const pathToAttempts = path + "/" + quizId + "/attempts";
 
     const { uid } = useAuth();
 
     const [quiz, loading] = usePrefetchedDynamicDoc(CollectionOf<Quizzes.Quiz>(path as string), quizId, undefined);
-    const previousAttempt = useDoc(CollectionOf<QuizzesAttempts.QuizAttempt>(path + "/" + quizId + "/attempts"), uid);
+    const previousAttempt = useDoc(CollectionOf<QuizzesAttempts.QuizAttempt>(pathToAttempts), uid);
     const [studentAnswers, setStudentAnswers] = useState<QuizzesAttempts.Answer[]>([]);
 
     useEffect(() => {
@@ -86,18 +83,21 @@ const TempQuizStudentViewPage: ApplicationRoute = () => {
             },
             courseId: courseId,
             quizId: quiz?.id,
-            path: path + "/attempts" as string
+            path: pathToAttempts as string
         });
         if (res.status == 1) {
             console.log(`OKAY, submitted quiz with id ${res.data.id}`);
         }
     }
 
-    if (quiz.data.showResultToStudents) {
-        return <QuizResultDisplay key={quiz.id + "result"} studentAnswers={studentAnswers} exercises={exercises} results={quiz.data.answers}></QuizResultDisplay>;
+    if (quiz.data.showResultToStudents && previousAttempt != undefined) {
+        return <QuizResultDisplay key={quiz.id + "result"} studentAnswers={previousAttempt.data.answers} exercises={exercises} results={quiz.data.answers}></QuizResultDisplay>;
+    }
+    else if (!quiz.data.showResultToStudents) {
+        return <QuizDisplay key={quiz.id + "live"} studentAnswers={studentAnswers} exercises={exercises} onUpdate={onUpdate} send={send}></QuizDisplay>;
     }
     else {
-        return <QuizDisplay key={quiz.id + "live"} studentAnswers={studentAnswers} exercises={exercises} onUpdate={onUpdate} send={send}></QuizDisplay>;
+        return (<TActivityIndicator />);
     }
 
 };
@@ -186,13 +186,15 @@ export const QuizResultDisplay: ReactComponent<{ studentAnswers: QuizzesAttempts
             <RouteHeader disabled />
             <TSafeArea>
                 <TScrollView>
-                    <TText>
-                        {/*JSON.stringify(studentAnswers.map(a => a.value))*/}
-                    </TText>
-                    <TText>
-                        Your score : {score}/{exercises.length}
+                    {/* <TText>
+                        JSON.stringify(studentAnswers.map(a => a.value))
+                    </TText> */}
+                    <TView p={'xl'}>
+                        <TText size={'xl'}>
+                            Your score : {score}/{exercises.length}
+                        </TText>
+                    </TView>
 
-                    </TText>
                     <For each={exercises}>
                         {
                             (thisExercise, index) => {
@@ -225,19 +227,19 @@ export const QuizResultDisplay: ReactComponent<{ studentAnswers: QuizzesAttempts
     );
 };
 
-export const QuizExerciseOverhead: ReactComponent<{ question: string, }> = ({ question, }) => {
-    return (
-        <TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"}>
+// export const QuizExerciseOverhead: ReactComponent<{ question: string, }> = ({ question, }) => {
+//     return (
+//         <TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"}>
 
-            <TView mb={"lg"} radius={999} p={"md"}>
-                <TText size={"lg"}>
-                    {question}
-                </TText>
-            </TView>
+//             <TView mb={"lg"} radius={999} p={"md"}>
+//                 <TText size={"lg"}>
+//                     {question}
+//                 </TText>
+//             </TView>
 
-        </TView>
-    );
-};
+//         </TView>
+//     );
+// };
 
 
 export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: number[], onUpdate: (answer: number[] | boolean | undefined, id: number) => void, exId: number, }> = memo(({ exercise, selectedIds, onUpdate, exId }) => {
@@ -265,7 +267,7 @@ export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: nu
 
             <TView mb={"lg"} radius={999} p={"md"}>
                 <TText size={"lg"}>
-                    {exercise.question}
+                    {exercise.question} - {exercise.numberOfAnswers} answer(s)
                 </TText>
             </TView>
 
@@ -452,7 +454,7 @@ export function checkTFCorrect(selected: boolean | undefined, propositionValue: 
     }
 }
 export function textColor(backgroundColor: Color) {
-    return backgroundColor == 'surface0' ? 'base' : 'text';
+    return backgroundColor == 'surface0' ? 'text' : 'base';
 }
 
 
