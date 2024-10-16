@@ -1,5 +1,5 @@
-import { Timestamp } from '@react-native-firebase/firestore';
 import Quizzes from '../quizzes';
+import { Timestamp } from '../time';
 
 namespace LectureDisplay {
 
@@ -17,13 +17,10 @@ namespace LectureDisplay {
     }
 
     export interface Lecture {
-        uri: string;
-        audioRecording: string[];
-        currentEvent?: LectureEventBase;
-        events: LectureEventBase[];
-        availableToStudents: boolean;
-        starts: Timestamp;
+        pdfUri: string;
+        start: Timestamp;
         ends: Timestamp;
+        availableToStudents: boolean;
     }
 }
 
