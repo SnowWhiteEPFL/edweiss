@@ -3,6 +3,7 @@ import { ApplicationLayout } from '@/constants/Component';
 import { Route, Routes } from 'react-router-dom';
 import IndexRoute from '.';
 import CourseLayout from './course/[id]/_layout';
+import ProfileRoute from './profile';
 
 const BoardLayout: ApplicationLayout = () => {
 	return (
@@ -14,6 +15,7 @@ const BoardLayout: ApplicationLayout = () => {
 				<Routes>
 					<Route path='/' element={<IndexRoute />} />
 					<Route path='/course/:id/*' element={<CourseLayout />} />
+					<Route path='/profile' element={<ProfileRoute />} />
 				</Routes>
 			</div>
 		</div>
