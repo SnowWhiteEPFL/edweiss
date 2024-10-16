@@ -7,7 +7,7 @@ export const createQuizAttempt = onAuthentifiedCall(QuizzesAttempts.Functions.cr
 	if (userId == undefined)
 		return fail("empty_quiz");
 
-	const ref = getDocumentRef(CollectionOf<QuizzesAttempts.QuizAttempt>("courses/" + args.courseId + "/quizzes/" + args.quizId + "/attempts"), userId);
+	const ref = getDocumentRef(CollectionOf<QuizzesAttempts.QuizAttempt>(args.path), userId);
 
 	await ref.set(args.quizAttempt);
 	console.log("Document successfully updated!");

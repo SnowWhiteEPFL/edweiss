@@ -17,14 +17,16 @@ const QuizzesList: ApplicationRoute = () => {
     const path = "courses/" + courseId + "/quizzes";
     const myQuizzes = useDocs(CollectionOf<Quizzes.Quiz>(path));
     const { uid } = useAuth();
-    console.log(uid);
+
+
+    //console.log(uid);
     return (
         <>
             <RouteHeader title='My quizzes' />
 
             <TScrollView>
                 <For each={myQuizzes}>
-                    {quiz => <QuizzOuterDisplay key={quiz.id} quiz={quiz.data} id={quiz.id} courseId={courseId} uid={uid}></QuizzOuterDisplay>}
+                    {quiz => <QuizzOuterDisplay key={quiz.id} quiz={quiz.data} quizId={quiz.id} courseId={courseId} uid={uid} isResult={false}></QuizzOuterDisplay>}
                 </For>
             </TScrollView >
             {/* <FancyButton mb={"md"}>
@@ -36,25 +38,55 @@ const QuizzesList: ApplicationRoute = () => {
 
 export default QuizzesList;
 
-const QuizzOuterDisplay: ReactComponent<{ quiz: Quizzes.Quiz, id: string, courseId: string, uid: string; }> = ({ quiz, id, courseId, uid }) => {
+export const QuizzOuterDisplay: ReactComponent<{ quiz: Quizzes.Quiz, quizId: string, courseId: string, uid: string, isResult: boolean; }> = ({ quiz, quizId, courseId, uid, isResult }) => {
     const hasDeadline = quiz.deadline != undefined;
-    const path = "courses/" + courseId + "/quizzes/" + id + "/attempts";
+    const path = "courses/" + courseId + "/quizzes/" + quizId + "/attempts";
     const quizAttempt = useDoc(CollectionOf<QuizzesAttempts.QuizAttempt>(path), uid);
+    const redirectPath = isResult ? 'results' : '/quiz/' + quizId;
+    const navigate = () => {
+        router.push({
+            pathname: "/quiz/" + quizId as any,
+            params: {
+                quizId: quizId,
+                path: "courses/" + courseId + "/quizzes"
+            }
+        });
+    };
+
 
     return (
-        <TTouchableOpacity onPress={() => router.push(`/quiz/${id}` as any)} backgroundColor='surface0' radius={'lg'} m={"sm"} p={"md"} px={"lg"}>
+        <TTouchableOpacity onPress={() => navigate()} backgroundColor='surface0' radius={'lg'} m={"sm"} p={"md"} px={"lg"}>
 
             <TText mb={"md"} size={"lg"}>
-                {quiz.name}
+                {isResult ? "Results of " + quiz.name : quiz.name}
             </TText>
 
-            <TText color={hasDeadline ? "red" : "green"}>
+            {/* <TText color={hasDeadline ? "red" : "green"}>
                 {hasDeadline ? "Until " + quiz.deadline + " to submit" : "No due date !"}
             </TText>
             <TText>
                 Attempts: {quizAttempt?.data != undefined ? quizAttempt?.data.attempts : 0}
-            </TText>
+            </TText> */}
+            <AdditionalInfo isResult={false} hasDeadline={hasDeadline} quizAttempt={quizAttempt?.data}></AdditionalInfo>
         </TTouchableOpacity>
     );
 };
 
+const AdditionalInfo: ReactComponent<{ isResult: boolean, hasDeadline?: boolean, deadline?: string, quizAttempt?: QuizzesAttempts.QuizAttempt; }> = ({ isResult, hasDeadline, deadline, quizAttempt }) => {
+    if (isResult) {
+        return (
+            <></>
+        );
+    };
+    return (
+        <>
+            <TText color={hasDeadline ? "red" : "green"}>
+                {hasDeadline ? "Until " + deadline + " to submit" : "No due date !"}
+            </TText>
+            <TText>
+                Attempts: {quizAttempt != undefined ? quizAttempt?.attempts : 0}
+            </TText>
+        </>
+
+    );
+};

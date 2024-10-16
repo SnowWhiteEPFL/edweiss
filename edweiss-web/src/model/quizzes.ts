@@ -35,10 +35,16 @@ namespace Quizzes {
         name: string;
         deadline?: string;
         exercises: Exercise[];
+        answers: QuizzesAttempts.Answer[];
+        ended: boolean;
+        showResultToStudents: boolean;
     }
+
+    export type Results = "correct" | "wrong" | "unselected" | "missing";
 
     export const Functions = FunctionFolder("action", {
         createQuiz: FunctionOf<{ quiz: Quizzes.Quiz; courseId: CourseID; }, { id: string; }, "empty_quiz" | "invalid_name" | "not_authorized">("createQuiz"),
+        updateQuiz: FunctionOf<{ quiz: Quizzes.Quiz; courseId: CourseID; }, { id: string; }, "not_authorized">("updateQuiz")
     });
 
 }
@@ -64,7 +70,33 @@ export namespace QuizzesAttempts {
     }
 
     export const Functions = FunctionFolder("action", {
-        createQuizAttempt: FunctionOf<{ quizAttempt: QuizzesAttempts.QuizAttempt; courseId: CourseID; quizId: string; }, { id: string; }, "empty_quizAttempt" | "invalid_name" | "not_authorized">("createQuizAttempt"),
+        createQuizAttempt: FunctionOf<{ quizAttempt: QuizzesAttempts.QuizAttempt; courseId: CourseID; quizId: string; path: string; }, { id: string; }, "empty_quizAttempt" | "invalid_name" | "not_authorized">("createQuizAttempt"),
     });
 
+
+
 }
+
+// export namespace QuizzesResults {
+//     // export type MCQAnswersIndices = number[]; // unchecked options will not appear in the list in the first place
+//     // export type TFAnswer = boolean | undefined;
+//     export interface MCQAnswersIndices {
+//         type: "MCQAnswersIndices",
+//         value: number[];
+//     }
+//     export interface TFAnswer {
+//         type: "TFAnswer",
+//         value: boolean | undefined;
+//     }
+//     export type Answer = MCQAnswersIndices | TFAnswer;
+
+//     export interface QuizResults {
+//         answers: Answer[];
+//         quizName?: string;
+//     }
+
+//     export const Functions = FunctionFolder("action", {
+//         createQuizResults: FunctionOf<{ quizResults: QuizzesResults.QuizResults; courseId: CourseID; quizId: string; }, { id: string; }, "empty_quizAttempt" | "invalid_name" | "not_authorized">("createQuizResults"),
+//     });
+
+// }
