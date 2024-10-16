@@ -3,19 +3,7 @@ import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { render, screen } from '@testing-library/react-native';
 import React from 'react';
-import HomeTab from '../app/(app)/(tabs)/index';
-
-jest.mock('@/contexts/auth', () => ({
-    useAuth: jest.fn(),
-}));
-jest.mock('@/hooks/firebase/firestore', () => ({
-    useDynamicDocs: jest.fn(),
-}));
-
-// Mock functions for testing
-const mockAuth = {
-    authUser: { uid: 'test-user-id' },
-};
+import HomeTab from '../../app/(app)/(tabs)/index';
 
 const mockCourses = [
     {
@@ -24,13 +12,14 @@ const mockCourses = [
             periods: [
                 {
                     id: 'period1',
-                    start: 480, // 8:00 AM
-                    dayIndex: 1, // Lundi
+                    start: 480,
+                    end: 500,
+                    dayIndex: 1,
                 },
                 {
                     id: 'period2',
-                    start: 540, // 9:00 AM
-                    dayIndex: 1, // Lundi
+                    start: 540,
+                    dayIndex: 1,
                 },
             ],
             name: 'Course 1',
@@ -43,8 +32,8 @@ const mockCourses = [
             periods: [
                 {
                     id: 'period3',
-                    start: 600, // 10:00 AM
-                    dayIndex: 1, // Lundi
+                    start: 600,
+                    dayIndex: 1,
                 },
             ],
             name: 'Course 2',
@@ -53,35 +42,25 @@ const mockCourses = [
     },
 ];
 
-// Mock React Native Firebase modules
+
+jest.mock('@/contexts/auth', () => ({
+    useAuth: jest.fn(),
+}));
+jest.mock('@/hooks/firebase/firestore', () => ({
+    useDynamicDocs: jest.fn(),
+}));
 jest.mock('@react-native-firebase/auth', () => ({
     __esModule: true,
     default: jest.fn(() => ({
         currentUser: { uid: 'test-user-id' },
     })),
 }));
-
 jest.mock('@react-native-firebase/firestore', () => {
     const collectionMock = {
         doc: jest.fn().mockReturnThis(),
         get: jest.fn().mockResolvedValue({
             id: 'course1',
-            data: () => ({
-                periods: [
-                    {
-                        id: 'period1',
-                        start: 480, // 8:00 AM
-                        dayIndex: 1, // Lundi
-                    },
-                    {
-                        id: 'period2',
-                        start: 540, // 9:00 AM
-                        dayIndex: 1, // Lundi
-                    },
-                ],
-                name: 'Course 1',
-                credits: 3,
-            }),
+            data: jest.fn(() => mockCourses.map((course) => course.data)),
         }),
     };
     return {
@@ -102,6 +81,7 @@ jest.mock('@react-native-firebase/functions', () => ({
     })),
 }));
 
+
 jest.mock('@react-native-firebase/storage', () => ({
     __esModule: true,
     default: jest.fn(() => ({
@@ -109,7 +89,6 @@ jest.mock('@react-native-firebase/storage', () => ({
     })),
 }));
 
-// Mock @react-native-google-signin/google-signin module
 jest.mock('@react-native-google-signin/google-signin', () => ({
     __esModule: true,
     GoogleSignin: {
@@ -121,10 +100,14 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
         getCurrentUser: jest.fn(),
     },
 }));
+const mockAuth = {
+    authUser: { uid: 'test-user-id' },
+};
+
+
 
 describe('HomeTab Component', () => {
     (useAuth as jest.Mock).mockReturnValue(mockAuth);
-
     (useDynamicDocs as jest.Mock).mockImplementation((collection) => {
         if (collection === CollectionOf('courses')) {
             return mockCourses;
@@ -135,35 +118,27 @@ describe('HomeTab Component', () => {
         return [];
     });
 
-    it('renders the Calendar component with course data', async () => {
+    it('render hours', async () => {
 
         render(<HomeTab />);
-
+        expect(screen.getByText('1:00')).toBeTruthy();
+        expect(screen.getByText('2:00')).toBeTruthy();
+        expect(screen.getByText('3:00')).toBeTruthy();
+        expect(screen.getByText('13:00')).toBeTruthy();
+        expect(screen.getByText('16:00')).toBeTruthy();
+        expect(screen.getByText('22:00')).toBeTruthy();
+    });
+    it('render course name', async () => {
+        render(<HomeTab />);
         expect(screen.getByText('Course 1')).toBeTruthy();
         expect(screen.getByText('Course 2')).toBeTruthy();
-
     });
-
-    it('renders a list of courses correctly', async () => {
-
+    it('render course credits', async () => {
         render(<HomeTab />);
         expect(screen.getByText('Crédits: 3')).toBeTruthy();
         expect(screen.getByText('Crédits: 4')).toBeTruthy();
-
-    });
-
-    it('conditionally renders "Join Course" or "Start/Stop Course" based on user type', async () => {
-        render(<HomeTab />);
-
-
-
-        // Mock user type as 'professor'
-        const mockProfessorUser = { ...mockAuth, data: { type: 'professor' } };
-        (useAuth as jest.Mock).mockReturnValue(mockProfessorUser);
-        render(<HomeTab />);
-
-        expect(screen.getByText('23:00')).toBeTruthy();
-        expect(screen.getByText('10:00')).toBeTruthy();
-
     });
 });
+
+
+

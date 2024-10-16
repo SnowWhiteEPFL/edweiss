@@ -16,8 +16,6 @@ import TText from './TText';
 const HOUR_BLOCK_HEIGHT = 80;
 const TOTAL_HOURS = 24;
 
-
-
 export const Calendar = ({ courses }: { courses: { id: string; data: Course; }[]; }) => {
     const [currentMinutes, setCurrentMinutes] = useState(getCurrentTimeInMinutes());
     const scrollViewRef = useRef<ScrollView>(null);
