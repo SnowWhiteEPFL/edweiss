@@ -17,71 +17,44 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, Linking } from 'react-native';
 import Pdf from 'react-native-pdf';
 
-// type Lecture = LectureDisplay.Lecture;
-
-const Slide: ApplicationRoute = () => {
-    const tmp: Quizzes.Quiz = {
+const LectureDoc: ApplicationRoute = () => {
+    const sampleQuiz: Quizzes.Quiz = { // Quiz model
         name: "Sample Quiz 1",
-        deadline: "2024-12-31", // Optional deadline (can be omitted if not needed)
-        exercises: [
-            // Multiple Choice Question (MCQ)
-            {
-                question: "What is the capital of France?",
-                imageURL: undefined, // No image URL for this question
-                propositions: [
-                    { id: 1, description: "Paris", type: "MCQProposition" },
-                    { id: 2, description: "London", type: "MCQProposition" },
-                    { id: 3, description: "Berlin", type: "MCQProposition" },
-                    { id: 4, description: "Madrid", type: "MCQProposition" }
-                ],
-                answersIndices: [0], // The correct answer is "Paris"
-                numberOfAnswers: 1, // Only one correct answer
-                type: "MCQ"
-            },
-            // True or False Question (TF)
-            {
-                question: "The Earth is flat.",
-                imageURL: undefined, // No image URL for this question
-                answer: false, // The answer is false
-                type: "TF"
-            }
-        ],
-        answers: [
-            // Example of how the answers might look for this quiz
-            {
-                type: "MCQAnswersIndices",
-                value: [0] // Answered "Paris" for the first question
-            },
-            {
-                type: "TFAnswer",
-                value: false // Answered "False" for the second question
-            }
-        ]
+        deadline: "2024-12-31",
+        exercises: [],
+        answers: []
     };
-    const quiz1: LectureDisplay.QuizLectureEvent = {
-        type: 'quiz', quizModel: tmp,
+    const quiz1: LectureDisplay.QuizLectureEvent = { // Quiz sample for currentEvent update
+        type: 'quiz', quizModel: sampleQuiz,
         done: false,
         pageNumber: 1
     };
-    const [lectureDoc, setLectureDoc] = useState<LectureDisplay.Lecture>({ uri: 'China-101.pdf', audioRecording: [], events: [], availableToStudents: true, ends: new Timestamp(0, 0), starts: new Timestamp(0, 0) });
-    const [numPages, setNumPages] = useState<number>(0);  // Number of pages in the PDF
+    const [lectureDoc, setLectureDoc] = useState<LectureDisplay.Lecture>({  // Lecture Document sample 
+        uri: 'China-101.pdf', // Uri for pdf display taken from Firebase cloud storage
+        audioRecording: [],
+        events: [],
+        availableToStudents: true,
+        ends: new Timestamp(0, 0),
+        starts: new Timestamp(0, 0)
+    });
+    const [numPages, setNumPages] = useState<number>(0);  // Total number of pages in the PDF
     const [page, setPage] = useState<number>(0);  // Current page, starting from 1
-    const [url, setUrl] = useState<string>('');  // Loading state
-    const [goToQuiz, setGoToQuiz] = useState<boolean>(false);
+    const [uri, setUri] = useState<string>('');  // Url state
     //const [isLandscape, setIsLandscape] = useState(false);
-    const [isFullscreen, setIsFullscreen] = useState(false);
+    const [isFullscreen, setIsFullscreen] = useState(false); // FullScreen display of pdf toggle
 
-
-
+    // FCM token receiver for changing pages 
     useListenToMessages((msg) => {
         if (msg.type == "go_to_slide") {
             setPage(msg.slideIndex);
         }
     });
 
+    // Landscape display for the screen
     const setLandscape = async () => {
         await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     };
+    // Portrait display for the screen
     const setPortrait = async () => {
         await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
     };
@@ -90,23 +63,23 @@ const Slide: ApplicationRoute = () => {
     function pageForward() {
         if (page < numPages) setPage(page + 1);
     }
-
     // Function to go to the previous page
     function pageBack() {
         if (page > 1) setPage(page - 1);
     }
 
-    // Funtion to set Url to the desired one from firebase storage
-    async function getUrl() {
-        setUrl(await getDownloadURL(lectureDoc.uri));
+    // Funtion to set Uri to the desired one from firebase storage
+    async function getUri() {
+        setUri(await getDownloadURL(lectureDoc.uri));
     }
 
     // Load images when the component mounts
     useEffect(() => {
-        getUrl();
+        getUri();
         setLandscape();
 
-        /*
+        /* TODO for a next sprint, detection of rotation change from landscape to portrait and different UI for each mode
+
         // Orientation change listener
         const subscription = ScreenOrientation.addOrientationChangeListener(({ orientationInfo }) => {
             const { orientation } = orientationInfo;
@@ -131,7 +104,7 @@ const Slide: ApplicationRoute = () => {
     }, []);
 
     return (
-        //Overlay quiz
+        //Screen Display on landscape mode
         <>
             { }
             <RouteHeader title={"Lecture's Slides"} />
@@ -139,23 +112,25 @@ const Slide: ApplicationRoute = () => {
                 <TView mr={'lg'} flexDirection='column' style={{ width: isFullscreen ? "100%" : "60%" }}>
                     <Pdf
                         trustAllCerts={false}
-                        source={{ uri: url }}
+                        source={{ uri: uri }} // Uri to be loaded
                         renderActivityIndicator={() =>
-                            <ActivityIndicator size={'large'} />
+                            <ActivityIndicator size={'large'} /> // Loading visual guide for pdf
                         }
-                        enablePaging={true}
-                        onLoadComplete={(totalPages) => setNumPages(totalPages)}
-                        onPageChanged={(page) => {
-                            setPage(page);
-                            (page == 3) ? setGoToQuiz(true) : setGoToQuiz(false);
-                        }}
-                        onError={(error) => console.log(error)}
-                        onPressLink={(link) => Linking.openURL(link)}
-                        page={page}
-                        horizontal
-                        style={{ flex: 1, width: isFullscreen ? Dimensions.get('window').width : Dimensions.get('window').width * 0.6, height: Dimensions.get('window').height }} />
+                        enablePaging={true} // Slide display of "page by page" paging style
+                        onLoadComplete={(totalPages) => setNumPages(totalPages)} // Once pdf load completed define total number of pages
+                        onPageChanged={(page) => { setPage(page); }} // Set the page state to new value
+                        onError={(error) => console.log(error)} // Console log in case of error
+                        onPressLink={(link) => Linking.openURL(link)} // Link handling function for pdf containing links
+                        page={page} // modify page to the current state, handles changes from remote control
+                        horizontal // horizontal scroll for page change
+                        style={{
+                            flex: 1,
+                            width: isFullscreen ? Dimensions.get('window').width : Dimensions.get('window').width * 0.6, //width change depending on fullScreen toggle, gets phone dimensions
+                            height: Dimensions.get('window').height
+                        }} />
 
                     <TView flexDirection='row' justifyContent='space-between' >
+                        {/* Buttons for page change and fullScreen toggle */}
                         <TTouchableOpacity backgroundColor='base' onPress={pageBack}>
                             <Icon size={'xl'} name={'arrow-back-circle-outline'} dark='text'></Icon>
                         </TTouchableOpacity>
@@ -173,29 +148,29 @@ const Slide: ApplicationRoute = () => {
                 </TView>
 
                 <FancyButton onPress={() => {
-                    console.log("Toogle events |||"); (lectureDoc.currentEvent) ? setLectureDoc(prevLectureDoc => ({
-                        ...prevLectureDoc,      // Spread operator to keep other properties
-                        currentEvent: undefined  // Only update currentEvent
+                    console.log("Toogle events |||"); (lectureDoc.currentEvent) ? setLectureDoc(prevLectureDoc => ({ // Toggle for quiz event 
+                        ...prevLectureDoc,          // Spread operator to keep other properties
+                        currentEvent: undefined     // Only update currentEvent
                     })) : setLectureDoc(prevLectureDoc => ({
-                        ...prevLectureDoc,      // Spread operator to keep other properties
-                        currentEvent: quiz1  // Only update currentEvent
+                        ...prevLectureDoc,          // Spread operator to keep other properties
+                        currentEvent: quiz1         // Only update currentEvent
                     }));
                 }} >
-                    <TText> Toogle Quiz</TText>
+                    <TText> Quiz</TText>
                 </FancyButton>
-                <>{lectureDoc.currentEvent != undefined && (
+                <>{lectureDoc.currentEvent != undefined && (  // Check for existing quiz event for overlay display
                     <TView justifyContent='center' backgroundColor='base' style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 1000 }}>
                         <TText mb={'md'} align='center' >This is the quiz</TText>
                         <FancyButton icon='bookmark-outline' onPress={() => setLectureDoc(prevLectureDoc => ({
                             ...prevLectureDoc,      // Spread operator to keep other properties
-                            currentEvent: undefined  // Only update currentEvent
+                            currentEvent: undefined  // Disable quiz event
                         }))}><TText>Save Answer</TText></FancyButton>
                     </TView>
                 )}</>
 
                 <TView flexDirection='column' style={{ width: isFullscreen ? "0%" : "40%" }}>
-                    {isFullscreen ?
-                        <TView></TView> :
+                    {isFullscreen ?  // Disable display in case of fullScreen toggled
+                        <TView></TView> : // Speech to Text translation display and question forum display
                         <>
                             <TScrollView b={'sm'} mb={'md'}>
                                 <TText> Speech to Text here</TText>
@@ -209,4 +184,4 @@ const Slide: ApplicationRoute = () => {
     );
 };
 
-export default Slide;
+export default LectureDoc;
