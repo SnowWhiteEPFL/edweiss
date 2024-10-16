@@ -31,7 +31,14 @@
 	"archived_success_toast_sub": "You can find it in the archived list.",
 	"unarchived_success_toast_sub": "You can find it in the active list.",
 	"date_btn_title": "Due Date",
-	"time_btn_title": "Time"
+	"time_btn_title": "Time",
+	"today_status": "Today",
+	"tomorrow_status": "Tomorrow",
+	"yesterday_status": "Yesterday",
+	"dued_on": "Due on : ",
+	"at": " at ",
+	"name_label": "Name",
+	"description_label": "Description"
 
 
 }

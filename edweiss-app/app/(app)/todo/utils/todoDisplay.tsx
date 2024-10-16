@@ -18,6 +18,7 @@ import { LightDarkProps } from '@/constants/Colors';
 import ReactComponent from '@/constants/Component';
 import useThemeColor from '@/hooks/theme/useThemeColor';
 import Todolist from '@/model/todo';
+import { Time } from '@/utils/time';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useRef } from 'react';
@@ -25,13 +26,14 @@ import { Animated, Dimensions, Vibration } from 'react-native';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import { statusColorMap, statusIconMap, statusNextAction, statusNextMap, toogleArchivityOfTodo } from './utilsFunctions';
 
-import Todo = Todolist.Todo;
-import TodoStatus = Todolist.TodoStatus;
+// Types
+type Todo = Todolist.Todo;
+type TodoStatus = Todolist.TodoStatus;
 
 
 
 // ------------------------------------------------------------
-// ----------------------- TodoDisplay ------------------------
+// --------------------   Todo Display Component   ------------
 // ------------------------------------------------------------
 
 export const TodoDisplay: React.FC<{
@@ -40,6 +42,14 @@ export const TodoDisplay: React.FC<{
     modalRef: React.RefObject<BottomSheetModalMethods>;
 } & LightDarkProps
 > = ({ id, light, dark, todo, setTodoToDisplay, modalRef }) => {
+
+    // Constants
+    const date = (todo.dueDate) ? Time.toDate(todo.dueDate) : undefined;
+    const dateString = date ?
+        (Time.isToday(date) ? t('todo:today_status') :
+            Time.wasYesterday(date) ? t('todo:yesterday_status') :
+                Time.isTomorrow(date) ? t('todo:tomorrow_status') :
+                    date.toLocaleDateString()) : undefined;
 
     // Screen Properties
     const screenWidth = Dimensions.get('window').width;
@@ -63,7 +73,7 @@ export const TodoDisplay: React.FC<{
 
     /**
      * Handle the end of the gesture to snap back 
-     * or navigate to the edit screen (fix me)
+     * to toogle todo archivity status
      */
     const handleGestureEnd = (event: any) => {
         const { translationX } = event.nativeEvent;
@@ -90,7 +100,7 @@ export const TodoDisplay: React.FC<{
     /**
      * Handle the gesture state change
      * Note: this function manages the distinction between a
-     *  vertical/horizontal scroll
+     * vertical/horizontal scroll
      */
     const onHandlerStateChange = (event: any) => {
         const { state, translationY, translationX } = event.nativeEvent;
@@ -177,9 +187,9 @@ export const TodoDisplay: React.FC<{
                                             {todo.name}
                                         </TText>
 
-                                        {todo.description && (
+                                        {todo.dueDate && (
                                             <TText color='subtext0' size={'sm'} bold numberOfLines={1} ellipsizeMode='tail'>
-                                                {todo.description}
+                                                {dateString}
                                             </TText>
                                         )}
 

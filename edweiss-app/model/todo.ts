@@ -15,8 +15,8 @@ namespace Todolist {
 
 
     export const Functions = FunctionFolder("todolist", {
-        createTodo: FunctionOf<{ todo: Todo; }, {}, 'invalid_todo'>("createTodo"),
-        updateTodo: FunctionOf<{ newTodo: Todo; id: string; }, {}, 'invalid_todo' | 'invalid_id' | 'firebase_error'>("updateTodo"),
+        createTodo: FunctionOf<{ name: string; description?: string; status: TodoStatus; dueDate?: string; }, {}, 'invalid_arg' | 'error_date' | 'firebase_error'>("createTodo"),
+        updateTodo: FunctionOf<{ name?: string; description?: string; status?: TodoStatus; dueDate?: string; id: string; }, {}, 'invalid_arg' | 'invalid_id' | 'error_date' | 'firebase_error'>("updateTodo"),
         deleteTodo: FunctionOf<{ id: string; }, {}, 'invalid_id' | 'firebase_error'>("deleteTodo")
     });
 

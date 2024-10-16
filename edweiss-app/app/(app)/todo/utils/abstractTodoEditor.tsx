@@ -1,3 +1,13 @@
+/**
+ * @file abstractTodoEditor.tsx
+ * @description Module for editing todo items in the edweiss app
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
@@ -12,15 +22,19 @@ import { LightDarkProps } from '@/constants/Colors';
 import Todolist from '@/model/todo';
 import { Time } from '@/utils/time';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Timestamp } from '@react-native-firebase/firestore';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { StatusChanger } from './todoDisplay';
 import { sameTodos } from './utilsFunctions';
 import Functions = Todolist.Functions;
 
-import TodoStatus = Todolist.TodoStatus;
-import Todo = Todolist.Todo;
+// Types
+type TodoStatus = Todolist.TodoStatus;
+
+
+// ------------------------------------------------------------
+// --------------  The Custumisable Todo Editor   -------------
+// ------------------------------------------------------------
 
 export const AbstractTodoEditor: React.FC<{
     editable?: boolean;
@@ -32,22 +46,17 @@ export const AbstractTodoEditor: React.FC<{
 
     const providedDate = editable && todo && todo.dueDate;
 
-    console.log('> Current todo: due date s:' + todo?.dueDate?.seconds + ' nanoseconds: ' + todo?.dueDate?.nanoseconds);
-
     // Use states
     const [name, setName] = useState(editable ? todo!.name : "");
     const [status, setStatus] = useState<TodoStatus>(editable ? todo!.status : "yet");
     const [description, setDescription] = useState(editable ? todo!.description : "");
-    const [date, setDate] = useState((providedDate && todo && todo.dueDate) ? new Timestamp(0, 0).toDate() : new Date());
+    const [date, setDate] = useState((providedDate) ? Time.toDate(todo.dueDate!) : new Date());
     const [dateChanged, setDateChanged] = useState(false);
     const [timeChanged, setTimeChanged] = useState(false);
     const [showPickerDate, setShowPickerDate] = useState(false);
     const [showPickerTime, setShowPickerTime] = useState(false);
 
-    // Constants
-    const newTodo = !(editable && todo) ? undefined :
-        { name, description: description === "" ? undefined : description, status, dueDate: todo.dueDate };
-
+    // Constants    
     const downButtonTitle = (editable) ? t(`todo:edit_button`) : t(`todo:save_button`);
     const downButtonIconName = (editable) ? "create" : "save";
     const screenTitle = (editable) ? t(`todo:edit_header`) : t(`todo:create_header`);
@@ -55,14 +64,21 @@ export const AbstractTodoEditor: React.FC<{
 
 
     // Toogle the save button only when valid
-    const isInvalid = (editable) ? sameTodos(todo!, newTodo!) : name === "";
+    const modifiedTodo = !(editable && todo) ? undefined :
+        {
+            name: name, description: description === "" ? undefined : description, status: status,
+            dueDate: (!providedDate && !(dateChanged || timeChanged)) ? undefined : date
+        };
+    const isInvalid = (editable) ? sameTodos(todo!, modifiedTodo!) : name === "";
+
+
+    // On change date and time update event handlers
 
     const onChangeDate = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
             setDateChanged(true);
             setDate(selectedDate);
             setShowPickerDate(false);
-            setShowPickerTime(false);
         }
     };
 
@@ -70,51 +86,47 @@ export const AbstractTodoEditor: React.FC<{
         if (selectedDate) {
             setTimeChanged(true);
             setDate(selectedDate);
-            setShowPickerDate(false);
             setShowPickerTime(false);
         }
     };
 
+    // Save, Edit and Delete Actions
 
     async function saveAction() {
-        todo = { name, description: (description == "") ? undefined : description, status, dueDate: (dateChanged || timeChanged) ? Time.fromDate(date) : undefined };
-        console.log("Saving todo: " + JSON.stringify(todo));
+        try {
 
-        const res = await callFunction(Functions.createTodo, {
-            todo: todo
+
+            const res = await callFunction(Functions.createTodo, {
+                name, description: (description != "") ? description : undefined,
+                status, dueDate: (dateChanged || timeChanged) ? date.toISOString() : undefined
+            });
+
+            if (res.status) {
+                // Toast
+                console.log("Successfully todo added");
+                router.back();
+            } else {
+                console.log(res.error);
+            }
+        } catch (error) {
+            console.error("Error creating todo:", error);
         }
-
-
-            // const res = await callFunction(Functions.createTodo, {
-            //     todo: {
-            //         name, description: (description == "") ? undefined : description,
-            //         status, dueDate: (dateChanged || timeChanged) ? Time.fromDate(date) : undefined
-            //     }
-            // }
-        );
-
-        if (res.status) {
-            // Toast
-            console.log("Succefully todo added");
-            router.back();
-        } else {
-            console.log(res.error);
-        }
-
-
     }
 
 
     async function editTodoAction() {
-        if (!id || !newTodo) {
-            console.log("Error: id is undefined");
-            return;
-        }
+        if (!id) return;
 
-        console.log("Editing todo: " + JSON.stringify(newTodo));
 
-        if (newTodo) {
-            const res = await callFunction(Functions.updateTodo, { id, newTodo });
+        if (editable) {
+            const res = await callFunction(Functions.updateTodo, {
+                name: name, description: description === "" ? undefined : description, status: status,
+                dueDate: (!(dateChanged || timeChanged)) ? undefined : date.toISOString(),
+                id: id
+            }
+            );
+
+
             if (res.status) {
                 // Toast
                 console.log("Successfully modified the todo");
@@ -157,14 +169,14 @@ export const AbstractTodoEditor: React.FC<{
                         onChangeText={n => setName(n)}
                         placeholder={t(`todo:name_placeholder`)}
                         icon='people'
-                        label='Name'
+                        label={t(`todo:name_label`)}
                     />
                     <FancyTextInput
                         value={description}
                         onChangeText={n => setDescription(n)}
                         placeholder={t(`todo:description_placeholder`)}
                         icon='list'
-                        label='Description'
+                        label={t(`todo:description_label`)}
                         multiline
                         numberOfLines={4}
                         mt={'md'}
@@ -180,7 +192,7 @@ export const AbstractTodoEditor: React.FC<{
 
                         <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`todo:date_btn_title`)}</TText>
 
-                        <TTouchableOpacity onPress={() => { setShowPickerDate(true); setShowPickerTime(false); }}
+                        <TTouchableOpacity onPress={() => setShowPickerDate(true)}
 
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'>
@@ -195,7 +207,7 @@ export const AbstractTodoEditor: React.FC<{
 
                         <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`todo:time_btn_title`)}</TText>
 
-                        <TTouchableOpacity onPress={() => { setShowPickerDate(false); setShowPickerTime(true); }}
+                        <TTouchableOpacity onPress={() => setShowPickerTime(true)}
 
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'>
@@ -218,7 +230,6 @@ export const AbstractTodoEditor: React.FC<{
                         onChange={(event, selectedDate) => {
                             if (event.type === "dismissed") {
                                 setShowPickerDate(false);
-                                setShowPickerTime(false);
                             } else {
                                 onChangeDate(event, selectedDate);
                             }
@@ -235,7 +246,6 @@ export const AbstractTodoEditor: React.FC<{
                         display="default"
                         onChange={(event, selectedDate) => {
                             if (event.type === "dismissed") {
-                                setShowPickerDate(false);
                                 setShowPickerTime(false);
                             } else {
                                 onChangeTime(event, selectedDate);

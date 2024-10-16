@@ -21,7 +21,7 @@ import Functions = Todolist.Functions;
 
 
 // ------------------------------------------------------------
-// -------------------  Todo Utils Functions   ----------------
+// ----------------  Todo Status Utils Functions   ------------
 // ------------------------------------------------------------
 
 export const statusIconMap: Record<TodoStatus, IconType> = {
@@ -47,13 +47,10 @@ export const statusNextMap: Record<TodoStatus, TodoStatus> = {
 };
 
 export const statusNextAction = async (id: string, todo: Todo) => {
-    const newTodo = {
-        ...todo,
-        status: statusNextMap[todo.status]
-    };
+
     try {
 
-        const res = await callFunction(Functions.updateTodo, { id, newTodo });
+        const res = await callFunction(Functions.updateTodo, { status: statusNextMap[todo.status], id });
 
         if (res.status) {
             console.log('Todo updated successfully');
@@ -65,14 +62,18 @@ export const statusNextAction = async (id: string, todo: Todo) => {
     }
 };
 
+
+// ------------------------------------------------------------
+// ---------------  Todo Archive Utils Functions   ------------
+// ------------------------------------------------------------
+
 export const toogleArchivityOfTodo = async (id: string, todo: Todo) => {
-    const newTodo = {
-        ...todo,
-        status: todo.status !== "archived" ? "archived" : "yet"
-    };
+
+    const newStatus: TodoStatus = todo.status !== "archived" ? "archived" : "yet";
+
     try {
 
-        const res = await callFunction(Functions.updateTodo, { id, newTodo });
+        const res = await callFunction(Functions.updateTodo, { status: newStatus, id });
 
         if (res.status) {
             Toast.show({
@@ -91,5 +92,5 @@ export const toogleArchivityOfTodo = async (id: string, todo: Todo) => {
 
 
 export const sameTodos = (todo1: Todo, todo2: Todo): boolean => {
-    return todo1.name === todo2.name && todo1.description === todo2.description && todo1.status === todo2.status;
+    return todo1.name === todo2.name && todo1.description === todo2.description && todo1.status === todo2.status && todo1.dueDate === todo2.dueDate;
 };;

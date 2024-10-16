@@ -1,3 +1,13 @@
+/**
+ * @file modal.tsx
+ * @description Module for displaying todo modals in the edweiss app
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import Icon from '@/components/core/Icon';
@@ -7,11 +17,13 @@ import FancyButton from '@/components/input/FancyButton';
 import t from '@/config/i18config';
 import ReactComponent from '@/constants/Component';
 import Todolist from '@/model/todo';
+import { Time } from '@/utils/time';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { statusColorMap, statusIconMap } from './utilsFunctions';
-import Todo = Todolist.Todo;
-import TodoStatus = Todolist.TodoStatus;
-import Functions = Todolist.Functions;
+
+// Types
+type Todo = Todolist.Todo;
+type TodoStatus = Todolist.TodoStatus;
 
 
 
@@ -86,6 +98,11 @@ export const TodoModalDisplay: ReactComponent<{
     todo?: Todo; onClose: () => void;
 }> = ({ modalRef, todo, onClose }) => {
 
+    const date = (todo && todo.dueDate) ? Time.toDate(todo.dueDate) : undefined;
+    const dateString = date ? date.toDateString() : undefined;
+    const timeString = date ? date.toTimeString().split(':').slice(0, 2).join(':') : undefined;
+    const fullDateText = (date) ? t(`todo:dued_on`) + `${dateString}` + t(`todo:at`) + `${timeString}` : undefined;
+
     return (
 
         <ModalContainer modalRef={modalRef}>
@@ -108,12 +125,19 @@ export const TodoModalDisplay: ReactComponent<{
                     )}
                 </TView>
 
-                <TView mb='lg' pl={'md'} pr={'md'} flexDirection='row' alignItems='center'>
+
+                <TText mb={'lg'} pl={'md'} pr={'md'} ml={'md'} color='subtext0'>{fullDateText}</TText>
+
+
+
+                <TView mb='sm' pl={'md'} pr={'md'} flexDirection='row' alignItems='center'>
                     <Icon name={statusIconMap[todo.status]} color={statusColorMap[todo.status]} size={'xl'} />
                     <TText size='sm' color={statusColorMap[todo.status]} ml='md'>
                         {t(`todo:status.${todo.status}`)}
                     </TText>
                 </TView>
+
+
 
                 <TView mb={20}></TView>
 
@@ -124,4 +148,4 @@ export const TodoModalDisplay: ReactComponent<{
             }
         </ModalContainer>
     );
-};
+};;;;

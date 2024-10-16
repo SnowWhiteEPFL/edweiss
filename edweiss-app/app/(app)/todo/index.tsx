@@ -27,8 +27,9 @@ import { GestureHandlerRootView, NativeViewGestureHandler, ScrollView } from 're
 import { FilterModalDisplay, TodoModalDisplay } from './utils/modal';
 import { TodoDisplay } from './utils/todoDisplay';
 
-import Todo = Todolist.Todo;
-import TodoStatus = Todolist.TodoStatus;
+// Types
+type Todo = Todolist.Todo;
+type TodoStatus = Todolist.TodoStatus;
 
 
 // ------------------------------------------------------------
