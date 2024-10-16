@@ -24,6 +24,7 @@ import { Time } from '@/utils/time';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import { useState } from 'react';
+import Toast from 'react-native-toast-message';
 import { StatusChanger } from './todoDisplay';
 import { sameTodos } from './utilsFunctions';
 import Functions = Todolist.Functions;
@@ -102,14 +103,25 @@ export const AbstractTodoEditor: React.FC<{
             });
 
             if (res.status) {
-                // Toast
-                console.log("Successfully todo added");
                 router.back();
+                Toast.show({
+                    type: 'success',
+                    text1: name + t(`todo:was_added_toast`),
+                    text2: t(`todo:funny_phrase_on_add`)
+                });
             } else {
-                console.log(res.error);
+                Toast.show({
+                    type: 'error',
+                    text1: t(`todo:error_toast_title`),
+                    text2: t(`todo:couldnot_save_toast`)
+                });
             }
         } catch (error) {
-            console.error("Error creating todo:", error);
+            Toast.show({
+                type: 'error',
+                text1: t(`todo:error_toast_title`),
+                text2: t(`todo:couldnot_save_toast`)
+            });
         }
     }
 
@@ -128,14 +140,25 @@ export const AbstractTodoEditor: React.FC<{
 
 
             if (res.status) {
-                // Toast
-                console.log("Successfully modified the todo");
                 router.back();
+                Toast.show({
+                    type: 'success',
+                    text1: name + t(`todo:was_edited_toast`),
+                    text2: t(`todo:funny_phrase_on_edit`)
+                });
             } else {
-                console.log(res.error);
+                Toast.show({
+                    type: 'error',
+                    text1: t(`todo:error_toast_title`),
+                    text2: t(`todo:couldnot_edit_toast`)
+                });
             }
         } else {
-            console.log("Error: newTodo is undefined");
+            Toast.show({
+                type: 'error',
+                text1: t(`todo:error_toast_title`),
+                text2: t(`todo:couldnot_edit_toast`)
+            });
         }
     }
 
@@ -147,11 +170,18 @@ export const AbstractTodoEditor: React.FC<{
         const res = await callFunction(Functions.deleteTodo, { id });
 
         if (res.status) {
-            // Toast
-            console.log("Successfully deleted the todo");
             router.back();
+            Toast.show({
+                type: 'success',
+                text1: name + t(`todo:was_deleted_toast`),
+                text2: t(`todo:funny_phrase_on_delete`)
+            });
         } else {
-            console.log(res.error);
+            Toast.show({
+                type: 'error',
+                text1: t(`todo:error_toast_title`),
+                text2: t(`todo:couldnot_delete_toast`)
+            });
         }
     }
 

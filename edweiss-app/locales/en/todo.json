@@ -38,7 +38,17 @@
 	"dued_on": "Due on : ",
 	"at": " at ",
 	"name_label": "Name",
-	"description_label": "Description"
+	"description_label": "Description",
+	"was_added_toast": " was added !",
+	"funny_phrase_on_add": "Another one bites the dust!",
+	"was_edited_toast": " was edited !",
+	"funny_phrase_on_edit": "Edit accomplished, high five!",
+	"error_toast_title": "⚠️ Error",
+	"couldnot_save_toast": "Couldn't save the Todo, please try again.",
+	"couldnot_edit_toast": "Couldn't edit the Todo, please try again.",
+	"was_deleted_toast": " was deleted !",
+	"funny_phrase_on_delete": "Gone, but not forgotten!",
+	"couldnot_delete_toast": "Couldn't delete the Todo, please try again."
 
 
 }

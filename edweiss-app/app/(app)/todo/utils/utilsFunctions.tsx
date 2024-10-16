@@ -53,11 +53,24 @@ export const statusNextAction = async (id: string, todo: Todo) => {
         const res = await callFunction(Functions.updateTodo, { status: statusNextMap[todo.status], id });
 
         if (res.status) {
-            console.log('Todo updated successfully');
+            Toast.show({
+                type: 'success',
+                text1: todo.name + t(`todo:was_edited_toast`),
+                text2: t(`todo:funny_phrase_on_edit`)
+            });
         } else {
-            console.error('Failed to update todo:', res.error);
+            Toast.show({
+                type: 'error',
+                text1: t(`todo:error_toast_title`),
+                text2: t(`todo:couldnot_edit_toast`)
+            });
         }
     } catch (error) {
+        Toast.show({
+            type: 'error',
+            text1: t(`todo:error_toast_title`),
+            text2: t(`todo:couldnot_edit_toast`)
+        });
         console.error('Error updating todo:', error);
     }
 };
