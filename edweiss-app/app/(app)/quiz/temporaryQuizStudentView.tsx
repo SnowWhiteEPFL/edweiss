@@ -151,7 +151,7 @@ export const QuizDisplay: ReactComponent<{ studentAnswers: QuizzesAttempts.Answe
                             if (send != undefined) {
                                 send();
                             }
-                            //router.push("/(app)/(tabs)/explore");
+                            router.back();
                         }}
                         icon='save-sharp'>
                         Submit and exit
