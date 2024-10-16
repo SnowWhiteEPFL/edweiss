@@ -1,3 +1,4 @@
+import { FunctionFolder, FunctionOf } from '../functions';
 import { Timestamp } from '../time';
 import { ProfessorID, StudentID } from '../users';
 import { CourseTimePeriodType, CyclicTimePeriod } from './schedule';
@@ -8,10 +9,10 @@ export type Credits = number & {};
 
 export type Section = "IN" | "COM" | "PH" | "MT";
 export const courseColors = {
-	lecture: 'lightblue',
-	exercises: 'lightgreen',
-	lab: 'lightyellow',
-	project: 'lightcoral',
+	lecture: 'blue',
+	exercises: 'pink',
+	lab: 'green',
+	project: 'teal',
 };
 
 export interface CourseTimePeriod extends CyclicTimePeriod {
@@ -28,6 +29,7 @@ export interface Course {
 	credits: Credits;
 	newAssignments: boolean;
 	assignments: Assignment[];
+	started: boolean;
 }
 
 export type AssignmentType = "quiz" | "submit";
@@ -46,4 +48,12 @@ export function isProfessorOf(professor: ProfessorID, course: Course) {
 
 export function isAssistantOf(student: StudentID, course: Course) {
 	return course.assistants.includes(student);
+}
+
+export namespace Course_functions {
+	export const Functions = FunctionFolder("course", {
+		startCourse: FunctionOf<{ courseID: string, course: Course; }, {}, 'cannot start the course'>("startCourse"),
+		stopCourse: FunctionOf<{ courseID: string, course: Course; }, {}, 'cannot stop the course'>("stopCourse"),
+		joinCourse: FunctionOf<{ courseID: string, course: Course; }, {}, 'cannot join the course'>("joinCourse"),
+	});
 }

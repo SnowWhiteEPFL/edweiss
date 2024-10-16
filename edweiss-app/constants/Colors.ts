@@ -1,14 +1,14 @@
 
-export type Theme = 'light' | 'dark'
+export type Theme = 'light' | 'dark';
 
-export type LightDarkProps = { light?: string, dark?: string }
+export type LightDarkProps = { light?: string, dark?: string; };
 
-export type Color = keyof typeof Colors.light & keyof typeof Colors.dark
+export type Color = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 const Colors = {
 	light: {
 		transparent: '#0000',
-
+		title: "#000000",
 		rosewater: "#dc8a78",
 		flamingo: "#dd7878",
 		pink: "#ea76cb",
@@ -34,11 +34,12 @@ const Colors = {
 		surface0: "#ccd0da",
 		base: "#eff1f5",
 		mantle: "#e6e9ef",
-		crust: "#dce0e8"
+		crust: "#dce0e8",
+		Teal: "#8bd5ca",
 	},
 	dark: {
 		transparent: '#0000',
-
+		title: "#000000",
 		rosewater: "#f5e0dc",
 		flamingo: "#f2cdcd",
 		pink: "#f5c2e7",
@@ -64,8 +65,9 @@ const Colors = {
 		surface0: "#313244",
 		base: "#1e1e2e",
 		mantle: "#181825",
-		crust: "#11111b"
+		crust: "#11111b",
+		Teal: "#8bd5ca",
 	},
-}
+};
 
-export default Colors
+export default Colors;
