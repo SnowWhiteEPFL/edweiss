@@ -33,6 +33,10 @@ const db = FS.getFirestore(app);
 // const storage = getStorage(app);
 const functions = getFunctions(app);
 
+export function signOut() {
+	return auth.signOut();
+}
+
 export function listenForAuthStateChange(callback: NextOrObserver<User>) {
 	return onAuthStateChanged(auth, callback);
 }
