@@ -21,6 +21,7 @@ namespace LectureDisplay {
         start: Timestamp;
         ends: Timestamp;
         availableToStudents: boolean;
+        nbOfPages: number;
     }
 }
 

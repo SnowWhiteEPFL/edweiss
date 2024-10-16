@@ -36,3 +36,11 @@ export namespace Auth {
 		createAccount: FunctionOf<{ name: string; }, {}, 'already_existing_account'>("createAccount"),
 	});
 }
+
+export namespace FCMCommunication {
+	export const Functions = FunctionFolder("fcm", {
+		registerFCMToken: FunctionOf<{ fcmToken: string; }, {}, 'successfully_saved_token' | 'invalid_userID' | 'invalid_fcm_tokens' | 'firebase_error'>("registerFCMToken"),
+		sendFCMPage: FunctionOf<{ page: number; }, {}, 'successfully_sent' | 'invalid_userID' | 'invalid_page' | 'firebase_error'>("sendFCMPage"),
+	});
+}
+
