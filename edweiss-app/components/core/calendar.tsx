@@ -31,9 +31,7 @@ export const Calendar = ({ courses }: { courses: { id: string; data: Course; }[]
         fetchUser();
     }, [userId]);
     useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentMinutes(getCurrentTimeInMinutes());
-        }, 60000);
+        const interval = setInterval(() => { setCurrentMinutes(getCurrentTimeInMinutes()); }, 60000);
         return () => clearInterval(interval);
     }, []);
 
@@ -73,10 +71,7 @@ export const Calendar = ({ courses }: { courses: { id: string; data: Course; }[]
                                                 period.dayIndex === getCurrentDay()
                                         )
                                         .map((period, index, filteredPeriods) => {
-
-
                                             return (
-
                                                 <Day
                                                     key={index}
                                                     period={period}
