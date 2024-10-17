@@ -25,7 +25,7 @@ export const PeriodBlock = ({ period, course, user }: {
                 </TText>
             </TView>
             {user.data.type == 'student' && course.data.started && period.type == 'lecture' && <TText p={5} size={15} color="red">Join Course</TText>}
-            {user.data.type == 'professor' && period.type == 'lecture' && <TText p={5} size={15} color={course.data.started ? "red" : "green"}>{(course.data.started == false && "Start Course") || (course.data.started == true && "Stop Course")}</TText>}
+            {user.data.type == 'professor' && period.type == 'lecture' && <TText p={5} size={15} color={course.data.started ? "red" : "green"}>{(!course.data.started && "Start Course") || (course.data.started && "Stop Course")}</TText>}
         </TView>
     );
 };

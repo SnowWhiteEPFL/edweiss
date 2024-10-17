@@ -52,7 +52,7 @@ const StartCourseScreen: ApplicationRoute = () => {
 			});
 			console.log("2");
 			if (res.status == 1) {
-				setAvailable(res.data.available as boolean);
+				setAvailable(res.data.available);
 			} else {
 				console.log(`Failed to make available to student, status: ${res.status}`);
 			}
