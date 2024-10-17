@@ -2,8 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+	font-family: 'Whitney';
+	src: url(assets/fonts/whitneybook.otf);
+	font-weight: 300;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Whitney';
+	src: url(assets/fonts/whitneymedium.otf);
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Whitney';
+	src: url(assets/fonts/whitneymedium.otf);
+	font-weight: 500;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Whitney';
+	src: url(assets/fonts/whitneysemibold.otf);
+	font-weight: 600;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Whitney';
+	src: url(assets/fonts/whitneybold.otf);
+	font-weight: bold;
+	font-style: normal;
+}
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif; */
+  font-family: 'Whitney', Times, serif;
   line-height: 1.5;
   font-weight: 400;
 
