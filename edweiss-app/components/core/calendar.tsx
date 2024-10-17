@@ -40,7 +40,7 @@ export const Calendar = ({ courses }: { courses: { id: string; data: Course; }[]
 
     useEffect(() => {
         scrollViewRef.current?.scrollTo({ y: (currentMinutes / TIME_CONSTANTS.MINUTES_IN_HOUR - 1) * HOUR_BLOCK_HEIGHT, animated: true });
-    }, []);
+    }, [currentMinutes]);
 
     return (
         <TView mb={16} flex={1} key={userId}>
