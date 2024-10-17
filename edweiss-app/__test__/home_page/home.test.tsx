@@ -118,6 +118,7 @@ describe('HomeTab Component', () => {
         return [];
     });
 
+
     it('render hours', async () => {
 
         render(<HomeTab />);
@@ -130,8 +131,8 @@ describe('HomeTab Component', () => {
     });
     it('render course name', async () => {
         render(<HomeTab />);
-        expect(screen.getByText('Course 1')).toBeTruthy();
-        expect(screen.getByText('Course 2')).toBeTruthy();
+        expect(await screen.findByText('Course 1')).toBeTruthy();
+        expect(await screen.findByText('Course 2')).toBeTruthy();
     });
     it('render course credits', async () => {
         render(<HomeTab />);

@@ -31,6 +31,6 @@ describe('formatTime', () => {
     });
 
     it('should format 1440 minutes to "23:59"', () => {
-        expect(formatTime(1440)).toBe('24:00');
+        expect(formatTime(1440)).toBe('23:59');
     });
 });
