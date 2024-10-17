@@ -14,10 +14,10 @@ import { ActivityIndicator } from 'react-native';
 type Lecture = LectureDisplay.Lecture;
 
 const StartCourseScreen: ApplicationRoute = () => {
-	const { courseID, course, period, index } = useLocalSearchParams() as unknown as { courseID: string; course: string; period: string; index: number; };
+	const { courseID, course, period } = useLocalSearchParams() as unknown as { courseID: string; course: string; period: string; index: number; };
 	const [loading, setLoading] = useState(false);
 	const [parsedCourse, setParsedCourse] = useState<Course>(JSON.parse(course));
-	const [parsedPeriod, setParsedPeriod] = useState<CourseTimePeriod>(JSON.parse(period));
+	const [parsedPeriod] = useState<CourseTimePeriod>(JSON.parse(period));
 	const [textButton, setTextButton] = useState("Start course");
 	const [colorButtonStartStop, setColorButtonStartStop] = useState<Color>("transparent");
 	const [colorButtonShow, setColorButtonShow] = useState<Color>("transparent");
