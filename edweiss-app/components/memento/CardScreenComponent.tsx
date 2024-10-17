@@ -1,30 +1,35 @@
-import RouteHeader from '@/components/core/header/RouteHeader';
+import ReactComponent from '@/constants/Component';
 
-import TText from '@/components/core/TText';
-import TView from '@/components/core/containers/TView';
-import HeaderButton from '@/components/core/header/HeaderButton';
-import FancyButton from '@/components/input/FancyButton';
 import { callFunction, Collections } from '@/config/firebase';
-import { ApplicationRoute } from '@/constants/Component';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import Memento from '@/model/memento';
-import { router, useLocalSearchParams } from 'expo-router';
-import React, { useState } from 'react';
+import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { State, TapGestureHandler } from 'react-native-gesture-handler';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import TView from '../core/containers/TView';
+import HeaderButton from '../core/header/HeaderButton';
+import RouteHeader from '../core/header/RouteHeader';
+import TText from '../core/TText';
+import FancyButton from '../input/FancyButton';
 
+const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; isModal?: boolean; }> = ({ deckId, cardIndex, isModal }) => {
 
-const CardScreen: ApplicationRoute = () => {
     const [showDropdown, setShowDropdown] = useState(false); // State for dropdown visibility
     const [isFlipped, setIsFlipped] = useState(false);
-    const { deckId, cardIndex } = useLocalSearchParams();
 
     const decks = useDynamicDocs(Collections.deck);
     const deck = decks?.find(d => d.id == deckId);
-    const cardIndexInt = parseInt(cardIndex.toString());
 
-    const card = deck?.data.cards[cardIndexInt];
+    const card = deck?.data.cards[cardIndex];
+
+    const rotation = useSharedValue(0);
+
+    useEffect(() => {
+        setIsFlipped(false);
+        rotation.value = 0;
+    }, [cardIndex]);
 
     const toggleDropDown = () => { setShowDropdown(prev => !prev); }; // Open/close dropdown
 
@@ -39,7 +44,7 @@ const CardScreen: ApplicationRoute = () => {
         return fontSize;
     };
 
-    const rotation = useSharedValue(0);
+
 
     const toggleFlip = () => {
         rotation.value = withTiming(
@@ -68,47 +73,50 @@ const CardScreen: ApplicationRoute = () => {
 
     async function deleteCard() {
 
-        const res = await callFunction(Memento.Functions.deleteCard, { deckId: deckId as any, cardIndex: cardIndexInt });
-
-        if (res.status == 1) {
-            console.log(`OKAY, card deleted with id ${res.data.id}`);
-            router.back();
+        try {
+            const res = await callFunction(Memento.Functions.deleteCard, { deckId: deckId as any, cardIndex: cardIndex });
+            if (res.status == 1) {
+                console.log(`Card deleted with id ${res.data.id}`);
+                router.back();
+            }
+        } catch (error) {
+            console.error("Error deleting card:", error);
         }
 
     }
 
     async function updateCard() {
 
-        const res = await callFunction(Memento.Functions.updateCard, { deckId: deckId as any, newCard: card, cardIndex: cardIndexInt });
+        const res = await callFunction(Memento.Functions.updateCard, { deckId: deckId as any, newCard: card, cardIndex: cardIndex });
 
         if (res.status == 1) {
-            console.log(`OKAY, card updated with index ${cardIndexInt}`);
+            console.log(`OKAY, card updated with index ${cardIndex}`);
         }
 
     }
 
     return (
         <>
-            <RouteHeader
-                title='Card Screenj'
-                right={
-                    <HeaderButton icon="ellipsis-vertical-outline" onPress={toggleDropDown}>
-                    </HeaderButton>
-                }
-            />
-            {showDropdown && (
-                <TView borderColor='blue' style={{ position: 'absolute', top: -16, right: 0, padding: 0, zIndex: 1000 }} >
-                    <FancyButton onPress={deleteCard} backgroundColor='transparent' textColor='red' mt={'md'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
-                        Delete Card
-                    </FancyButton>
-                    <FancyButton onPress={() => router.push({ pathname: `/deck/${deckId}/card/edition` as any, params: { deckId: deckId, prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex } })}
-                        backgroundColor='transparent' textColor='teal' mb={'sm'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
-                        Edit Card
-                    </FancyButton>
-                </TView>
-            )}
+            <TView style={isModal ? styles.modalContainer : styles.container}>
+                {!isModal && <RouteHeader
+                    title='Card Screen'
+                    right={
+                        <HeaderButton icon="ellipsis-vertical-outline" onPress={toggleDropDown}>
+                        </HeaderButton>
+                    }
+                />}
 
-            <TView style={styles.container}>
+                {showDropdown && (
+                    <TView borderColor='blue' style={{ position: 'absolute', top: -16, right: 0, padding: 0, zIndex: 1000 }} >
+                        <FancyButton onPress={deleteCard} backgroundColor='transparent' textColor='red' mt={'md'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
+                            Delete Card
+                        </FancyButton>
+                        <FancyButton onPress={() => router.push({ pathname: `/deck/${deckId}/card/edition` as any, params: { deckId: deckId, prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex } })}
+                            backgroundColor='transparent' textColor='teal' mb={'sm'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
+                            Edit Card
+                        </FancyButton>
+                    </TView>
+                )}
 
                 <TapGestureHandler
                     onHandlerStateChange={({ nativeEvent }) => {
@@ -116,7 +124,7 @@ const CardScreen: ApplicationRoute = () => {
                             toggleFlip();
                         }
                     }}>
-                    <Animated.View style={[styles.cardContainer, fronCardStyle]}>
+                    <Animated.View style={[isModal ? styles.modalCard : styles.cardContainer, fronCardStyle]}>
                         <TText mr={10} ml={10} size={20} ellipsizeMode='tail' style={{ textAlign: 'center', fontSize: calculateFontSize(card?.question ?? ""), lineHeight: calculateFontSize(card?.question ?? "") * 1.2 }}>
                             {card?.question}
                         </TText>
@@ -136,22 +144,12 @@ const CardScreen: ApplicationRoute = () => {
                     </Animated.View>
                 </TapGestureHandler>
 
-                {/* 
-                <TTouchableOpacity onPress={toggleAnswer} bb={5} style={{ width: '70%', height: '40%' }} backgroundColor='base' borderColor='crust' radius='lg' justifyContent='center' alignItems='center' >
-
-                    <TText mr={10} ml={10} size={20} ellipsizeMode='tail' style={{ textAlign: 'center', fontSize: calculateFontSize(showAnswer ? card?.answer ?? "" : card?.question ?? ""), lineHeight: calculateFontSize(showAnswer ? card?.answer ?? "" : card?.question ?? "") * 1.2 }}>
-                        {showAnswer ? card?.answer : card?.question}
-                    </TText>
-
-                </TTouchableOpacity >
-                */}
-
                 {/* Buttons container */}
                 <TView style={[styles.buttonContainer]}>
                     <TView style={styles.buttonHalf}>
                         <FancyButton
                             backgroundColor='red'
-                            onPress={() => updateLearningStatusCard(deckId as any, cardIndexInt, updateCard, "Not yet", card)}
+                            onPress={() => updateLearningStatusCard(deckId as any, cardIndex, updateCard, "Not yet", card)}
                             style={{ width: '100%', height: '100%' }} // Make button fill its half
                             icon='close-sharp'
                         >
@@ -161,7 +159,7 @@ const CardScreen: ApplicationRoute = () => {
                     <TView style={styles.lastButtonHalf}>
                         <FancyButton
                             backgroundColor='green'
-                            onPress={() => updateLearningStatusCard(deckId as any, cardIndexInt, updateCard, "Got it", card)}
+                            onPress={() => updateLearningStatusCard(deckId as any, cardIndex, updateCard, "Got it", card)}
                             style={{ width: '100%', height: '100%' }} // Make button fill its half
                             icon='checkmark-sharp'
                         >
@@ -170,10 +168,11 @@ const CardScreen: ApplicationRoute = () => {
                     </TView>
                 </TView>
 
-
             </TView >
+
         </>
     );
+
 };
 
 const styles = StyleSheet.create({
@@ -183,20 +182,37 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: '20%'
     },
-    cardContainer: {
+    modalContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: '20%',
+    },
+    modalCard: {
         width: '70%',
-        height: '40%',
+        height: '75%',
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'white',
-        borderRadius: 30,
+        borderRadius: 20,
         borderColor: 'crust',
         backfaceVisibility: 'hidden',
-        position: 'absolute'
+        top: '-2%',
+    },
+    cardContainer: {
+        width: '70%',
+        height: '75%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        borderRadius: 20,
+        borderColor: 'crust',
+        backfaceVisibility: 'hidden',
+        position: 'absolute',
+        top: '10%',
     },
     buttonContainer: {
         position: 'absolute',
-        bottom: '15%', // Place the row near the bottom
+        bottom: '0%', // Place the row near the bottom
         width: '60%', // Keep the row aligned with the card width
         flexDirection: 'row', // Create a horizontal row
         justifyContent: 'space-between',
@@ -221,7 +237,7 @@ const styles = StyleSheet.create({
     }
 });
 
-export default CardScreen;
+export default CardScreenComponent;
 
 function updateLearningStatusCard(deckId: string, cardIndex: number, onPress: (deckId: any, newCard: Memento.Card, cardIndex: number) => void, learning_status: Memento.LearningStatus, card?: Memento.Card) {
     if (card) {
@@ -229,4 +245,3 @@ function updateLearningStatusCard(deckId: string, cardIndex: number, onPress: (d
         onPress(deckId, card, cardIndex);
     }
 }
-
