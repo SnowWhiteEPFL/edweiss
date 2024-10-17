@@ -1,4 +1,4 @@
-import { Course } from '@/model/school/courses';
+import { Course, CourseTimePeriod } from '@/model/school/courses';
 import { fireEvent, render } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import React from 'react';
@@ -22,8 +22,6 @@ const mockCourse: Course = {
     assignments: [],
     started: true,
 };
-
-import { CourseTimePeriod } from '@/model/school/courses';
 
 const mockPeriod: CourseTimePeriod = {
     start: 480,
