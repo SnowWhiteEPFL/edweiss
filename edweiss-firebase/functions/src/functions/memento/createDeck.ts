@@ -1,12 +1,9 @@
-
 import Memento from 'model/memento';
 import { onAuthentifiedCall } from 'utils/firebase';
 import { CollectionOf } from 'utils/firestore';
-import { fail, ok } from 'utils/status';
+import { ok } from 'utils/status';
 
-export const createDeck = onAuthentifiedCall(Memento.Functions.creation.createDeck, async (userId, args) => {
-	if (args.deck.cards.length == 0)
-		return fail("empty_deck");
+export const createDeck = onAuthentifiedCall(Memento.Functions.createDeck, async (userId, args) => {
 
 	const deckCollection = CollectionOf<Memento.Deck>("decks");
 
