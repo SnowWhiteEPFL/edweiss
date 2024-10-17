@@ -11,8 +11,11 @@ export const createAccount = onAuthentifiedCall(Auth.Functions.createAccount, as
 		return fail("already_existing_account");
 
 	await userRef.set({
+		type: "professor",
 		createdAt: Time.now(),
-		name: args.name
+		name: args.name,
+		type: "student",
+		courses: []
 	});
 
 	return OK;
