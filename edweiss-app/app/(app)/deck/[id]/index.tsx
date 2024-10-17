@@ -24,11 +24,11 @@ const CardListScreen: ApplicationRoute = () => {
 	const [selectionMode, setSelectionMode] = useState(false); // Track selection mode
 	const [selectedCardIndex, setSelectedCardIndex] = useState<number | null>(null); // State to hold selected card index
 	const modalRef = useRef<BottomSheetModal>(null); // Reference for the modal
+	const decks = useDynamicDocs(Collections.deck);
 
 	if (typeof id != 'string')
 		return <Redirect href={'/'} />;
 
-	const decks = useDynamicDocs(Collections.deck);
 	const deck = decks?.find(d => d.id == id);
 	const cards = deck?.data.cards || []; // Ensure cards is an array or empty
 
@@ -192,9 +192,7 @@ export default CardListScreen;
 
 const DisplayCard: ReactComponent<{ card: Memento.Card, isSelected: boolean, toggleSelection: (card: Memento.Card) => void; onLongPress: () => void; selectionMode: boolean; goToPath: () => void; }> = ({ card, isSelected, toggleSelection, onLongPress, selectionMode, goToPath }) => {
 	// Determine the text color based on the learning status
-	const statusColor = card.learning_status === "Not yet" ? 'red' :
-		card.learning_status === "Got it" ? 'green' :
-			'gray'; // Default color if status is undefined
+	const statusColor = getStatusColor(card.learning_status ?? "");
 
 	const handlePress = () => {
 		if (!selectionMode) {
@@ -237,4 +235,15 @@ const DisplayCard: ReactComponent<{ card: Memento.Card, isSelected: boolean, tog
 		</TTouchableOpacity>
 	);
 };
+
+function getStatusColor(status: string) {
+	switch (status) {
+		case "Not yet":
+			return "red";
+		case "Got it":
+			return "green";
+		default:
+			return "black";
+	}
+}
 

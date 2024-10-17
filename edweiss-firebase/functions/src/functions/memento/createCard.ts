@@ -9,16 +9,8 @@ export const createCard = onAuthentifiedCall(Memento.Functions.createCard, async
     const deckDoc = await deckCollection.doc(args.deckId).get();
     const deckData = deckDoc.data();
 
-    if (deckData && deckData.cards) {
-        // Append the new card to the existing cards array
-        const updatedCards = [...deckData.cards, args.card];
-
-        // Update the deck with the new array of cards
-        await deckCollection.doc(args.deckId).update({ cards: updatedCards });
-    } else {
-        // If there are no existing cards, create a new array with the new card
-        await deckCollection.doc(args.deckId).update({ cards: [args.card] });
-    }
+    const updatedCards = deckData?.cards ? [...deckData.cards, args.card] : [args.card];
+    await deckCollection.doc(args.deckId).update({ cards: updatedCards });
 
     /*
     const deck = getDocument(CollectionOf<Memento.Deck>("decks"), args.deckId);

@@ -74,7 +74,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
     async function deleteCard() {
 
         try {
-            const res = await callFunction(Memento.Functions.deleteCard, { deckId: deckId as any, cardIndex: cardIndex });
+            const res = await callFunction(Memento.Functions.deleteCard, { deckId: deckId, cardIndex: cardIndex });
             if (res.status == 1) {
                 console.log(`Card deleted with id ${res.data.id}`);
                 router.back();
@@ -86,91 +86,91 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
     }
 
     async function updateCard() {
+        try {
+            const res = await callFunction(Memento.Functions.updateCard, { deckId: deckId as any, newCard: card, cardIndex: cardIndex });
 
-        const res = await callFunction(Memento.Functions.updateCard, { deckId: deckId as any, newCard: card, cardIndex: cardIndex });
-
-        if (res.status == 1) {
-            console.log(`OKAY, card updated with index ${cardIndex}`);
+            if (res.status == 1) {
+                console.log(`OKAY, card updated with index ${cardIndex}`);
+            }
+        } catch (error) {
+            console.error("Error deleting card:", error);
         }
 
     }
 
     return (
-        <>
-            <TView style={isModal ? styles.modalContainer : styles.container}>
-                {!isModal && <RouteHeader
-                    title='Card Screen'
-                    right={
-                        <HeaderButton icon="ellipsis-vertical-outline" onPress={toggleDropDown}>
-                        </HeaderButton>
-                    }
-                />}
+        <TView style={isModal ? styles.modalContainer : styles.container}>
+            {!isModal && <RouteHeader
+                title='Card Screen'
+                right={
+                    <HeaderButton icon="ellipsis-vertical-outline" onPress={toggleDropDown}>
+                    </HeaderButton>
+                }
+            />}
 
-                {showDropdown && (
-                    <TView borderColor='blue' style={{ position: 'absolute', top: -16, right: 0, padding: 0, zIndex: 1000 }} >
-                        <FancyButton onPress={deleteCard} backgroundColor='transparent' textColor='red' mt={'md'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
-                            Delete Card
-                        </FancyButton>
-                        <FancyButton onPress={() => router.push({ pathname: `/deck/${deckId}/card/edition` as any, params: { deckId: deckId, prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex } })}
-                            backgroundColor='transparent' textColor='teal' mb={'sm'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
-                            Edit Card
-                        </FancyButton>
-                    </TView>
-                )}
-
-                <TapGestureHandler
-                    onHandlerStateChange={({ nativeEvent }) => {
-                        if (nativeEvent.state === State.END) {
-                            toggleFlip();
-                        }
-                    }}>
-                    <Animated.View style={[isModal ? styles.modalCard : styles.cardContainer, fronCardStyle]}>
-                        <TText mr={10} ml={10} size={20} ellipsizeMode='tail' style={{ textAlign: 'center', fontSize: calculateFontSize(card?.question ?? ""), lineHeight: calculateFontSize(card?.question ?? "") * 1.2 }}>
-                            {card?.question}
-                        </TText>
-                    </Animated.View>
-                </TapGestureHandler>
-
-                <TapGestureHandler
-                    onHandlerStateChange={({ nativeEvent }) => {
-                        if (nativeEvent.state === State.END) {
-                            toggleFlip();
-                        }
-                    }}>
-                    <Animated.View style={[styles.cardContainer, backCardStyle]}>
-                        <TText mr={10} ml={10} size={20} ellipsizeMode='tail' style={{ textAlign: 'center', fontSize: calculateFontSize(card?.answer ?? ""), lineHeight: calculateFontSize(card?.answer ?? "") * 1.2 }}>
-                            {card?.answer}
-                        </TText>
-                    </Animated.View>
-                </TapGestureHandler>
-
-                {/* Buttons container */}
-                <TView style={[styles.buttonContainer]}>
-                    <TView style={styles.buttonHalf}>
-                        <FancyButton
-                            backgroundColor='red'
-                            onPress={() => updateLearningStatusCard(deckId as any, cardIndex, updateCard, "Not yet", card)}
-                            style={{ width: '100%', height: '100%' }} // Make button fill its half
-                            icon='close-sharp'
-                        >
-                            Not yet
-                        </FancyButton>
-                    </TView>
-                    <TView style={styles.lastButtonHalf}>
-                        <FancyButton
-                            backgroundColor='green'
-                            onPress={() => updateLearningStatusCard(deckId as any, cardIndex, updateCard, "Got it", card)}
-                            style={{ width: '100%', height: '100%' }} // Make button fill its half
-                            icon='checkmark-sharp'
-                        >
-                            Got it!
-                        </FancyButton>
-                    </TView>
+            {showDropdown && (
+                <TView borderColor='blue' style={{ position: 'absolute', top: -16, right: 0, padding: 0, zIndex: 1000 }} >
+                    <FancyButton onPress={deleteCard} backgroundColor='transparent' textColor='red' mt={'md'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
+                        Delete Card
+                    </FancyButton>
+                    <FancyButton onPress={() => router.push({ pathname: `/deck/${deckId}/card/edition` as any, params: { deckId: deckId, prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex } })}
+                        backgroundColor='transparent' textColor='teal' mb={'sm'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
+                        Edit Card
+                    </FancyButton>
                 </TView>
+            )}
 
-            </TView >
+            <TapGestureHandler
+                onHandlerStateChange={({ nativeEvent }) => {
+                    if (nativeEvent.state === State.END) {
+                        toggleFlip();
+                    }
+                }}>
+                <Animated.View style={[isModal ? styles.modalCard : styles.cardContainer, fronCardStyle]}>
+                    <TText mr={10} ml={10} size={20} ellipsizeMode='tail' style={{ textAlign: 'center', fontSize: calculateFontSize(card?.question ?? ""), lineHeight: calculateFontSize(card?.question ?? "") * 1.2 }}>
+                        {card?.question}
+                    </TText>
+                </Animated.View>
+            </TapGestureHandler>
 
-        </>
+            <TapGestureHandler
+                onHandlerStateChange={({ nativeEvent }) => {
+                    if (nativeEvent.state === State.END) {
+                        toggleFlip();
+                    }
+                }}>
+                <Animated.View style={[styles.cardContainer, backCardStyle]}>
+                    <TText mr={10} ml={10} size={20} ellipsizeMode='tail' style={{ textAlign: 'center', fontSize: calculateFontSize(card?.answer ?? ""), lineHeight: calculateFontSize(card?.answer ?? "") * 1.2 }}>
+                        {card?.answer}
+                    </TText>
+                </Animated.View>
+            </TapGestureHandler>
+
+            {/* Buttons container */}
+            <TView style={[styles.buttonContainer]}>
+                <TView style={styles.buttonHalf}>
+                    <FancyButton
+                        backgroundColor='red'
+                        onPress={() => updateLearningStatusCard(deckId, cardIndex, updateCard, "Not yet", card)}
+                        style={{ width: '100%', height: '100%' }} // Make button fill its half
+                        icon='close-sharp'
+                    >
+                        Not yet
+                    </FancyButton>
+                </TView>
+                <TView style={styles.lastButtonHalf}>
+                    <FancyButton
+                        backgroundColor='green'
+                        onPress={() => updateLearningStatusCard(deckId, cardIndex, updateCard, "Got it", card)}
+                        style={{ width: '100%', height: '100%' }} // Make button fill its half
+                        icon='checkmark-sharp'
+                    >
+                        Got it!
+                    </FancyButton>
+                </TView>
+            </TView>
+
+        </TView >
     );
 
 };

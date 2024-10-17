@@ -75,7 +75,7 @@ describe('DeckScreen', () => {
     });
 
     it('allows selecting and deleting decks', async () => {
-        const { getByText, getByTestId } = render(<DeckScreen />);
+        const { getByText } = render(<DeckScreen />);
 
         // Long press to select Deck 1
         fireEvent(getByText('Deck 1'), 'longPress');
