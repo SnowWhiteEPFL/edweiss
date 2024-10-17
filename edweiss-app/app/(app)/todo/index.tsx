@@ -24,8 +24,8 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { GestureHandlerRootView, NativeViewGestureHandler, ScrollView } from 'react-native-gesture-handler';
-import { FilterModalDisplay, TodoModalDisplay } from './utils/modal';
-import { TodoDisplay } from './utils/todoDisplay';
+import { FilterModalDisplay, TodoModalDisplay } from '../../../components/todo/modal';
+import { TodoDisplay } from '../../../components/todo/todoDisplay';
 
 // Types
 type Todo = Todolist.Todo;

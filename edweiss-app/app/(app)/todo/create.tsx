@@ -9,7 +9,7 @@
 // ------------------------------------------------------------
 
 import { ApplicationRoute } from '@/constants/Component';
-import { AbstractTodoEditor } from './utils/abstractTodoEditor';
+import { AbstractTodoEditor } from '../../../components/todo/abstractTodoEditor';
 
 // ------------------------------------------------------------
 // -----------------   Todo Creation Screen   -----------------

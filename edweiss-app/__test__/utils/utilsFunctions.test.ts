@@ -3,7 +3,7 @@ import t from '@/config/i18config';
 import Todolist from '@/model/todo';
 import { cleanup } from '@testing-library/react-native';
 import Toast from 'react-native-toast-message';
-import { sameTodos, statusColorMap, statusIconMap, statusNextAction, statusNextMap, toogleArchivityOfTodo } from '../../app/(app)/todo/utils/utilsFunctions';
+import { sameTodos, statusColorMap, statusIconMap, statusNextAction, statusNextMap, toogleArchivityOfTodo } from '../../utils/todo/utilsFunctions';
 
 
 // Jest can mock functions in order not to have an actual firebase fetch function for each test needed

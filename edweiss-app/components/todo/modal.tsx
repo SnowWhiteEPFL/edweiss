@@ -19,7 +19,7 @@ import ReactComponent from '@/constants/Component';
 import Todolist from '@/model/todo';
 import { Time } from '@/utils/time';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { statusColorMap, statusIconMap } from './utilsFunctions';
+import { statusColorMap, statusIconMap } from '../../utils/todo/utilsFunctions';
 
 // Types
 type Todo = Todolist.Todo;

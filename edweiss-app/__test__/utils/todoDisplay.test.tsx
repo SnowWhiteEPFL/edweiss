@@ -1,9 +1,9 @@
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
-import { TodoDisplay } from '../../app/(app)/todo/utils/todoDisplay';
-import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import Todolist from '@/model/todo';
+import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
+import { fireEvent, render } from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
+import React from 'react';
+import { TodoDisplay } from '../../components/todo/todoDisplay';
 
 // Mock necessary imports
 jest.mock('expo-router', () => ({
@@ -52,15 +52,15 @@ describe('TodoDisplay', () => {
     it('should render todo name and status', () => {
         const { getByText } = render(
             <TodoDisplay
-        key={ mockTodo.id }
-        id = { mockTodo.id }
-        todo = { mockTodo }
-        setTodoToDisplay = { mockSetTodoToDisplay }
-        modalRef = { mockModalRef }
-        light = "light"
-        dark = "dark"
+                key={mockTodo.id}
+                id={mockTodo.id}
+                todo={mockTodo}
+                setTodoToDisplay={mockSetTodoToDisplay}
+                modalRef={mockModalRef}
+                light="light"
+                dark="dark"
             />
-    );
+        );
 
         expect(getByText('Test Todo')).toBeTruthy();
         expect(getByText('todo:status.yet')).toBeTruthy();
@@ -69,15 +69,15 @@ describe('TodoDisplay', () => {
     it('should open modal when todo is pressed', () => {
         const { getByText } = render(
             <TodoDisplay
-        key={ mockTodo.id }
-        id = { mockTodo.id }
-        todo = { mockTodo }
-        setTodoToDisplay = { mockSetTodoToDisplay }
-        modalRef = { mockModalRef }
-        light = "light"
-        dark = "dark"
+                key={mockTodo.id}
+                id={mockTodo.id}
+                todo={mockTodo}
+                setTodoToDisplay={mockSetTodoToDisplay}
+                modalRef={mockModalRef}
+                light="light"
+                dark="dark"
             />
-    );
+        );
 
         fireEvent.press(getByText('Test Todo'));
         expect(mockSetTodoToDisplay).toHaveBeenCalledWith(mockTodo);
@@ -87,15 +87,15 @@ describe('TodoDisplay', () => {
     it('should navigate to edit screen on long press', () => {
         const { getByText } = render(
             <TodoDisplay
-        key={ mockTodo.id }
-        id = { mockTodo.id }
-        todo = { mockTodo }
-        setTodoToDisplay = { mockSetTodoToDisplay }
-        modalRef = { mockModalRef }
-        light = "light"
-        dark = "dark"
+                key={mockTodo.id}
+                id={mockTodo.id}
+                todo={mockTodo}
+                setTodoToDisplay={mockSetTodoToDisplay}
+                modalRef={mockModalRef}
+                light="light"
+                dark="dark"
             />
-    );
+        );
 
         fireEvent(getByText('Test Todo'), 'onLongPress');
         expect(mockRouterPush).toHaveBeenCalledWith({
@@ -107,15 +107,15 @@ describe('TodoDisplay', () => {
     it('should trigger swipe gesture and archive todo', () => {
         const { getByText, getByTestId } = render(
             <TodoDisplay
-        key={ mockTodo.id }
-        id = { mockTodo.id }
-        todo = { mockTodo }
-        setTodoToDisplay = { mockSetTodoToDisplay }
-        modalRef = { mockModalRef }
-        light = "light"
-        dark = "dark"
+                key={mockTodo.id}
+                id={mockTodo.id}
+                todo={mockTodo}
+                setTodoToDisplay={mockSetTodoToDisplay}
+                modalRef={mockModalRef}
+                light="light"
+                dark="dark"
             />
-    );
+        );
 
         const todoElement = getByTestId('todo-card');
         fireEvent(todoElement, 'onGestureEvent', { nativeEvent: { translationX: 300 } });

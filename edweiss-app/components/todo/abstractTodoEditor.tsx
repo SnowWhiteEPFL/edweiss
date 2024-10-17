@@ -25,8 +25,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import Toast from 'react-native-toast-message';
+import { sameTodos } from '../../utils/todo/utilsFunctions';
 import { StatusChanger } from './todoDisplay';
-import { sameTodos } from './utilsFunctions';
 import Functions = Todolist.Functions;
 
 // Types

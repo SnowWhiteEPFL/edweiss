@@ -24,7 +24,7 @@ import { useRouter } from 'expo-router';
 import React, { Dispatch, SetStateAction, useRef } from 'react';
 import { Animated, Dimensions, Vibration } from 'react-native';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
-import { statusColorMap, statusIconMap, statusNextAction, statusNextMap, toogleArchivityOfTodo } from './utilsFunctions';
+import { statusColorMap, statusIconMap, statusNextAction, statusNextMap, toogleArchivityOfTodo } from '../../utils/todo/utilsFunctions';
 
 // Types
 type Todo = Todolist.Todo;

@@ -11,7 +11,7 @@
 import { ApplicationRoute } from '@/constants/Component';
 import Todolist from '@/model/todo';
 import { useLocalSearchParams } from 'expo-router';
-import { AbstractTodoEditor } from './utils/abstractTodoEditor';
+import { AbstractTodoEditor } from '../../../components/todo/abstractTodoEditor';
 
 // Types
 type Todo = Todolist.Todo;
