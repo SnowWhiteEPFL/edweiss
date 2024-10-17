@@ -14,8 +14,7 @@ import { useState } from 'react';
 import Functions = FCMCommunication.Functions;
 
 const ExploreTab: ApplicationRoute = () => {
-	const { uid } = useAuth();
-	const [pageCount, setpageCount] = useState<number>(1);
+	const [pageCount, setPageCount] = useState<number>(1);
 
 	async function registerToken() {
 		const fcmToken = await messaging().getToken();
@@ -59,7 +58,7 @@ const ExploreTab: ApplicationRoute = () => {
 				<TView>
 					<FancyButton onPress={() => {
 						console.log('Next Page Pressed');
-						setpageCount(pageCount + 1);
+						setPageCount(pageCount + 1);
 						callFunction(Functions.sendFCMPage, { page: pageCount });
 
 

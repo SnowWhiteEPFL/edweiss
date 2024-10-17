@@ -65,7 +65,7 @@ const LectureScreen: ApplicationRoute = () => {
             setLandscape();
         }
 
-        /* TODO for a next sprint, detection of rotation change from landscape to portrait and different UI for each mode
+        /* todo for a next sprint, detection of rotation change from landscape to portrait and different UI for each mode
 
         // Orientation change listener
         const subscription = ScreenOrientation.addOrientationChangeListener(({ orientationInfo }) => {
@@ -99,10 +99,10 @@ const LectureScreen: ApplicationRoute = () => {
     const setLandscape = async () => {
         await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     };
-    // Portrait display for the screen
-    const setPortrait = async () => {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-    };
+    // // Portrait display for the screen
+    // const setPortrait = async () => {
+    //     await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+    // };
 
     // Function to go to the next page
     function pageForward() {
@@ -180,7 +180,7 @@ const LectureScreen: ApplicationRoute = () => {
                         <>
 
                             <TScrollView b={'sm'} mt={25} mr={48} radius={'lg'} flex={1}>
-                                {currentLecture.audioTranscript && currentLecture.audioTranscript[page] ? (
+                                {currentLecture.audioTranscript?.[page] ? (
                                     <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[page]}</TText>
                                 ) : (
                                     <TText pt={'sm'} pl={'sm'} pr={'sm'} color='overlay0'>

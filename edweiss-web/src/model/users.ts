@@ -8,7 +8,7 @@ export type StudentID = string & {};
 
 export type ProfessorID = string & {};
 
-export type FCMToken = string & {};
+export type FCMToken = string;
 
 export type AppUserType = "student" | "professor";
 
