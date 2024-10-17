@@ -25,7 +25,6 @@ const StartCourseScreen: ApplicationRoute = () => {
 	const [colorTextShow, setColorTextShow] = useState<Color>("course_title_for_backgroud_color");
 	const lectureId = parsedPeriod.activityId;
 	const [textButtonShow, setTextButtonShow] = useState("Show to student");
-	//const lecture = useDynamicDocs(CollectionOf<LectureDisplay.Lecture>("courses/" + courseID + "/lectures/" + lectureId));
 	const [available, setAvailable] = useState<boolean>(false);
 
 	async function toogle() {
