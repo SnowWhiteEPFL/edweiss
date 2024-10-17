@@ -85,11 +85,11 @@ const RemoteControlScreen: ApplicationRoute = () => {
     };
 
 
-    async function updateSlideAudioRecording() {
+    function updateSlideAudioRecording() {
         console.log(`HI THERE in update in here:'${talked}' @page ${pageToTranscribe}`);
         if (talked && talked.length > 0) {
             try {
-                await callFunction(LectureDisplay.Functions.addAudioTranscript, {
+                callFunction(LectureDisplay.Functions.addAudioTranscript, {
                     courseId: courseName,
                     lectureId: lectureId,
                     pageNumber: pageToTranscribe,
@@ -108,7 +108,7 @@ const RemoteControlScreen: ApplicationRoute = () => {
     }
 
     // Previous page handler
-    async function handleLeft() {
+    function handleLeft() {
         const wasRecording = isRecording;
         if (currentPage > 1) {
 
@@ -120,7 +120,7 @@ const RemoteControlScreen: ApplicationRoute = () => {
 
             // Update the page
             try {
-                await callFunction(FCMCommunication.Functions.sendFCMPage, { page: currentPage - 1 });
+                callFunction(FCMCommunication.Functions.sendFCMPage, { page: currentPage - 1 });
             } catch (error) {
                 console.error("Error sending FCM page:", error);
             }
@@ -135,7 +135,7 @@ const RemoteControlScreen: ApplicationRoute = () => {
     }
 
     // Next page handler
-    async function handleRight() {
+    function handleRight() {
         const wasRecording = isRecording;
         if (currentPage < totalPages) {
 
@@ -147,7 +147,7 @@ const RemoteControlScreen: ApplicationRoute = () => {
 
             // Update the page
             try {
-                await callFunction(FCMCommunication.Functions.sendFCMPage, { page: currentPage + 1 });
+                callFunction(FCMCommunication.Functions.sendFCMPage, { page: currentPage + 1 });
             } catch (error) {
                 console.error("Error sending FCM page:", error);
             }
