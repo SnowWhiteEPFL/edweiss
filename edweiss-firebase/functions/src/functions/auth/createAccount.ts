@@ -14,8 +14,10 @@ export const createAccount = onAuthentifiedCall(Auth.Functions.createAccount, as
 		type: "student",
 		createdAt: Time.now(),
 		name: args.name,
+
 		courses: [],
 		fcmTokens: []
+
 	});
 
 	return OK;

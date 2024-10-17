@@ -4,6 +4,8 @@ import TText from '@/components/core/TText';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
+
+
 import { callFunction } from '@/config/firebase';
 import { FCMCommunication } from '@/model/users';
 import messaging from '@react-native-firebase/messaging';
@@ -11,6 +13,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 
 import Functions = FCMCommunication.Functions;
+
 
 const ExploreTab: ApplicationRoute = () => {
 	const [pageCount, setPageCount] = useState<number>(1);
@@ -43,6 +46,7 @@ const ExploreTab: ApplicationRoute = () => {
 						}
 
 					});
+
 				}} >
 					<TText> Go To Lecture's slide</TText>
 				</FancyButton>
@@ -80,6 +84,7 @@ const ExploreTab: ApplicationRoute = () => {
 				</FancyButton>
 
 			</TView >
+
 		</>
 	);
 };
