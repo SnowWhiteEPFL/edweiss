@@ -5,6 +5,7 @@ import Icon from '@/components/core/Icon';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
 import { callFunction, CollectionOf } from '@/config/firebase';
+import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import LectureDisplay from '@/model/lectures/lectureDoc';
@@ -15,20 +16,17 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import React, { useEffect, useState } from 'react';
 import { Vibration } from 'react-native';
 
-
-import Functions = FCMCommunication.Functions;
-
 type Lecture = LectureDisplay.Lecture;
 
 const RemoteControlScreen: ApplicationRoute = () => {
     const { courseNameString, lectureIdString } = useLocalSearchParams();
     const courseName = courseNameString as string;
     const lectureId = lectureIdString as string;
-    const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
+    const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined); // Maybe put  a doc instead
     const [isRecording, setIsRecording] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1);
+    const [pageToTranscribe, setPageToTranscribe] = useState<number>(1);
     const [talked, setTalked] = useState('');
-
 
     useEffect(() => {
         if (lectureDoc) {
@@ -36,20 +34,24 @@ const RemoteControlScreen: ApplicationRoute = () => {
         }
     }, [lectureDoc]);
 
+    useEffect(() => {
+        updateSlideAudioRecording();
+    }, [talked]);
+
+
     if (!lectureDoc) return <TActivityIndicator size={40} />;
     const currentLecture = lectureDoc.data;
     const totalPages = currentLecture.nbOfPages;
 
+    Voice.onSpeechStart = () => { };
+    Voice.onSpeechEnd = () => { };
 
-
-
-    Voice.onSpeechStart = () => { setIsRecording(true); };
-    Voice.onSpeechEnd = () => { setIsRecording(false); };
 
     Voice.onSpeechError = (e: any) => { console.log(e.error); };
-    Voice.onSpeechResults = (res) => { { setTalked(res.value ? res.value[0] : ""); updateSlideAudioRecording(); } };
+    Voice.onSpeechResults = (res) => { { setTalked(res.value ? res.value[0] : ""); } };
 
     const startRecording = async () => {
+        console.log(' > start recording ...');
         try {
             await Voice.start('en-US');
         } catch (e: any) {
@@ -58,6 +60,7 @@ const RemoteControlScreen: ApplicationRoute = () => {
     };
 
     const stopRecoding = async () => {
+        console.log(' > stop recording ...');
         try {
             await Voice.stop();
         } catch (e: any) {
@@ -67,45 +70,92 @@ const RemoteControlScreen: ApplicationRoute = () => {
 
 
     function updateSlideAudioRecording() {
-        console.log("talked: ", talked);
+        console.log(`HI THERE in update in here:'${talked}' @page ${pageToTranscribe}`);
+        if (talked && talked.length > 0) {
+            try {
+                callFunction(LectureDisplay.Function.addAudioTranscript, {
+                    courseId: courseName,
+                    lectureId: lectureId,
+                    pageNumber: pageToTranscribe,
+                    transcription: talked
+                });
+            } catch (error) {
+                console.error("Error adding audio transcript:", error);
+            }
+
+            setPageToTranscribe(currentPage);
+            setTalked('');
+            if (isRecording) {
+                startRecording();
+            }
+        }
     }
 
+    // Previous page handler
     function handleLeft() {
+        const wasRecording = isRecording;
         if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
+
+            // Catch the slide recording
+            if (wasRecording) {
+                stopRecoding();
+                setIsRecording(false);
+            }
+
+            // Update the page
             try {
-                callFunction(Functions.sendFCMPage, { page: currentPage });
+                callFunction(FCMCommunication.Functions.sendFCMPage, { page: currentPage - 1 });
             } catch (error) {
                 console.error("Error sending FCM page:", error);
             }
+
+            // Start new recording for previous slide
+            if (wasRecording) setIsRecording(true);
+
+            // On sucess update hook
+            setCurrentPage(currentPage - 1);
         }
-        console.log("left pressed");
         Vibration.vibrate(100);
     }
 
+    // Next page handler
     function handleRight() {
+        const wasRecording = isRecording;
         if (currentPage < totalPages) {
-            setCurrentPage(currentPage + 1);
+
+            // Catch the slide recording
+            if (wasRecording) {
+                stopRecoding();
+                setIsRecording(false);
+            }
+
+            // Update the page
             try {
-                callFunction(Functions.sendFCMPage, { page: currentPage });
+                callFunction(FCMCommunication.Functions.sendFCMPage, { page: currentPage + 1 });
             } catch (error) {
                 console.error("Error sending FCM page:", error);
             }
+
+            // Start new recording for next slide
+            if (wasRecording) setIsRecording(true);
+
+            // On sucess update hook
+            setCurrentPage(currentPage + 1);
+
         }
-        console.log("right pressed");
         Vibration.vibrate(100);
     }
 
     function handleMic() {
         if (isRecording) {
             stopRecoding();
+            setIsRecording(false);
         } else {
             startRecording();
+            setIsRecording(true);
         }
 
         Vibration.vibrate(100);
-        console.log(talked);
-        console.log("mic pressed");
         setIsRecording(!isRecording);
     }
 
@@ -115,25 +165,20 @@ const RemoteControlScreen: ApplicationRoute = () => {
     };
 
     return (
-        //Screen Display on landscape mode
         <>
 
             <RouteHeader disabled title={"Lecture's Slides"} />
 
 
             <TView mt={100} mb={100} justifyContent='center' alignItems='center'>
-                <TText size={25} mb={'md'}> The ShowTime!</TText>
-                <TText size={35} > Remote Control</TText>
+                <TText size={25} mb={'md'}> {t(`showtime:showtime_title`)}</TText>
+                <TText size={35} >{t(`showtime:rmt_cntl_title`)}</TText>
                 {isRecording ? (
-                    <TText mt={15} size={15} color='red'> •   recording </TText>
+                    <TText mt={15} size={15} color='red'> {t(`showtime:recording_start`)} </TText>
                 ) : (
-                    <TText mt={15} size={15} color='green'> tap to record audio </TText>
+                    <TText mt={15} size={15} color='green'> {t(`showtime:tap_to_start_recording`)} </TText>
                 )}
             </TView>
-
-            {/* DELETE THIS */}
-            <TText>{talked}</TText>
-            {/* DELETE THIS */}
 
             <TView mr={20} ml={20} flexDirection='row' justifyContent='space-between'>
                 <TTouchableOpacity backgroundColor='blue' borderColor='surface0' b={1} p={20} pt={60} pb={60} radius={'lg'} onPress={handleLeft}>

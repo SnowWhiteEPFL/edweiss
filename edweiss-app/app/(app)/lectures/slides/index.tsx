@@ -7,6 +7,7 @@ import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { CollectionOf, getDownloadURL } from '@/config/firebase';
+import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import useListenToMessages from '@/hooks/useListenToMessages';
@@ -152,12 +153,96 @@ const LectureScreen: ApplicationRoute = () => {
                     {isFullscreen ?
                         <TView></TView> : // Speech to Text translation display and question forum display
                         <>
-                            <TScrollView b={'sm'} m={'lg'}>
-                                <TText> some text</TText>
+
+                            <TScrollView b={'sm'} mt={25} mr={48} radius={'lg'} flex={1}>
+                                {currentLecture.audioTranscript && currentLecture.audioTranscript[page] ? (
+                                    <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[page]}</TText>
+                                ) : (
+                                    <TText pt={'sm'} pl={'sm'} pr={'sm'} color='overlay0'>
+                                        {t(`showtime:lecturer_transcript_deftxt`)}
+                                    </TText>
+                                )}
                             </TScrollView>
-                            <TScrollView flex={0.5} b={'xs'} mb={'md'}>
-                                <FancyTextInput label='Ask your questions' mt={'xl'} icon='chatbubbles-outline' />
+
+                            <TScrollView flex={0.5} mt={15} mr={48} mb={15}>
+                                <FancyTextInput mb={'sm'} multiline label='Ask your questions' icon='chatbubbles-outline' placeholder='Got something on your mind? Type away!' />
+
+                                <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
+
+                                    <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
+
+                                    <TView pr={'sm'} pl={'md'} pb={'sm'}
+                                        flexDirection='row' justifyContent='flex-start' alignItems='center'>
+                                        <TText ml={10} color='overlay0'>{t(`showtime:dummy_question_0`)}</TText>
+                                    </TView>
+                                </TView>
+
+                                <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
+
+                                    <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
+
+                                    <TView pr={'sm'} pl={'md'} pb={'sm'}
+                                        flexDirection='row' justifyContent='flex-start' alignItems='center'>
+                                        <TText ml={10} color='overlay0'>{t(`showtime:dummy_question_1`)}</TText>
+                                    </TView>
+                                </TView>
+
+                                <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
+
+                                    <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
+
+                                    <TView pr={'sm'} pl={'md'} pb={'sm'}
+                                        flexDirection='row' justifyContent='flex-start' alignItems='center'>
+                                        <TText ml={10} color='overlay0'>{t(`showtime:dummy_question_2`)}</TText>
+                                    </TView>
+                                </TView>
+
+                                <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
+
+                                    <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
+
+                                    <TView pr={'sm'} pl={'md'} pb={'sm'}
+                                        flexDirection='row' justifyContent='flex-start' alignItems='center'>
+                                        <TText ml={10} color='overlay0'>{t(`showtime:dummy_question_3`)}</TText>
+                                    </TView>
+                                </TView>
+
+                                <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
+
+                                    <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
+
+                                    <TView pr={'sm'} pl={'md'} pb={'sm'}
+                                        flexDirection='row' justifyContent='flex-start' alignItems='center'>
+                                        <TText ml={10} color='overlay0'>{t(`showtime:dummy_question_4`)}</TText>
+                                    </TView>
+                                </TView>
+
+                                <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
+
+                                    <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
+
+                                    <TView pr={'sm'} pl={'md'} pb={'sm'}
+                                        flexDirection='row' justifyContent='flex-start' alignItems='center'>
+                                        <TText ml={10} color='overlay0'>{t(`showtime:dummy_question_5`)}</TText>
+                                    </TView>
+                                </TView>
+
+                                <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
+
+                                    <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
+
+                                    <TView pr={'sm'} pl={'md'} pb={'sm'}
+                                        flexDirection='row' justifyContent='flex-start' alignItems='center'>
+                                        <TText ml={10} color='overlay0'>{t(`showtime:dummy_question_6`)}</TText>
+                                    </TView>
+                                </TView>
                             </TScrollView>
+
+
+
+
+
+
                         </>}
                 </TView>
             </TView >

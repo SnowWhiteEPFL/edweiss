@@ -1,5 +1,5 @@
+import { FunctionFolder, FunctionOf } from '../functions';
 import Quizzes from '../quizzes';
-import { Timestamp } from '../time';
 
 namespace LectureDisplay {
 
@@ -18,11 +18,14 @@ namespace LectureDisplay {
 
     export interface Lecture {
         pdfUri: string;
-        start: Timestamp;
-        ends: Timestamp;
-        availableToStudents: boolean;
         nbOfPages: number;
+        availableToStudents: boolean;
+        audioTranscript: { [pageNumber: number]: string; };
     }
+
+    export const Function = FunctionFolder("lectures", {
+        addAudioTranscript: FunctionOf<{ courseId: string, lectureId: string, pageNumber: number, transcription: string; }, {}, 'invalid_arg' | 'error_firebase' | 'successfully_added'>("addAudioTranscript"),
+    });
 }
 
 export default LectureDisplay;
