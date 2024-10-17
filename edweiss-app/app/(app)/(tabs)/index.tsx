@@ -1,113 +1,70 @@
 
-import For from '@/components/core/For';
-import TText from '@/components/core/TText';
+
+
+import { Calendar } from '@/components/core/calendar';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
-import RouteHeader from '@/components/core/header/RouteHeader';
-import FancyButton from '@/components/input/FancyButton';
-import FancyTextInput from '@/components/input/FancyTextInput';
-import { Collections, callFunction } from '@/config/firebase';
-import t from '@/config/i18config';
-import ReactComponent, { ApplicationRoute } from '@/constants/Component';
+import For from '@/components/core/For';
+import TText from '@/components/core/TText';
+import { CollectionOf } from '@/config/firebase';
+import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
-import Memento from '@/model/memento';
+import { Course } from '@/model/school/courses';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React from 'react';
 
-const HomeTab: ApplicationRoute = () => {
-	const [deckName, setDeckName] = useState("");
 
-	const decks = useDynamicDocs(Collections.deck);
 
-	async function call() {
-		if (deckName.length == 0)
-			return;
 
-		const res = await callFunction(Memento.Functions.creation.createDeck, {
-			deck: {
-				name: deckName,
-				cards: [
-					{
-						question: { type: "text", text: "What's the radius of the earth ?" },
-						answer: "6391km"
-					}
-				]
-			}
-		});
+const HomeTab = () => {
+	const auth = useAuth();
+	const courses = useDynamicDocs(CollectionOf<Course>("courses"))?.map(doc => ({
+		id: doc.id,
+		data: doc.data
+	})) ?? [];
+	const my_courses = useDynamicDocs(
+		CollectionOf<Course>("users/" + (auth.authUser?.uid ?? 'default-uid') + "/courses")
+	)?.map(doc => ({
+		id: doc.id,
+		data: doc.data
+	})) ?? [];
 
-		if (res.status == 1) {
-			console.log(`OKAY, deck created with id ${res.data.id}`);
-		}
-	}
+	const myCourseIds = my_courses.map(course => course.id);
+	const filteredCourses = courses.filter(course => myCourseIds.includes(course.id));
+
 
 	return (
-		<>
-			<RouteHeader title={"Home"} />
-
-			<TScrollView>
-				{/* <TextInput value={deckName} onChangeText={n => setDeckName(n)} placeholder='Deck name' placeholderTextColor={'#555'} style={{ backgroundColor: Colors.dark.crust, borderColor: Colors.dark.blue, borderWidth: 1, padding: 8, paddingHorizontal: 16, margin: 16, marginBottom: 0, color: 'white', borderRadius: 14, fontFamily: "Inter" }}>
-
-				</TextInput> */}
-
-				<FancyTextInput
-					value={deckName}
-					onChangeText={n => setDeckName(n)}
-					placeholder='My amazing deck'
-					icon='dice'
-					label='Deck name'
-					// error='Invalid deck name'
-					multiline
-					numberOfLines={3}
-				/>
-
-				<FancyButton backgroundColor='blue' mt={'md'} mb={'sm'} onPress={call} icon='logo-firebase'>
-					{t("memento:create-deck")}
-				</FancyButton>
-
-				<For each={decks}>
-					{deck => <DeckDisplay key={deck.id} deck={deck.data} id={deck.id} />}
+		<TView flex={1} p={16} backgroundColor='base'>
+			<Calendar courses={filteredCourses} />
+			<TScrollView flex={1} horizontal={false} showsVerticalScrollIndicator={true}>
+				<TText align='center'>List of courses</TText>
+				<For each={filteredCourses} key="id">
+					{course =>
+						<TTouchableOpacity onPress={() => router.push(`/(app)/courses/${course.id}`)} b={2} radius={10} flexDirection='row' p={5} borderColor='overlay2' backgroundColor='surface0' mb={8} >
+							<TView flexDirection='column'>
+								<TView flexDirection='row'>
+									<TText color='subtext1' p={10}>{course.data.name}</TText>
+									{course.data.newAssignments && <TText color='green' pt={10} pb={0} size={25}>New!</TText>}
+								</TView>
+								<TView p={5} flexDirection='row'>
+									<TText p={5} pr={70}>Crédits: {course.data.credits}</TText>
+									<TView >
+										{course.data.assignments &&
+											<TView borderColor='red' radius={3} >
+												{course.data.assignments.length > 0 && <TText color='subtext1' p={10} >assignements : {course.data.assignments.length}</TText>}
+											</TView>
+										}
+									</TView>
+								</TView>
+							</TView>
+						</TTouchableOpacity>
+					}
 				</For>
 			</TScrollView>
-		</>
+		</TView>
 	);
 };
 
 export default HomeTab;
 
-const DeckDisplay: ReactComponent<{ deck: Memento.Deck, id: string; }> = ({ deck, id }) => {
-	return (
-		<TTouchableOpacity bb={0} onPress={() => router.push(`/deck/${id}`)} m='md' mt={'sm'} mb={'sm'} p='lg' backgroundColor='base' borderColor='crust' radius='lg'>
-			<TText bold>
-				{deck.name}
-			</TText>
-			<TText mb='md' color='subtext0' size={'sm'}>
-				2h ago
-			</TText>
-			{
-				deck.cards.map((card, index) => <CardDisplay key={index} card={card} />)
-			}
-		</TTouchableOpacity>
-	);
-};
-
-const CardDisplay: ReactComponent<{ card: Memento.Card; }> = ({ card }) => {
-	return (
-		<TView>
-			<QuestionDisplay question={card.question} />
-			<TText ml={'sm'} color='mauve'>
-				{card.answer}
-			</TText>
-		</TView>
-	);
-};
-
-const QuestionDisplay: ReactComponent<{ question: Memento.CardQuestion; }> = ({ question }) => {
-	if (question.type == 'text') {
-		return (
-			<TText>
-				{question.text}
-			</TText>
-		);
-	}
-};
