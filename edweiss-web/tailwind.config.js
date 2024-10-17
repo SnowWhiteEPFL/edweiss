@@ -73,7 +73,7 @@ export default {
 	darkMode: "class",
 	plugins: [
 		require("@catppuccin/tailwindcss")({
-			prefix: "ctp",
+			prefix: "",
 			defaultFlavour: "mocha"
 		}),
 
