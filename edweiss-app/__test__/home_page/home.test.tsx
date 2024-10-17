@@ -5,6 +5,10 @@ import { render, screen } from '@testing-library/react-native';
 import React from 'react';
 import HomeTab from '../../app/(app)/(tabs)/index';
 
+beforeEach(() => {
+    render(<HomeTab />);
+});
+
 const mockCourses = [
     {
         id: 'course1',
@@ -121,7 +125,6 @@ describe('HomeTab Component', () => {
 
     it('render hours', async () => {
 
-        render(<HomeTab />);
         expect(screen.getByText('1:00')).toBeTruthy();
         expect(screen.getByText('2:00')).toBeTruthy();
         expect(screen.getByText('3:00')).toBeTruthy();
@@ -130,12 +133,12 @@ describe('HomeTab Component', () => {
         expect(screen.getByText('22:00')).toBeTruthy();
     });
     it('render course name', async () => {
-        render(<HomeTab />);
+
         expect(await screen.findByText('Course 1')).toBeTruthy();
         expect(await screen.findByText('Course 2')).toBeTruthy();
     });
     it('render course credits', async () => {
-        render(<HomeTab />);
+
         expect(screen.getByText('Crédits: 3')).toBeTruthy();
         expect(screen.getByText('Crédits: 4')).toBeTruthy();
     });
