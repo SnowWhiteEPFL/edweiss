@@ -74,8 +74,9 @@ export const Calendar = ({ courses }: { courses: { id: string; data: Course; }[]
                                                 period.dayIndex === getCurrentDay()
                                         )
                                         .map((period, index, filteredPeriods) => {
-                                            const periodHeight =
-                                                ((period.end - period.start) / TIME_CONSTANTS.MINUTES_IN_HOUR) * HOUR_BLOCK_HEIGHT;
+                                            const periodHeight = period.end
+                                                ? ((period.end - period.start) / 60) * HOUR_BLOCK_HEIGHT
+                                                : HOUR_BLOCK_HEIGHT;
 
                                             return (
 
