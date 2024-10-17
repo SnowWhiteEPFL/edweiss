@@ -14,7 +14,6 @@ export const createAccount = onAuthentifiedCall(Auth.Functions.createAccount, as
 		type: "professor",
 		createdAt: Time.now(),
 		name: args.name,
-		type: "student",
 		courses: []
 	});
 

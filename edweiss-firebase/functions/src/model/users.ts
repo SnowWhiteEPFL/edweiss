@@ -14,6 +14,7 @@ interface AppUserBase {
 	type: AppUserType;
 	name: string;
 	createdAt: Timestamp;
+
 }
 
 export interface StudentUser extends AppUserBase {
