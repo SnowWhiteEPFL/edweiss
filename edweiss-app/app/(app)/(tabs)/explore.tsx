@@ -5,7 +5,6 @@ import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
 import { callFunction } from '@/config/firebase';
-import { useAuth } from '@/contexts/auth';
 import { FCMCommunication } from '@/model/users';
 import messaging from '@react-native-firebase/messaging';
 import { router } from 'expo-router';
@@ -14,8 +13,7 @@ import { useState } from 'react';
 import Functions = FCMCommunication.Functions;
 
 const ExploreTab: ApplicationRoute = () => {
-	const { uid } = useAuth();
-	const [pageCount, setpageCount] = useState<number>(1);
+	const [pageCount, setPageCount] = useState<number>(1);
 
 	async function registerToken() {
 		const fcmToken = await messaging().getToken();
@@ -59,7 +57,7 @@ const ExploreTab: ApplicationRoute = () => {
 				<TView>
 					<FancyButton onPress={() => {
 						console.log('Next Page Pressed');
-						setpageCount(pageCount + 1);
+						setPageCount(pageCount + 1);
 						callFunction(Functions.sendFCMPage, { page: pageCount });
 
 

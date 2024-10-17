@@ -11,7 +11,7 @@ export type Locale = "en";
 export type LocaleNamespace = typeof namespaces[number];
 export type LocaleResource = { [l in Locale]: { [ns in LocaleNamespace]: any } };
 
-export const defaultLang: Locale = "en" as const;
+export const defaultLang: Locale = "en";
 export const defaultNS: LocaleNamespace = "common";
 
 export const namespaces = ["common", "memento", "showtime"] as const;

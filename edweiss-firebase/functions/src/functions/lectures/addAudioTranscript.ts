@@ -12,7 +12,7 @@ import LectureDisplay from 'model/lectures/lectureDoc';
 import { onAuthentifiedCall } from 'utils/firebase';
 import { CollectionOf, getDocumentAndRef } from 'utils/firestore';
 import { fail, ok } from 'utils/status';
-import Function = LectureDisplay.Function;
+import Functions = LectureDisplay.Functions;
 
 // Types
 type Lecture = LectureDisplay.Lecture;
@@ -21,7 +21,7 @@ type Lecture = LectureDisplay.Lecture;
 // -----------  Add Audio Transcript Cloud Function   ---------
 // ------------------------------------------------------------
 
-export const addAudioTranscript = onAuthentifiedCall(Function.addAudioTranscript, async (userId, args) => {
+export const addAudioTranscript = onAuthentifiedCall(Functions.addAudioTranscript, async (userId, args) => {
     if (!args.courseId || !args.lectureId || !args.pageNumber || !args.transcription) {
         return fail('invalid_arg');
     }
