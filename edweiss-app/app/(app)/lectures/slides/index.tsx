@@ -198,6 +198,11 @@ const LectureScreen: ApplicationRoute = () => {
                                 <FancyTextInput mb={'sm'} multiline label='Ask your questions' icon='chatbubbles-outline' placeholder='Got something on your mind? Type away!' />
                             </TScrollView>
 
+
+
+
+
+
                         </>}
                 </TView>
             </TView >

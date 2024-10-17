@@ -5,7 +5,6 @@ import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
 import { callFunction } from '@/config/firebase';
-import { useAuth } from '@/contexts/auth';
 import { FCMCommunication } from '@/model/users';
 import messaging from '@react-native-firebase/messaging';
 import { router } from 'expo-router';
