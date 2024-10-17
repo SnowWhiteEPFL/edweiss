@@ -23,21 +23,21 @@ import { ActivityIndicator } from 'react-native';
 const TempQuizStudentViewPage: ApplicationRoute = () => {
 
     const { quizId, path, courseId } = useLocalSearchParams();
-    if (typeof quizId != 'string')
-        return <Redirect href={'/'} />;
+    // if (typeof quizId != 'string')
+    //     return <Redirect href={'/'} />;
 
     //const courseId = "placeholderCourseId";
     const pathToAttempts = path + "/" + quizId + "/attempts";
 
     const { uid } = useAuth();
 
-    const [quiz, loading] = usePrefetchedDynamicDoc(CollectionOf<Quizzes.Quiz>(path as string), quizId, undefined);
+    const [quiz, loading] = usePrefetchedDynamicDoc(CollectionOf<Quizzes.Quiz>(path as string), quizId as string, undefined);
     const previousAttempt = useDoc(CollectionOf<QuizzesAttempts.QuizAttempt>(pathToAttempts), uid);
     const [studentAnswers, setStudentAnswers] = useState<QuizzesAttempts.Answer[]>([]);
 
     useEffect(() => {
 
-        if (quiz == undefined || quiz.data == undefined || quiz.data.exercises == undefined)
+        if (!quiz?.data?.exercises)
             return;
 
         const defaultAnswers = quiz.data.exercises.map(ex => {
@@ -59,13 +59,17 @@ const TempQuizStudentViewPage: ApplicationRoute = () => {
         setStudentAnswers(defaultAnswers);
     }, [quiz]);
 
-    const onUpdate = useCallback((newAnswer: number[] | boolean | undefined, id: number) => {
+    const onUpdate = useCallback((newAnswer: number[] | boolean | undefined, exId: number) => {
         setStudentAnswers((oldStudentAnswers) => {
             const newStudentAnswers = [...oldStudentAnswers];
-            newStudentAnswers[id].value = newAnswer;
+            newStudentAnswers[exId].value = newAnswer;
             return newStudentAnswers;
         });
     }, []);
+
+    if (typeof quizId != 'string') {
+        return <Redirect href={'/'} />;
+    }
 
     if (quiz == undefined) {
         return <TActivityIndicator />;
@@ -88,13 +92,16 @@ const TempQuizStudentViewPage: ApplicationRoute = () => {
         if (res.status == 1) {
             console.log(`OKAY, submitted quiz with id ${res.data.id}`);
         }
+        else {
+            console.log(`Error while submitting attempt`);
+        }
     }
 
     if (quiz.data.showResultToStudents && previousAttempt != undefined) {
         return <QuizResultDisplay key={quiz.id + "result"} studentAnswers={previousAttempt.data.answers} exercises={exercises} results={quiz.data.answers}></QuizResultDisplay>;
     }
     else if (!quiz.data.showResultToStudents) {
-        return <QuizDisplay key={quiz.id + "live"} studentAnswers={studentAnswers} exercises={exercises} onUpdate={onUpdate} send={send}></QuizDisplay>;
+        return <QuizDisplay key={quiz.id + "display"} studentAnswers={studentAnswers} exercises={exercises} onUpdate={onUpdate} send={send}></QuizDisplay>;
     }
     else {
         return (<TActivityIndicator />);
@@ -129,15 +136,15 @@ export const QuizDisplay: ReactComponent<{ studentAnswers: QuizzesAttempts.Answe
                     <TText>
                         {/*JSON.stringify(studentAnswers.map(a => a.value))*/}
                     </TText>
-                    <For each={exercises}>
+                    <For each={exercises} key={"QuizDisplay"}>
                         {
                             (thisExercise, index) => {
                                 if (thisExercise.type == "MCQ" && studentAnswers[index] != undefined) {
 
-                                    return (<MCQDisplay key={index} exercise={thisExercise} selectedIds={studentAnswers[index].value as number[]} onUpdate={onUpdate} exId={index} />);
+                                    return (<MCQDisplay key={thisExercise.question + "display"} exercise={thisExercise} selectedIds={studentAnswers[index].value as number[]} onUpdate={onUpdate} exId={index} />);
                                 }
                                 else if (thisExercise.type == "TF" && studentAnswers[index] != undefined) { // if type == "TF"
-                                    return (<TFDisplay key={index} exercise={thisExercise} selected={studentAnswers[index].value as boolean | undefined} onUpdate={onUpdate} exId={index} />);
+                                    return (<TFDisplay key={thisExercise.question + "display"} exercise={thisExercise} selected={studentAnswers[index].value as boolean | undefined} onUpdate={onUpdate} exId={index} />);
                                 } else {
                                     return (<ActivityIndicator />);
                                 }
@@ -195,15 +202,15 @@ export const QuizResultDisplay: ReactComponent<{ studentAnswers: QuizzesAttempts
                         </TText>
                     </TView>
 
-                    <For each={exercises}>
+                    <For each={exercises} key={"QuizResultDisplay"}>
                         {
                             (thisExercise, index) => {
                                 if (thisExercise.type == "MCQ" && studentAnswers[index] != undefined) {
 
-                                    return (<MCQResultDisplay key={index} exercise={thisExercise} selectedIds={studentAnswers[index].value as number[]} results={results[index].value as number[]} />);
+                                    return (<MCQResultDisplay key={thisExercise.question + "result"} exercise={thisExercise} selectedIds={studentAnswers[index].value as number[]} results={results[index].value as number[]} />);
                                 }
                                 else if (thisExercise.type == "TF" && studentAnswers[index] != undefined) { // if type == "TF"
-                                    return (<TFResultDisplay key={index} exercise={thisExercise} selected={studentAnswers[index].value as boolean | undefined} result={results[index].value as boolean} />);
+                                    return (<TFResultDisplay key={thisExercise.question + "result"} exercise={thisExercise} selected={studentAnswers[index].value as boolean | undefined} result={results[index].value as boolean} />);
                                 } else {
                                     return (<ActivityIndicator />);
                                 }
@@ -271,9 +278,9 @@ export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: nu
                 </TText>
             </TView>
 
-            <For each={exercise.propositions}>
+            <For each={exercise.propositions} key={exercise.question}>
                 {(proposition, index) =>
-                    <TTouchableOpacity key={exercise.question + index}
+                    <TTouchableOpacity key={exercise.question + proposition.id}
                         onPress={() => handleSelection(index)}
                         backgroundColor={handleMCQColor(selectedIds, index)}
                         mb={"md"} mr={"md"} ml={"md"} p={"sm"} px={"md"}
@@ -297,9 +304,9 @@ export const MCQResultDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedI
                 </TText>
             </TView>
 
-            <For each={exercise.propositions}>
+            <For each={exercise.propositions} key={exercise.question}>
                 {(proposition, index) =>
-                    <TTouchableOpacity key={exercise.question + index}
+                    <TTouchableOpacity key={exercise.question + proposition.id}
                         backgroundColor={checkResultColor(checkMCQPropositionCorrect(selectedIds, results, index))}
                         mb={"md"} mr={"md"} ml={"md"} p={"sm"} px={"md"}
                         radius={"xl"}>
@@ -336,13 +343,13 @@ export const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean
             </TView>
 
             <TView flexDirection='row' flexColumnGap={"xl"}>
-                <TTouchableOpacity flex={1} onPress={() => { handleSelection(true); }} radius={"xl"} p={"md"} backgroundColor={handleTFColor(selected, true)} >
+                <TTouchableOpacity flex={1} onPress={() => { handleSelection(true); }} radius={"xl"} p={"md"} backgroundColor={handleTFColor(selected, true)} testID='true' >
                     <TText align='center' color={textColor(handleTFColor(selected, true))}>
                         True
                     </TText>
                 </TTouchableOpacity>
 
-                <TTouchableOpacity flex={1} onPress={() => handleSelection(false)} radius={"xl"} p={"md"} backgroundColor={handleTFColor(selected, false)}>
+                <TTouchableOpacity flex={1} onPress={() => handleSelection(false)} radius={"xl"} p={"md"} backgroundColor={handleTFColor(selected, false)} testID='false'>
                     <TText align='center' color={textColor(handleTFColor(selected, false))}>
                         False
                     </TText>

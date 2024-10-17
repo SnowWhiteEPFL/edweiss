@@ -27,12 +27,12 @@ const TempQuizProfView: ApplicationRoute = () => {
 
 	}, [quiz]);
 
-	if (quiz != undefined && quiz.data.showResultToStudents && studentAttempts != undefined && studentAttempts.length > 0) {
+	if (quiz?.data?.showResultToStudents && studentAttempts != undefined && studentAttempts.length > 0) {
 
 		return (
-			<>
-				<ResultProfView studentAttempts={studentAttempts.map(doc => doc.data)} quiz={quiz.data}></ResultProfView>
-			</>
+
+			<ResultProfView studentAttempts={studentAttempts.map(doc => doc.data)} quiz={quiz.data}></ResultProfView>
+
 		);
 	}
 	else if (quiz != undefined && !quiz.data.showResultToStudents) {
@@ -47,13 +47,13 @@ const TempQuizProfView: ApplicationRoute = () => {
 		);
 	}
 	else {
-		return (<>
+		return (
 			<TView>
 				<TText>
 					An error occured!
 				</TText>
 			</TView>
-		</>);
+		);
 	}
 
 };
@@ -76,11 +76,11 @@ const ResultProfView: ReactComponent<{ studentAttempts: QuizzesAttempts.QuizAtte
 	}
 	else {
 		return (
-			<>
-				<TText>
-					Unrecognised exercise type !
-				</TText>
-			</>
+
+			<TText>
+				Unrecognised exercise type !
+			</TText>
+
 		);
 	}
 
@@ -88,22 +88,22 @@ const ResultProfView: ReactComponent<{ studentAttempts: QuizzesAttempts.QuizAtte
 
 const DisplayTFProportions: ReactComponent<{ distribution: number[]; quiz: Quizzes.Quiz; }> = ({ distribution, quiz }) => {
 	return (
-		<>
-			<TView>
-				<TText size={'lg'}>
-					{quiz.exercises[0].question}
-				</TText>
-				<TText>
-					False : {distribution[0]} %
-				</TText>
-				<TText>
-					True : {distribution[1]} %
-				</TText>
-				<TText>
-					Undecided : {distribution[2]} %
-				</TText>
-			</TView>
-		</>
+
+		<TView>
+			<TText size={'lg'}>
+				{quiz.exercises[0].question}
+			</TText>
+			<TText>
+				False : {distribution[0]} %
+			</TText>
+			<TText>
+				True : {distribution[1]} %
+			</TText>
+			<TText>
+				Undecided : {distribution[2]} %
+			</TText>
+		</TView>
+
 	);
 };
 
@@ -118,11 +118,11 @@ const DisplayMCQProportions: ReactComponent<{ distribution: number[]; quiz: Quiz
 					{(proposition, propIndex) => {
 
 						return (
-							<>
-								<TText>
-									Proposition {propIndex} : {distribution[propIndex]} %
-								</TText>
-							</>
+
+							<TText>
+								Proposition {propIndex} : {distribution[propIndex]} %
+							</TText>
+
 						);
 					}}
 				</For>

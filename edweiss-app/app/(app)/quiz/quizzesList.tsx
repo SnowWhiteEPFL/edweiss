@@ -42,7 +42,7 @@ export const QuizzOuterDisplay: ReactComponent<{ quiz: Quizzes.Quiz, quizId: str
     const hasDeadline = quiz.deadline != undefined;
     const path = "courses/" + courseId + "/quizzes/" + quizId + "/attempts";
     const quizAttempt = useDoc(CollectionOf<QuizzesAttempts.QuizAttempt>(path), uid);
-    const redirectPath = isResult ? 'results' : '/quiz/' + quizId;
+    //const redirectPath = isResult ? 'results' : '/quiz/' + quizId;
     const navigate = () => {
         router.push({
             pathname: "/quiz/" + quizId as any,
