@@ -50,7 +50,6 @@ export function isAssistantOf(student: StudentID, course: Course) {
 	return course.assistants.includes(student);
 }
 
-
 export namespace Course_functions {
 	export const Functions = FunctionFolder("course", {
 		toogleCourse: FunctionOf<{ courseID: string, course: Course; }, {}, 'cannot stop the course'>("toogleCourse"),
@@ -58,4 +57,3 @@ export namespace Course_functions {
 		joinCourse: FunctionOf<{ courseID: string, course: Course; }, {}, 'cannot join the course'>("joinCourse"),
 	});
 }
-

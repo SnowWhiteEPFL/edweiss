@@ -21,8 +21,8 @@ const StartCourseScreen: ApplicationRoute = () => {
 	const [textButton, setTextButton] = useState("Start course");
 	const [colorButtonStartStop, setColorButtonStartStop] = useState<Color>("transparent");
 	const [colorButtonShow, setColorButtonShow] = useState<Color>("transparent");
-	const [colorTextStartStop, setColorTextStartStop] = useState<Color>("title");
-	const [colorTextShow, setColorTextShow] = useState<Color>("title");
+	const [colorTextStartStop, setColorTextStartStop] = useState<Color>("course_title_for_backgroud_color");
+	const [colorTextShow, setColorTextShow] = useState<Color>("course_title_for_backgroud_color");
 	const lectureId = parsedPeriod.activityId;
 	const [textButtonShow, setTextButtonShow] = useState("Show to student");
 	//const lecture = useDynamicDocs(CollectionOf<LectureDisplay.Lecture>("courses/" + courseID + "/lectures/" + lectureId));
@@ -66,9 +66,9 @@ const StartCourseScreen: ApplicationRoute = () => {
 	useEffect(() => {
 		setColorButtonStartStop(parsedCourse.started ? "transparent" : "overlay2");
 		setTextButton(parsedCourse.started ? "Stop course" : "Start course");
-		setColorTextStartStop(parsedCourse.started ? "flamingo" : "title");
+		setColorTextStartStop(parsedCourse.started ? "flamingo" : "course_title_for_backgroud_color");
 		setTextButtonShow(available ? "Sharing in progress..." : "Show to student");
-		setColorTextShow(available ? "flamingo" : "title");
+		setColorTextShow(available ? "flamingo" : "course_title_for_backgroud_color");
 		setColorButtonShow(available ? "transparent" : "overlay2");
 	}, [parsedCourse.started, available]);
 
@@ -96,7 +96,7 @@ const StartCourseScreen: ApplicationRoute = () => {
 								lectureIdString: lectureId
 							}
 						});
-					}} ><TText color='title'>Go to show Time</TText></FancyButton>
+					}} ><TText color='course_title_for_backgroud_color'>Go to show Time</TText></FancyButton>
 
 
 					<FancyButton style={{ borderRadius: 40, borderColor: "blue", }} backgroundColor={'overlay2'} m={15} onPress={() => {
@@ -109,12 +109,12 @@ const StartCourseScreen: ApplicationRoute = () => {
 
 						});
 					}} >
-						<TText color='title'> Go to STRC</TText>
+						<TText color='course_title_for_backgroud_color'> Go to STRC</TText>
 					</FancyButton>
 
 
 					<FancyButton style={{ borderRadius: 40, borderColor: "blue", }} backgroundColor={'overlay2'} m={15}>
-						<TText color='title'> Send my Token</TText>
+						<TText color='course_title_for_backgroud_color'> Send my Token</TText>
 					</FancyButton>
 
 
