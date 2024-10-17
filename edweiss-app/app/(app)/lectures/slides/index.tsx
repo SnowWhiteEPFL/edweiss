@@ -130,7 +130,6 @@ const LectureScreen: ApplicationRoute = () => {
 
 
     return (
-        //Screen Display on landscape mode
         <>
 
             <RouteHeader disabled title={"Lecture's Slides"} />
@@ -187,27 +186,21 @@ const LectureScreen: ApplicationRoute = () => {
                                         {t(`showtime:lecturer_transcript_deftxt`)}
                                     </TText>
                                 )}
+
+                                <TScrollView flex={0.5} mt={15} mr={48} mb={15}>
+
+                                    {/* Dummy Questions */}
+                                    {[...Array(7).keys()].map(i => renderQuestion(`showtime:dummy_question_${i}`))}
+
+                                    {/* Your Question */}
+                                    <FancyTextInput mb={'sm'} multiline label='Ask your questions' icon='chatbubbles-outline' placeholder='Got something on your mind? Type away!' />
+                                </TScrollView>
                             </TScrollView>
-
-                            <TScrollView flex={0.5} mt={15} mr={48} mb={15}>
-
-                                {/* Dummy Questions */}
-                                {[...Array(7).keys()].map(i => renderQuestion(`showtime:dummy_question_${i}`))}
-
-                                {/* Your Question */}
-                                <FancyTextInput mb={'sm'} multiline label='Ask your questions' icon='chatbubbles-outline' placeholder='Got something on your mind? Type away!' />
-                            </TScrollView>
-
-
-
-
-
-
                         </>}
                 </TView>
-            </TView >
+            </TView>
         </>
     );
 };
 
-export default LectureScreen;
+export default LectureScreen;;;;
