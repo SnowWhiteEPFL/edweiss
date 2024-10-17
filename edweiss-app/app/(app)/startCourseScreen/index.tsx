@@ -2,7 +2,7 @@ import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
-import { callFunction, Collection } from '@/config/firebase';
+import { callFunction } from '@/config/firebase';
 import { Color } from '@/constants/Colors';
 import { ApplicationRoute } from '@/constants/Component';
 import LectureDisplay from '@/model/lectures/lectureDoc';
@@ -128,11 +128,4 @@ const StartCourseScreen: ApplicationRoute = () => {
 };
 
 export default StartCourseScreen;
-function getDocumentAndRef(arg0: Collection<Lecture>, lectureID: any): [any, any] | PromiseLike<[any, any]> {
-	throw new Error('Function not implemented.');
-}
-
-function messaging() {
-	throw new Error('Function not implemented.');
-}
 
