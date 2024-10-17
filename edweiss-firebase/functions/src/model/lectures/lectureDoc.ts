@@ -37,7 +37,7 @@ namespace LectureDisplay {
         audioTranscript: { [pageNumber: number]: string; };
     }
 
-    export const Function = FunctionFolder("lectures", {
+    export const Functions = FunctionFolder("lectures", {
         addAudioTranscript: FunctionOf<{ courseId: string, lectureId: string, pageNumber: number, transcription: string; }, {}, 'invalid_arg' | 'error_firebase' | 'successfully_added'>("addAudioTranscript"),
     });
 }
