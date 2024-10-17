@@ -2,7 +2,7 @@ import { Course } from '@/model/school/courses';
 import { fireEvent, render } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import React from 'react';
-import { Day } from '../../components/core/Day'; // Adjust the import path accordingly
+import { Day } from '../../components/core/Day';
 
 jest.mock('expo-router', () => ({
     router: {
@@ -23,15 +23,15 @@ const mockCourse: Course = {
     started: true,
 };
 
-import { CourseTimePeriod } from '@/model/school/courses'; // Adjust the import path accordingly
+import { CourseTimePeriod } from '@/model/school/courses';
 
 const mockPeriod: CourseTimePeriod = {
     start: 480,
     end: 540,
-    type: "lecture", // Use the correct enum value
+    type: "lecture",
     activityId: 'activity1',
-    dayIndex: 1, // Add appropriate value for dayIndex
-    rooms: [], // Ensure the room object matches the Room type
+    dayIndex: 1,
+    rooms: [],
 };
 
 const mockUserProfessor = {
@@ -53,12 +53,12 @@ describe('Day Component', () => {
                 period={mockPeriod}
                 course={{ id: 'course1', data: mockCourse }}
                 user={mockUserProfessor}
-                filteredPeriods={[mockPeriod]} // Assuming at least one period is passed
+                filteredPeriods={[mockPeriod]}
                 index={0}
             />
         );
 
-        expect(getByText('Test Course')).toBeTruthy(); // Assuming PeriodBlock renders the course name
+        expect(getByText('Test Course')).toBeTruthy();
 
         fireEvent.press(getByText('Test Course'));
 
@@ -84,7 +84,7 @@ describe('Day Component', () => {
             />
         );
 
-        expect(getByText('Test Course')).toBeTruthy(); // Assuming PeriodBlock renders the course name
+        expect(getByText('Test Course')).toBeTruthy();
 
 
         fireEvent.press(getByText('Test Course'));
@@ -100,7 +100,7 @@ describe('Day Component', () => {
     });
 
     it('handles the case when period does not have an end time', () => {
-        const periodWithoutEnd = { ...mockPeriod, end: mockPeriod.end ?? 0 }; // Provide a default value for end
+        const periodWithoutEnd = { ...mockPeriod, end: mockPeriod.end ?? 0 };
 
         const { getByText } = render(
             <Day
