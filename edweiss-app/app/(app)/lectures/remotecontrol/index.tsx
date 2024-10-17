@@ -1,3 +1,13 @@
+/**
+ * @file index.tsx
+ * @description Main screen for displaying and managing the remote control for lectures in the edweiss app
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
@@ -16,7 +26,13 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import React, { useEffect, useState } from 'react';
 import { Vibration } from 'react-native';
 
+// Types
 type Lecture = LectureDisplay.Lecture;
+
+
+// ------------------------------------------------------------
+// -------------------  Remote Control Screen  ----------------
+// ------------------------------------------------------------
 
 const RemoteControlScreen: ApplicationRoute = () => {
     const { courseNameString, lectureIdString } = useLocalSearchParams();

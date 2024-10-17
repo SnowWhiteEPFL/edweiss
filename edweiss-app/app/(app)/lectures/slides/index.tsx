@@ -1,3 +1,13 @@
+/**
+ * @file index.tsx
+ * @description Main screen for displaying and managing lecture slides in the edweiss app
+ * @author Gustavo Maia & Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
@@ -18,7 +28,13 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, Linking } from 'react-native';
 import Pdf from 'react-native-pdf';
 
+// Types
 type Lecture = LectureDisplay.Lecture;
+
+
+// ------------------------------------------------------------
+// -------------------  Remote Control Screen  ----------------
+// ------------------------------------------------------------
 
 const LectureScreen: ApplicationRoute = () => {
     const { courseNameString, lectureIdString } = useLocalSearchParams();
@@ -34,11 +50,11 @@ const LectureScreen: ApplicationRoute = () => {
 
 
     // Hooks
-    const [numPages, setNumPages] = useState<number>(0);  // Total number of pages in the PDF
-    const [page, setPage] = useState<number>(0);  // Current page, starting from 1
-    const [uri, setUri] = useState<string>('');  // Url state
+    const [numPages, setNumPages] = useState<number>(0);        // Total number of pages in the PDF
+    const [page, setPage] = useState<number>(0);                // Current page, starting from 1
+    const [uri, setUri] = useState<string>('');                 // Url state
     //const [isLandscape, setIsLandscape] = useState(false);
-    const [isFullscreen, setIsFullscreen] = useState(false); // FullScreen display of pdf toggle
+    const [isFullscreen, setIsFullscreen] = useState(false);    // FullScreen display of pdf toggle
 
     const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
 
@@ -103,6 +119,15 @@ const LectureScreen: ApplicationRoute = () => {
         console.log(uri);
     }
 
+    const renderQuestion = (questionKey: string) => (
+        <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
+            <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
+            <TView pr={'sm'} pl={'md'} pb={'sm'} flexDirection='row' justifyContent='flex-start' alignItems='center'>
+                <TText ml={10} color='overlay0'>{t(questionKey as any)}</TText>
+            </TView>
+        </TView>
+    );
+
 
     return (
         //Screen Display on landscape mode
@@ -165,77 +190,12 @@ const LectureScreen: ApplicationRoute = () => {
                             </TScrollView>
 
                             <TScrollView flex={0.5} mt={15} mr={48} mb={15}>
+
+                                {/* Dummy Questions */}
+                                {[...Array(7).keys()].map(i => renderQuestion(`showtime:dummy_question_${i}`))}
+
+                                {/* Your Question */}
                                 <FancyTextInput mb={'sm'} multiline label='Ask your questions' icon='chatbubbles-outline' placeholder='Got something on your mind? Type away!' />
-
-                                <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
-
-                                    <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
-
-                                    <TView pr={'sm'} pl={'md'} pb={'sm'}
-                                        flexDirection='row' justifyContent='flex-start' alignItems='center'>
-                                        <TText ml={10} color='overlay0'>{t(`showtime:dummy_question_0`)}</TText>
-                                    </TView>
-                                </TView>
-
-                                <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
-
-                                    <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
-
-                                    <TView pr={'sm'} pl={'md'} pb={'sm'}
-                                        flexDirection='row' justifyContent='flex-start' alignItems='center'>
-                                        <TText ml={10} color='overlay0'>{t(`showtime:dummy_question_1`)}</TText>
-                                    </TView>
-                                </TView>
-
-                                <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
-
-                                    <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
-
-                                    <TView pr={'sm'} pl={'md'} pb={'sm'}
-                                        flexDirection='row' justifyContent='flex-start' alignItems='center'>
-                                        <TText ml={10} color='overlay0'>{t(`showtime:dummy_question_2`)}</TText>
-                                    </TView>
-                                </TView>
-
-                                <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
-
-                                    <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
-
-                                    <TView pr={'sm'} pl={'md'} pb={'sm'}
-                                        flexDirection='row' justifyContent='flex-start' alignItems='center'>
-                                        <TText ml={10} color='overlay0'>{t(`showtime:dummy_question_3`)}</TText>
-                                    </TView>
-                                </TView>
-
-                                <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
-
-                                    <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
-
-                                    <TView pr={'sm'} pl={'md'} pb={'sm'}
-                                        flexDirection='row' justifyContent='flex-start' alignItems='center'>
-                                        <TText ml={10} color='overlay0'>{t(`showtime:dummy_question_4`)}</TText>
-                                    </TView>
-                                </TView>
-
-                                <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
-
-                                    <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
-
-                                    <TView pr={'sm'} pl={'md'} pb={'sm'}
-                                        flexDirection='row' justifyContent='flex-start' alignItems='center'>
-                                        <TText ml={10} color='overlay0'>{t(`showtime:dummy_question_5`)}</TText>
-                                    </TView>
-                                </TView>
-
-                                <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
-
-                                    <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
-
-                                    <TView pr={'sm'} pl={'md'} pb={'sm'}
-                                        flexDirection='row' justifyContent='flex-start' alignItems='center'>
-                                        <TText ml={10} color='overlay0'>{t(`showtime:dummy_question_6`)}</TText>
-                                    </TView>
-                                </TView>
                             </TScrollView>
 
 

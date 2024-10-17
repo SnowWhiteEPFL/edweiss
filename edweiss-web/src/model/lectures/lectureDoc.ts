@@ -1,5 +1,19 @@
+/**
+ * @file lectureDoc.ts
+ * @description Model for managing lecture documents and events in the edweiss app
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import { FunctionFolder, FunctionOf } from '../functions';
 import Quizzes from '../quizzes';
+
+// ------------------------------------------------------------
+// -------------------   Lecture Namespace   ------------------
+// ------------------------------------------------------------
 
 namespace LectureDisplay {
 

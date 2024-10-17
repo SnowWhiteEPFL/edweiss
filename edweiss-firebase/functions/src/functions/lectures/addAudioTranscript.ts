@@ -1,11 +1,25 @@
+/**
+ * @file addAudioTranscript.ts
+ * @description Cloud function for adding audio transcripts to lecture documents in the edweiss app
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import LectureDisplay from 'model/lectures/lectureDoc';
 import { onAuthentifiedCall } from 'utils/firebase';
 import { CollectionOf, getDocumentAndRef } from 'utils/firestore';
 import { fail, ok } from 'utils/status';
 import Function = LectureDisplay.Function;
 
+// Types
 type Lecture = LectureDisplay.Lecture;
 
+// ------------------------------------------------------------
+// -----------  Add Audio Transcript Cloud Function   ---------
+// ------------------------------------------------------------
 
 export const addAudioTranscript = onAuthentifiedCall(Function.addAudioTranscript, async (userId, args) => {
     if (!args.courseId || !args.lectureId || !args.pageNumber || !args.transcription) {
