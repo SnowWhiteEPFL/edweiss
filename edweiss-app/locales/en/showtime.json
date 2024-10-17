@@ -1,0 +1,17 @@
+{
+    "tap_to_start_recording" : "Tap to record audio",
+    "recording_start" : "•  Recording ...",
+    "showtime_title" : "The Showtime!",
+    "rmt_cntl_title" : "Remote Control",
+
+    "lecturer_transcript_deftxt" : "Lecturer’s transcript... currently in invisible ink!",
+    
+    "dummy_question_0" : "Why do we say ‘sleep like a baby’ when babies wake up every two hours?",
+    "dummy_question_1" : "Why do we call it ‘quick sand’ if it’s so slow?",
+    "dummy_question_2" : "If a tomato is a fruit, does that make ketchup a smoothie?",
+    "dummy_question_3" : "If Cinderella’s shoe fit perfectly, why did it fall off?",
+    "dummy_question_4" : "Do penguins have knees?",
+    "dummy_question_5" : "Why isn’t there mouse-flavored cat food?",
+    "dummy_question_6" : "If you drop soap on the floor, is the floor clean or the soap dirty?",
+    "peer_question" : "Peer Questions"
+}
