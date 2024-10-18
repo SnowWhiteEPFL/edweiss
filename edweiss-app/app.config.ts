@@ -45,7 +45,10 @@ const config: ExpoConfig = {
 		"expo-router",
 		"@react-native-firebase/app",
 		"@react-native-firebase/app-check",
+		"@config-plugins/react-native-blob-util",
+		"@config-plugins/react-native-pdf",
 		"@react-native-google-signin/google-signin",
+		"@react-native-voice/voice",
 		[
 			"expo-build-properties",
 			{
@@ -83,6 +86,12 @@ const config: ExpoConfig = {
 			"expo-font",
 			{
 				"fonts": ["./assets/fonts/Inter.ttf"]
+			}
+		],
+		[
+			"expo-screen-orientation",
+			{
+				"initialOrientation": "DEFAULT"
 			}
 		]
 	],

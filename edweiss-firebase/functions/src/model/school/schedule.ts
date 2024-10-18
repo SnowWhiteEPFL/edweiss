@@ -16,6 +16,7 @@ export interface CyclicTimePeriod {
 	start: Minutes;
 	end: Minutes;
 	rooms: Room[];
+	activityId?: string;
 }
 
 export interface PonctualEvent {

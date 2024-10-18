@@ -1,20 +1,19 @@
 import { Collections, getDocument } from '@/config/firebase';
-import { Color } from '@/constants/Colors';
-import { TIME_CONSTANTS } from '@/constants/Time';
 import { useAuth } from '@/contexts/auth';
-import { Course, courseColors } from '@/model/school/courses';
-import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { Course } from '@/model/school/courses';
+import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
 import TTouchableOpacity from './containers/TTouchableOpacity';
 import TView from './containers/TView';
 import For from './For';
-import formatTime from './formatTime';
+
+import { Day } from './Day';
 import { getCurrentDay } from './getCurrentDay';
 import { getCurrentTimeInMinutes } from './getCurrentTimeInMinutes';
 import TText from './TText';
 
 const HOUR_BLOCK_HEIGHT = 80;
+const TOTAL_HOURS = 24;
 
 
 
@@ -32,22 +31,20 @@ export const Calendar = ({ courses }: { courses: { id: string; data: Course; }[]
         fetchUser();
     }, [userId]);
     useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentMinutes(getCurrentTimeInMinutes());
-        }, TIME_CONSTANTS.ONE_MINUTE_IN_MS);
+        const interval = setInterval(() => { setCurrentMinutes(getCurrentTimeInMinutes()); }, 60000);
         return () => clearInterval(interval);
     }, []);
 
     useEffect(() => {
-        scrollViewRef.current?.scrollTo({ y: (currentMinutes / TIME_CONSTANTS.MINUTES_IN_HOUR - 1) * HOUR_BLOCK_HEIGHT, animated: true });
-    }, [currentMinutes]);
+        scrollViewRef.current?.scrollTo({ y: (currentMinutes / 60 - 1) * HOUR_BLOCK_HEIGHT, animated: true });
+    }, []);
 
     return (
         <TView mb={16} flex={1} key={userId}>
             <TText align='center'>My Calendar</TText>
             <TTouchableOpacity borderColor='yellow' b={2} radius={10} p={5}
                 style={{ marginVertical: 8, width: '100%', borderRadius: 10, borderWidth: 2 }}
-                onPress={() => scrollViewRef.current?.scrollTo({ y: (currentMinutes / TIME_CONSTANTS.MINUTES_IN_HOUR - 0.8) * HOUR_BLOCK_HEIGHT, animated: true })}
+                onPress={() => scrollViewRef.current?.scrollTo({ y: (currentMinutes / 60 - 0.8) * HOUR_BLOCK_HEIGHT, animated: true })}
             >
                 <TText color='yellow' align='center'>now</TText>
             </TTouchableOpacity>
@@ -57,7 +54,7 @@ export const Calendar = ({ courses }: { courses: { id: string; data: Course; }[]
                 showsVerticalScrollIndicator={true}
             >
 
-                {Array.from({ length: TIME_CONSTANTS.TOTAL_HOURS }).map((_, hour) => (
+                {Array.from({ length: TOTAL_HOURS }).map((_, hour) => (
                     <><TView key={hour} pl={10} pr={10} style={{
                         height: HOUR_BLOCK_HEIGHT,
                         borderBottomWidth: 1,
@@ -69,55 +66,21 @@ export const Calendar = ({ courses }: { courses: { id: string; data: Course; }[]
                                     course.data.periods
                                         .filter(
                                             period =>
-                                                period.start >= hour * TIME_CONSTANTS.MINUTES_IN_HOUR &&
-                                                period.start < (hour + 1) * TIME_CONSTANTS.MINUTES_IN_HOUR &&
+                                                period.start >= hour * 60 &&
+                                                period.start < (hour + 1) * 60 &&
                                                 period.dayIndex === getCurrentDay()
                                         )
                                         .map((period, index, filteredPeriods) => {
-                                            const periodHeight = period.end
-                                                ? ((period.end - period.start) / 60) * HOUR_BLOCK_HEIGHT
-                                                : HOUR_BLOCK_HEIGHT;
-
                                             return (
-
-                                                <TView
+                                                <Day
                                                     key={index}
-                                                    flex={1 / filteredPeriods.length}
-                                                    borderColor="overlay2"
-                                                    radius={10}
-                                                    b={2}
-                                                    p={2}
-                                                    backgroundColor={courseColors[period.type] as Color || 'base'}
-                                                    style={{
-                                                        height: periodHeight
-                                                    }}
-                                                >
-                                                    <TView flexDirection="column">
-                                                        <TView flexDirection="row" justifyContent="space-between">
-                                                            <TText color="course_title_for_backgroud_color" numberOfLines={1} size={15} p={5}>
-                                                                {`${period.type.charAt(0).toUpperCase() + period.type.slice(1)}`}
-                                                            </TText>
-                                                            <TText pr={10} pt={7} color="overlay2" numberOfLines={1} size={12}>
-                                                                {`${period.rooms.join(", ")}`}
-                                                            </TText>
-                                                        </TView>
-                                                        <TText pl={5} color="overlay2" numberOfLines={1} size={12}>
-                                                            {`${course.data.name}`}
-                                                        </TText>
-                                                        <TView flexDirection="row">
-                                                            <TText p={5} size={12} color="overlay2">
-                                                                {`${formatTime(period.start)} - ${formatTime(period.end)}`}
-                                                            </TText>
-                                                            {user.data.type == 'student' && course.data.started && period.type == 'lecture' && <TText p={5} onPress={() => router.push(`/(app)/test_showTime`)} size={15} color="red">Join Course</TText>}
-                                                            {user.data.type == 'professor' && period.type == 'lecture' && <TText p={5} onPress={() => router.push({
-                                                                pathname: '/(app)/startCourseScreen',
-                                                                params: {
-                                                                    courseID: course.id, course: JSON.stringify(course.data),
-                                                                }
-                                                            })} size={15} color="red">{(course.data.started == false && "Start Course") || (course.data.started == true && "Stop Course")}</TText>}
-                                                        </TView>
-                                                    </TView>
-                                                </TView>
+                                                    period={period}
+                                                    course={course}
+                                                    user={user}
+                                                    filteredPeriods={filteredPeriods}
+                                                    index={index}
+                                                />
+
                                             );
                                         })
                                 }
@@ -130,7 +93,7 @@ export const Calendar = ({ courses }: { courses: { id: string; data: Course; }[]
                                 position: 'absolute',
                                 width: '100%',
                                 height: 2,
-                                top: (currentMinutes / TIME_CONSTANTS.MINUTES_IN_HOUR) * HOUR_BLOCK_HEIGHT,
+                                top: (currentMinutes / 60) * HOUR_BLOCK_HEIGHT,
                             }}
                         />
                     </>
@@ -140,3 +103,4 @@ export const Calendar = ({ courses }: { courses: { id: string; data: Course; }[]
 
     );
 };
+

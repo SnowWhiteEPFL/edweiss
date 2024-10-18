@@ -1,0 +1,54 @@
+{
+	"name": {
+		"yet" : "Not Yet",
+		"in_progress": "In Progress",
+		"done": "Finished",
+		"archived": "Archived"
+	},
+
+	"status": {
+		"yet" : "To be done, soon.",
+		"in_progress": "Work in progress ...",
+		"done": "Finished, congrats !",
+		"archived": "Archived, well done !"
+	},
+
+	"todolist_header": "My Todos",
+	"create_header": "Create Todo",
+	"edit_header": "Edit Todo",
+	"name_placeholder": "Daily Workout",
+	"description_placeholder": "Go to the Gym",
+	"save_button": "Save",
+	"edit_button": "Edit",
+	"archive_bg_when_active": "Archive this Todo",
+	"archive_bg_when_archived": "De-archive this Todo",
+	"delete_btn_title": "Delete",
+	"filter_modal_title": "Filter Todos",
+	"close_btn": "Close",
+	"list_empty": "No Todos yet, create one !",
+	"archived_success_toast": "archived !",
+	"unarchived_success_toast": "unarchived !",
+	"archived_success_toast_sub": "You can find it in the archived list.",
+	"unarchived_success_toast_sub": "You can find it in the active list.",
+	"date_btn_title": "Due Date",
+	"time_btn_title": "Time",
+	"today_status": "Today",
+	"tomorrow_status": "Tomorrow",
+	"yesterday_status": "Yesterday",
+	"dued_on": "Due on : ",
+	"at": " at ",
+	"name_label": "Name",
+	"description_label": "Description",
+	"was_added_toast": " was added !",
+	"funny_phrase_on_add": "Another one bites the dust!",
+	"was_edited_toast": " was edited !",
+	"funny_phrase_on_edit": "Edit accomplished, high five!",
+	"error_toast_title": "⚠️ Error",
+	"couldnot_save_toast": "Couldn't save the Todo, please try again.",
+	"couldnot_edit_toast": "Couldn't edit the Todo, please try again.",
+	"was_deleted_toast": " was deleted !",
+	"funny_phrase_on_delete": "Gone, but not forgotten!",
+	"couldnot_delete_toast": "Couldn't delete the Todo, please try again."
+
+
+}
