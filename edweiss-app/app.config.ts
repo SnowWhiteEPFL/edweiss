@@ -48,6 +48,7 @@ const config: ExpoConfig = {
 		"@config-plugins/react-native-blob-util",
 		"@config-plugins/react-native-pdf",
 		"@react-native-google-signin/google-signin",
+		"@react-native-voice/voice",
 		[
 			"expo-build-properties",
 			{
