@@ -3,8 +3,13 @@ import { StyleSheet } from 'react-native';
 
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
+import { callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
-import { AssignmentBase, SUBMISSION_TYPE } from '@/model/school/courses';
+import { AssignmentBase, QUIZ_TYPE, SUBMISSION_TYPE } from '@/model/school/courses';
+import { Timestamp } from '@/model/time';
+import Todolist from '@/model/todo';
+import { Time as OurTime } from '@/utils/time';
+import { router } from 'expo-router';
 import { Swipeable } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
@@ -50,8 +55,6 @@ export const testIDs = {
     assignmentDate: 'assignment-date'
 };
 
-// Quizz route
-const pathToQuizRoute = "/quiz/temporaryQuizStudentView";
 
 // Hardcoded paths
 const hardcodedPathToQuizzes = "courses/placeholderCourseId/quizzes";
@@ -76,15 +79,20 @@ const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, index: numb
         <Swipeable
             ref={(ref) => { swipeableRefs.current[index] = ref; }}
             renderRightActions={renderRightActions}  // Render actions on swipe
-            onSwipeableOpen={(direction) => { if (direction === 'right') { console.log(`Swipe detected on assignment: ${item.name}`); Toast.show({ type: 'success', text1: t(`course:toast_added_to_todo_text1`), text2: t(`course:toast_added_to_todo_text2`), }); swipeableRefs.current[index]?.close(); } }} >
+            onSwipeableOpen={(direction) => {
+                if (direction === 'right') { //
+                    console.log(`Swipe detected on assignment: ${item.name}`); saveTodo(item.name, item.dueDate, item.type);
+                } swipeableRefs.current[index]?.close();
+            }
+            } >
             <TView style={styles.assignmentRow}>
                 <TTouchableOpacity style={[styles.assignmentField, { backgroundColor }]}
-                // onPress={item.type === QUIZ_TYPE ? () => {
-                //     router.push({
-                //         pathname: pathToQuizRoute as string,
-                //         params: { quizId: hardcodedQuizId, path: hardcodedPathToQuizzes, courseId: hardcodedCourseId }
-                //     });
-                // } : undefined}
+                    onPress={item.type === QUIZ_TYPE ? () => {
+                        router.push({
+                            pathname: "/quiz/temporaryQuizStudentView",
+                            params: { quizId: hardcodedQuizId, path: hardcodedPathToQuizzes, courseId: hardcodedCourseId }
+                        });
+                    } : undefined}
                 >
                     {/* // Icon */}
                     <Icon name={item.type as string === SUBMISSION_TYPE ? submissionIcon : quizIcon} size={iconSizes.lg} color={item.color == defaultColor ? defaultColorName : urgentColorName} testID={testIDs.assignmentIcon} />
@@ -96,7 +104,7 @@ const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, index: numb
                     </TText>
                 </TTouchableOpacity>
             </TView>
-        </Swipeable>
+        </Swipeable >
     );
 };
 
@@ -166,3 +174,36 @@ const styles = StyleSheet.create({
 });
 
 export default AssignmentDisplay;
+
+
+async function saveTodo(name: string, dueDate: Timestamp, description: string) {
+    try {
+
+
+        const res = await callFunction(Todolist.Functions.createTodo, {
+            name, description, dueDate: OurTime.toDate(dueDate).toISOString(), status: "yet"
+        });
+
+        if (res.status) {
+            router.back();
+            Toast.show({
+                type: 'success',
+                text1: t(`course:toast_added_to_todo_text1`),
+                text2: t(`course:toast_added_to_todo_text2`)
+            });
+        } else {
+            Toast.show({
+                type: 'error',
+                text1: t(`todo:error_toast_title`),
+                text2: t(`todo:couldnot_save_toast`)
+            });
+        }
+    } catch (error) {
+        Toast.show({
+            type: 'error',
+            text1: t(`todo:error_toast_title`),
+            text2: t(`todo:couldnot_save_toast`)
+        });
+    }
+
+}

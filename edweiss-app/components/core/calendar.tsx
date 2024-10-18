@@ -74,42 +74,13 @@ export const Calendar = ({ courses }: { courses: { id: string; data: Course; }[]
                                             return (
                                                 <Day
                                                     key={index}
-                                                    flex={1 / filteredPeriods.length}
-                                                    borderColor="overlay2"
-                                                    radius={10}
-                                                    b={2}
-                                                    p={2}
-                                                    backgroundColor={courseColors[period.type] as Color || 'base'}
-                                                    style={{
-                                                        height: periodHeight
-                                                    }}
-                                                >
-                                                    <TView flexDirection="column">
-                                                        <TView flexDirection="row" justifyContent="space-between">
-                                                            <TText color="course_title_for_backgroud_color" numberOfLines={1} size={15} p={5}>
-                                                                {`${period.type.charAt(0).toUpperCase() + period.type.slice(1)}`}
-                                                            </TText>
-                                                            <TText pr={10} pt={7} color="overlay2" numberOfLines={1} size={12}>
-                                                                {`${period.rooms?.join(", ")}`}
-                                                            </TText>
-                                                        </TView>
-                                                        <TText pl={5} color="overlay2" numberOfLines={1} size={12}>
-                                                            {`${course.data.name}`}
-                                                        </TText>
-                                                        <TView flexDirection="row">
-                                                            <TText p={5} size={12} color="overlay2">
-                                                                {`${formatTime(period.start)} - ${formatTime(period.end)}`}
-                                                            </TText>
-                                                            {user.data.type == 'student' && course.data.started && period.type == 'lecture' && <TText p={5} onPress={() => router.push(`/(app)/test_showTime`)} size={15} color="red">Join Course</TText>}
-                                                            {user.data.type == 'professor' && period.type == 'lecture' && <TText p={5} onPress={() => router.push({
-                                                                pathname: '/(app)/startCourseScreen',
-                                                                params: {
-                                                                    courseID: course.id, course: JSON.stringify(course.data),
-                                                                }
-                                                            })} size={15} color="red">{(course.data.started == false && "Start Course") || (course.data.started == true && "Stop Course")}</TText>}
-                                                        </TView>
-                                                    </TView>
-                                                </TView>
+                                                    period={period}
+                                                    course={course}
+                                                    user={user}
+                                                    filteredPeriods={filteredPeriods}
+                                                    index={index}
+                                                />
+
                                             );
                                         })
                                 }
@@ -132,4 +103,3 @@ export const Calendar = ({ courses }: { courses: { id: string; data: Course; }[]
 
     );
 };
-
