@@ -179,22 +179,7 @@ export const DeckDisplay: ReactComponent<{ deck: Memento.Deck, id: string; isSel
             <TText mb='md' color='subtext0' size={'sm'}>
                 2h ago
             </TText>
-            {deck.cards[0] && <CardDisplay card={deck.cards[0]} />}
             {isSelected && <TText color='green'>✓</TText>}
         </TTouchableOpacity>
-    );
-};
-
-export const CardDisplay: ReactComponent<{ card: Memento.Card; }> = ({ card }) => {
-    return (
-        <TView>
-            {/*<QuestionDisplay question={card.question} />*/}
-            <TText>
-                {card.question}
-            </TText>
-            <TText ml={'sm'} color='mauve'>
-                {card.answer}
-            </TText>
-        </TView>
     );
 };
