@@ -8,7 +8,8 @@ interface HeaderProps {
 	align?: "center" | "left",
 	left?: ReactNode,
 	right?: ReactNode,
-	disabled?: boolean;
+	disabled?: boolean,
+	isBold?: boolean;
 }
 
 const RouteHeader: ReactComponent<HeaderProps> = (props = { align: "center" }) => {
@@ -16,7 +17,8 @@ const RouteHeader: ReactComponent<HeaderProps> = (props = { align: "center" }) =
 		options={{
 			title: props.title,
 			headerTitleStyle: {
-				fontFamily: "Inter"
+				fontFamily: "Inter",
+				fontWeight: props.isBold ? "bold" : "normal",
 			},
 			headerTitleAlign: props.align,
 			headerLeft: _ => props.left,
