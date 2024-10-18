@@ -98,7 +98,7 @@ export const Calendar = ({ courses }: { courses: { id: string; data: Course; }[]
                                                                 {`${period.type.charAt(0).toUpperCase() + period.type.slice(1)}`}
                                                             </TText>
                                                             <TText pr={10} pt={7} color="overlay2" numberOfLines={1} size={12}>
-                                                                {`${period.rooms.join(", ")}`}
+                                                                {`${period.rooms?.join(", ")}`}
                                                             </TText>
                                                         </TView>
                                                         <TText pl={5} color="overlay2" numberOfLines={1} size={12}>

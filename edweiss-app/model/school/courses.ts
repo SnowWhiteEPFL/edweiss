@@ -15,6 +15,9 @@ export const courseColors = {
 	project: 'teal',
 };
 
+export const SUBMISSION_TYPE = 'submission';
+export const QUIZ_TYPE = 'quiz';
+
 export interface CourseTimePeriod extends CyclicTimePeriod {
 	type: CourseTimePeriodType;
 }
@@ -52,8 +55,7 @@ export function isAssistantOf(student: StudentID, course: Course) {
 
 export namespace Course_functions {
 	export const Functions = FunctionFolder("course", {
-		startCourse: FunctionOf<{ courseID: string, course: Course; }, {}, 'cannot start the course'>("startCourse"),
-		stopCourse: FunctionOf<{ courseID: string, course: Course; }, {}, 'cannot stop the course'>("stopCourse"),
-		joinCourse: FunctionOf<{ courseID: string, course: Course; }, {}, 'cannot join the course'>("joinCourse"),
+		toogleCourse: FunctionOf<{ courseID: string, course: Course; }, {}, 'cannot stop the course'>("toogleCourse"),
+		tooglePeriod: FunctionOf<{ lectureID: string, courseID: string, course: Course; }, { available: boolean; }, 'cannot stop the course'>("tooglePeriod"),
 	});
 }
