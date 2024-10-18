@@ -15,6 +15,9 @@ export const courseColors = {
 	project: 'teal',
 };
 
+export const SUBMISSION_TYPE = 'submission';
+export const QUIZ_TYPE = 'quiz';
+
 export interface CourseTimePeriod extends CyclicTimePeriod {
 	type: CourseTimePeriodType;
 }

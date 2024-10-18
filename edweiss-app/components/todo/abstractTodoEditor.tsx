@@ -25,7 +25,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import Toast from 'react-native-toast-message';
-import { sameTodos } from '../../utils/todo/utilsFunctions';
 import { StatusChanger } from './todoDisplay';
 import Functions = Todolist.Functions;
 
@@ -70,7 +69,8 @@ export const AbstractTodoEditor: React.FC<{
             name: name, description: description === "" ? undefined : description, status: status,
             dueDate: (!providedDate && !(dateChanged || timeChanged)) ? undefined : date
         };
-    const isInvalid = (editable) ? sameTodos(todo!, modifiedTodo!) : name === "";
+    // const isInvalid = (editable) ? sameTodos(todo!, modifiedTodo!) : name === ""; // FIX ME !
+    const isInvalid = name === "";
 
 
     // On change date and time update event handlers
@@ -310,5 +310,3 @@ export const AbstractTodoEditor: React.FC<{
         </>
     );
 };
-
-
