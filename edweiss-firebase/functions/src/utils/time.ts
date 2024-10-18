@@ -10,4 +10,3 @@ export namespace Time {
 		return FBFirebase.fromDate(date);
 	}
 }
-

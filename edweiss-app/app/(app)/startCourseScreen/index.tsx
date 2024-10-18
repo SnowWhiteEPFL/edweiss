@@ -128,10 +128,3 @@ const StartCourseScreen: ApplicationRoute = () => {
 };
 
 export default StartCourseScreen;
-function getDocumentAndRef(arg0: Collection<Lecture>, lectureID: any): [any, any] | PromiseLike<[any, any]> {
-	throw new Error('Function not implemented.');
-}
-
-function messaging() {
-	throw new Error('Function not implemented.');
-}

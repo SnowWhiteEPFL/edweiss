@@ -10,12 +10,14 @@ interface Room {
 	geoloc: Geopoint;
 }
 
+
 export interface CyclicTimePeriod {
 	type: CyclicTimePeriodType;
 	dayIndex: WeekDay;
 	start: Minutes;
 	end: Minutes;
 	rooms: Room[];
+	activityId?: string;
 }
 
 export interface PonctualEvent {

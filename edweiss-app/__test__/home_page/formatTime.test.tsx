@@ -34,3 +34,4 @@ describe('formatTime', () => {
         expect(formatTime(1440)).toBe('23:59');
     });
 });
+

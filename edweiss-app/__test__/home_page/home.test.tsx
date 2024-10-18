@@ -142,6 +142,13 @@ describe('HomeTab Component', () => {
         expect(screen.getByText('Crédits: 3')).toBeTruthy();
         expect(screen.getByText('Crédits: 4')).toBeTruthy();
     });
+    it('render List of courses', async () => {
+
+        expect(screen.getByText('List of courses')).toBeTruthy();
+        expect(screen.getByText('My Calendar')).toBeTruthy();
+        expect(screen.getByText('now')).toBeTruthy();
+
+    });
 });
 
 
