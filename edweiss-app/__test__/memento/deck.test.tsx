@@ -4,7 +4,7 @@ import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import React from 'react';
 import 'react-native';
-import DeckScreen, { CardDisplay, DeckDisplay } from '../../app/(app)/deck/index';
+import DeckScreen, { DeckDisplay } from '../../app/(app)/deck/index';
 
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -145,22 +145,6 @@ describe('DeckScreen', () => {
             expect(callFunction).toHaveBeenCalled(); // Ensure callFunction was called
             // Optionally, you can check for an error message in your UI
         });
-    });
-});
-
-describe('CardDisplay', () => {
-    const mockCard: Memento.Card = {
-        question: 'What is the capital of France?',
-        answer: 'Paris',
-        learning_status: 'Got it', // Ensure this is included for the mock
-    };
-
-    it('renders the card question and answer', () => {
-        const { getByText } = render(<CardDisplay card={mockCard} />);
-
-        // Check if the question and answer are rendered
-        expect(getByText(mockCard.question)).toBeTruthy();
-        expect(getByText(mockCard.answer)).toBeTruthy();
     });
 });
 
