@@ -16,7 +16,6 @@ export function FunctionOf<Args, Result, Error>(name: string): FunctionSignature
 }
 
 export interface SuccessfulCallResult<Result> {
-	availableToStudents(availableToStudents: any): unknown;
 	status: 1,
 	data: Result;
 }
