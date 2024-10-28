@@ -1,6 +1,6 @@
-import { Collection, Document, DocumentData, DocumentOf, Query, getDocument, getDocuments } from '@/config/firebase'
-import { doc, onSnapshot } from '@react-native-firebase/firestore'
-import { useCallback, useEffect, useState } from 'react'
+import { Collection, Document, DocumentData, DocumentOf, Query, getDocument, getDocuments } from '@/config/firebase';
+import { doc, onSnapshot } from '@react-native-firebase/firestore';
+import { useCallback, useEffect, useState } from 'react';
 
 export function useDoc<Type extends DocumentData>(collection: Collection<Type>, id: string): Document<Type> | undefined {
 	const [document, setDocument] = useState<Document<Type>>()
@@ -91,6 +91,16 @@ export function useDynamicDocs<Type extends DocumentData>(query: Query<Type>) {
 			console.log(`Snapshot Error: ${error}`)
 		})
 		return unsubscribe
+	}, [])
+
+	return documents
+}
+
+export function useDocsWithIds<Type extends DocumentData>(collection: Collection<Type>, ids: string[]) {
+	const [documents, setDocuments] = useState<Document<Type>[]>()
+
+	useEffect(() => {
+		Promise.all(ids.map(id => getDocument(collection, id))).then(setDocuments);
 	}, [])
 
 	return documents
