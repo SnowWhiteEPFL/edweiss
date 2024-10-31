@@ -16,21 +16,21 @@ import Icon from '@/components/core/Icon';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
 import FancyTextInput from '@/components/input/FancyTextInput';
-import { CollectionOf, getDownloadURL } from '@/config/firebase';
+import { callFunction, CollectionOf, getDownloadURL } from '@/config/firebase';
 import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import useListenToMessages from '@/hooks/useListenToMessages';
 import LectureDisplay from '@/model/lectures/lectureDoc';
+import { Timestamp } from '@react-native-firebase/firestore';
 import { useLocalSearchParams } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, Linking } from 'react-native';
+import { ActivityIndicator, Dimensions, DimensionValue } from 'react-native';
 import Pdf from 'react-native-pdf';
 
 // Types
 type Lecture = LectureDisplay.Lecture;
-
 
 // ------------------------------------------------------------
 // -------------------  Remote Control Screen  ----------------
@@ -48,13 +48,16 @@ const LectureScreen: ApplicationRoute = () => {
         }
     });
 
-
     // Hooks
     const [numPages, setNumPages] = useState<number>(0);        // Total number of pages in the PDF
     const [page, setPage] = useState<number>(0);                // Current page, starting from 1
     const [uri, setUri] = useState<string>('');                 // Url state
-    //const [isLandscape, setIsLandscape] = useState(false);
-    const [isFullscreen, setIsFullscreen] = useState(false);    // FullScreen display of pdf toggle
+    // UI display setting's hooks
+    const [isLandscape, setIsLandscape] = useState<boolean>(false);       // Landscape display boolean for different UI
+    const [isFullscreen, setIsFullscreen] = useState<boolean>(false);    // FullScreen display of pdf toggle
+    const [widthPercent, setWidthPercent] = useState<string[]>([]);
+    const [heightPercent, setHeightPercent] = useState<string[]>([]);
+    const [question, setQuestion] = useState<string>('');
 
     const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
 
@@ -62,24 +65,37 @@ const LectureScreen: ApplicationRoute = () => {
     useEffect(() => {
         if (lectureDoc) {
             getUri();
-            setLandscape();
         }
-
     }, [lectureDoc]);
+
+    useEffect(() => {
+        const onOrientationChange = (currentOrientation: ScreenOrientation.OrientationChangeEvent) => {
+            const orientationValue = currentOrientation.orientationInfo.orientation;
+            console.log(orientationValue);
+            console.log(isLandscape);
+            if (orientationValue == 1 || orientationValue == 2) {
+                setIsLandscape(false);
+                console.log('a');
+            } else {
+                setIsLandscape(true);
+                console.log(' iiii b' + isLandscape);
+            }
+            console.log(orientationValue);
+            console.log(isLandscape);
+            updateUI();
+            console.log(isLandscape);
+        };
+
+        const screenOrientationListener =
+            ScreenOrientation.addOrientationChangeListener(onOrientationChange);
+
+        return () => {
+            ScreenOrientation.removeOrientationChangeListener(screenOrientationListener);
+        };
+    }, []);
 
     if (!lectureDoc) return <TActivityIndicator size={40} />;
     const currentLecture = lectureDoc.data;
-
-
-
-    // Landscape display for the screen
-    const setLandscape = async () => {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-    };
-    // // Portrait display for the screen
-    // const setPortrait = async () => {
-    //     await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-    // };
 
     // Function to go to the next page
     function pageForward() {
@@ -92,19 +108,58 @@ const LectureScreen: ApplicationRoute = () => {
 
     // Funtion to set Uri to the desired one from firebase storage
     async function getUri() {
-        setUri(await getDownloadURL(currentLecture.pdfUri));
-        console.log(uri);
+        const url = await getDownloadURL(currentLecture.pdfUri);
+        setUri(url);
     }
 
-    const renderQuestion = (questionKey: string) => (
-        <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
+    // Function for updating the UI display values when switching through orientations an fullscreen modes
+    function updateUI() {
+        if (isFullscreen) {
+            setWidthPercent(["100%", "0%"]);
+            setHeightPercent(["100%", "0%"]);
+        } else if (isLandscape) {
+            setHeightPercent(["100%", "100%"]);
+            setWidthPercent(["60%", "40%"]);
+        } else {
+            setHeightPercent(["40%", "60%"]);
+            setWidthPercent(["100%", "100%"]);
+        }
+    }
+
+    // Landscape display for the screen
+    const setLandscape = async () => {
+        console.log("landscape was set");
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+        updateUI();
+    };
+
+    // Display each question given as parameters as a component 
+    const renderQuestion = (question: string, key: React.Key) => (
+        <TView key={key} mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
             <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
             <TView pr={'sm'} pl={'md'} pb={'sm'} flexDirection='row' justifyContent='flex-start' alignItems='center'>
-                <TText ml={10} color='overlay0'>{t(questionKey as any)}</TText>
+                <TText ml={10} color='overlay0'>{question}</TText>
             </TView>
         </TView>
     );
 
+    // Function for adding new question into the firebase storage
+    function addQuestion(question: string) {
+        try {
+            callFunction(LectureDisplay.Functions.createQuestion, {
+                courseId: courseName,
+                lectureId: lectureId,
+                question: {
+                    text: question,
+                    anonym: false,
+                    likes: 0,
+                    postedTime: Timestamp.now()
+                }
+            });
+        } catch (error) {
+            console.error("Error creating question:", error);
+        }
+    }
 
     return (
         //Screen Display on landscape mode
@@ -112,11 +167,9 @@ const LectureScreen: ApplicationRoute = () => {
 
             <RouteHeader disabled title={"Lecture's Slides"} />
 
+            <TView flexDirection={isLandscape ? 'row' : 'column'} flex={1} style={{ width: "100%" }}>
 
-            <TView flexDirection={'row'} flex={1} style={{ width: "100%" }}>
-
-
-                <TView mr={'lg'} flexDirection='column' style={{ width: isFullscreen ? "100%" : "60%" }}>
+                <TView mr={'lg'} flexDirection='column' style={{ width: widthPercent[0] as DimensionValue, height: heightPercent[0] as DimensionValue }}>
                     <Pdf
                         trustAllCerts={false}
                         source={{ uri: uri }}
@@ -126,12 +179,11 @@ const LectureScreen: ApplicationRoute = () => {
                         enablePaging={true}
                         onLoadComplete={(totalPages) => setNumPages(totalPages)}
                         onError={(error) => console.log(error)}
-                        onPressLink={(link) => Linking.openURL(link)}
                         page={page}
                         horizontal
-                        style={{ flex: 1, width: isFullscreen ? Dimensions.get('window').width : Dimensions.get('window').width * 0.6, height: Dimensions.get('window').height }} />
+                        style={{ flex: 1, width: (isFullscreen || !isLandscape) ? Dimensions.get('window').width : Dimensions.get('window').width * 0.6, height: isLandscape ? Dimensions.get('window').height : Dimensions.get('window').height * 0.6 }} />
 
-                    <TView flexDirection='row' justifyContent='space-between' >
+                    <TView flexDirection='row' justifyContent='space-between'>
                         {/* Buttons for page change and fullScreen toggle */}
 
                         <TView flexDirection='row' justifyContent='space-between' pr={'sm'} pl={'sm'}>
@@ -145,18 +197,22 @@ const LectureScreen: ApplicationRoute = () => {
 
                         </TView>
 
-                        <TTouchableOpacity backgroundColor='transparent' onPress={() => setIsFullscreen(!isFullscreen)}>
+                        <TTouchableOpacity backgroundColor='transparent' onPress={() => {
+                            !isLandscape && setLandscape();
+                            isLandscape && ScreenOrientation.unlockAsync();
+                            setIsFullscreen(!isFullscreen);
+                            updateUI();
+                        }}>
                             <Icon size={'xl'} name={isFullscreen ? 'contract-outline' : 'expand-outline'} dark='text'></Icon>
                         </TTouchableOpacity>
                     </TView>
                 </TView >
 
-                <TView flexDirection='column' style={{ width: isFullscreen ? "0%" : "40%" }}>
+                <TView flexDirection='column' style={{ width: widthPercent[1] as DimensionValue, height: heightPercent[1] as DimensionValue }}>
                     {isFullscreen ?
-                        <TView></TView> : // Speech to Text translation display and question forum display
+                        <TView></TView> : // Speech to Text transcript display and question forum display
                         <>
-
-                            <TScrollView b={'sm'} mt={25} mr={48} radius={'lg'} flex={1}>
+                            <TScrollView b={'sm'} mt={25} mr={'md'} ml={'md'} radius={'lg'} flex={1}>
                                 {currentLecture.audioTranscript?.[page] ? (
                                     <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[page]}</TText>
                                 ) : (
@@ -166,20 +222,19 @@ const LectureScreen: ApplicationRoute = () => {
                                 )}
                             </TScrollView>
 
-                            <TScrollView flex={0.5} mt={15} mr={48} mb={15}>
+                            <TScrollView flex={0.5} mt={15} mr={'md'} ml={'md'} mb={15}>
 
-                                {/* Dummy Questions */}
-                                {[...Array(7).keys()].map(i => renderQuestion(`showtime:dummy_question_${i}`))}
+                                {/* Questions Display */}
+                                {currentLecture.questions && currentLecture.questions.map((question, index) => renderQuestion(question.text, index))}
 
-                                {/* Your Question */}
-                                <FancyTextInput mb={'sm'} multiline label='Ask your questions' icon='chatbubbles-outline' placeholder='Got something on your mind? Type away!' />
+                                {/* Enter Your Question */}
+                                <TView flexDirection='row'>
+                                    <FancyTextInput value={question} onChangeText={n => { setQuestion(n) }} mb={'sm'} multiline label='Ask your questions' icon='chatbubbles-outline' placeholder='Got something on your mind? Type away!' />
+                                    <TTouchableOpacity backgroundColor='transparent' onPress={() => addQuestion(question)} pl={'md'}>
+                                        <Icon size={'xl'} name='send-outline' color='text'></Icon>
+                                    </TTouchableOpacity>
+                                </TView>
                             </TScrollView>
-
-
-
-
-
-
                         </>}
                 </TView>
             </TView >
@@ -188,3 +243,4 @@ const LectureScreen: ApplicationRoute = () => {
 };
 
 export default LectureScreen;
+
