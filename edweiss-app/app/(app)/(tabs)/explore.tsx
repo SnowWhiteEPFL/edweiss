@@ -1,15 +1,12 @@
+import TText from '@/components/core/TText';
+import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
 import { ApplicationRoute } from '@/constants/Component';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import TText from '@/components/core/TText';
-import TView from '@/components/core/containers/TView';
 
 
 const ExploreTab: ApplicationRoute = () => {
-	const [pageCount, setPageCount] = useState<number>(1);
-
 
 	return (
 		<>
