@@ -1,3 +1,4 @@
+import { FunctionFolder, FunctionOf } from '../functions';
 import { Timestamp } from '../time';
 import { ProfessorID, StudentID } from '../users';
 import { CourseTimePeriodType, CyclicTimePeriod } from './schedule';
@@ -38,4 +39,11 @@ export function isProfessorOf(professor: ProfessorID, course: Course) {
 
 export function isAssistantOf(student: StudentID, course: Course) {
 	return course.assistants.includes(student);
+}
+
+export namespace Course_functions {
+	export const Functions = FunctionFolder("course", {
+		toogleCourse: FunctionOf<{ courseID: string, course: Course; }, {}, 'cannot stop the course'>("toogleCourse"),
+		tooglePeriod: FunctionOf<{ lectureID: string, courseID: string, course: Course; }, { available: boolean; }, 'cannot stop the course'>("tooglePeriod"),
+	});
 }

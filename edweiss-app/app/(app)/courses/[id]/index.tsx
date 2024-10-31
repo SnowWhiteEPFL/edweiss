@@ -22,7 +22,7 @@ import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
-import AssignmentDisplay, { testIDs as assignmentTestIDs, AssignmentWithColor } from '@/components/courses/AssignmentDisplay';
+import AssignmentDisplay, { AssignmentWithColor, testIDs as assignmentTestIDs } from '@/components/courses/AssignmentDisplay';
 import { CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import { LightDarkProps } from '@/constants/Colors';
