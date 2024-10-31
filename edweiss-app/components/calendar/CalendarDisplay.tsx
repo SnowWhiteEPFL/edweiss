@@ -5,6 +5,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import For from '../core/For';
 import TView from '../core/containers/TView';
 
+import ReactComponent from '@/constants/Component';
 import { useUser } from '@/contexts/user';
 import { Time } from '@/utils/time';
 import TText from '../core/TText';
@@ -13,7 +14,7 @@ import CalendarDayDisplay from './CalendarDayDisplay';
 const HOUR_BLOCK_HEIGHT = 80;
 const TOTAL_HOURS = 24;
 
-const CalendarDisplay = ({ courses }: { courses: Document<Course>[]; }) => {
+const CalendarDisplay: ReactComponent<{ courses: Document<Course>[], date: Date }> = ({ courses, date }) => {
 	const [currentMinutes, setCurrentMinutes] = useState(Time.getCurrentTimeInMinutes());
 	const scrollViewRef = useRef<ScrollView>(null);
 	const { user } = useUser();
@@ -27,60 +28,69 @@ const CalendarDisplay = ({ courses }: { courses: Document<Course>[]; }) => {
 		scrollViewRef.current?.scrollTo({ y: (currentMinutes / 60 - 1) * HOUR_BLOCK_HEIGHT, animated: true });
 	}, []);
 
+	/**
+	   
+		Can be an interesting idea for optimization in case of performance issues.
+	 
+		const dayRelevantPeriods = useMemo(() => {
+			return courses.flatMap(c => c.data.periods.filter(period => period.dayIndex === date.getDay()));
+		}, [courses, date]);
+
+	*/
+
 	return (
 		<TView flex={1}>
 			<TView backgroundColor='crust' py={"md"}>
-				<TText align='center' size={'md'}>jeudi 11 novembre</TText>
+				<TText align='center' size={'md'}>{date.toLocaleDateString('en', { weekday: "long", dateStyle: "long", month: "short" })}</TText>
 			</TView>
 
 			<ScrollView ref={scrollViewRef} style={{ flex: 1 }}>
 				{[...Array(TOTAL_HOURS).keys()].map(hour => (
-					<>
-						<TView key={hour} pr={10} borderColor='crust' bb={1} style={{
-							height: HOUR_BLOCK_HEIGHT
-						}} flexDirection="row">
-							<TView backgroundColor='crust' style={{ width: 60 }}>
-								<TText color='text' pl={"sm"} pr={"sm"} size={"xs"} mr={5} mt={35} align='center'>{`${hour}:00`}</TText>
-							</TView>
-
-							<TView flexDirection="row" flex={1}>
-								<For each={courses}>
-									{course =>
-										course.data.periods
-											.filter(
-												period =>
-													period.start >= hour * 60 &&
-													period.start < (hour + 1) * 60 &&
-													period.dayIndex === Time.getCurrentDay()
-											)
-											.map((period, index, filteredPeriods) => {
-												return (
-													<CalendarDayDisplay
-														key={index}
-														period={period}
-														course={course}
-														user={user}
-														filteredPeriods={filteredPeriods}
-														index={index}
-													/>
-												);
-											})
-									}
-								</For>
-							</TView>
+					<TView key={hour} pr={10} borderColor='crust' bb={1} flexDirection="row" style={{ height: HOUR_BLOCK_HEIGHT }}>
+						<TView backgroundColor='crust' style={{ width: 60 }}>
+							<TText color='text' pl={"sm"} pr={"sm"} size={"xs"} mr={5} mt={35} align='center'>{`${hour}:00`}</TText>
 						</TView>
 
-						<TView
-							backgroundColor='red'
-							style={{
-								position: 'absolute',
-								width: '100%',
-								height: 2,
-								top: (currentMinutes / 60) * HOUR_BLOCK_HEIGHT,
-							}}
-						/>
-					</>
+						<TView flexDirection="row" flex={1}>
+							<For each={courses}>
+								{course =>
+									course.data.periods
+										.filter(
+											period =>
+												period.start >= hour * 60 &&
+												period.start < (hour + 1) * 60 &&
+												period.dayIndex === date.getDay()
+										)
+										.map((period, index, filteredPeriods) => {
+											return (
+												<CalendarDayDisplay
+													key={period.start}
+													period={period}
+													course={course}
+													user={user}
+													filteredPeriods={filteredPeriods}
+													index={index}
+												/>
+											);
+										})
+								}
+							</For>
+						</TView>
+					</TView>
 				))}
+
+				{
+					Time.isToday(date) &&
+					<TView
+						backgroundColor='red'
+						style={{
+							position: 'absolute',
+							width: '100%',
+							height: 2,
+							top: (currentMinutes / 60) * HOUR_BLOCK_HEIGHT,
+						}}
+					/>
+				}
 			</ScrollView>
 		</TView>
 	);

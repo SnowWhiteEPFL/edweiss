@@ -10,10 +10,12 @@ export namespace Time {
 		return FBTimestamp.fromMillis(millis).toDate();
 	}
 
+	export function sameDay(d1: Date, d2: Date) {
+		return d1.getDate() === d2.getDate() && d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
+	}
+
 	export function isToday(date: Date): boolean {
-		const today = new Date(new Date().setHours(0, 0, 0, 0));
-		const dateToCheck = new Date(new Date(date).setHours(0, 0, 0, 0));
-		return today.toDateString() === dateToCheck.toDateString();
+		return sameDay(date, new Date());
 	}
 
 	export function wasYesterday(date: Date): boolean {

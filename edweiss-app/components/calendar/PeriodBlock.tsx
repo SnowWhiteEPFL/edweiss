@@ -1,11 +1,11 @@
+import { Document } from '@/config/firebase';
+import ReactComponent from '@/constants/Component';
 import { Course, CourseTimePeriod } from '@/model/school/courses';
 import { Time } from '@/utils/time';
 import TText from '../core/TText';
 import TView from '../core/containers/TView';
 
-export const PeriodBlock = ({ period, course, user }: {
-	period: CourseTimePeriod; course: { id: string; data: Course; }; user: any;
-}) => {
+export const PeriodBlock: ReactComponent<{ period: CourseTimePeriod; course: Document<Course> }> = ({ period, course }) => {
 	return (
 		<TView flexDirection="column">
 			<TView flexDirection="row" justifyContent="space-between">
