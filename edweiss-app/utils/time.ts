@@ -1,6 +1,6 @@
 /**
- * @file updateTodo.ts
- * @description Cloud function for updating a todo item in the edweiss app
+ * @file time.ts
+ * @description time helper to interface easily with from firebase Timestamp to a JS Date
  * @author Adamm Alaoui & Youssef Laraki
  */
 

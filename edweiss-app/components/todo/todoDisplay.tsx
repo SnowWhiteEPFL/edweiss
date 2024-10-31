@@ -1,6 +1,6 @@
 /**
  * @file todoDisplay.tsx
- * @description This file contains the display components for the todo list
+ * @description This file contains the display components for the to do list
  * @author Adamm Alaoui
  */
 
@@ -33,7 +33,7 @@ type TodoStatus = Todolist.TodoStatus;
 
 
 // ------------------------------------------------------------
-// --------------------   Todo Display Component   ------------
+// --------------------   To do Display Component   -----------
 // ------------------------------------------------------------
 
 export const TodoDisplay: React.FC<{
@@ -78,7 +78,7 @@ export const TodoDisplay: React.FC<{
     const handleGestureEnd = (event: any) => {
         const { translationX } = event.nativeEvent;
 
-        // Threshold activated then archive the todo
+        // Threshold activated then archive the to do
         if (Math.abs(translationX) > threshold) {
             Animated.timing(translateX, {
                 toValue: 0,
@@ -148,7 +148,7 @@ export const TodoDisplay: React.FC<{
                 >
 
 
-                    {/* The Animated TODO Card */}
+                    {/* The Animated to do Card */}
                     <Animated.View
                         style={{
                             transform: [{ translateX }],

@@ -1,6 +1,6 @@
 /**
  * @file updateTodo.ts
- * @description Cloud function for updating a todo item in the edweiss app
+ * @description Cloud function for updating a to do item in the edweiss app
  * @author Adamm Alaoui
  */
 
@@ -17,11 +17,9 @@ import Functions = Todolist.Functions;
 
 // Types
 type Todo = Todolist.Todo;
-type TodoStatus = Todolist.TodoStatus;
-
 
 // ------------------------------------------------------------
-// ----------------  Update Todo Cloud Function  --------------
+// ----------------  Update to do Cloud Function  -------------
 // ------------------------------------------------------------
 
 export const updateTodo = onAuthentifiedCall(Functions.updateTodo, async (userId, args) => {
@@ -34,9 +32,9 @@ export const updateTodo = onAuthentifiedCall(Functions.updateTodo, async (userId
         return fail("firebase_error");
 
     const updatedFields: Partial<Todo> = {};
-    if (args.name) updatedFields.name = args.name as string;
-    if (args.status) updatedFields.status = args.status as TodoStatus;
-    if (args.description) updatedFields.description = args.description as string;
+    if (args.name) updatedFields.name = args.name;
+    if (args.status) updatedFields.status = args.status;
+    if (args.description) updatedFields.description = args.description;
     if (args.dueDate) {
         let dueDate: Date;
 

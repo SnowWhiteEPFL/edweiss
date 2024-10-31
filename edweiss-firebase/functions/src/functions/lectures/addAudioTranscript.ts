@@ -38,7 +38,7 @@ export const addAudioTranscript = onAuthentifiedCall(Functions.addAudioTranscrip
 
     const pageKey = `audioTranscript.${args.pageNumber}`;
 
-    if (!lecture.audioTranscript || !lecture.audioTranscript[args.pageNumber]) {
+    if (!lecture.audioTranscript?.[args.pageNumber]) {
         try {
             await lectureRef.update({
                 [pageKey]: args.transcription

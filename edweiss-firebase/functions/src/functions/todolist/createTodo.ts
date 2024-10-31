@@ -1,6 +1,6 @@
 /**
  * @file createTodo.ts
- * @description Cloud function for creating a todo item in the edweiss app
+ * @description Cloud function for creating a to do item in the edweiss app
  * @author Adamm Alaoui
  */
 
@@ -21,15 +21,15 @@ type TodoStatus = Todolist.TodoStatus;
 
 
 // ------------------------------------------------------------
-// ----------------  Create Todo Cloud Function  --------------
+// ----------------  Create to do Cloud Function  -------------
 // ------------------------------------------------------------
 
 export const createTodo = onAuthentifiedCall(Functions.createTodo, async (userId, args) => {
     if (!args.name || !args.status && (args.status !== "yet" && args.status !== "in_progress" && args.status !== "done" && args.status !== "archived"))
         return fail("invalid_arg");
 
-    const name = args.name as string;
-    const status = args.status as TodoStatus;
+    const name: string = args.name;
+    const status: TodoStatus = args.status;
 
     const todoCollection = CollectionOf<Todo>(`users/${userId}/todos`);
 
@@ -39,7 +39,7 @@ export const createTodo = onAuthentifiedCall(Functions.createTodo, async (userId
     };
 
     if (args.description) {
-        const description = args.description as string;
+        const description: string = args.description;
         todoToInsert.description = description;
     }
 

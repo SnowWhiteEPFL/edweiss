@@ -64,12 +64,6 @@ export const AbstractTodoEditor: React.FC<{
 
 
     // Toogle the save button only when valid
-    const modifiedTodo = !(editable && todo) ? undefined :
-        {
-            name: name, description: description === "" ? undefined : description, status: status,
-            dueDate: (!providedDate && !(dateChanged || timeChanged)) ? undefined : date
-        };
-    // const isInvalid = (editable) ? sameTodos(todo!, modifiedTodo!) : name === ""; // FIX ME !
     const isInvalid = name === "";
 
 
