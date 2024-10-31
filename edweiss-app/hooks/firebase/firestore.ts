@@ -11,7 +11,7 @@ export function useDoc<Type extends DocumentData>(collection: Collection<Type>, 
 			const fetchedDocument = await getDocument(collection, id);
 			setDocument(fetchedDocument);
 		})();
-	}, []);
+	}, [id]);
 
 	return document;
 }
@@ -105,7 +105,7 @@ export function useCachedDoc<Type extends DocumentData>(key: string, collection:
 			const fetchedDocument = await getDocument(collection, id);
 			setDocument(fetchedDocument);
 		})();
-	}, []);
+	}, [id]);
 
 	return document;
 }
