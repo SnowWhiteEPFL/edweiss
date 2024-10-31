@@ -103,4 +103,3 @@ export const Calendar = ({ courses }: { courses: { id: string; data: Course; }[]
 
     );
 };
-
