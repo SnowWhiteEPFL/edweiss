@@ -96,5 +96,5 @@ export const courseColors: Record<CourseTimePeriodType, Color> = {
 	lecture: 'blue',
 	exercises: 'pink',
 	lab: 'green',
-	project: 'teal',
+	project: 'peach',
 };
