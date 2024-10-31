@@ -1,6 +1,6 @@
 /**
  * @file abstractTodoEditor.tsx
- * @description Module for editing todo items in the edweiss app
+ * @description Module for editing to do items in the edweiss app
  * @author Adamm Alaoui
  */
 
@@ -33,7 +33,7 @@ type TodoStatus = Todolist.TodoStatus;
 
 
 // ------------------------------------------------------------
-// --------------  The Custumisable Todo Editor   -------------
+// --------------  The Custumisable To do Editor   ------------
 // ------------------------------------------------------------
 
 export const AbstractTodoEditor: React.FC<{

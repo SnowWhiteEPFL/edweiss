@@ -190,52 +190,6 @@ const CoursePage: React.FC<LightDarkProps> = ({ light, dark }) => {
 	);
 };
 
-// // Render assignment
-// export const RenderAssignment: ReactComponent<{ item: Assignment, index: number, backgroundColor: string, swipeBackgroundColor: string, defaultColor: string, swipeableRefs: React.MutableRefObject<(Swipeable | null)[]>; }> = ({ item, index, backgroundColor, swipeBackgroundColor, defaultColor, swipeableRefs }) => {
-
-// 	const renderRightActions = () => (
-// 		<TView style={[styles.rightAction, { backgroundColor: swipeBackgroundColor }]} testID={testIDs.swipeView}>
-// 			<TText style={styles.actionText}>{t(`course:add_to_todo`)}</TText>
-// 		</TView>
-// 	);
-
-// 	return (
-// 		<Swipeable
-// 			ref={(ref) => {
-// 				// Stocker la référence Swipeable dans un tableau par index
-// 				swipeableRefs.current[index] = ref;
-// 			}}
-// 			renderRightActions={renderRightActions}  // Render actions on swipe
-// 			onSwipeableOpen={(direction) => {
-// 				if (direction === 'right') {
-// 					console.log(`Swipe detected on assignment: ${item.name}`);
-// 					// Place here the action to be performed when swiping right
-// 					Toast.show({
-// 						type: 'success',
-// 						text1: t(`course:toast_added_to_todo_text1`),
-// 						text2: t(`course:toast_added_to_todo_text2`),
-// 					});
-// 					swipeableRefs.current[index]?.close();
-// 				}
-// 			}}
-// 		// DEPRECATED : onSwipeableRightOpen={onSwipeRightToLeft}  // Detects swipe from right to left
-// 		>
-// 			<TView style={styles.assignmentRow}>
-// 				<TTouchableOpacity style={[styles.assignmentField, { backgroundColor }]}>
-// 					{/* // Icon */}
-// 					<Icon name={item.type === SUBMISSION_TYPE ? submissionIcon : quizIcon} size={iconSizes.lg} color={item.color == defaultColor ? defaultColorName : urgentColorName} testID={testIDs.assignmentIcon} />
-// 					{/* // Assignment name */}
-// 					<TText style={[styles.assignmentText, { color: item.color }]} mx='md' testID={testIDs.assignmentTitle} >{item.name}</TText>
-// 					{/* // Due date */}
-// 					<TText style={[styles.dueDate, { color: item.color }]} testID={testIDs.assignmentDate} >
-// 						{new Date(item.dueDate.seconds * msInASecond).toLocaleDateString(t(`course:dateFormat`), dateFormats)}
-// 					</TText>
-// 				</TTouchableOpacity>
-// 			</TView>
-// 		</Swipeable>
-// 	);
-// };
-
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,

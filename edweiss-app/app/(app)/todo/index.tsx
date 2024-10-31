@@ -1,6 +1,6 @@
 /**
  * @file index.tsx
- * @description Main screen for displaying and managing the todo list in the edweiss app
+ * @description Main screen for displaying and managing the to do list in the edweiss app
  * @author Adamm Alaoui
  */
 
@@ -33,7 +33,7 @@ type TodoStatus = Todolist.TodoStatus;
 
 
 // ------------------------------------------------------------
-// -------------------  Main Todolist Screen  -----------------
+// -------------------  Main To do list Screen  ---------------
 // ------------------------------------------------------------
 
 const TodoListScreen: ApplicationRoute = () => {
