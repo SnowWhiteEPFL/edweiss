@@ -6,20 +6,17 @@ import For from '@/components/core/For';
 import Icon from '@/components/core/Icon';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
-import { Document } from '@/config/firebase';
+import { CollectionOf, Document } from '@/config/firebase';
 import { Color } from '@/constants/Colors';
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
 import { useCourses } from '@/contexts/courses';
-import { useUser } from '@/contexts/user';
-import { Course } from '@/model/school/courses';
+import { useDocs } from '@/hooks/firebase/firestore';
+import { Assignment, Course } from '@/model/school/courses';
+import { Time } from '@/utils/time';
 import { router } from 'expo-router';
 import React from 'react';
 
 const HomeTab: ApplicationRoute = () => {
-	const { user } = useUser();
-
-	// const courses = useDocsWithIds(CollectionOf<Course>("courses"), user.courses ?? []);
-
 	const courses = useCourses();
 
 	if (courses == undefined)
@@ -31,12 +28,12 @@ const HomeTab: ApplicationRoute = () => {
 
 			<Schedule courses={courses} />
 
-			{/* <TView flexDirection='row' mx={"md"} alignItems='center' flexColumnGap={8} mb={"sm"}>
+			<TView flexDirection='row' mx={"md"} alignItems='center' flexColumnGap={8} mb={"sm"}>
 				<Icon name='school-outline' size={18} />
 				<TText>
 					Courses
 				</TText>
-			</TView> */}
+			</TView>
 
 			<For each={courses}>
 				{course => <CourseDisplay key={course.id} course={course} />}
@@ -87,11 +84,16 @@ const SchedulePoint: ReactComponent<{ color: Color, time: string, name: string, 
 };
 
 const CourseDisplay: ReactComponent<{ course: Document<Course> }> = ({ course }) => {
+	const assignments = useDocs(CollectionOf<Assignment>(`courses/${course.id}/assignments`));
+
 	return (
 		<TTouchableOpacity onPress={() => router.push(`/courses/${course.id}`)} radius={'md'} backgroundColor='base' mx={'md'} p={'md'} mb={"md"}>
-			<TText>
+			<TText size={'lg'}>
 				{course.data.name}
 			</TText>
+			<For each={assignments}>
+				{assignment => <AssignmentDisplay key={assignment.id} assignment={assignment} />}
+			</For>
 		</TTouchableOpacity>
 		// <TTouchableOpacity onPress={() => router.push(`/courses/${course.id}`)} radius={'md'} flexDirection='row' p={5} borderColor='overlay2' backgroundColor='surface0' mb={8} >
 		// 	<TView flexDirection='column'>
@@ -111,5 +113,18 @@ const CourseDisplay: ReactComponent<{ course: Document<Course> }> = ({ course })
 		// 		</TView>
 		// 	</TView>
 		// </TTouchableOpacity>
+	);
+};
+
+const AssignmentDisplay: ReactComponent<{ assignment: Document<Assignment> }> = ({ assignment }) => {
+	return (
+		<TView flexDirection='row' justifyContent='space-between'>
+			<TText>
+				{assignment.data.name}
+			</TText>
+			<TText color='subtext0'>
+				{Time.toDate(assignment.data.dueDate).toLocaleString()}
+			</TText>
+		</TView>
 	);
 };
