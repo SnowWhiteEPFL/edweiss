@@ -21,7 +21,7 @@ jest.mock('@/config/i18config', () => ({
     default: jest.fn((key: string) => key),
 }));
 
-// Sample model of todo to use during tests
+// Sample model of to do to use during tests
 const mockTodo: Todolist.Todo = {
     name: 'Test Todo',
     description: 'Test Description',

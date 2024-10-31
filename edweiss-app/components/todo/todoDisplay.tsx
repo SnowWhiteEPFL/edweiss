@@ -149,70 +149,25 @@ export const TodoDisplay: React.FC<{
                 {/* Background Archive Text */}
                 <BackgroundArchiveText todo={todo} />
 
-
                 {/* Front Card Display */}
-                <PanGestureHandler
-                    onGestureEvent={handlePanGestureEvent}
-                    onHandlerStateChange={onHandlerStateChange}
-                >
+                <PanGestureHandler onGestureEvent={handlePanGestureEvent} onHandlerStateChange={onHandlerStateChange}>
 
-
-                    {/* The Animated to do Card */}
-                    <Animated.View
-                        style={{
-                            transform: [{ translateX }],
-                            borderRadius: 20,
-                            backgroundColor: bgColor,
-                            margin: 13,
-                            overflow: 'hidden',
-                            zIndex: 100
-                        }}
-                    >
-                        <TTouchableOpacity
-                            b={'lg'}
-                            m='sm'
-                            p='lg'
-                            backgroundColor='base'
-                            borderColor='surface0'
-                            radius='lg'
-                        >
+                    {/* The Animated to do Card
+                         > on simple press display the todo infos in a modal
+                         > on long press edit the todo's properties
+                    */}
+                    <Animated.View style={{ transform: [{ translateX }], borderRadius: 20, backgroundColor: bgColor, margin: 13, overflow: 'hidden', zIndex: 100 }}>
+                        <TTouchableOpacity b={'lg'} m='sm' p='lg' backgroundColor='base' borderColor='surface0' radius='lg'>
                             <TView flexDirection='row' justifyContent='space-between'>
                                 <TView flex={1} mr='md'>
-                                    <TTouchableOpacity
-                                        // Display the modal on simple press
-                                        onPress={() => { setTodoToDisplay(todo); modalRef.current?.present(); }}
+                                    <TTouchableOpacity onPress={() => { setTodoToDisplay(todo); modalRef.current?.present(); }} onLongPress={() => { Vibration.vibrate(100); router.push({ pathname: "/(app)/todo/edit", params: { idString: id, todoJSON: JSON.stringify(todo) } }); }}>
 
-                                        // Navigate to edit screen on long press
-                                        onLongPress={() => {
-                                            Vibration.vibrate(100);
-                                            router.push({
-                                                pathname: "/(app)/todo/edit",
-                                                params: { idString: id, todoJSON: JSON.stringify(todo) }
-                                            });
-                                        }}
-                                    >
-
-                                        <TText color='text' bold numberOfLines={1} ellipsizeMode='tail'>
-                                            {todo.name}
-                                        </TText>
-
-                                        {todo.dueDate && (
-                                            <TText color='subtext0' size={'sm'} bold numberOfLines={1} ellipsizeMode='tail'>
-                                                {dateString}
-                                            </TText>
-                                        )}
-
-                                        <TText size='xs' color={statusColorMap[todo.status]} bold numberOfLines={1} ellipsizeMode='tail'>
-                                            {t(`todo:status.${todo.status}`)}
-                                        </TText>
-
-
+                                        <TText color='text' bold numberOfLines={1} ellipsizeMode='tail'> {todo.name} </TText>
+                                        {todo.dueDate && (<TText color='subtext0' size={'sm'} bold numberOfLines={1} ellipsizeMode='tail'>{dateString}</TText>)}
+                                        <TText size='xs' color={statusColorMap[todo.status]} bold numberOfLines={1} ellipsizeMode='tail'> {t(`todo:status.${todo.status}`)} </TText>
                                     </TTouchableOpacity>
                                 </TView>
-
                                 <TodoStatusDisplay id={id} todo={todo} status={todo.status}></TodoStatusDisplay>
-
-
                             </TView>
                         </TTouchableOpacity>
                     </Animated.View>
