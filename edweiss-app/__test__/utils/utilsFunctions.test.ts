@@ -1,6 +1,7 @@
 import { callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
 import Todolist from '@/model/todo';
+import { Timestamp } from '@react-native-firebase/firestore';
 import { cleanup } from '@testing-library/react-native';
 import Toast from 'react-native-toast-message';
 import { sameTodos, statusColorMap, statusIconMap, statusNextAction, statusNextMap, toogleArchivityOfTodo } from '../../utils/todo/utilsFunctions';
@@ -25,7 +26,7 @@ const mockTodo: Todolist.Todo = {
     name: 'Test Todo',
     description: 'Test Description',
     status: 'yet',
-    dueDate: '2024-12-31',
+    dueDate: new Timestamp(0, 0)
 };
 
 // Mock console.error before each test
@@ -85,7 +86,6 @@ describe('statusNextAction', () => {
 
 describe('toogleArchivityOfTodo', () => {
     test('should archive todo and show success toast on success', async () => {
-        const archivedTodo = { ...mockTodo, status: 'archived' };
         (callFunction as jest.Mock).mockResolvedValueOnce({ status: true });
 
         await toogleArchivityOfTodo('123', mockTodo);

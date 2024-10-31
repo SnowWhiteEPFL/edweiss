@@ -44,7 +44,7 @@ export const AbstractTodoEditor: React.FC<{
 } & LightDarkProps
 > = ({ editable = false, todo, id }) => {
 
-    const providedDate = editable && todo && todo.dueDate;
+    const providedDate = editable && todo?.dueDate;
 
     // Use states
     const [name, setName] = useState(editable ? todo!.name : "");
@@ -56,19 +56,25 @@ export const AbstractTodoEditor: React.FC<{
     const [showPickerDate, setShowPickerDate] = useState(false);
     const [showPickerTime, setShowPickerTime] = useState(false);
 
-    // Constants    
-    const downButtonTitle = (editable) ? t(`todo:edit_button`) : t(`todo:save_button`);
-    const downButtonIconName = (editable) ? "create" : "save";
-    const screenTitle = (editable) ? t(`todo:edit_header`) : t(`todo:create_header`);
-    const downButtonAction = (editable) ? editTodoAction : saveAction;
-
-
     // Toogle the save button only when valid
     const isInvalid = name === "";
 
+    // Constants for save state
+    let downButtonIconName: "create" | "save" = "save";
+    let downButtonTitle = t(`todo:save_button`);
+    let screenTitle = t(`todo:create_header`);
+    let downButtonAction = saveAction;
+
+    if (editable) {
+        downButtonIconName = "create";
+        downButtonTitle = t(`todo:edit_button`);
+        screenTitle = t(`todo:create_header`);
+        downButtonAction = saveAction;
+    }
+
+
 
     // On change date and time update event handlers
-
     const onChangeDate = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
             setDateChanged(true);

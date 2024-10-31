@@ -45,18 +45,27 @@ export const TodoDisplay: React.FC<{
 
     // Constants
     const date = (todo.dueDate) ? Time.toDate(todo.dueDate) : undefined;
-    const dateString = date ?
-        (Time.isToday(date) ? t('todo:today_status') :
-            Time.wasYesterday(date) ? t('todo:yesterday_status') :
-                Time.isTomorrow(date) ? t('todo:tomorrow_status') :
-                    date.toLocaleDateString()) : undefined;
+    let dateString: string | undefined;
+    if (date) {
+        if (Time.isToday(date)) {
+            dateString = t('todo:today_status');
+        } else if (Time.wasYesterday(date)) {
+            dateString = t('todo:yesterday_status');
+        } else if (Time.isTomorrow(date)) {
+            dateString = t('todo:tomorrow_status');
+        } else {
+            dateString = date.toLocaleDateString();
+        }
+    } else {
+        dateString = undefined;
+    }
 
     // Screen Properties
     const screenWidth = Dimensions.get('window').width;
     const router = useRouter();
     const threshold = screenWidth / 2.5;                            // Threshold for swipe gesture
     const edgeZoneWidth = screenWidth / 10;                         // Width of the edge zone where the swipe gesture starts
-    const bgColor = useThemeColor({ light, dark }, 'crust');        // Background color of the todo card
+    const bgColor = useThemeColor({ light, dark }, 'crust');        // Background color of the to do card
 
     // Animation Listeners            
     const translateX = useRef(new Animated.Value(0)).current;       // Animated value for horizontal movement
@@ -73,7 +82,7 @@ export const TodoDisplay: React.FC<{
 
     /**
      * Handle the end of the gesture to snap back 
-     * to toogle todo archivity status
+     * to toogle to do archivity status
      */
     const handleGestureEnd = (event: any) => {
         const { translationX } = event.nativeEvent;

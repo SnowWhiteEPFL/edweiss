@@ -72,8 +72,8 @@ describe('AssignmentDisplay', () => {
         // // Check if Toast was shown
         // expect(Toast.show).toHaveBeenCalledWith({
         //     type: 'success',
-        //     text1: 'course:toast_added_to_todo_text1',
-        //     text2: 'course:toast_added_to_todo_text2',
+        //     text1: 'course:toast_added_to_to_do_text1',
+        //     text2: 'course:toast_added_to_to_do_text2',
         // });
 
         // // Check if the console log was called with the correct message
@@ -166,7 +166,7 @@ describe('AssignmentDisplay', () => {
 
 //         const screen = render(<AssignmentDisplay item={assignement} index={0} backgroundColor='mantle' swipeBackgroundColor='clearGreen' defaultColor='darkNight' swipeableRefs={swipeableRefs} />);
 
-//         expect(screen.getByText(t(`course:add_to_todo`))).toBeTruthy();
+//         expect(screen.getByText(t(`course:add_to_to_do`))).toBeTruthy();
 //         expect(screen.getByText(assignement.name)).toBeTruthy();
 
 //         //fireEvent.press(screen.getByTestId("checkbox"));
