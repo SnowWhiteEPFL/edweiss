@@ -14,9 +14,6 @@ import { Course } from '@/model/school/courses';
 import { router } from 'expo-router';
 import React from 'react';
 
-
-
-
 const HomeTab = () => {
 	const auth = useAuth();
 	const courses = useDynamicDocs(CollectionOf<Course>("courses"))?.map(doc => ({
@@ -33,10 +30,14 @@ const HomeTab = () => {
 	const myCourseIds = my_courses.map(course => course.id);
 	const filteredCourses = courses.filter(course => myCourseIds.includes(course.id));
 
-
 	return (
 		<TView flex={1} p={16} backgroundColor='base'>
-			<Calendar courses={filteredCourses} />
+			<TTouchableOpacity radius={10} p={5}
+				style={{ marginVertical: 8, width: '100%', borderRadius: 10, borderWidth: 2, borderColor: 'pink' }}
+				onPress={() => router.push("/(app)/my_Calendar")}>
+				<TText align='center'>My Calendar</TText>
+			</TTouchableOpacity>
+			<Calendar courses={filteredCourses} type={'day'} />
 			<TScrollView flex={1} horizontal={false} showsVerticalScrollIndicator={true}>
 				<TText align='center'>List of courses</TText>
 				<For each={filteredCourses} key="id">

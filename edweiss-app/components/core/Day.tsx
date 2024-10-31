@@ -5,10 +5,9 @@ import TTouchableOpacity from './containers/TTouchableOpacity';
 import { PeriodBlock } from './PeriodBlock';
 
 const HOUR_BLOCK_HEIGHT = 80;
-const TOTAL_HOURS = 24;
 
-export const Day = ({ period, course, user, filteredPeriods, index }: {
-    period: CourseTimePeriod; course: { id: string; data: Course; }; user: any; filteredPeriods: any[]; index: number;
+export const Day = ({ period, course, user, filteredPeriods, index, format }: {
+    period: CourseTimePeriod; course: { id: string; data: Course; }; user: any; filteredPeriods: any[]; index: number; format: string;
 }) => {
     const periodHeight = period.end ? ((period.end - period.start) / 60) * HOUR_BLOCK_HEIGHT : HOUR_BLOCK_HEIGHT;
 
@@ -42,10 +41,10 @@ export const Day = ({ period, course, user, filteredPeriods, index }: {
             }}
             backgroundColor={courseColors[period.type as keyof typeof courseColors] as Color || 'base'}
             style={{
-                height: periodHeight
+                height: periodHeight,
             }}
         >
-            <PeriodBlock period={period} course={course} user={user} />
+            <PeriodBlock period={period} format={format} course={course} user={user} />
         </TTouchableOpacity>
     );
 };

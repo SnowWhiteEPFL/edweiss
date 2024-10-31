@@ -1,8 +1,13 @@
+import { callFunction } from '@/config/firebase';
 import { Course, CourseTimePeriod } from '@/model/school/courses';
 import { fireEvent, render } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import React from 'react';
 import { Day } from '../../components/core/Day';
+
+jest.mock('@/config/firebase', () => ({
+    callFunction: jest.fn(),
+}));
 
 jest.mock('expo-router', () => ({
     router: {
@@ -52,8 +57,7 @@ describe('Day Component', () => {
                 course={{ id: 'course1', data: mockCourse }}
                 user={mockUserProfessor}
                 filteredPeriods={[mockPeriod]}
-                index={0}
-            />
+                index={0} format={"day"} />
         );
 
         expect(getByText('Test Course')).toBeTruthy();
@@ -78,8 +82,7 @@ describe('Day Component', () => {
                 course={{ id: 'course1', data: mockCourse }}
                 user={mockUserStudent}
                 filteredPeriods={[mockPeriod]}
-                index={0}
-            />
+                index={0} format={"week"} />
         );
 
         expect(getByText('Test Course')).toBeTruthy();
@@ -106,9 +109,12 @@ describe('Day Component', () => {
                 course={{ id: 'course1', data: mockCourse }}
                 user={mockUserProfessor}
                 filteredPeriods={[periodWithoutEnd]}
-                index={0}
-            />
+                index={0} format={"day"} />
         );
         expect(getByText('Test Course')).toBeTruthy();
+        (callFunction as jest.Mock).mockRejectedValueOnce(new Error("Erreur de test"));
+
+
+
     });
 });
