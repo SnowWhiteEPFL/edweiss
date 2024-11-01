@@ -4,7 +4,7 @@ import formatTime from './formatTime';
 import TText from './TText';
 
 export const PeriodBlock = ({ period, course, user, format }: {
-    period: CourseTimePeriod; course: { id: string; data: Course; }; user: any; format: String;
+    period: CourseTimePeriod; course: { id: string; data: Course; }; user: any; format: string;
 }) => {
     const direction = format == 'week' ? 'column' : 'row';
     const size1 = format == 'week' ? 12 : 15;
