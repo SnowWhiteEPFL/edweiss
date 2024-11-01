@@ -67,10 +67,10 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
     const renderDay = (dayIndex: number) => (
         <TView key={dayIndex} flex={1} >
             {Array.from({ length: TOTAL_HOURS }).map((_, hour) => (
-                <TView key={hour} bb={1} bl={1} borderColor='pink' p={10} style={{
+                <TView key={hour} bb={1} bl={1} borderColor='pink' style={{
                     height: HOUR_BLOCK_HEIGHT,
                 }} flexDirection="row">
-                    <TView flexDirection="row" flex={1}>
+                    <TView flexDirection="row" flex={1} >
                         <For each={courses} key="id">
                             {course =>
                                 course.data.periods

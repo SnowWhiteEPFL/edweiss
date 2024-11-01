@@ -19,7 +19,7 @@ export const Day = ({ period, course, user, filteredPeriods, index, format }: {
             borderColor="overlay2"
             radius={10}
             b={2}
-            p={2}
+
             onPress={() => {
                 {
                     user.data.type == 'professor' && router.push({
