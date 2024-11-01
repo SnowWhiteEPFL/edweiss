@@ -67,11 +67,11 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
     const renderDay = (dayIndex: number) => (
         <TView key={dayIndex} flex={1} >
             {Array.from({ length: TOTAL_HOURS }).map((_, hour) => (
-                <TView key={hour} bb={1} bl={1} borderColor='pink' style={{
+                <TView bb={1} bl={1} borderColor='pink' style={{
                     height: HOUR_BLOCK_HEIGHT,
                 }} flexDirection="row">
                     <TView flexDirection="row" flex={1} >
-                        <For each={courses} key="id">
+                        <For each={courses}>
                             {course =>
                                 course.data.periods
                                     .filter(
@@ -79,7 +79,6 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
                                     )
                                     .map((period, index, filteredPeriods) => (
                                         <Day
-                                            key={index}
                                             period={period}
                                             course={course}
                                             user={user}
@@ -136,7 +135,7 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
                 <TView flexDirection="row">
                     <TView style={(format == 'week' && { width: '7%' }) || (format == 'day' && { width: '14%' })}>
                         {Array.from({ length: TOTAL_HOURS }).map((_, hour) => (
-                            <TView key={hour} alignItems='center' justifyContent='center' bt={1} bb={1} borderColor='yellow' style={{ height: HOUR_BLOCK_HEIGHT }}>
+                            <TView alignItems='center' justifyContent='center' bt={1} bb={1} borderColor='yellow' style={{ height: HOUR_BLOCK_HEIGHT }}>
                                 <TText color='text' size={12}>{`${hour}:00`}</TText>
                             </TView>
                         ))}
