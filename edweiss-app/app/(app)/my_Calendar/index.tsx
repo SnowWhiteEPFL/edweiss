@@ -1,4 +1,5 @@
 
+import { Calendar } from '@/components/core/calendar';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import { CollectionOf } from '@/config/firebase';
@@ -6,7 +7,6 @@ import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { Course } from '@/model/school/courses';
 import React from 'react';
-import { Calendar } from 'react-native-calendars';
 
 export const MyCalendar = () => {
 
