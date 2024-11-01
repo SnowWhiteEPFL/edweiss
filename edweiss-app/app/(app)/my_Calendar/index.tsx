@@ -7,7 +7,7 @@ import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { Course } from '@/model/school/courses';
 import React from 'react';
 
-const fetchCourses = (collectionPath: string) => {
+const useFetchCourses = (collectionPath: string) => {
   return useDynamicDocs(CollectionOf<Course>(collectionPath))?.map(doc => ({
     id: doc.id,
     data: doc.data
@@ -16,8 +16,8 @@ const fetchCourses = (collectionPath: string) => {
 
 export const MyCalendar = () => {
   const auth = useAuth();
-  const courses = fetchCourses("courses");
-  const my_courses = fetchCourses("users/" + (auth.authUser?.uid ?? 'default-uid') + "/courses");
+  const courses = useFetchCourses("courses");
+  const my_courses = useFetchCourses("users/" + (auth.authUser?.uid ?? 'default-uid') + "/courses");
 
   const myCourseIds = my_courses.map(course => course.id);
   const filteredCourses = courses.filter(course => myCourseIds.includes(course.id));
