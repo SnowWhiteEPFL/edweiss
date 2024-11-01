@@ -35,22 +35,25 @@ const RootLayout: ApplicationLayout = () => {
 	}, [theme]);
 
 	return (
-		<AuthSessionProvider>
-			<UserProvider>
-				<ThemeProvider value={ThemeObj}>
-					<GestureHandlerRootView style={{ flex: 1 }}>
-						<BottomSheetModalProvider>
-							<Stack>
-								<Stack.Screen name="(app)" options={{ headerShown: false }} />
-								<Stack.Screen name="login" options={{ headerShown: false }} />
-								<Stack.Screen name="+not-found" />
-							</Stack>
-							<Toast config={toastConfig} />
-						</BottomSheetModalProvider>
-					</GestureHandlerRootView>
-				</ThemeProvider>
-			</UserProvider>
-		</AuthSessionProvider>
+		<>
+			<AuthSessionProvider>
+				<UserProvider>
+					<ThemeProvider value={ThemeObj}>
+						<GestureHandlerRootView>
+							<BottomSheetModalProvider>
+								<Stack>
+									<Stack.Screen name="(app)" options={{ headerShown: false }} />
+									<Stack.Screen name="login" options={{ headerShown: false }} />
+									<Stack.Screen name="+not-found" />
+								</Stack>
+							</BottomSheetModalProvider>
+						</GestureHandlerRootView>
+					</ThemeProvider>
+				</UserProvider>
+			</AuthSessionProvider>
+
+			<Toast config={toastConfig} />
+		</>
 	);
 };
 

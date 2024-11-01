@@ -1,7 +1,20 @@
+/**
+ * @file todo.ts
+ * @description Module for managing todo items in the edweiss app
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import { FunctionFolder, FunctionOf } from './functions';
 import { Timestamp } from './time';
 
 
+// ------------------------------------------------------------
+// ---------------------  Todo Namespace  ---------------------
+// ------------------------------------------------------------
 namespace Todolist {
 
     export type TodoStatus = "yet" | "in_progress" | "done" | "archived";
