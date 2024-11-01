@@ -6,10 +6,13 @@ import React from 'react';
 
 
 
+jest.mock('@/components/core/calendar', () => ({
+    Calendar: jest.fn(() => <div>Mocked Calendar</div>),
+}));
+
 jest.mock('@/components/core/header/RouteHeader', () => () => {
     return <div>Mocked RouteHeader</div>;
 });
-
 const mockCourses = [
     {
         id: 'course1',
@@ -116,13 +119,12 @@ describe('my_Calendar', () => {
         (useAuth as jest.Mock).mockReturnValue({ authUser: mockUser });
 
         render(<MyCalendar />);
-
         expect(useAuth).toHaveBeenCalled();
         expect(useAuth().authUser).toEqual(mockUser);
     });
 
     it('should fetch user courses correctly', () => {
-        const mockUser = { uid: 'user-123' };
+        const mockUser = { uid: 'tPpkVzKlNhRbANSMdcit1cuPLYr1' };
         (useAuth as jest.Mock).mockReturnValue({ authUser: mockUser });
 
         (useDynamicDocs as jest.Mock)
@@ -139,5 +141,7 @@ describe('my_Calendar', () => {
         expect(useDynamicDocs).toHaveBeenCalledWith(
             expect.anything()
         );
+
+
     });
 });
