@@ -97,6 +97,16 @@ export function useDynamicDocs<Type extends DocumentData>(query: Query<Type>) {
 	return documents;
 }
 
+export function useDocsWithIds<Type extends DocumentData>(collection: Collection<Type>, ids: string[]) {
+	const [documents, setDocuments] = useState<Document<Type>[]>()
+
+	useEffect(() => {
+		Promise.all(ids.map(id => getDocument(collection, id))).then(setDocuments);
+	}, []);
+
+	return documents
+}
+
 export function useCachedDoc<Type extends DocumentData>(key: string, collection: Collection<Type>, id: string) {
 	const [document, setDocument] = useStoredState<Document<Type> | undefined>(`${key}@${id}`, undefined);
 
