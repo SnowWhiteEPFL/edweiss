@@ -1,11 +1,12 @@
 import CardListScreen from '@/app/(app)/deck/[id]';
+import CreateCardScreen from '@/app/(app)/deck/[id]/card/creation';
 import TestYourMightScreen from '@/app/(app)/deck/[id]/playingCards';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import { callFunction } from '@/config/firebase';
 import Memento from '@/model/memento';
 import { handleCardPress, handlePress, sortingCards } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { fireEvent, render } from '@testing-library/react-native';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import React from 'react';
 import { Button } from 'react-native';
@@ -52,7 +53,8 @@ jest.mock('expo-router', () => ({
             </>  // Render the right prop directly for testing
         )),
     },
-    useLocalSearchParams: jest.fn(() => ({ id: '1' })),
+    useLocalSearchParams: jest.fn(),
+    //useLocalSearchParams: jest.fn(() => ({ id: '1' })),
 }));
 
 jest.mock('@gorhom/bottom-sheet', () => ({
@@ -66,8 +68,18 @@ jest.mock('@gorhom/bottom-sheet', () => ({
 }));
 
 describe('CardListScreen', () => {
-    beforeEach(() => {
+    /*beforeEach(() => {
         jest.clearAllMocks(); // Clear previous mocks before each test
+    });*/
+
+    beforeEach(() => {
+        // Set up `useLocalSearchParams` for tests needing only `id`
+        const useLocalSearchParams = require('expo-router').useLocalSearchParams;
+        useLocalSearchParams.mockReturnValue({ id: '1' });
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks(); // Clear mocks after each test
     });
 
     it('renders without crashing', () => {
@@ -347,3 +359,125 @@ describe('TestYourMightScreen', () => {
         }
     });
 });
+
+describe('CreateCardScreen', () => {
+    afterAll(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should render correctly', () => {
+        const { getByText, getByTestId } = render(<CreateCardScreen />);
+        expect(getByText('Question')).toBeTruthy();
+        expect(getByText('Answer')).toBeTruthy();
+        expect(getByTestId('createCardButton')).toBeTruthy();
+    });
+
+    it('should not create a card when the fields are not filled', async () => {
+        const { getByTestId } = render(<CreateCardScreen />);
+        const createButton = getByTestId('createCardButton');
+
+        fireEvent.press(createButton);
+        expect(router.back).not.toHaveBeenCalled();
+    });
+
+    it('should create a card when the fields are filled', async () => {
+
+        const { getByTestId, getByText } = render(<CreateCardScreen />);
+
+        // Mock successful response for creating a card
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: 1, data: { id: '1' } });
+
+        fireEvent.changeText(getByText('Question'), 'Test Question');
+        fireEvent.changeText(getByText('Answer'), 'Test Answer');
+
+        const createButton = getByTestId('createCardButton');
+
+        fireEvent.press(createButton);
+        await waitFor(() => {
+            expect(callFunction).toHaveBeenCalledWith(Memento.Functions.createCard, {
+                deckId: undefined,
+                card: {
+                    question: 'Test Question',
+                    answer: 'Test Answer',
+                    learning_status: 'Not yet',
+                } // Ensure callFunction was called with correct arguments
+            });
+        });
+
+        expect(router.back).toHaveBeenCalled();
+    });
+
+    it('should not create a card when there is a duplicate question', async () => {
+        const { getByTestId, getByText } = render(<CreateCardScreen />);
+
+        // Mock a duplicate question
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: 0 });
+
+        fireEvent.changeText(getByText('Question'), 'Question 1');
+        fireEvent.changeText(getByText('Answer'), 'Answer 1');
+
+        const createButton = getByTestId('createCardButton');
+
+        fireEvent.press(createButton);
+
+        await waitFor(() => {
+            expect(callFunction).toHaveBeenCalled();
+            expect(getByText('Question already exists')).toBeTruthy();
+        });
+    });
+});
+/*
+describe('EditCardScreen', () => {
+    beforeEach(() => {
+        const useLocalSearchParams = require('expo-router').useLocalSearchParams;
+        useLocalSearchParams.mockReturnValue({
+            deckId: '1',
+            prev_question: 'Question 1',
+            prev_answer: 'Answer 1',
+            cardIndex: '0'
+        });
+    });
+
+
+    it('should render correctly', () => {
+        const { getByText, getByTestId } = render(<EditCardScreen />);
+        expect(getByText('Question')).toBeTruthy();
+        expect(getByText('Answer')).toBeTruthy();
+        expect(getByTestId('updateCardButton')).toBeTruthy();
+    });
+
+    it('should display the correct previous question and answer', () => {
+        const { getByDisplayValue } = render(<EditCardScreen />);
+        expect(getByDisplayValue('Question 1')).toBeTruthy();
+        expect(getByDisplayValue('Answer 1')).toBeTruthy();
+    });
+
+    it('should update a card when the fields are filled', async () => {
+
+        const { getByTestId, getByDisplayValue } = render(<EditCardScreen />);
+        const updateButton = getByTestId('updateCardButton');
+
+        fireEvent.changeText(getByDisplayValue('Question 1'), 'Test Question');
+        fireEvent.changeText(getByDisplayValue('Answer 1'), 'Test Answer');
+
+        expect(getByDisplayValue('Test Question')).toBeTruthy();
+
+        // Mock successful response for creating a card
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: 1 });
+
+        fireEvent.press(updateButton);
+
+        await waitFor(() => {
+            expect(callFunction).toHaveBeenCalledWith(Memento.Functions.updateCard, {
+                deckId: '1',
+                newCard: {
+                    question: 'Test Question',
+                    answer: 'Test Answer',
+                    learning_status: 'Got it',
+                },
+                cardIndex: 0
+            });
+        });
+
+    });
+});*/
