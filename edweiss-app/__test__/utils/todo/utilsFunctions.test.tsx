@@ -1,7 +1,7 @@
 import { callFunction } from '@/config/firebase';
 import Todolist from '@/model/todo';
 import Toast from 'react-native-toast-message';
-import { sameTodos, statusColorMap, statusIconMap, statusNextAction, statusNextMap, toogleArchivityOfTodo } from '../../utils/todo/utilsFunctions';
+import { sameTodos, statusColorMap, statusIconMap, statusNextAction, statusNextMap, toogleArchivityOfTodo } from '../../../utils/todo/utilsFunctions';
 
 jest.mock('@/config/i18config', () => ({
     __esModule: true,
