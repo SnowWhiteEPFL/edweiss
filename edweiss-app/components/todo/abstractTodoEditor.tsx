@@ -225,10 +225,10 @@ export const AbstractTodoEditor: React.FC<{
                         <TTouchableOpacity onPress={() => setShowPickerDate(true)}
 
                             pr={'sm'} pl={'md'} pb={'sm'}
-                            flexDirection='row' justifyContent='flex-start' alignItems='center'>
+                            flexDirection='row' justifyContent='flex-start' alignItems='center' testID='date-button'>
 
                             <Icon name='calendar' size='md' color='overlay0' />
-                            <TText ml={14} color={dateChanged || providedDate ? 'text' : 'overlay0'}>{date.toDateString()}</TText>
+                            <TText ml={14} color={dateChanged || providedDate ? 'text' : 'overlay0'} testID='date-holder'>{date.toDateString()}</TText>
                         </TTouchableOpacity>
                     </TView>
 
@@ -252,7 +252,7 @@ export const AbstractTodoEditor: React.FC<{
 
                 {showPickerDate && (
                     <DateTimePicker
-                        testID="dateTimePicker"
+                        testID="dateTimePicker1"
                         value={date}
                         mode='date'
                         is24Hour={true}
@@ -269,7 +269,7 @@ export const AbstractTodoEditor: React.FC<{
 
                 {showPickerTime && (
                     <DateTimePicker
-                        testID="dateTimePicker"
+                        testID="dateTimePicker2"
                         value={date}
                         mode='time'
                         is24Hour={true}
