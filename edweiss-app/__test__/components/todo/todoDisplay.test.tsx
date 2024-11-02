@@ -1,8 +1,8 @@
-import { TodoDisplay } from '@/components/todo/todoDisplay';
+import { StatusChanger, TodoDisplay, TodoStatusDisplay } from '@/components/todo/todoDisplay';
 import t from '@/config/i18config';
 import { default as Todolist } from '@/model/todo';
 import { Time } from '@/utils/time';
-import { toogleArchivityOfTodo } from '@/utils/todo/utilsFunctions';
+import { statusNextAction, toogleArchivityOfTodo } from '@/utils/todo/utilsFunctions';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { fireEvent, render } from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
@@ -233,22 +233,6 @@ describe('TodoDisplay', () => {
 });
 
 
-jest.mock('@/utils/todo/utilsFunctions', () => ({
-    toogleArchivityOfTodo: jest.fn(),
-    statusColorMap: {
-        yet: 'gray',
-        in_progress: 'blue',
-        done: 'green',
-        archived: 'red',
-    },
-    statusIconMap: {
-        yet: 'arrow-forward',
-        in_progress: 'spinner',
-        done: 'checkmark',
-        archived: 'archive',
-    },
-}));
-
 describe('TodoDisplay gesture handling', () => {
     const todo: Todolist.Todo = {
         name: 'Test Todo',
@@ -390,5 +374,37 @@ describe('TodoDisplay gesture handling', () => {
 
         // Expect no translateX update
         expect(setValueSpy).not.toHaveBeenCalled();
+    });
+});
+
+describe('TodoStatusDisplay', () => {
+    const id = '1';
+    const todo: Todolist.Todo = { name: 'Test Todo', status: 'yet' };
+
+    it('calls statusNextAction on press', () => {
+        const { getByTestId } = render(
+            <TodoStatusDisplay id={id} todo={todo} status="yet" />
+        );
+
+        const touchable = getByTestId('status-touchable');
+        fireEvent.press(touchable);
+
+        expect(statusNextAction).toHaveBeenCalledWith(id, todo);
+    });
+});
+
+
+describe('StatusChanger', () => {
+    const setStatusMock = jest.fn();
+
+    it('calls setStatus with next status on press', () => {
+        const { getByTestId } = render(
+            <StatusChanger status="yet" setStatus={setStatusMock} />
+        );
+
+        const button = getByTestId('fancy-button'); // Add a `testID="fancy-button"` to FancyButton
+        fireEvent.press(button);
+
+        expect(setStatusMock).toHaveBeenCalledWith('in_progress'); // Checks next status from statusNextMap
     });
 });

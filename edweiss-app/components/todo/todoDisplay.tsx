@@ -221,15 +221,15 @@ const BackgroundArchiveText: React.FC<{ todo: Todo; }> = ({ todo }) => {
 export const TodoStatusDisplay: ReactComponent<{ id: string, todo: Todo, status: TodoStatus; }> = ({ id, todo, status }) => {
 
     return <>
-        <TTouchableOpacity activeOpacity={0.2} onPress={() => { statusNextAction(id, todo); }} backgroundColor={'transparent'} borderColor='overlay0' b={'md'} radius={'xl'} pl={'md'} pr={'md'} pt={'md'} pb={'md'}>
-            <Icon name={statusIconMap[status]} color={statusColorMap[status]} size={'xl'}></Icon>
+        <TTouchableOpacity activeOpacity={0.2} onPress={() => { statusNextAction(id, todo); }} backgroundColor={'transparent'} borderColor='overlay0' b={'md'} radius={'xl'} pl={'md'} pr={'md'} pt={'md'} pb={'md'} testID="status-touchable">
+            <Icon name={statusIconMap[status]} color={statusColorMap[status]} size={'xl'} testID="icon"></Icon>
         </TTouchableOpacity >
     </>;
 };
 
 export const StatusChanger: ReactComponent<{ status: TodoStatus, setStatus: Dispatch<SetStateAction<TodoStatus>>; }> = ({ status, setStatus }) => {
     return <>
-        <FancyButton onPress={() => setStatus(statusNextMap[status])} icon={statusIconMap[status]} m={'md'} backgroundColor={'text'} outlined>
+        <FancyButton onPress={() => setStatus(statusNextMap[status])} icon={statusIconMap[status]} m={'md'} backgroundColor={'text'} outlined testID='fancy-button'>
             {t(`todo:status.${status}`)}
         </FancyButton>
 
