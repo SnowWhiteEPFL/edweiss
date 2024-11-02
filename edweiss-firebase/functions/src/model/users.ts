@@ -16,9 +16,7 @@ interface AppUserBase {
 	type: AppUserType;
 	name: string;
 	createdAt: Timestamp;
-
 	fcmTokens?: FCMToken[];
-
 }
 
 export interface StudentUser extends AppUserBase {

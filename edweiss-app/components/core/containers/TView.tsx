@@ -9,6 +9,8 @@ export type TViewProps = ViewProps & ContainerProps;
 const TView: ReactComponent<TViewProps> = ({ backgroundColor, borderColor, style, ...props }) => {
 	const computedBackgroundColor = useOptionalThemeColor({ light: props.light, dark: props.dark }, backgroundColor);
 	const computedBorderColor = useOptionalColor(borderColor);
+	// const computedBackgroundColor = backgroundColor;
+	// const computedBorderColor = borderColor;
 
 	return <View
 		style={
