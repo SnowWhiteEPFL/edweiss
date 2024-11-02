@@ -2,10 +2,14 @@ import { TodoDisplay } from '@/components/todo/todoDisplay';
 import t from '@/config/i18config';
 import { default as Todolist } from '@/model/todo';
 import { Time } from '@/utils/time';
+import { toogleArchivityOfTodo } from '@/utils/todo/utilsFunctions';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { fireEvent, render } from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
 import React from 'react';
+import { Animated } from 'react-native';
+import { State } from 'react-native-gesture-handler';
+
 
 // Mocks
 jest.mock('@/utils/time', () => ({
@@ -55,7 +59,7 @@ jest.mock('../../../utils/todo/utilsFunctions', () => ({
     statusNextMap: {
         yet: 'in_progress',
         in_progress: 'done',
-        done: 'archived',
+        done: 'yet',
         archived: 'yet',
     },
 }));
@@ -225,5 +229,166 @@ describe('TodoDisplay', () => {
         );
 
         expect(getByText('10/29/2021')).toBeTruthy();
+    });
+});
+
+
+jest.mock('@/utils/todo/utilsFunctions', () => ({
+    toogleArchivityOfTodo: jest.fn(),
+    statusColorMap: {
+        yet: 'gray',
+        in_progress: 'blue',
+        done: 'green',
+        archived: 'red',
+    },
+    statusIconMap: {
+        yet: 'arrow-forward',
+        in_progress: 'spinner',
+        done: 'checkmark',
+        archived: 'archive',
+    },
+}));
+
+describe('TodoDisplay gesture handling', () => {
+    const todo: Todolist.Todo = {
+        name: 'Test Todo',
+        status: 'yet',
+        dueDate: undefined,
+    };
+    const setTodoToDisplay = jest.fn();
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('do not calls toogleArchivityOfTodo on swipe smaller threshold', () => {
+        const { getByTestId } = render(
+            <TodoDisplay
+                key="1"
+                id="1"
+                todo={todo}
+                setTodoToDisplay={setTodoToDisplay}
+                modalRef={modalRef}
+                light="light"
+                dark="dark"
+            />
+        );
+
+        const swipeArea = getByTestId('todo-swipe-area');
+
+        // Simulate swipe past the threshold
+        fireEvent(swipeArea, 'onGestureEvent', { nativeEvent: { translationX: 100 } });
+        fireEvent(swipeArea, 'onHandlerStateChange', { nativeEvent: { state: State.END, translationX: 100 } });
+
+        // Confirm toggle archive was not called
+        expect(toogleArchivityOfTodo).not.toHaveBeenCalledWith(
+            "1",
+            expect.objectContaining({
+                name: 'Test Todo',
+                status: 'yet',
+                dueDate: undefined,
+            })
+        );
+
+    });
+
+    it('snaps back to original position on swipe below threshold', () => {
+        const { getByTestId } = render(
+            <TodoDisplay
+                key="1"
+                id="1"
+                todo={todo}
+                setTodoToDisplay={setTodoToDisplay}
+                modalRef={modalRef}
+                light="light"
+                dark="dark"
+            />
+        );
+
+        const swipeArea = getByTestId('todo-swipe-area');
+        const animatedTimingSpy = jest.spyOn(Animated, 'timing');
+        const animatedSpringSpy = jest.spyOn(Animated, 'spring');
+
+        // Simulate a small swipe (below threshold)
+        fireEvent(swipeArea, 'onGestureEvent', { nativeEvent: { translationX: 100 } });
+        fireEvent(swipeArea, 'onHandlerStateChange', { nativeEvent: { state: State.END, translationX: 100 } });
+
+        // Confirm snap-back animation (spring) is triggered instead of timing
+        expect(animatedSpringSpy).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({ toValue: 0 }));
+        expect(animatedTimingSpy).not.toHaveBeenCalled();
+    });
+
+    it('records starting position when gesture begins', () => {
+        const { getByTestId } = render(
+            <TodoDisplay
+                key="1"
+                id="1"
+                todo={todo}
+                setTodoToDisplay={setTodoToDisplay}
+                modalRef={modalRef}
+                light="light"
+                dark="dark"
+            />
+        );
+
+        const swipeArea = getByTestId('todo-swipe-area');
+
+        // Simulate gesture start
+        fireEvent(swipeArea, 'onHandlerStateChange', {
+            nativeEvent: {
+                state: State.BEGAN,
+                x: 50,
+                y: 100,
+            },
+        });
+
+    });
+
+    it('updates translateX for horizontal swipes in edge swipe zone', () => {
+        const { getByTestId } = render(
+            <TodoDisplay
+                key="1"
+                id="1"
+                todo={todo}
+                setTodoToDisplay={setTodoToDisplay}
+                modalRef={modalRef}
+                light="light"
+                dark="dark"
+            />
+        );
+
+        const swipeArea = getByTestId('todo-swipe-area');
+        const setValueSpy = jest.spyOn(Animated.Value.prototype, 'setValue');
+
+        // Simulate gesture in active state with more horizontal movement
+        fireEvent(swipeArea, 'onHandlerStateChange', { nativeEvent: { state: State.BEGAN, x: 20 } });
+        fireEvent(swipeArea, 'onHandlerStateChange', { nativeEvent: { state: State.ACTIVE, translationX: 50, translationY: 10 } });
+
+        // Check that translateX was updated since swipe is horizontal and within edge zone
+        expect(setValueSpy).toHaveBeenCalledWith(50);
+    });
+
+    it('does not update translateX for vertical swipes', () => {
+        const { getByTestId } = render(
+            <TodoDisplay
+                key="1"
+                id="1"
+                todo={todo}
+                setTodoToDisplay={setTodoToDisplay}
+                modalRef={modalRef}
+                light="light"
+                dark="dark"
+            />
+        );
+
+        const swipeArea = getByTestId('todo-swipe-area');
+        const setValueSpy = jest.spyOn(Animated.Value.prototype, 'setValue');
+
+        // Simulate vertical gesture that shouldn't trigger horizontal movement
+        fireEvent(swipeArea, 'onHandlerStateChange', { nativeEvent: { state: State.BEGAN, x: 20 } });
+        fireEvent(swipeArea, 'onHandlerStateChange', { nativeEvent: { state: State.ACTIVE, translationX: 10, translationY: 50 } });
+
+        // Expect no translateX update
+        expect(setValueSpy).not.toHaveBeenCalled();
     });
 });

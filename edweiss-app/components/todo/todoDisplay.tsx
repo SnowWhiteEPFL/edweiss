@@ -150,7 +150,7 @@ export const TodoDisplay: React.FC<{
                 <BackgroundArchiveText todo={todo} />
 
                 {/* Front Card Display */}
-                <PanGestureHandler onGestureEvent={handlePanGestureEvent} onHandlerStateChange={onHandlerStateChange}>
+                <PanGestureHandler onGestureEvent={handlePanGestureEvent} onHandlerStateChange={onHandlerStateChange} testID="todo-swipe-area">
 
                     {/* The Animated to do Card
                          > on simple press display the todo infos in a modal
