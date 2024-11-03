@@ -402,7 +402,7 @@ describe('StatusChanger', () => {
             <StatusChanger status="yet" setStatus={setStatusMock} />
         );
 
-        const button = getByTestId('fancy-button'); // Add a `testID="fancy-button"` to FancyButton
+        const button = getByTestId('fancy-button-status-changer');
         fireEvent.press(button);
 
         expect(setStatusMock).toHaveBeenCalledWith('in_progress'); // Checks next status from statusNextMap

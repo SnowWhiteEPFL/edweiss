@@ -1,87 +1,8 @@
-// import { AbstractTodoEditor } from '@/components/todo/abstractTodoEditor';
-// import { callFunction } from '@/config/firebase';
-// import { default as TodoList } from '@/model/todo';
-// import { fireEvent, render } from '@testing-library/react-native';
-// import React from 'react';
-
-// jest.mock('@/config/firebase', () => ({
-//     callFunction: jest.fn(),
-// }));
-
-// jest.mock('@react-native-firebase/firestore', () => {
-//     return {
-//         Timestamp: jest.fn(),
-//         // Add any other firestore methods you use in your code
-//     };
-// });
-// jest.mock('react-native-toast-message', () => ({
-//     show: jest.fn(),
-// }));
-
-// jest.mock('@/config/i18config', () => ({
-//     __esModule: true, // This ensures it's treated as a module with a default export
-//     default: jest.fn((key: string) => key), // Mock `t` to return the key as the translation
-// }));
-
-// jest.mock('expo-router', () => ({
-//     useRouter: jest.fn(), // Mock useRouter
-// }));
-
-// // Mock expo-router Stack and Screen
-// jest.mock('expo-router', () => ({
-//     router: { push: jest.fn() },
-//     Stack: {
-//         Screen: jest.fn(({ options }) => (
-//             <>{options.title}</> // Simulate rendering the title for the test
-//         )),
-//     },
-// }));
-
-// describe('AbstractTodoEditor', () => {
-//     beforeEach(() => {
-//         jest.clearAllMocks();
-//     });
-
-//     it('renders correctly in create mode', () => {
-//         const { getByPlaceholderText } = render(<AbstractTodoEditor />);
-//         expect(getByPlaceholderText('todo:name_placeholder')).toBeTruthy();
-//     });
-
-//     it('renders correctly in edit mode', () => {
-//         const todo: TodoList.Todo = {
-//             name: 'Test Todo',
-//             description: 'Test Description',
-//             status: 'in_progress',
-//             dueDate: undefined,
-//         };
-
-//         const { getByDisplayValue } = render(<AbstractTodoEditor editable={true} todo={todo} />);
-//         expect(getByDisplayValue('Test Todo')).toBeTruthy();
-//         expect(getByDisplayValue('Test Description')).toBeTruthy();
-//     });
-
-//     it('calls createTodo on save', async () => {
-//         (callFunction as jest.Mock).mockResolvedValue({ status: true });
-
-//         const { getByPlaceholderText, getByText } = render(<AbstractTodoEditor />);
-
-//         fireEvent.changeText(getByPlaceholderText('todo:name_placeholder'), 'New Todo');
-//         fireEvent.press(getByText('todo:save_button'));
-
-//         expect(callFunction).toHaveBeenCalledWith(
-//             expect.anything(),
-//             expect.objectContaining({
-//                 name: 'New Todo',
-//             })
-//         );
-//     });
-
-// });
-
 import { AbstractTodoEditor } from '@/components/todo/abstractTodoEditor';
 import { callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
 import { default as TodoList } from '@/model/todo';
+import { statusNextMap } from '@/utils/todo/utilsFunctions';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import React from 'react';
 import Toast from 'react-native-toast-message';
@@ -118,22 +39,8 @@ jest.mock('expo-router', () => ({
     },
 }));
 
-
-// Mocking DateTimePicker
-jest.mock('@react-native-community/datetimepicker', () => {
-    const React = require('react');
-    return {
-        DateTimePicker: ({ onChange }: { onChange: (event: any, date?: Date) => void; }) => {
-            React.useEffect(() => {
-                const mockDate = new Date(2024, 11, 1); // Simulated date/time change (can customize)
-                onChange({ type: 'set' }, mockDate);
-            }, [onChange]);
-            return null; // No UI is rendered for the mock
-        },
-    };
-});
-
 describe('AbstractTodoEditor', () => {
+
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -195,11 +102,12 @@ describe('AbstractTodoEditor', () => {
 
         expect(callFunction).toHaveBeenCalledWith(
             expect.objectContaining({
-                exportedName: 'todolist_createTodo',
-                originalName: 'createTodo',
-                path: 'todolist/createTodo',
+                exportedName: 'todolist_updateTodo',
+                originalName: 'updateTodo',
+                path: 'todolist/updateTodo',
             }),
             expect.objectContaining({
+                id: '1',
                 name: 'Updated Todo',
                 description: 'Existing Description',
                 status: 'in_progress',
@@ -207,6 +115,70 @@ describe('AbstractTodoEditor', () => {
             })
         );
     });
+
+    it('toogle the todo status and update on save when in edit mode', async () => {
+        (callFunction as jest.Mock).mockResolvedValue({ status: true });
+
+        const todo: TodoList.Todo = {
+            name: 'Existing Todo',
+            description: 'Existing Description',
+            status: 'yet',
+            dueDate: undefined,
+        };
+
+        const { getByTestId, getByText } = render(<AbstractTodoEditor editable={true} todo={todo} id="1" />);
+
+        fireEvent.press(getByTestId('fancy-button-status-changer'));
+        fireEvent.press(getByText('todo:edit_button'));
+
+        expect(callFunction).toHaveBeenCalledWith(
+            expect.objectContaining({
+                exportedName: 'todolist_updateTodo',
+                originalName: 'updateTodo',
+                path: 'todolist/updateTodo',
+            }),
+            expect.objectContaining({
+                id: '1',
+                name: 'Existing Todo',
+                description: 'Existing Description',
+                status: statusNextMap[todo.status],
+                dueDate: undefined,
+            })
+        );
+    });
+
+    it('change the description update on save when in edit mode', async () => {
+        (callFunction as jest.Mock).mockResolvedValue({ status: true });
+
+        const todo: TodoList.Todo = {
+            name: 'Existing Todo',
+            description: 'Existing Description',
+            status: 'yet',
+            dueDate: undefined,
+        };
+
+        const { getByPlaceholderText, getByText } = render(<AbstractTodoEditor editable={true} todo={todo} id="1" />);
+
+        fireEvent.changeText(getByPlaceholderText('todo:description_placeholder'), 'New Description');
+        fireEvent.press(getByText('todo:edit_button'));
+
+        expect(callFunction).toHaveBeenCalledWith(
+            expect.objectContaining({
+                exportedName: 'todolist_updateTodo',
+                originalName: 'updateTodo',
+                path: 'todolist/updateTodo',
+            }),
+            expect.objectContaining({
+                id: '1',
+                name: 'Existing Todo',
+                description: 'New Description',
+                status: 'yet',
+                dueDate: undefined,
+            })
+        );
+    });
+
+
 
     it('show sucess on correctly added todo', async () => {
         (callFunction as jest.Mock).mockResolvedValue({ status: true });
@@ -297,83 +269,106 @@ describe('AbstractTodoEditor', () => {
             text2: t('todo:couldnot_delete_toast'),
         }));
     });
+});
 
 
 
-    // CHANGE THE TODO STATUS HERE  
+jest.mock('@/config/firebase', () => ({
+    callFunction: jest.fn(),
+}));
 
+// Mocking the DateTimePicker component
+jest.mock('@react-native-community/datetimepicker', () => ({
+    __esModule: true,
+    default: ({ onChange }: any) => {
+        return onChange(
+            { type: 'set' }, // Simulate a "set" event for confirming selection
+            new Date(2012, 3, 4, 12, 34, 56) // Mocked selected date and time
+        );
+    },
+}));
 
-    // DATE TIME PICKER STUFFS
+describe('AbstractTodoEditor DateTimePicker and API error handling', () => {
+    const defaultDate = new Date(2012, 3, 4, 12, 34, 56);
 
-    it('updates dueDate correctly when date picker is used', async () => {
-        const todo: TodoList.Todo = {
-            name: 'Todo with Date',
-            description: 'This todo has a due date',
-            status: 'yet',
-            dueDate: undefined, // Initial dueDate is undefined
-        };
+    it('should open date picker and set selected date', async () => {
+        const { getByTestId } = render(<AbstractTodoEditor />);
 
-        const { getByText, getByTestId } = render(<AbstractTodoEditor editable={true} todo={todo} />);
+        // Find and press the date button to open DatePicker
+        fireEvent.press(getByTestId('date-button'));
 
-        // Assuming you have a test ID for the date holder
-        expect(getByTestId('date-holder').props.children).toBe(new Date().toDateString());
-
-        // Grab the TTouchableOpacity that opens the date picker
-        const dateButton = getByTestId('date-button'); // Assuming this is the test ID for the touchable opacity
-        fireEvent.press(dateButton);
-
-        // Verify that dueDate is updated
-        await waitFor(() => {
-            // Assuming the date holder is updated with the new date
-            expect(getByTestId('date-holder').props.children).toBe(new Date(2024, 11, 1).toDateString());
-        });
+        // Check that DateTimePicker has been triggered and set the date
+        expect(getByTestId('date-holder').props.children).toBe(defaultDate.toDateString());
     });
 
+    it('should open time picker and set selected time', async () => {
+        const { getByTestId } = render(<AbstractTodoEditor />);
 
-    // it('updates date correctly when date picker is used', async () => {
-    //     const todo: TodoList.Todo = {
-    //         name: 'Todo with Date',
-    //         description: 'This todo has a due date',
-    //         status: 'yet',
-    //         dueDate: undefined,
-    //     };
+        // Find and press the time button to open TimePicker
+        fireEvent.press(getByTestId('time-button'));
 
-    //     const { getByText } = render(<AbstractTodoEditor editable={true} todo={todo} />);
-
-    //     fireEvent.press(getByText('todo:date_btn_title'));
-    //     // Simulate a date change here (you might need to customize how the DateTimePicker handles changes)
-    //     const mockDate = new Date(2023, 0, 1); // Example date
-    //     const datePicker = require('@react-native-community/datetimepicker').DateTimePicker;
-    //     datePicker({ onChange: jest.fn() }).props.onChange(null, mockDate);
-
-    //     await waitFor(() => {
-    //         // Check that the due date has been updated in the editor
-    //         expect(todo.dueDate).not.toBeUndefined();
-    //         expect(todo.dueDate).toBeInstanceOf(Date);
-    //         expect(todo.dueDate).toEqual(mockDate);
-    //     });
-    //     await waitFor(() => {
-    //         // Check that the due date has been updated in the editor
-    //         expect(todo.dueDate).not.toBeUndefined();
-    //         expect(todo.dueDate).toBeInstanceOf(Date);
-    //     });
-    // });
-
-    // it('updates time correctly when time picker is used', async () => {
-    //     const todo: TodoList.Todo = {
-    //         name: 'Todo with Time',
-    //         description: 'This todo has a due time',
-    //         status: 'yet',
-    //         dueDate: undefined,
-    //     };
-
-    //     const { getByText } = render(<AbstractTodoEditor editable={true} todo={todo} />);
-
-    //     fireEvent.press(getByText('todo:time_btn_title'));
-    //     // Simulate a time change here (you might need to customize how the DateTimePicker handles changes)
-    //     await waitFor(() => {
-    //         // Check that the due time has been updated in the editor
-    //         expect(getByText('Expected Time Display Text')).toBeTruthy(); // Replace with your actual expected text
-    //     });
-    // });
+        // Check that DateTimePicker has been triggered and set the time
+        const expectedTime = defaultDate.toTimeString().split(':').slice(0, 2).join(':');
+        expect(getByTestId('time-holder').props.children).toBe(expectedTime);
+    });
 });
+
+it('shows error toast when editTodoAction fails due to missing id', async () => {
+    const todo: TodoList.Todo = {
+        name: 'Todo to Edit',
+        description: 'This todo will be edited',
+        status: 'yet'
+    };
+
+    const { getByPlaceholderText, getByText } = render(<AbstractTodoEditor editable={true} todo={todo} />);
+
+    fireEvent.changeText(getByPlaceholderText('todo:name_placeholder'), 'New Title');
+    fireEvent.press(getByText('todo:edit_button'));
+
+    await waitFor(() => expect(Toast.show).toHaveBeenCalledWith({
+        type: 'error',
+        text1: t(`todo:error_toast_title`),
+        text2: t(`todo:couldnot_delete_toast`)
+    }));
+});
+
+it('shows error toast when editTodoAction fails due to API error', async () => {
+    (callFunction as jest.Mock).mockResolvedValue({ status: false });
+    const todo: TodoList.Todo = {
+        name: 'Todo to Edit',
+        description: 'This todo will be edited',
+        status: 'yet'
+    };
+
+    const { getByPlaceholderText, getByText } = render(<AbstractTodoEditor editable={true} todo={todo} id="1" />);
+
+    fireEvent.changeText(getByPlaceholderText('todo:name_placeholder'), 'New Title');
+    fireEvent.press(getByText('todo:edit_button'));
+
+    await waitFor(() => expect(Toast.show).toHaveBeenCalledWith({
+        type: 'error',
+        text1: t(`todo:error_toast_title`),
+        text2: t(`todo:couldnot_edit_toast`)
+    }));
+});
+
+it('shows success toast when editTodoAction succeeds', async () => {
+    (callFunction as jest.Mock).mockResolvedValue({ status: true });
+    const todo: TodoList.Todo = {
+        name: 'Todo to Edit',
+        description: 'This todo will be edited',
+        status: 'yet'
+    };
+
+    const { getByPlaceholderText, getByText } = render(<AbstractTodoEditor editable={true} todo={todo} id="1" />);
+
+    fireEvent.changeText(getByPlaceholderText('todo:name_placeholder'), 'New Title');
+    fireEvent.press(getByText('todo:edit_button'));
+
+    await waitFor(() => expect(Toast.show).toHaveBeenCalledWith({
+        type: 'success',
+        text1: 'New Title' + t(`todo:was_edited_toast`),
+        text2: t(`todo:funny_phrase_on_edit`)
+    }));
+});
+

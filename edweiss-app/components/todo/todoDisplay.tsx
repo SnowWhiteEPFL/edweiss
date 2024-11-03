@@ -229,7 +229,7 @@ export const TodoStatusDisplay: ReactComponent<{ id: string, todo: Todo, status:
 
 export const StatusChanger: ReactComponent<{ status: TodoStatus, setStatus: Dispatch<SetStateAction<TodoStatus>>; }> = ({ status, setStatus }) => {
     return <>
-        <FancyButton onPress={() => setStatus(statusNextMap[status])} icon={statusIconMap[status]} m={'md'} backgroundColor={'text'} outlined testID='fancy-button'>
+        <FancyButton onPress={() => setStatus(statusNextMap[status])} icon={statusIconMap[status]} m={'md'} backgroundColor={'text'} outlined testID='fancy-button-status-changer'>
             {t(`todo:status.${status}`)}
         </FancyButton>
 

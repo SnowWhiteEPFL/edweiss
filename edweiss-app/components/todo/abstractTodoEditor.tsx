@@ -69,7 +69,7 @@ export const AbstractTodoEditor: React.FC<{
         downButtonIconName = "create";
         downButtonTitle = t(`todo:edit_button`);
         screenTitle = t(`todo:create_header`);
-        downButtonAction = saveAction;
+        downButtonAction = editTodoAction;
     }
 
 
@@ -163,10 +163,8 @@ export const AbstractTodoEditor: React.FC<{
     }
 
     async function deleteTodoAction() {
-        if (!id) {
-            console.log("Error: id is undefined");
-            return;
-        }
+        if (!id) return;
+
         const res = await callFunction(Functions.deleteTodo, { id });
 
         if (res.status) {
@@ -240,10 +238,10 @@ export const AbstractTodoEditor: React.FC<{
                         <TTouchableOpacity onPress={() => setShowPickerTime(true)}
 
                             pr={'sm'} pl={'md'} pb={'sm'}
-                            flexDirection='row' justifyContent='flex-start' alignItems='center'>
+                            flexDirection='row' justifyContent='flex-start' alignItems='center' testID='time-button'>
 
                             <Icon name='alarm' size='md' color='overlay0' />
-                            <TText ml={10} color={timeChanged || providedDate ? 'text' : 'overlay0'}>{date.toTimeString().split(':').slice(0, 2).join(':')}</TText>
+                            <TText ml={10} color={timeChanged || providedDate ? 'text' : 'overlay0'} testID='time-holder'>{date.toTimeString().split(':').slice(0, 2).join(':')}</TText>
                         </TTouchableOpacity>
                     </TView>
 
