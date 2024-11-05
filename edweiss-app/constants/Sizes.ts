@@ -69,6 +69,14 @@ export const textSizes: PredefinedSizes = {
 	xl: 28
 };
 
+export const iconSizes: PredefinedSizes = {
+	xs: 18,
+	sm: 22,
+	md: 26,
+	lg: 30,
+	xl: 34
+};
+
 export const lineHeightSizes: PredefinedSizes = {
 	xs: 16,
 	sm: 20,

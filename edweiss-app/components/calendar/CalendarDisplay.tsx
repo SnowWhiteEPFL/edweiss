@@ -6,6 +6,7 @@ import For from '../core/For';
 import TView from '../core/containers/TView';
 
 import ReactComponent from '@/constants/Component';
+import { TIME_CONSTANTS } from '@/constants/Time';
 import { useUser } from '@/contexts/user';
 import { Time } from '@/utils/time';
 import TText from '../core/TText';
@@ -20,7 +21,9 @@ const CalendarDisplay: ReactComponent<{ courses: Document<Course>[], date: Date 
 	const { user } = useUser();
 
 	useEffect(() => {
-		const interval = setInterval(() => { setCurrentMinutes(Time.getCurrentTimeInMinutes()); }, 60000);
+		const interval = setInterval(() => {
+			setCurrentMinutes(Time.getCurrentTimeInMinutes());
+		}, TIME_CONSTANTS.MILLISECONDS_IN_SECOND * TIME_CONSTANTS.SECONDS_IN_MINUTE);
 		return () => clearInterval(interval);
 	}, []);
 
