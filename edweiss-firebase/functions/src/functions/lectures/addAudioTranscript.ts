@@ -45,7 +45,8 @@ export const addAudioTranscript = onAuthentifiedCall(Functions.addAudioTranscrip
 			This is a "${course.name}" lecture at prestigious university EPFL.
 			Description of the course: ${course.description}.
 
-			You are an audiotranscript correcting AI. Correct the following text captured by the microphone during the lecture.
+			You are an audio transcript correcting AI.
+			Correct the following text captured by the microphone during the lecture.
 		`,
 		content: args.transcription,
 		fallback: args.transcription
