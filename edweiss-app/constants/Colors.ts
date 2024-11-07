@@ -51,24 +51,24 @@ const Colors = {
 		mantle: "#e6e9ef",
 		crust: "#dce0e8",
 		// Teal: "#8bd5ca",
-		color1: "#700700",
-		color2: "#C80B00",
-		color3: "#E55148",
-		color4: "#FF9500",
-		color5: "#FECB00",
-		color6: "#898F2F",
-		color7: "#428F2F",
-		color8: "#28CD41",
-		color9: "#20D2A9",
-		color10: "#20B8D2",
-		color11: "#007AFF",
-		color12: "#002BFF",
-		color13: "#5856D6",
-		color14: "#AD56D6",
-		color15: "#732986",
-		color16: "#4D1590",
-		color17: "#45074A",
-		color18: "#42041D",
+		// color1: "#700700",
+		// color2: "#C80B00",
+		// color3: "#E55148",
+		// color4: "#FF9500",
+		// color5: "#FECB00",
+		// color6: "#898F2F",
+		// color7: "#428F2F",
+		// color8: "#28CD41",
+		// color9: "#20D2A9",
+		// color10: "#20B8D2",
+		// color11: "#007AFF",
+		// color12: "#002BFF",
+		// color13: "#5856D6",
+		// color14: "#AD56D6",
+		// color15: "#732986",
+		// color16: "#4D1590",
+		// color17: "#45074A",
+		// color18: "#42041D",
 	},
 	dark: {
 		transparent: '#0000',
@@ -107,24 +107,24 @@ const Colors = {
 		mantle: "#181825",
 		crust: "#11111b",
 		// Teal: "#8bd5ca",
-		color1: "#651510",
-		color2: "#D03B32", //
-		color3: "#E97F78",
-		color4: "#FFBB5B",
-		color5: "#FFDF5E",
-		color6: "#888B55", //
-		color7: "#608E55",
-		color8: "#6AC979",
-		color9: "#71D3BC",
-		color10: "#74C1CE", //
-		color11: "#79B8FE",
-		color12: "#4F6CFD",
-		color13: "#8F8ED7",
-		color14: "#BF8FD4", //
-		color15: "#844D92",
-		color16: "#765999", //
-		color17: "#451F48",
-		color18: "#441B2C", //
+		// color1: "#651510",
+		// color2: "#D03B32", //
+		// color3: "#E97F78",
+		// color4: "#FFBB5B",
+		// color5: "#FFDF5E",
+		// color6: "#888B55", //
+		// color7: "#608E55",
+		// color8: "#6AC979",
+		// color9: "#71D3BC",
+		// color10: "#74C1CE", //
+		// color11: "#79B8FE",
+		// color12: "#4F6CFD",
+		// color13: "#8F8ED7",
+		// color14: "#BF8FD4", //
+		// color15: "#844D92",
+		// color16: "#765999", //
+		// color17: "#451F48",
+		// color18: "#441B2C", //
 	},
 };
 

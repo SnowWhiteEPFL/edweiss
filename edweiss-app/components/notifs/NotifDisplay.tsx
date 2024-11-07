@@ -35,33 +35,33 @@ const icons = {
 };
 
 const iconsColor = {
-    message: 'color11',
-    quiz: 'color5',
-    submission: 'color4',
-    grade: 'color17',
-    announcement: 'color1',
-    event: 'color9',
-    meeting: 'color12',
-    group: 'color15',
-    post: 'color13',
-    comment: 'color7',
-    like: 'color8',
-    follow: 'color3',
+    message: 'blue',
+    quiz: 'yellow',
+    submission: 'peach',
+    grade: 'mauve',
+    announcement: 'red',
+    event: 'sky',
+    meeting: 'darkBlue',
+    group: 'pink',
+    post: 'rosewater',
+    comment: 'green',
+    like: 'lavender',
+    follow: 'maroon',
 };
 
 const iconsColorBackground = {
-    message: "#79B8FE", //color11
-    quiz: "#FFDF5E", //color5
-    submission: "#FFBB5B", //color4
-    grade: "#451F48", //color17
-    announcement: "#651510", //color1
-    event: "#71D3BC", //color9
-    meeting: "#4F6CFD", //color12
-    group: "#844D92", //color15
-    post: "#8F8ED7", //color13
-    comment: "#608E55", //color7
-    like: "#6AC979", //color8
-    follow: "#E97F78",  //color3
+    message: '#1e66f5',  //"79B8FE", //color11
+    quiz: '#df8e1d', //"FFDF5E", //color5
+    submission: '#fe640b', //"FFBB5B", //color4
+    grade: '#8839ef', //"451F48", //color17
+    announcement: '#d20f39', //"651510", //color1
+    event: '#04a5e5', //"71D3BC", //color9
+    meeting: '#191D63', //"4F6CFD", //color12
+    group: '#ea76cb', //"844D92", //color15
+    post: '#dc8a78', //"8F8ED7", //color13
+    comment: '#40a02b', //"608E55", //color7
+    like: '#7287fd', //"6AC979", //color8
+    follow: '#e64553', //"E97F78",  //color3
 };
 
 // Tests Tags
