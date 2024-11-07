@@ -16,7 +16,7 @@ export type Color = keyof typeof Colors.light & keyof typeof Colors.dark;
 const Colors = {
 	light: {
 		transparent: '#0000',
-		// course_title_for_backgroud_color: "#000000",
+		course_title_for_backgroud_color: "#000000",
 		rosewater: "#dc8a78",
 		flamingo: "#dd7878",
 		pink: "#ea76cb",
@@ -35,7 +35,7 @@ const Colors = {
 		blue: "#1e66f5",
 		lavender: "#7287fd",
 		// darkBlue: "#191D63",
-		// darkNight: "#2e303a",
+		darkNight: "#2e303a",
 		text: "#4c4f69",
 		subtext1: "#5c5f77",
 		subtext0: "#6c6f85",
@@ -53,7 +53,7 @@ const Colors = {
 	},
 	dark: {
 		transparent: '#0000',
-		// course_title_for_backgroud_color: "#000000",
+		course_title_for_backgroud_color: "#000000",
 		rosewater: "#f5e0dc",
 		flamingo: "#f2cdcd",
 		pink: "#f5c2e7",
@@ -74,7 +74,7 @@ const Colors = {
 		// darkBlue: "#BCBFE5",
 		text: "#cdd6f4",
 		subtext1: "#bac2de",
-		// darkNight: "#B7BDD9",
+		darkNight: "#B7BDD9",
 		subtext0: "#a6adc8",
 		overlay2: "#9399b2",
 		overlay1: "#7f849c",
