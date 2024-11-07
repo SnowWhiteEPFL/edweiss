@@ -37,6 +37,15 @@ const TabLayout: ApplicationLayout = () => {
 				}}
 			/>
 			<Tabs.Screen
+				name="notifications"
+				options={{
+					title: 'Notifications',
+					tabBarIcon: ({ color, focused }) => (
+						<TabBarIcon name={focused ? 'notifications' : 'notifications-outline'} color={color} />
+					),
+				}}
+			/>
+			<Tabs.Screen
 				name="profile"
 				options={{
 					title: 'Profile',

@@ -29,7 +29,7 @@ import { Color } from '@/constants/Colors';
 import { ApplicationRoute } from '@/constants/Component';
 import { iconSizes } from '@/constants/Sizes';
 import { timeInMS } from '@/constants/Time';
-import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { Assignment, Course } from '@/model/school/courses';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
@@ -83,12 +83,17 @@ const CoursePage: ApplicationRoute = () => {
 	const [course] = usePrefetchedDynamicDoc(CollectionOf<Course>('courses'), id, undefined);
 	if (course == undefined) return <TActivityIndicator size={40} />;
 
+	// Get assignments data from Firestore
+	const firebase_data = useDynamicDocs(CollectionOf<Assignment>(`users/${id}/assignments`));
+	if (firebase_data == undefined) return <TActivityIndicator size={40} />;
+	const assignmentsArray = firebase_data ? firebase_data.map(doc => ({ id: doc.id, data: doc.data })) : [];
+
 	// Sort assignments by due date and add color based on time difference
-	const assignments: AssignmentWithColor[] = course.data.assignments
-		.sort((a, b) => a.dueDate.seconds - b.dueDate.seconds) // Seconds comparison
+	const assignments: AssignmentWithColor[] = assignmentsArray
+		.sort((a, b) => a.data.dueDate.seconds - b.data.dueDate.seconds) // Seconds comparison
 		.map((assignment) => {
 			const currentTime = new Date().getTime(); // Actual time in millisecondes
-			const assignmentDueTime = assignment.dueDate.seconds * timeInMS.SECOND; // Convert dueDate in millisecondes
+			const assignmentDueTime = assignment.data.dueDate.seconds * timeInMS.SECOND; // Convert dueDate in millisecondes
 			const timeDifference = assignmentDueTime - currentTime; // Difference between current time and due time
 
 			// Define color based on time difference
@@ -98,7 +103,7 @@ const CoursePage: ApplicationRoute = () => {
 					: 'darkNight'; // Default color
 
 			return {
-				...assignment,
+				...assignment.data,
 				color, // add color to assignment
 			};
 		});

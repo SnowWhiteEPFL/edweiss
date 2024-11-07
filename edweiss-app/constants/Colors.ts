@@ -17,7 +17,7 @@ const Colors = {
 	light: {
 		transparent: '#0000',
 		constantWhite: "#ffffff",
-		// course_title_for_backgroud_color: "#000000",
+		constantBlack: "#000000",
 		rosewater: "#dc8a78",
 		flamingo: "#dd7878",
 		pink: "#ea76cb",
@@ -73,7 +73,7 @@ const Colors = {
 	dark: {
 		transparent: '#0000',
 		constantWhite: "#ffffff",
-		// course_title_for_backgroud_color: "#000000",
+		constantBlack: "#000000",
 		rosewater: "#f5e0dc",
 		flamingo: "#f2cdcd",
 		pink: "#f5c2e7",
