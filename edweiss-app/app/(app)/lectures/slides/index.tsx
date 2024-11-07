@@ -244,3 +244,4 @@ const LectureScreen: ApplicationRoute = () => {
 
 export default LectureScreen;
 
+
