@@ -72,14 +72,10 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
 
     async function deleteCard() {
 
-        try {
-            const res = await callFunction(Memento.Functions.deleteCard, { deckId: deckId, cardIndex: cardIndex });
-            if (res.status == 1) {
-                console.log(`Card deleted with id ${res.data.id}`);
-                router.back();
-            }
-        } catch (error) {
-            console.error("Error deleting card:", error);
+        const res = await callFunction(Memento.Functions.deleteCard, { deckId: deckId, cardIndex: cardIndex });
+        if (res.status == 1) {
+            console.log(`Card deleted with id ${res.data.id}`);
+            router.back();
         }
 
     }
@@ -119,6 +115,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
             )}
 
             <TapGestureHandler
+                testID='flipCardToSeeAnswer'
                 onHandlerStateChange={({ nativeEvent }) => {
                     if (nativeEvent.state === State.END) {
                         toggleFlip();
@@ -132,6 +129,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
             </TapGestureHandler>
 
             <TapGestureHandler
+                testID='flipCardToSeeQuestion'
                 onHandlerStateChange={({ nativeEvent }) => {
                     if (nativeEvent.state === State.END) {
                         toggleFlip();
@@ -148,6 +146,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
             <TView style={[styles.buttonContainer]}>
                 <TView style={styles.buttonHalf}>
                     <FancyButton
+                        testID='notYetButton'
                         backgroundColor='red'
                         onPress={() => updateLearningStatusCard(deckId, cardIndex, updateCard, "Not yet", card)}
                         style={{ width: '100%', height: '100%' }} // Make button fill its half
@@ -158,6 +157,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
                 </TView>
                 <TView style={styles.lastButtonHalf}>
                     <FancyButton
+                        testID='gotItButton'
                         backgroundColor='green'
                         onPress={() => updateLearningStatusCard(deckId, cardIndex, updateCard, "Got it", card)}
                         style={{ width: '100%', height: '100%' }} // Make button fill its half
@@ -173,7 +173,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
 
 };
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',

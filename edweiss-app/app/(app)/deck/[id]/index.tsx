@@ -53,11 +53,8 @@ const CardListScreen: ApplicationRoute = () => {
 	const deleteSelectedCards = async () => {
 		if (selectedCards.length === 0) return;
 
-		console.log("Deleting cards:", selectedCards);
-
 		try {
 			await Promise.all(selectedCards.map(card => {
-				console.log("Deleting card:", card);
 				callFunction(Memento.Functions.deleteCard, {
 					deckId: id,
 					cardIndex: cards.indexOf(card)
@@ -97,7 +94,7 @@ const CardListScreen: ApplicationRoute = () => {
 
 	const toggleDropDown = () => { setShowDropdown(prev => !prev); }; // Open/close dropdown
 
-	const handleCardPress_old = (index: number) => {
+	/*const handleCardPress_old = (index: number) => {
 		if (!selectionMode) {
 			// Open the modal with the selected card
 			if (selectedCardIndex === index) {
@@ -109,7 +106,7 @@ const CardListScreen: ApplicationRoute = () => {
 				modalRef.current?.present(); // Show the modal
 			}
 		}
-	};
+	};*/
 
 	return (
 		<>
@@ -196,13 +193,13 @@ const DisplayCard: ReactComponent<{ card: Memento.Card, isSelected: boolean, tog
 	// Determine the text color based on the learning status
 	const statusColor = getStatusColor(card.learning_status ?? "");
 
-	const handlePress_old = () => {
+	/*const handlePress_old = () => {
 		if (!selectionMode) {
 			goToPath();
 		} else {
 			toggleSelection(card); // Select or deselect
 		}
-	};
+	};*/
 
 	return (
 		<TTouchableOpacity bb={5}
