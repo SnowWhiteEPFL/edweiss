@@ -135,7 +135,7 @@ export async function getDocument<Type extends DocumentData>(collection: Collect
  * @param errorCode The error
  * @returns The typed document data
  */
-export async function getRequiredDocument<Type extends DocumentData>(collection: Collection<Type>, id: string, errorCode: { error_code: string; status: 0; }) {
+export async function getRequiredDocument<Type extends DocumentData>(collection: Collection<Type>, id: string, errorCode: { error: any; status: 0; }) {
 	const doc = await getDocument(collection, id);
 	if (!doc)
 		throw errorCode;
