@@ -2,6 +2,7 @@ import CardListScreen from '@/app/(app)/deck/[id]';
 import CreateCardScreen from '@/app/(app)/deck/[id]/card/creation';
 import TestYourMightScreen from '@/app/(app)/deck/[id]/playingCards';
 import RouteHeader from '@/components/core/header/RouteHeader';
+import CardScreenComponent, { styles } from '@/components/memento/CardScreenComponent';
 import { callFunction } from '@/config/firebase';
 import Memento from '@/model/memento';
 import { handleCardPress, handlePress, sortingCards } from '@/utils/memento/utilsFunctions';
@@ -53,8 +54,8 @@ jest.mock('expo-router', () => ({
             </>  // Render the right prop directly for testing
         )),
     },
-    useLocalSearchParams: jest.fn(),
-    //useLocalSearchParams: jest.fn(() => ({ id: '1' })),
+    //useLocalSearchParams: jest.fn(),
+    useLocalSearchParams: jest.fn(() => ({ id: '1' })),
 }));
 
 jest.mock('@gorhom/bottom-sheet', () => ({
@@ -67,12 +68,18 @@ jest.mock('@gorhom/bottom-sheet', () => ({
     BottomSheetBackdrop: jest.fn(),
 }));
 
-describe('CardListScreen', () => {
-    /*beforeEach(() => {
-        jest.clearAllMocks(); // Clear previous mocks before each test
-    });*/
+jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
 
+// Mock toggleFlip function
+const toggleFlip = jest.fn(); // This function is not exported, so we mock it here. UNTIL WE EXPORT IT
+
+
+describe('CardListScreen', () => {
     beforeEach(() => {
+        jest.clearAllMocks(); // Clear previous mocks before each test
+    });
+
+    /*beforeEach(() => {
         // Set up `useLocalSearchParams` for tests needing only `id`
         const useLocalSearchParams = require('expo-router').useLocalSearchParams;
         useLocalSearchParams.mockReturnValue({ id: '1' });
@@ -80,7 +87,7 @@ describe('CardListScreen', () => {
 
     afterEach(() => {
         jest.clearAllMocks(); // Clear mocks after each test
-    });
+    });*/
 
     it('renders without crashing', () => {
         const { getByText } = render(<CardListScreen />);
@@ -425,6 +432,135 @@ describe('CreateCardScreen', () => {
             expect(getByText('Question already exists')).toBeTruthy();
         });
     });
+});
+
+describe('CardScreen', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should render correctly', () => {
+        const { getByText, getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} />);
+        expect(getByText('Question 1')).toBeTruthy();
+
+        const flipButton = getByTestId('flipCardToSeeAnswer')
+        fireEvent.press(flipButton);
+
+        expect(getByText('Answer 1')).toBeTruthy();
+
+        const flipButton2 = getByTestId('flipCardToSeeQuestion')
+        fireEvent.press(flipButton2);
+
+        expect(getByText('Question 1')).toBeTruthy();
+    });
+
+    it('should delete a card', async () => {
+        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} />);
+
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: 1, data: { id: '1' } });
+
+        const dropDown = getByTestId('toggleButton')
+        fireEvent.press(dropDown);
+
+        const deleteButton = getByTestId('deleteCardButton');
+        fireEvent.press(deleteButton);
+
+        await waitFor(() => {
+            expect(callFunction).toHaveBeenCalledWith(Memento.Functions.deleteCard, { deckId: '1', cardIndex: 0 });
+        });
+    });
+
+    it('should catch an error when deleting a card', async () => {
+        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} />);
+
+        (callFunction as jest.Mock).mockRejectedValueOnce('Error deleting card');
+        const dropDown = getByTestId('toggleButton')
+        fireEvent.press(dropDown);
+
+        const deleteButton = getByTestId('deleteCardButton');
+        fireEvent.press(deleteButton);
+
+        await waitFor(() => {
+            expect(callFunction).toHaveBeenCalledWith(Memento.Functions.deleteCard, { deckId: '1', cardIndex: 0 });
+        });
+    });
+
+    it('should update a card when click on button to change learning status', async () => {
+        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} />);
+
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: 1, data: { id: '1' } });
+
+        const notYetButton = getByTestId('notYetButton')
+        fireEvent.press(notYetButton);
+
+        await waitFor(() => {
+            expect(callFunction).toHaveBeenCalledWith(Memento.Functions.updateCard, {
+                deckId: '1',
+                newCard: {
+                    question: 'Question 1',
+                    answer: 'Answer 1',
+                    learning_status: 'Not yet',
+                },
+                cardIndex: 0
+            });
+        });
+
+        const gotItButton = getByTestId('gotItButton')
+        fireEvent.press(gotItButton);
+
+        await waitFor(() => {
+            expect(callFunction).toHaveBeenCalledWith(Memento.Functions.updateCard, {
+                deckId: '1',
+                newCard: {
+                    question: 'Question 1',
+                    answer: 'Answer 1',
+                    learning_status: 'Got it',
+                },
+                cardIndex: 0
+            });
+        });
+    });
+
+    it('should go to edit card screen when click on button to edit card', () => {
+        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} />);
+        const dropDownButton = getByTestId('toggleButton');
+        fireEvent.press(dropDownButton);
+
+        const editButton = getByTestId('editCardButton');
+
+        fireEvent.press(editButton);
+        expect(router.push).toHaveBeenCalledWith({ pathname: "/deck/1/card/edition", params: { deckId: '1', prev_question: 'Question 1', prev_answer: 'Answer 1', cardIndex: 0 } });
+    });
+
+    it('should call toggleFlip on question tap', () => {
+        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} />);
+
+        const flipCard = getByTestId('flipCardToSeeAnswer');
+        fireEvent(flipCard, 'onHandlerStateChange', { nativeEvent: { state: State.END } });
+
+        expect(toggleFlip).toHaveBeenCalledTimes(0);
+
+        const flipCard2 = getByTestId('flipCardToSeeQuestion');
+        fireEvent(flipCard2, 'onHandlerStateChange', { nativeEvent: { state: State.END } });
+
+        expect(toggleFlip).toHaveBeenCalledTimes(0);
+
+        fireEvent(flipCard, 'onHandlerStateChange', { nativeEvent: { state: State.CANCELLED } });
+
+        expect(toggleFlip).toHaveBeenCalledTimes(0);
+
+        fireEvent(flipCard2, 'onHandlerStateChange', { nativeEvent: { state: State.CANCELLED } });
+
+        expect(toggleFlip).toHaveBeenCalledTimes(0);
+    });
+
+    it('should display different styles if isModal is true', () => {
+        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} isModal={true} />);
+        const flipCard = getByTestId('flipCardToSeeAnswer');
+
+        expect(flipCard.props.style).toEqual(expect.arrayContaining([{ ...styles.modalCard }]));
+    });
+
 });
 /*
 describe('EditCardScreen', () => {
