@@ -107,15 +107,12 @@ const LectureScreen: ApplicationRoute = () => {
         if (isFullscreen) {
             setWidthPercent(["100%", "0%"]);
             setHeightPercent(["100%", "0%"]);
-        } else {
-            if (isLandscape) {
-                setHeightPercent(["100%", "100%"]);
-                setWidthPercent(["60%", "40%"]);
-
-            } else {
-                setHeightPercent(["40%", "60%"]);
-                setWidthPercent(["100%", "100%"]);
-            }
+        } else if(isLandscape) {
+            setHeightPercent(["100%", "100%"]);
+            setWidthPercent(["60%", "40%"]);
+        }else {
+            setHeightPercent(["40%", "60%"]);
+            setWidthPercent(["100%", "100%"]);
         }
 
     }
