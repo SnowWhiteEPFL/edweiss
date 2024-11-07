@@ -12,6 +12,7 @@ import { default as NotifList } from '@/model/notifs';
 import { CourseID } from '@/model/school/courses';
 import { useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
+import { hexToRgb } from '../../utils/color';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
 
@@ -67,22 +68,6 @@ const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSect
             </TView>
         </TTouchableOpacity>
     );
-
-
-    // Fonction pour convertir le code hex en RGB
-    const hexToRgb = (hex: string) => {
-        // Regex pour vérifier si le code hex est valide
-        const hexCode = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        // Si le code hex est valide
-        if (hexCode) {
-            // Retourner les valeurs RGB
-            return {
-                r: parseInt(hexCode[1], 16),
-                g: parseInt(hexCode[2], 16),
-                b: parseInt(hexCode[3], 16),
-            };
-        }
-    };
 
     async function markAsUnreadAction() {
         if (!id) return;
