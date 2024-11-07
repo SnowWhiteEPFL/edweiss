@@ -79,13 +79,12 @@ const CoursePage: ApplicationRoute = () => {
 	const { id } = useLocalSearchParams();
 	if (typeof id !== 'string') return <Redirect href={'/'} />;
 
-	// Get course data from Firestore
+	// Get course & assignments data from Firestore
 	const [course] = usePrefetchedDynamicDoc(CollectionOf<Course>('courses'), id, undefined);
-	if (course == undefined) return <TActivityIndicator size={40} />;
+	const firebase_data = useDynamicDocs(CollectionOf<Assignment>(`courses/${id}/assignments`));
 
-	// Get assignments data from Firestore
-	const firebase_data = useDynamicDocs(CollectionOf<Assignment>(`users/${id}/assignments`));
-	if (firebase_data == undefined) return <TActivityIndicator size={40} />;
+	if (course == undefined || firebase_data == undefined) return <TActivityIndicator size={40} />;
+
 	const assignmentsArray = firebase_data ? firebase_data.map(doc => ({ id: doc.id, data: doc.data })) : [];
 
 	// Sort assignments by due date and add color based on time difference
