@@ -25,7 +25,7 @@ import LectureDisplay from '@/model/lectures/lectureDoc';
 import { useLocalSearchParams } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions } from 'react-native';
+import { ActivityIndicator, Dimensions, DimensionValue } from 'react-native';
 import Pdf from 'react-native-pdf';
 
 // Types
@@ -51,8 +51,12 @@ const LectureScreen: ApplicationRoute = () => {
     const [numPages, setNumPages] = useState<number>(0);        // Total number of pages in the PDF
     const [page, setPage] = useState<number>(0);                // Current page, starting from 1
     const [uri, setUri] = useState<string>('');                 // Url state
-    const [isLandscape, setIsLandscape] = useState(false);       // Landscape display boolean for different UI
-    const [isFullscreen, setIsFullscreen] = useState(false);    // FullScreen display of pdf toggle
+    // UI display setting's hooks
+    const [isLandscape, setIsLandscape] = useState<boolean>(false);       // Landscape display boolean for different UI
+    const [isFullscreen, setIsFullscreen] = useState<boolean>(false);    // FullScreen display of pdf toggle
+    const [widthPercent, setWidthPercent] = useState<string[]>([]);
+    const [heightPercent, setHeightPercent] = useState<string[]>([]);
+
     const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
 
     // Load images when the component mounts
@@ -70,6 +74,7 @@ const LectureScreen: ApplicationRoute = () => {
             } else {
                 setIsLandscape(true);
             }
+            updateUI();
         };
 
         const screenOrientationListener =
@@ -98,9 +103,27 @@ const LectureScreen: ApplicationRoute = () => {
         setUri(url);
     }
 
+    function updateUI() {
+        if (isFullscreen) {
+            setWidthPercent(["100%", "0%"]);
+            setHeightPercent(["100%", "0%"]);
+        } else {
+            if (isLandscape) {
+                setHeightPercent(["100%", "100%"]);
+                setWidthPercent(["60%", "40%"]);
+
+            } else {
+                setHeightPercent(["40%", "60%"]);
+                setWidthPercent(["100%", "100%"]);
+            }
+        }
+
+    }
+
     // Portrait display for the screen
     const setLandscape = async () => {
         await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+        updateUI();
     };
 
     const renderQuestion = (questionKey: string) => (
@@ -120,7 +143,7 @@ const LectureScreen: ApplicationRoute = () => {
 
             <TView flexDirection={isLandscape ? 'row' : 'column'} flex={1} style={{ width: "100%" }}>
 
-                <TView mr={'lg'} flexDirection='column' style={{ width: (isFullscreen || !isLandscape) ? "100%" : "60%", height: isLandscape ? "100%" : "40%" }}>
+                <TView mr={'lg'} flexDirection='column' style={{ width: widthPercent[0] as DimensionValue, height: heightPercent[0] as DimensionValue }}>
                     <Pdf
                         trustAllCerts={false}
                         source={{ uri: uri }}
@@ -152,17 +175,18 @@ const LectureScreen: ApplicationRoute = () => {
                             !isLandscape && setLandscape();
                             isLandscape && ScreenOrientation.unlockAsync();
                             setIsFullscreen(!isFullscreen);
+                            updateUI();
                         }}>
                             <Icon size={'xl'} name={isFullscreen ? 'contract-outline' : 'expand-outline'} dark='text'></Icon>
                         </TTouchableOpacity>
                     </TView>
                 </TView >
 
-                <TView flexDirection='column' style={{ width: isLandscape ? (isFullscreen ? "0%" : "40%") : (isFullscreen ? "0%" : "100%"), height: isLandscape ? "100%" : "60%" }}>
+                <TView flexDirection='column' style={{ width: widthPercent[1] as DimensionValue, height: heightPercent[1] as DimensionValue }}>
                     {isFullscreen ?
                         <TView></TView> : // Speech to Text transcript display and question forum display
                         <>
-                            <TScrollView b={'sm'} mt={25} mr={isLandscape ? 48 : 'md'} ml={!isLandscape ? 'md' : 0} radius={'lg'} flex={1}>
+                            <TScrollView b={'sm'} mt={25} mr={'md'} ml={'md'} radius={'lg'} flex={1}>
                                 {currentLecture.audioTranscript?.[page] ? (
                                     <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[page]}</TText>
                                 ) : (
@@ -172,7 +196,7 @@ const LectureScreen: ApplicationRoute = () => {
                                 )}
                             </TScrollView>
 
-                            <TScrollView flex={0.5} mt={15} mr={isLandscape ? 48 : 'md'} ml={!isLandscape ? 'md' : 0} mb={15}>
+                            <TScrollView flex={0.5} mt={15} mr={'md'} ml={'md'} mb={15}>
 
                                 {/* Dummy Questions */}
                                 {[...Array(7).keys()].map(i => renderQuestion(`showtime:dummy_question_${i}`))}
@@ -188,4 +212,5 @@ const LectureScreen: ApplicationRoute = () => {
 };
 
 export default LectureScreen;
+
 
