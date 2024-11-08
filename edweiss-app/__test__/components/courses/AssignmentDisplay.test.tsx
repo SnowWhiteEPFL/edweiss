@@ -1,9 +1,10 @@
 import TView from '@/components/core/containers/TView';
 import AssignmentDisplay, { AssignmentWithColor } from '@/components/courses/AssignmentDisplay';
-import { render } from "@testing-library/react-native";
+import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from 'react';
 import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
+import Toast from 'react-native-toast-message';
 
 // Mocking the external dependencies
 // jest.mock('react-native-gesture-handler', () => {
@@ -16,6 +17,69 @@ import { Swipeable } from 'react-native-gesture-handler';
 //     };
 // });
 
+// Création du mock pour callFunction
+jest.mock('@/config/firebase', () => ({
+    callFunction: jest.fn(),
+}));
+jest.mock('@react-native-firebase/auth', () => ({
+    // Mock Firebase auth methods you use in your component
+    signInWithCredential: jest.fn(() => Promise.resolve({ user: { uid: 'firebase-test-uid', email: 'firebase-test@example.com' } })),
+    signOut: jest.fn(() => Promise.resolve()),
+    currentUser: { uid: 'firebase-test-uid', email: 'firebase-test@example.com' },
+}));
+
+jest.mock('@react-native-firebase/firestore', () => { // this one does not work yet.
+    const mockCollection = jest.fn(() => ({
+        doc: jest.fn(() => ({
+            set: jest.fn(() => Promise.resolve()),
+            get: jest.fn(() => Promise.resolve({ exists: true, data: () => ({ field: 'value' }) })),
+        })),
+    }));
+
+    return {
+        firestore: jest.fn(() => ({
+            collection: mockCollection,  // Mock collection method
+        })),
+        collection: mockCollection,  // Also expose it directly for other uses
+    };
+});
+
+// Mock Firebase Functions
+jest.mock('@react-native-firebase/functions', () => ({
+    httpsCallable: jest.fn(() => () => Promise.resolve({ data: 'function response' })),
+}));
+
+// Mock Firebase Storage
+jest.mock('@react-native-firebase/storage', () => ({
+    ref: jest.fn(() => ({
+        putFile: jest.fn(() => Promise.resolve({ state: 'success' })),
+        getDownloadURL: jest.fn(() => Promise.resolve('https://example.com/file.png')),
+    })),
+}));
+jest.mock('@/contexts/auth', () => ({
+    useAuth: jest.fn(),					// mock authentication
+}));
+
+jest.mock('react-native/Libraries/Settings/Settings', () => ({
+    get: jest.fn(),
+    set: jest.fn(),
+}));
+jest.mock('@react-native-google-signin/google-signin', () => ({ // mock google sign-in
+    GoogleSignin: {
+        configure: jest.fn(),
+        hasPlayServices: jest.fn(() => Promise.resolve(true)),
+        signIn: jest.fn(() => Promise.resolve({ user: { id: 'test-id', email: 'test@example.com' } })),
+        signOut: jest.fn(() => Promise.resolve()),
+        isSignedIn: jest.fn(() => Promise.resolve(true)),
+        getTokens: jest.fn(() => Promise.resolve({ idToken: 'test-id-token', accessToken: 'test-access-token' })),
+    },
+}));
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+    setItem: jest.fn(),
+    getItem: jest.fn(),
+    removeItem: jest.fn(),
+}));
 jest.mock('react-native-toast-message', () => ({
     show: jest.fn(),
 }));
@@ -99,9 +163,6 @@ describe('AssignmentDisplay', () => {
             color: "red"
         };
 
-        // Manually mock swipeableRefs as a MutableRefObject
-        const swipeableRefs = { current: [null] as (Swipeable | null)[] };
-
         const screen = render(
             <AssignmentDisplay
                 item={assignment}
@@ -117,9 +178,9 @@ describe('AssignmentDisplay', () => {
         //expect(screen.getByTestId('mockSwipeable')).toBeTruthy();
 
         // Define the onSwipeableOpen function
-        const onSwipeableOpen = jest.fn((direction) => {
-            console.log(`Swiped to the ${direction}`);
-        });
+        // const onSwipeableOpen = jest.fn((direction) => {
+        //     console.log(`Swiped to the ${direction}`);
+        // });
 
         // Simuler un swipe
         //fireEvent.press(screen.getByTestId('swipe-component')); // Simule un swipe en appuyant sur le composant

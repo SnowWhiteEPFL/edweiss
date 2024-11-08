@@ -10,7 +10,7 @@ import { dateFormats, timeInMS } from '@/constants/Time';
 import { Assignment } from '@/model/school/courses';
 import Todolist from '@/model/todo';
 import { Time as OurTime } from '@/utils/time';
-import { Timestamp } from '@react-native-firebase/firestore';
+import { Timestamp } from '../../model/time';
 import { router } from 'expo-router';
 import { useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -18,8 +18,6 @@ import Toast from 'react-native-toast-message';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
 
-
-// Constants
 
 // Icons
 const submissionIcon = 'clipboard-outline';
@@ -81,10 +79,7 @@ const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, index: numb
     return (
         isSwipeable ?
             <Swipeable
-                ref={(ref) => { swipeableRefs.current[index] = ref; }} renderRightActions={renderRightActions} onSwipeableOpen={(direction) => {
-                    if (direction === 'right') { console.log(`Swipe detected on assignment: ${item.name}`); Toast.show({ type: 'success', text1: t(`course:toast_added_to_todo_text1`), text2: t(`course:toast_added_to_todo_text2`), }); swipeableRefs.current[index]?.close(); }
-                }
-                }>
+                ref={(ref) => { swipeableRefs.current[index] = ref; }} renderRightActions={renderRightActions} onSwipeableOpen={(direction) => {if (direction === 'right') { console.log(`Swipe detected on assignment: ${item.name}`); saveTodo(item.name, item.dueDate, item.type); Toast.show({ type: 'success', text1: t(`course:toast_added_to_todo_text1`), text2: t(`course:toast_added_to_todo_text2`), }); swipeableRefs.current[index]?.close(); }}}>
                 {assignmentView()}
             </Swipeable>
             : assignmentView()
@@ -93,36 +88,4 @@ const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, index: numb
 
 export default AssignmentDisplay;
 
-
-
-async function saveTodo(name: string, dueDate: Timestamp, description: string) {
-    try {
-
-
-        const res = await callFunction(Todolist.Functions.createTodo, {
-            name, description, dueDate: OurTime.toDate(dueDate).toISOString(), status: "yet"
-        });
-
-        if (res.status) {
-            router.back();
-            Toast.show({
-                type: 'success',
-                text1: t(`course:toast_added_to_todo_text1`),
-                text2: t(`course:toast_added_to_todo_text2`)
-            });
-        } else {
-            Toast.show({
-                type: 'error',
-                text1: t(`todo:error_toast_title`),
-                text2: t(`todo:couldnot_save_toast`)
-            });
-        }
-    } catch (error) {
-        Toast.show({
-            type: 'error',
-            text1: t(`todo:error_toast_title`),
-            text2: t(`todo:couldnot_save_toast`)
-        });
-    }
-
-}
+async function saveTodo(name: string, dueDate: Timestamp, description: string) { try { const res = await callFunction(Todolist.Functions.createTodo, {name, description, dueDate: OurTime.toDate(dueDate).toISOString(), status: "yet"}); if (res.status) { router.back(); Toast.show({type: 'success', text1: t(`course:toast_added_to_todo_text1`), text2: t(`course:toast_added_to_todo_text2`) }); } else { Toast.show({ type: 'error', text1: t(`todo:error_toast_title`), text2: t(`todo:couldnot_save_toast`)}); }} catch (error) { Toast.show({type: 'error', text1: t(`todo:error_toast_title`), text2: t(`todo:couldnot_save_toast`)});} }
