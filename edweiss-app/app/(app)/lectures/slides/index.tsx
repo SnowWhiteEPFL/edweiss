@@ -16,12 +16,13 @@ import Icon from '@/components/core/Icon';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
 import FancyTextInput from '@/components/input/FancyTextInput';
-import { CollectionOf, getDownloadURL } from '@/config/firebase';
+import { callFunction, CollectionOf, getDownloadURL } from '@/config/firebase';
 import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import useListenToMessages from '@/hooks/useListenToMessages';
 import LectureDisplay from '@/model/lectures/lectureDoc';
+import { Timestamp } from '@react-native-firebase/firestore';
 import { useLocalSearchParams } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import React, { useEffect, useState } from 'react';
@@ -67,6 +68,8 @@ const LectureScreen: ApplicationRoute = () => {
     }, [lectureDoc]);
 
     useEffect(() => {
+        addQuestion('test question 1');
+        addQuestion('test question 2');
         const onOrientationChange = (currentOrientation: ScreenOrientation.OrientationChangeEvent) => {
             const orientationValue = currentOrientation.orientationInfo.orientation;
             if (orientationValue == 1 || orientationValue == 2) {
@@ -131,6 +134,23 @@ const LectureScreen: ApplicationRoute = () => {
             </TView>
         </TView>
     );
+
+    function addQuestion(question: string) {
+        try {
+            callFunction(LectureDisplay.Functions.createQuestion, {
+                courseId: courseName,
+                lectureId: lectureId,
+                question: {
+                    question: question,
+                    anonym: false,
+                    likes: 0,
+                    postedTime: Timestamp.now()
+                }
+            });
+        } catch (error) {
+            console.error("Error creating question:", error);
+        }
+    }
 
     return (
         //Screen Display on landscape mode
