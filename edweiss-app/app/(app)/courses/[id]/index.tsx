@@ -77,13 +77,35 @@ const CoursePage: ApplicationRoute = () => {
 
 	// Get course id from URL
 	const { id } = useLocalSearchParams();
-	if (typeof id !== 'string') return <Redirect href={'/'} />;
+	// if (typeof id !== 'string') return <Redirect href={'/'} />;
+
+	// Redirection si l'ID n'est pas valide
+	const isValidId = typeof id === 'string';
+
+	// Récupérer les données du cours et des assignments depuis Firestore
+	const [course] = usePrefetchedDynamicDoc(
+		CollectionOf<Course>('courses'),
+		isValidId ? id : '',
+		undefined
+	);
+
+	const firebase_data = useDynamicDocs(
+		CollectionOf<Assignment>(`courses/${isValidId ? id : ''}/assignments`)
+	);
+
+	if (!isValidId) {
+		return <Redirect href={'/'} />;
+	}
+
+	// Afficher un indicateur de chargement si les données ne sont pas encore prêtes
+	if (course == undefined || firebase_data == undefined) {
+		return <TActivityIndicator size={40} />;
+	}
 
 	// Get course & assignments data from Firestore
-	const firebase_data = useDynamicDocs(CollectionOf<Assignment>(`courses/${id}/assignments`));
-	const [course] = usePrefetchedDynamicDoc(CollectionOf<Course>('courses'), id, undefined);
-
-	if (course == undefined || firebase_data == undefined) return <TActivityIndicator size={40} />;
+	//const [course] = usePrefetchedDynamicDoc(CollectionOf<Course>('courses'), id, undefined);
+	//const firebase_data = useDynamicDocs(CollectionOf<Assignment>(`courses/${id}/assignments`));
+	//if (course == undefined || firebase_data == undefined) return <TActivityIndicator size={40} />;
 
 	const assignmentsArray = firebase_data ? firebase_data.map(doc => ({ id: doc.id, data: doc.data })) : [];
 
