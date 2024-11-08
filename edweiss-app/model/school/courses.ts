@@ -21,6 +21,9 @@ export interface Course {
 	periods: CourseTimePeriod[];
 	section: Section;
 	credits: Credits;
+	newAssignments: boolean;
+	assignments: Assignment[];
+	started: boolean;
 }
 
 export type AssignmentType = "quiz" | "submit";

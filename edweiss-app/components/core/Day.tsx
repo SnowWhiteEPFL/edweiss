@@ -1,5 +1,5 @@
-import { Color } from '@/constants/Colors';
-import { Course, courseColors, CourseTimePeriod } from '@/model/school/courses';
+import { Color, courseColors } from '@/constants/Colors';
+import { Course, CourseTimePeriod } from '@/model/school/courses';
 import { router } from 'expo-router';
 import TTouchableOpacity from './containers/TTouchableOpacity';
 import { PeriodBlock } from './PeriodBlock';
@@ -23,7 +23,7 @@ export const Day = ({ period, course, user, filteredPeriods, index, format }: {
             key={index}
             flex={1 / filteredPeriods.length}
             borderColor="overlay2"
-            radius={10}
+
             b={2}
 
             onPress={() => {

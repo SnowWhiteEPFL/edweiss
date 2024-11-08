@@ -2,8 +2,8 @@ import { Collections, getDocument } from '@/config/firebase';
 import { useAuth } from '@/contexts/auth';
 import { Course } from '@/model/school/courses';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import React, { useEffect, useRef, useState } from 'react';
-import { ScrollView } from 'react-native-gesture-handler';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, FlatList, ScrollView, View } from 'react-native';
 import TTouchableOpacity from './containers/TTouchableOpacity';
 import TView from './containers/TView';
 import { Day } from './Day';
@@ -18,25 +18,35 @@ const TOTAL_HOURS = 24;
 const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
-export const Calendar = ({ courses, type }: { courses: { id: string; data: Course; }[]; type: "week" | "day" | undefined; }) => {
+const screenWidth = Dimensions.get('window').width;
 
+export const Calendar = ({ courses, type }: { courses: { id: string; data: Course; }[]; type: "week" | "day" | undefined; }) => {
+    const actualDate = new Date();
     const [currentMinutes, setCurrentMinutes] = useState(getCurrentTimeInMinutes());
-    const scrollViewRef = useRef<ScrollView>(null);
     const [user, setUser] = useState<any>(null);
     const userId = useAuth().uid;
 
     const [format, setFormat] = useState(type);
+
     useEffect(() => {
         if (type === undefined) {
             setFormat("day");
         }
     }, [type]);
     useEffect(() => {
+        actualDate.setDate(actualDate.getDate());
+    }, [actualDate]);
+
+    useEffect(() => {
         const onOrientationChange = (currentOrientation: ScreenOrientation.OrientationChangeEvent) => {
             const orientationValue = currentOrientation.orientationInfo.orientation;
             if (type === undefined) {
-                if (orientationValue == 1 || orientationValue == 2) setFormat("day");
-                else setFormat("week");
+                if (orientationValue === ScreenOrientation.Orientation.PORTRAIT_UP ||
+                    orientationValue === ScreenOrientation.Orientation.PORTRAIT_DOWN) {
+                    setFormat("day");
+                } else {
+                    setFormat("week");
+                }
             }
         };
         const screenOrientationListener =
@@ -45,7 +55,7 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
         return () => {
             ScreenOrientation.removeOrientationChangeListener(screenOrientationListener);
         };
-    }, []);
+    }, [type]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -60,17 +70,20 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
         return () => clearInterval(interval);
     }, []);
 
-    useEffect(() => {
-        scrollViewRef.current?.scrollTo({ y: (currentMinutes / 60 - 1) * HOUR_BLOCK_HEIGHT, animated: true });
-    }, []);
-
     const renderDay = (dayIndex: number) => (
-        <TView key={dayIndex} flex={1} >
+        <TView key={dayIndex} flex={1}>
             {Array.from({ length: TOTAL_HOURS }).map((_, hour) => (
-                <TView bb={1} bl={1} borderColor='pink' style={{
-                    height: HOUR_BLOCK_HEIGHT,
-                }} flexDirection="row">
-                    <TView flexDirection="row" flex={1} >
+                <TView
+                    key={hour}
+                    bb={1}
+                    bl={1}
+                    borderColor='pink'
+                    style={{
+                        height: HOUR_BLOCK_HEIGHT,
+                    }}
+                    flexDirection="row"
+                >
+                    <TView flexDirection="row" flex={1}>
                         <For each={courses}>
                             {course =>
                                 course.data.periods
@@ -79,6 +92,7 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
                                     )
                                     .map((period, index, filteredPeriods) => (
                                         <Day
+                                            key={period.activityId}
                                             period={period}
                                             course={course}
                                             user={user}
@@ -110,17 +124,29 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
     return (
         <TView mb={16} flex={1} key={userId}>
             {format === "day" && (
-                <TTouchableOpacity radius={10} p={5}
-                    style={{ marginVertical: 8, width: '100%', borderRadius: 10, borderWidth: 2, borderColor: 'pink' }}
-                    onPress={() => scrollViewRef.current?.scrollTo({ y: (currentMinutes / 60 - 0.8) * HOUR_BLOCK_HEIGHT, animated: true })}
-                >
-                    <TText color='pink' align='center'>now</TText>
-                </TTouchableOpacity>
+                <>
+                    <TText align='center' pt={10} pb={10} color='pink'>{actualDate.toDateString()}</TText>
+                    <TTouchableOpacity
+                        radius={10}
+                        p={5}
+                        style={{
+                            marginVertical: 8,
+                            width: '100%',
+                            borderRadius: 10,
+                            borderWidth: 2,
+                            borderColor: 'pink'
+                        }}
+                        onPress={() => {
+                            actualDate.setDate(new Date(actualDate.setDate(actualDate.getDate() + 1)).getDate());
+                        }}
+                    >
+                        <TText color='pink' align='center'>now</TText>
+                    </TTouchableOpacity>
+                </>
             )}
 
             {format === "week" && (
-                <TView flexDirection="row" >
-                    <TText align='center' style={{ width: '7%' }} >Time</TText>
+                <TView flexDirection="row">
                     {DAY_NAMES.map((dayName, index) => (
                         <TText key={index} align='center' style={{ width: '13.3%' }}>
                             {dayName}
@@ -128,27 +154,57 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
                     ))}
                 </TView>
             )}
-            <ScrollView
-                ref={scrollViewRef}
-                style={{ flex: 1 }}
-                showsVerticalScrollIndicator={true}>
-                <TView flexDirection="row">
-                    <TView style={(format == 'week' && { width: '7%' }) || (format == 'day' && { width: '14%' })}>
-                        {Array.from({ length: TOTAL_HOURS }).map((_, hour) => (
-                            <TView alignItems='center' justifyContent='center' bt={1} bb={1} borderColor='yellow' style={{ height: HOUR_BLOCK_HEIGHT }}>
-                                <TText color='text' size={12}>{`${hour}:00`}</TText>
-                            </TView>
-                        ))}
-                    </TView>
 
-                    {format === "day" && renderDay(getCurrentDay())}
-                    {format === "week" && (
-                        <TView flexDirection="row" style={{ flex: 1 }}>
-                            {DAY_ORDER.map(dayIndex => renderDay(dayIndex))}
-                        </TView>
-                    )}
-                </TView>
-            </ScrollView>
+            <FlatList
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ flexDirection: 'row' }}
+                initialScrollIndex={getCurrentDay()}
+                data={DAY_ORDER}
+                keyExtractor={(item) => item.toString()}
+                renderItem={({ item: dayIndex }) => (
+                    <View style={{ width: screenWidth }}>
+                        <ScrollView
+                            showsVerticalScrollIndicator={true}
+                            contentContainerStyle={{ flexGrow: 1 }}
+                        >
+                            <TView flexDirection="row">
+                                <TView style={(format === 'week' && { width: '7%' }) || (format === 'day' && { width: '14%' })}>
+                                    {Array.from({ length: TOTAL_HOURS }).map((_, hour) => (
+                                        <TView
+                                            key={hour}
+                                            alignItems='center'
+                                            justifyContent='center'
+                                            bt={1}
+                                            bb={1}
+                                            borderColor='yellow'
+                                            style={{ height: HOUR_BLOCK_HEIGHT }}
+                                        >
+                                            <TText color='text' size={12}>{`${hour}:00`}</TText>
+                                        </TView>
+                                    ))}
+                                </TView>
+
+                                {format === "day" && renderDay(dayIndex)}
+                                {format === "week" && (
+                                    <TView flexDirection="row" style={{ flex: 1 }}>
+                                        {DAY_ORDER.map(dayIdx => renderDay(dayIdx))}
+                                    </TView>
+                                )}
+                            </TView>
+                        </ScrollView>
+                    </View>
+                )}
+                getItemLayout={(data, index) => ({
+                    length: screenWidth, // width of each item
+                    offset: screenWidth * index, // calculate the offset for each item
+                    index,
+                })}
+            />
+
+
         </TView>
     );
 };
+
