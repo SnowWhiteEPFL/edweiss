@@ -10,6 +10,7 @@
 
 import { FunctionFolder, FunctionOf } from '../functions';
 import Quizzes from '../quizzes';
+import { Timestamp } from '../time';
 
 // ------------------------------------------------------------
 // -------------------   Lecture Namespace   ------------------
