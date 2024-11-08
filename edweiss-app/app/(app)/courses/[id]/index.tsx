@@ -80,8 +80,8 @@ const CoursePage: ApplicationRoute = () => {
 	if (typeof id !== 'string') return <Redirect href={'/'} />;
 
 	// Get course & assignments data from Firestore
-	const [course] = usePrefetchedDynamicDoc(CollectionOf<Course>('courses'), id, undefined);
 	const firebase_data = useDynamicDocs(CollectionOf<Assignment>(`courses/${id}/assignments`));
+	const [course] = usePrefetchedDynamicDoc(CollectionOf<Course>('courses'), id, undefined);
 
 	if (course == undefined || firebase_data == undefined) return <TActivityIndicator size={40} />;
 
