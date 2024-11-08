@@ -30,16 +30,26 @@ namespace LectureDisplay {
         type: "quiz";
         quizModel: Quizzes.Quiz;
     }
+    
+    export interface Question {
+        question: string,
+        //userID: string,
+        anonym: boolean,
+        likes: number,
+        postedTime: Timestamp,
+    }
 
     export interface Lecture {
         pdfUri: string;
         nbOfPages: number;
         availableToStudents: boolean;
         audioTranscript: { [pageNumber: number]: string; };
+        questions: Question[];
     }
 
     export const Functions = FunctionFolder("lectures", {
         addAudioTranscript: FunctionOf<{ courseId: string, lectureId: string, pageNumber: number, transcription: string; }, {}, 'invalid_arg' | 'error_firebase' | 'successfully_added'>("addAudioTranscript"),
+        createQuestion: FunctionOf<{ courseId: string, lectureId: string, question: Question; }, { id: string; }, 'invalid_arg' | 'error_firebase' | 'empty_question'>("createQuestion"),
     });
 }
 

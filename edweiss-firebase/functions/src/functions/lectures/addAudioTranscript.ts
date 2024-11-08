@@ -30,7 +30,7 @@ export const addAudioTranscript = onAuthentifiedCall(Functions.addAudioTranscrip
     const [lecture, lectureRef] = await getDocumentAndRef(CollectionOf<Lecture>(`courses/${args.courseId}/lectures`), args.lectureId);
 
     if (lecture == undefined)
-        return fail("firebase_error");
+        return fail("error_firebase");
 
     if (typeof args.pageNumber !== 'number' || args.pageNumber < 1 || args.pageNumber > lecture.nbOfPages) {
         return fail('invalid_arg');
