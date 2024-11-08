@@ -1,22 +1,20 @@
-import ReactComponent from '@/constants/Component';
 
-import TScrollView from '@/components/core/containers/TScrollView';
-import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
-import TView from '@/components/core/containers/TView';
-import For from '@/components/core/For';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
-import TText from '@/components/core/TText';
 import { callFunction, CollectionOf } from '@/config/firebase';
 import { useDoc, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import Quizzes, { QuizzesAttempts } from '@/model/quizzes';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import TSafeArea from '@/components/core/containers/TSafeArea';
+import TScrollView from '@/components/core/containers/TScrollView';
+import TView from '@/components/core/containers/TView';
+import For from '@/components/core/For';
 import RouteHeader from '@/components/core/header/RouteHeader';
+import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
-import { Color } from '@/constants/Colors';
-import { ApplicationRoute } from '@/constants/Component';
+import { MCQDisplay, MCQResultDisplay, TFDisplay, TFResultDisplay } from '@/components/quiz/QuizComponents';
+import ReactComponent, { ApplicationRoute } from '@/constants/Component';
 import { useAuth } from '@/contexts/auth';
 import { ActivityIndicator } from 'react-native';
 
@@ -234,235 +232,235 @@ export const QuizResultDisplay: ReactComponent<{ studentAnswers: QuizzesAttempts
     );
 };
 
-// export const QuizExerciseOverhead: ReactComponent<{ question: string, }> = ({ question, }) => {
+export const QuizExerciseOverhead: ReactComponent<{ question: string, }> = ({ question, }) => {
+    return (
+        <TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"}>
+
+            <TView mb={"lg"} radius={999} p={"md"}>
+                <TText size={"lg"}>
+                    {question}
+                </TText>
+            </TView>
+
+        </TView>
+    );
+};
+
+
+// export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: number[], onUpdate: (answer: number[] | boolean | undefined, id: number) => void, exId: number, }> = memo(({ exercise, selectedIds, onUpdate, exId }) => {
+//     const handleSelection = (propId: number) => {
+//         requestAnimationFrame(() => {
+//             let newAnswer;
+//             if (selectedIds.includes(propId)) {
+//                 newAnswer = selectedIds.filter(currentId => currentId != propId); // unselects proposition, removes id
+//             }
+//             else if (exercise.numberOfAnswers > selectedIds.length) {
+//                 newAnswer = selectedIds.concat([propId]);// adds id to list
+//             }
+//             else if (exercise.numberOfAnswers == 1 && selectedIds.length == 1) {
+//                 newAnswer = selectedIds.map(e => propId);
+//             }
+//             else {
+//                 newAnswer = selectedIds;
+//             }
+//             onUpdate(newAnswer, exId);  // updates answers at index exId
+//         });
+//     };
+
 //     return (
 //         <TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"}>
 
 //             <TView mb={"lg"} radius={999} p={"md"}>
 //                 <TText size={"lg"}>
-//                     {question}
+//                     {exercise.question} - {exercise.numberOfAnswers} answer(s)
 //                 </TText>
 //             </TView>
 
+//             <For each={exercise.propositions} key={exercise.question}>
+//                 {(proposition, index) =>
+//                     <TTouchableOpacity key={exercise.question + proposition.id}
+//                         onPress={() => handleSelection(index)}
+//                         backgroundColor={handleMCQColor(selectedIds, index)}
+//                         mb={"md"} mr={"md"} ml={"md"} p={"sm"} px={"md"}
+//                         radius={"xl"}>
+//                         <TText color={textColor(handleMCQColor(selectedIds, index))}>
+//                             {proposition.description}
+//                         </TText>
+//                     </TTouchableOpacity>}
+//             </For>
+//         </TView>
+//     );
+// });
+
+// export const MCQResultDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: number[], results: number[]; }> = ({ exercise, selectedIds, results }) => {
+//     return (
+//         <TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"}>
+
+//             <TView mb={"lg"} radius={999} p={"md"}>
+//                 <TText size={"lg"}>
+//                     {exercise.question}
+//                 </TText>
+//             </TView>
+
+//             <For each={exercise.propositions} key={exercise.question}>
+//                 {(proposition, index) =>
+//                     <TTouchableOpacity key={exercise.question + proposition.id}
+//                         backgroundColor={checkResultColor(checkMCQPropositionCorrect(selectedIds, results, index))}
+//                         mb={"md"} mr={"md"} ml={"md"} p={"sm"} px={"md"}
+//                         radius={"xl"}>
+//                         <TText color={textColor(checkResultColor(checkMCQPropositionCorrect(selectedIds, results, index)))}>
+//                             {proposition.description}
+//                         </TText>
+//                     </TTouchableOpacity>}
+//             </For>
 //         </TView>
 //     );
 // };
 
 
-export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: number[], onUpdate: (answer: number[] | boolean | undefined, id: number) => void, exId: number, }> = memo(({ exercise, selectedIds, onUpdate, exId }) => {
-    const handleSelection = (propId: number) => {
-        requestAnimationFrame(() => {
-            let newAnswer;
-            if (selectedIds.includes(propId)) {
-                newAnswer = selectedIds.filter(currentId => currentId != propId); // unselects proposition, removes id
-            }
-            else if (exercise.numberOfAnswers > selectedIds.length) {
-                newAnswer = selectedIds.concat([propId]);// adds id to list
-            }
-            else if (exercise.numberOfAnswers == 1 && selectedIds.length == 1) {
-                newAnswer = selectedIds.map(e => propId);
-            }
-            else {
-                newAnswer = selectedIds;
-            }
-            onUpdate(newAnswer, exId);  // updates answers at index exId
-        });
-    };
+// export const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean | undefined, onUpdate: (answer: number[] | boolean | undefined, id: number) => void, exId: number; }> = memo(({ exercise, selected, onUpdate, exId }) => {
+//     // selected represents the option (true or false) selected by the student, in this exercise.
 
-    return (
-        <TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"}>
+//     const handleSelection = (value: boolean) => {
+//         requestAnimationFrame(() => {
+//             if (selected == undefined || selected != value) {
+//                 onUpdate(value, exId);
+//             } else {
+//                 onUpdate(undefined, exId);// de-select the option
+//             }
+//         });
+//     };
 
-            <TView mb={"lg"} radius={999} p={"md"}>
-                <TText size={"lg"}>
-                    {exercise.question} - {exercise.numberOfAnswers} answer(s)
-                </TText>
-            </TView>
+//     return (
+//         <TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"} pb={"xl"}>
 
-            <For each={exercise.propositions} key={exercise.question}>
-                {(proposition, index) =>
-                    <TTouchableOpacity key={exercise.question + proposition.id}
-                        onPress={() => handleSelection(index)}
-                        backgroundColor={handleMCQColor(selectedIds, index)}
-                        mb={"md"} mr={"md"} ml={"md"} p={"sm"} px={"md"}
-                        radius={"xl"}>
-                        <TText color={textColor(handleMCQColor(selectedIds, index))}>
-                            {proposition.description}
-                        </TText>
-                    </TTouchableOpacity>}
-            </For>
-        </TView>
-    );
-});
+//             <TView mb={"lg"} radius={"xl"} p={"md"}>
+//                 <TText size={"lg"}>
+//                     {exercise.question}
+//                 </TText>
+//             </TView>
 
-export const MCQResultDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: number[], results: number[]; }> = ({ exercise, selectedIds, results }) => {
-    return (
-        <TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"}>
+//             <TView flexDirection='row' flexColumnGap={"xl"}>
+//                 <TTouchableOpacity flex={1} onPress={() => { handleSelection(true); }} radius={"xl"} p={"md"} backgroundColor={handleTFColor(selected, true)} testID='true' >
+//                     <TText align='center' color={textColor(handleTFColor(selected, true))}>
+//                         True
+//                     </TText>
+//                 </TTouchableOpacity>
 
-            <TView mb={"lg"} radius={999} p={"md"}>
-                <TText size={"lg"}>
-                    {exercise.question}
-                </TText>
-            </TView>
+//                 <TTouchableOpacity flex={1} onPress={() => handleSelection(false)} radius={"xl"} p={"md"} backgroundColor={handleTFColor(selected, false)} testID='false'>
+//                     <TText align='center' color={textColor(handleTFColor(selected, false))}>
+//                         False
+//                     </TText>
+//                 </TTouchableOpacity>
 
-            <For each={exercise.propositions} key={exercise.question}>
-                {(proposition, index) =>
-                    <TTouchableOpacity key={exercise.question + proposition.id}
-                        backgroundColor={checkResultColor(checkMCQPropositionCorrect(selectedIds, results, index))}
-                        mb={"md"} mr={"md"} ml={"md"} p={"sm"} px={"md"}
-                        radius={"xl"}>
-                        <TText color={textColor(checkResultColor(checkMCQPropositionCorrect(selectedIds, results, index)))}>
-                            {proposition.description}
-                        </TText>
-                    </TTouchableOpacity>}
-            </For>
-        </TView>
-    );
-};
+//             </TView>
+//         </TView>
 
+//     );
+// });
 
-export const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean | undefined, onUpdate: (answer: number[] | boolean | undefined, id: number) => void, exId: number; }> = memo(({ exercise, selected, onUpdate, exId }) => {
-    // selected represents the option (true or false) selected by the student, in this exercise.
+// const TFResultDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean | undefined, result: boolean; }> = ({ exercise, selected, result }) => {
+//     return (
+//         <TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"} pb={"xl"}>
 
-    const handleSelection = (value: boolean) => {
-        requestAnimationFrame(() => {
-            if (selected == undefined || selected != value) {
-                onUpdate(value, exId);
-            } else {
-                onUpdate(undefined, exId);// de-select the option
-            }
-        });
-    };
+//             <TView mb={"lg"} radius={"xl"} p={"md"}>
+//                 <TText size={"lg"}>
+//                     {exercise.question}
+//                 </TText>
+//             </TView>
 
-    return (
-        <TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"} pb={"xl"}>
+//             <TView flexDirection='row' flexColumnGap={"xl"}>
+//                 <TTouchableOpacity flex={1} radius={"xl"} p={"md"} backgroundColor={checkResultColor(checkTFCorrect(selected, true, result))} >
+//                     <TText align='center' color={textColor(checkResultColor(checkTFCorrect(selected, true, result)))}>
+//                         True
+//                     </TText>
+//                 </TTouchableOpacity>
 
-            <TView mb={"lg"} radius={"xl"} p={"md"}>
-                <TText size={"lg"}>
-                    {exercise.question}
-                </TText>
-            </TView>
+//                 <TTouchableOpacity flex={1} radius={"xl"} p={"md"} backgroundColor={checkResultColor(checkTFCorrect(selected, false, result))}>
+//                     <TText align='center' color={textColor(checkResultColor(checkTFCorrect(selected, false, result)))}>
+//                         False
+//                     </TText>
+//                 </TTouchableOpacity>
 
-            <TView flexDirection='row' flexColumnGap={"xl"}>
-                <TTouchableOpacity flex={1} onPress={() => { handleSelection(true); }} radius={"xl"} p={"md"} backgroundColor={handleTFColor(selected, true)} testID='true' >
-                    <TText align='center' color={textColor(handleTFColor(selected, true))}>
-                        True
-                    </TText>
-                </TTouchableOpacity>
+//             </TView>
+//         </TView>
 
-                <TTouchableOpacity flex={1} onPress={() => handleSelection(false)} radius={"xl"} p={"md"} backgroundColor={handleTFColor(selected, false)} testID='false'>
-                    <TText align='center' color={textColor(handleTFColor(selected, false))}>
-                        False
-                    </TText>
-                </TTouchableOpacity>
+//     );
+// };
 
-            </TView>
-        </TView>
+// export function checkResultColor(correctness: Quizzes.Results): Color {
+//     switch (correctness) {
+//         case 'unselected': return 'surface0';
+//         case 'wrong': return 'red';
+//         case 'missing': return 'yellow';
+//         case 'correct': return 'green';
+//     }
+// }
 
-    );
-});
+// export function handleTFColor(selected: boolean | undefined, propValue: boolean): Color {
+//     if (selected == undefined) {
+//         return "surface0";
+//     }
+//     if (selected != propValue) {
+//         return "surface0";
+//     }
+//     else {
+//         return "blue";
+//     }
+// }
+// export function handleMCQColor(selectedIds: number[], propositionIndex: number): Color {
 
-const TFResultDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean | undefined, result: boolean; }> = ({ exercise, selected, result }) => {
-    return (
-        <TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"} pb={"xl"}>
+//     if (selectedIds == undefined) {
+//         return "surface0";
+//     }
+//     if (selectedIds.includes(propositionIndex)) {
+//         return "blue";
+//     }
+//     else {
+//         return "surface0";
+//     }
 
-            <TView mb={"lg"} radius={"xl"} p={"md"}>
-                <TText size={"lg"}>
-                    {exercise.question}
-                </TText>
-            </TView>
+// }
 
-            <TView flexDirection='row' flexColumnGap={"xl"}>
-                <TTouchableOpacity flex={1} radius={"xl"} p={"md"} backgroundColor={checkResultColor(checkTFCorrect(selected, true, result))} >
-                    <TText align='center' color={textColor(checkResultColor(checkTFCorrect(selected, true, result)))}>
-                        True
-                    </TText>
-                </TTouchableOpacity>
+// export function checkMCQPropositionCorrect(selectedIds: number[], result: number[], propId: number): Quizzes.Results {
+//     if (!selectedIds.includes(propId) && !result.includes(propId)) {
+//         return 'unselected';
+//     }
+//     if (selectedIds.includes(propId) && !result.includes(propId)) {
+//         return 'wrong';
+//     }
+//     if (!selectedIds.includes(propId) && result.includes(propId)) {
+//         return 'missing';
+//     }
+//     else {
+//         return 'correct';
+//     }
+// }
 
-                <TTouchableOpacity flex={1} radius={"xl"} p={"md"} backgroundColor={checkResultColor(checkTFCorrect(selected, false, result))}>
-                    <TText align='center' color={textColor(checkResultColor(checkTFCorrect(selected, false, result)))}>
-                        False
-                    </TText>
-                </TTouchableOpacity>
-
-            </TView>
-        </TView>
-
-    );
-};
-
-export function checkResultColor(correctness: Quizzes.Results): Color {
-    switch (correctness) {
-        case 'unselected': return 'surface0';
-        case 'wrong': return 'red';
-        case 'missing': return 'yellow';
-        case 'correct': return 'green';
-    }
-}
-
-export function handleTFColor(selected: boolean | undefined, propValue: boolean): Color {
-    if (selected == undefined) {
-        return "surface0";
-    }
-    if (selected != propValue) {
-        return "surface0";
-    }
-    else {
-        return "blue";
-    }
-}
-export function handleMCQColor(selectedIds: number[], propositionIndex: number): Color {
-
-    if (selectedIds == undefined) {
-        return "surface0";
-    }
-    if (selectedIds.includes(propositionIndex)) {
-        return "blue";
-    }
-    else {
-        return "surface0";
-    }
-
-}
-
-export function checkMCQPropositionCorrect(selectedIds: number[], result: number[], propId: number): Quizzes.Results {
-    if (!selectedIds.includes(propId) && !result.includes(propId)) {
-        return 'unselected';
-    }
-    if (selectedIds.includes(propId) && !result.includes(propId)) {
-        return 'wrong';
-    }
-    if (!selectedIds.includes(propId) && result.includes(propId)) {
-        return 'missing';
-    }
-    else {
-        return 'correct';
-    }
-}
-
-export function checkTFCorrect(selected: boolean | undefined, propositionValue: boolean, result: boolean): Quizzes.Results {
-    if (selected == undefined) {
-        if (propositionValue == result) {
-            return 'missing';
-        }
-        else {
-            return 'unselected';
-        }
-    }
-    else if (propositionValue == selected && propositionValue == result) {
-        return 'correct';
-    }
-    else if (propositionValue != selected && propositionValue == result) {
-        return 'missing';
-    } else if (propositionValue == selected && propositionValue != result) {
-        return 'wrong';
-    }
-    else {
-        return 'unselected';
-    }
-}
-export function textColor(backgroundColor: Color) {
-    return backgroundColor == 'surface0' ? 'text' : 'base';
-}
+// export function checkTFCorrect(selected: boolean | undefined, propositionValue: boolean, result: boolean): Quizzes.Results {
+//     if (selected == undefined) {
+//         if (propositionValue == result) {
+//             return 'missing';
+//         }
+//         else {
+//             return 'unselected';
+//         }
+//     }
+//     else if (propositionValue == selected && propositionValue == result) {
+//         return 'correct';
+//     }
+//     else if (propositionValue != selected && propositionValue == result) {
+//         return 'missing';
+//     } else if (propositionValue == selected && propositionValue != result) {
+//         return 'wrong';
+//     }
+//     else {
+//         return 'unselected';
+//     }
+// }
+// export function textColor(backgroundColor: Color) {
+//     return backgroundColor == 'surface0' ? 'text' : 'base';
+// }
 
 
 export function arraysEqual(arr1: any[], arr2: any[]): boolean {
