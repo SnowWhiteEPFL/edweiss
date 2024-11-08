@@ -69,6 +69,8 @@ const LectureScreen: ApplicationRoute = () => {
     }, [lectureDoc]);
 
     useEffect(() => {
+        addQuestion('test question 1');
+        addQuestion('test question 2');
         const onOrientationChange = (currentOrientation: ScreenOrientation.OrientationChangeEvent) => {
             const orientationValue = currentOrientation.orientationInfo.orientation;
             console.log(orientationValue);
