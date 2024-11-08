@@ -18,6 +18,7 @@ const mockCourse: Course = {
 	periods: [],
 	section: 'IN',
 	credits: 3,
+	started: true,
 };
 
 const mockPeriod: CourseTimePeriod = {
@@ -70,7 +71,7 @@ describe('Day Component', () => {
 
 	it('renders correctly for a student and navigates on press', () => {
 		const { getByText } = render(
-			<Day
+			<CalendarDayDisplay
 				period={mockPeriod}
 				course={{ id: 'course1', data: mockCourse }}
 				user={mockUserStudent}
@@ -98,7 +99,7 @@ describe('Day Component', () => {
 		const periodWithoutEnd = { ...mockPeriod, end: mockPeriod.end ?? 0 };
 
 		const { getByText } = render(
-			<Day
+			<CalendarDayDisplay
 				period={periodWithoutEnd}
 				course={{ id: 'course1', data: mockCourse }}
 				user={mockUserProfessor}

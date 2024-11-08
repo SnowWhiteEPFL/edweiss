@@ -23,7 +23,7 @@ const TText: ReactComponent<TTextProps> = ({ style, light, dark, size = 'md', bo
 					color: computedColor,
 					fontSize: computeSize(size, textSizes),
 					lineHeight: computeSize(size, lineHeightSizes),
-					fontWeight: bold ? 600 : 'normal',
+					fontWeight: bold ? 'bold' : 'normal',
 					textAlign: align,
 					fontFamily: "Inter"
 				},
