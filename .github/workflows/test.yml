@@ -30,10 +30,10 @@ jobs:
       - name: Check Typescript compilation
         run: npm run tscheck
       
-      # - name: Run Jest tests
-      #   run: npm test
-      #   env:
-      #     CI: true
+      - name: Run Jest tests
+        run: npm test
+        env:
+          CI: true
         
       # # - name: Upload Jest test results
       # #   if: always()
@@ -48,6 +48,11 @@ jobs:
 
       - name: Test and coverage
         run: npm run test --coverage
+        env:
+          CI: true
+
+      - name: List coverage directory contents (debug)
+        run: ls -R coverage
       
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
