@@ -49,16 +49,23 @@ const mockUserStudent = {
     },
 };
 
+function renderDayComponent({ user, period, format }: { user: any, period: CourseTimePeriod, format: string; }) {
+    return render(
+        <Day
+            course={{ id: 'course1', data: mockCourse }}
+            user={user}
+            filteredPeriods={[period]}
+            index={0}
+            format={format} period={period} />
+    );
+}
+
+
+const { getByText } = renderDayComponent({ user: mockUserProfessor, period: mockPeriod, format: "day" });
+
 describe('Day Component', () => {
     it('renders correctly for a professor and navigates on press', () => {
-        const { getByText } = render(
-            <Day
-                period={mockPeriod}
-                course={{ id: 'course1', data: mockCourse }}
-                user={mockUserProfessor}
-                filteredPeriods={[mockPeriod]}
-                index={0} format={"day"} />
-        );
+        const { getByText } = renderDayComponent({ user: mockUserProfessor, period: mockPeriod, format: "day" });
 
         expect(getByText('Test Course')).toBeTruthy();
 
@@ -76,14 +83,7 @@ describe('Day Component', () => {
     });
 
     it('renders correctly for a student and navigates on press', () => {
-        const { getByText } = render(
-            <Day
-                period={mockPeriod}
-                course={{ id: 'course1', data: mockCourse }}
-                user={mockUserStudent}
-                filteredPeriods={[mockPeriod]}
-                index={0} format={"week"} />
-        );
+        const { getByText } = renderDayComponent({ user: mockUserStudent, period: mockPeriod, format: "week" });
 
         expect(getByText('Test Course')).toBeTruthy();
 
@@ -101,20 +101,9 @@ describe('Day Component', () => {
     });
 
     it('handles the case when period does not have an end time', () => {
-        const periodWithoutEnd = { ...mockPeriod, end: mockPeriod.end ?? 0 };
 
-        const { getByText } = render(
-            <Day
-                period={periodWithoutEnd}
-                course={{ id: 'course1', data: mockCourse }}
-                user={mockUserProfessor}
-                filteredPeriods={[periodWithoutEnd]}
-                index={0} format={"day"} />
-        );
+        const { getByText } = renderDayComponent({ user: mockUserProfessor, period: mockPeriod, format: "day" });
         expect(getByText('Test Course')).toBeTruthy();
         (callFunction as jest.Mock).mockRejectedValueOnce(new Error("Erreur de test"));
-
-
-
     });
 });
