@@ -1,5 +1,3 @@
 export const getCurrentDay = () => {
-
-    const now = new Date();
-    return now.getDay();
+    return new Date().getDay();
 };
