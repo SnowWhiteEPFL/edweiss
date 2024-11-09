@@ -8,8 +8,9 @@ import TTouchableOpacity from './containers/TTouchableOpacity';
 import TView from './containers/TView';
 import { Day } from './Day';
 import For from './For';
-import { getCurrentDay } from './getCurrentDay';
-import { getCurrentTimeInMinutes } from './getCurrentTimeInMinutes';
+
+import { getCurrentDay } from '@/utils/calendar/getCurrentDay';
+import { getCurrentTimeInMinutes } from '@/utils/calendar/getCurrentTimeInMinutes';
 import TText from './TText';
 
 const HOUR_BLOCK_HEIGHT = 80;
@@ -67,7 +68,7 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
     const renderDay = (dayIndex: number) => (
         <TView key={dayIndex} flex={1} >
             {Array.from({ length: TOTAL_HOURS }).map((_, hour) => (
-                <TView bb={1} bl={1} borderColor='pink' style={{
+                <TView key={`hour-${dayIndex}-${hour}`} bb={1} bl={1} borderColor='pink' style={{
                     height: HOUR_BLOCK_HEIGHT,
                 }} flexDirection="row">
                     <TView flexDirection="row" flex={1} >
@@ -79,12 +80,13 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
                                     )
                                     .map((period, index, filteredPeriods) => (
                                         <Day
+                                            key={`${period.dayIndex}-${period.start}-${index}`}
                                             period={period}
                                             course={course}
                                             user={user}
                                             filteredPeriods={filteredPeriods}
                                             index={index}
-                                            format={format || "day"}
+                                            format={format ?? "day"}
                                         />
                                     ))
                             }
@@ -121,8 +123,8 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
             {format === "week" && (
                 <TView flexDirection="row" >
                     <TText align='center' style={{ width: '7%' }} >Time</TText>
-                    {DAY_NAMES.map((dayName, index) => (
-                        <TText key={index} align='center' style={{ width: '13.3%' }}>
+                    {DAY_NAMES.map((dayName) => (
+                        <TText key={dayName} align='center' style={{ width: '13.3%' }}>
                             {dayName}
                         </TText>
                     ))}
@@ -135,7 +137,7 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
                 <TView flexDirection="row">
                     <TView style={(format == 'week' && { width: '7%' }) || (format == 'day' && { width: '14%' })}>
                         {Array.from({ length: TOTAL_HOURS }).map((_, hour) => (
-                            <TView alignItems='center' justifyContent='center' bt={1} bb={1} borderColor='yellow' style={{ height: HOUR_BLOCK_HEIGHT }}>
+                            <TView key={`hour-${new Date().getTime()}-${hour}`} alignItems='center' justifyContent='center' bt={1} bb={1} borderColor='yellow' style={{ height: HOUR_BLOCK_HEIGHT }}>
                                 <TText color='text' size={12}>{`${hour}:00`}</TText>
                             </TView>
                         ))}
