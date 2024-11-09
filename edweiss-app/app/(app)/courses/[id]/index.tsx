@@ -20,7 +20,6 @@ import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
-import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import AssignmentDisplay, { testIDs as assignmentTestIDs } from '@/components/courses/AssignmentDisplay';
 import { CollectionOf } from '@/config/firebase';
@@ -49,13 +48,17 @@ export const testIDs = {
 	upcomingAssignments: 'upcoming-assignments',
 	assignemtView: 'assignment-view',
 	noAssignmentDue: 'no-assignment-due',
+	previousAssignmentTouchable: 'navigate-to-archive-button',
 	previousAssignments: 'previous-assignments',
 	thisWeekTitle: 'this-week-title',
 	thisWeekText: 'this-week-text',
+	slidesTouchable: 'slides-touchable',
 	slidesIcon: 'slides-icon',
 	slidesText: 'slides-text',
+	exercisesTouchable: 'exercises-touchable',
 	exercisesIcon: 'exercises-icon',
 	exercisesText: 'exercises-text',
+	feedbacksTouchable: 'feedbacks-touchable',
 	feedbacksIcon: 'feedbacks-icon',
 	feedbacksText: 'feedbacks-text',
 };
@@ -93,19 +96,10 @@ const CoursePage: ApplicationRoute = () => {
 		CollectionOf<Assignment>(`courses/${isValidId ? id : ''}/assignments`)
 	);
 
-	if (!isValidId) {
-		return <Redirect href={'/'} />;
-	}
+	if (!isValidId) { return <Redirect href={'/'} />; }
 
 	// Afficher un indicateur de chargement si les données ne sont pas encore prêtes
-	if (course == undefined || firebase_data == undefined) {
-		return <TActivityIndicator size={40} />;
-	}
-
-	// Get course & assignments data from Firestore
-	//const [course] = usePrefetchedDynamicDoc(CollectionOf<Course>('courses'), id, undefined);
-	//const firebase_data = useDynamicDocs(CollectionOf<Assignment>(`courses/${id}/assignments`));
-	//if (course == undefined || firebase_data == undefined) return <TActivityIndicator size={40} />;
+	if (course == undefined || firebase_data == undefined) { return <TActivityIndicator size={40} />; }
 
 	const assignmentsArray = firebase_data ? firebase_data.map(doc => ({ id: doc.id, data: doc.data })) : [];
 
@@ -130,14 +124,10 @@ const CoursePage: ApplicationRoute = () => {
 		});
 
 	// Filter previous assignments
-	const previousAssignments = assignments.filter(
-		(assignment) => assignment.dueDate.seconds * timeInMS.SECOND <= new Date().getTime()
-	).reverse();
+	const previousAssignments = assignments.filter((assignment) => assignment.dueDate.seconds * timeInMS.SECOND <= new Date().getTime()).reverse();
 
 	// Filter upcoming assignments
-	const upcomingAssignments = assignments.filter(
-		(assignment) => assignment.dueDate.seconds * timeInMS.SECOND > new Date().getTime()
-	);
+	const upcomingAssignments = assignments.filter((assignment) => assignment.dueDate.seconds * timeInMS.SECOND > new Date().getTime());
 
 	return (
 		<>
@@ -154,42 +144,34 @@ const CoursePage: ApplicationRoute = () => {
 				{upcomingAssignments.length > 0
 					?
 					upcomingAssignments.map((assignment) => (
-						<TView key={assignment.name} testID={testIDs.assignemtView}>
-							<AssignmentDisplay item={assignment} index={upcomingAssignments.indexOf(assignment)} isSwipeable={true} />
-						</TView>
+						<AssignmentDisplay item={assignment} index={upcomingAssignments.indexOf(assignment)} isSwipeable={true} />
 					))
 					:
 					<TText size={16} testID={testIDs.noAssignmentDue} >{t('course:no_assignment_due')}</TText>
 				}
 
 				{/* Bouton vers les Passed Assignments */}
-				<TTouchableOpacity onPress={() =>
-					router.push({
-						pathname: `/courses/[id]/archive`, // Forcer la chaîne à être interprétée comme littérale
-						params: { id: course.id, extraInfo: JSON.stringify(previousAssignments) }
-					})
-				}>
+				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} onPress={() => router.push({ pathname: `/courses/[id]/archive`, params: { id: course.id, extraInfo: JSON.stringify(previousAssignments) } })}>
 					<TText my={20} align='center' color='cherry' testID={testIDs.previousAssignments} >{t(`course:previous_assignment_title`)}</TText>
 				</TTouchableOpacity>
 
 				{/* This Week Section */}
-				<TText mb={10} size={18} color='darkBlue' bold={true} testID={testIDs.thisWeekTitle} >{t(`course:this_week`)} :</TText>
+				<TText mb={10} size={18} color='darkBlue' bold={true} testID={testIDs.thisWeekTitle} >{t(`course:this_week`)}</TText>
 				<TText align='justify' size={15} color='darkNight' py={16} textBreakStrategy='highQuality' lineHeight={50} testID={testIDs.thisWeekText} >
 					Lorem ipsum dolor sit amet consectetur. Ipsum aliquam ut in dignissim nisl. Donec egestas sed amet dictumst odio magna at. Integer risus pellentesque velit sed sit bibendum. Elementum consectetur cras viverra nunc dictum et lacus varius semper. Purus viverra molestie ornare tortor purus sed. Ut nisl non risus nunc facilisi odio purus. Ullamcorper nibh elementum ultricies pulvinar integer libero. Sagittis pretium nunc quam vitae et diam condimentum diam nunc. Quis amet tellus pellentesque amet hac.
 					Lorem ipsum dolor sit amet consectetur. Ipsum aliquam ut in dignissim nisl. Donec egestas sed amet dictumst odio magna at. Integer risus pellentesque velit sed sit bibendum. Elementum consectetur cras viverra nunc dictum et lacus varius semper. Purus viverra molestie ornare tortor purus sed. Ut nisl non risus nunc facilisi odio purus. Ullamcorper nibh elementum ultricies pulvinar integer libero. Sagittis pretium nunc quam vitae et diam condimentum diam nunc. Quis amet tellus pellentesque amet hac.
 				</TText>
 
 				{/* Documents */}
-				<TTouchableOpacity flexDirection='row' alignItems='center' py={10} mb={10} bb={1} borderColor='crust' onPress={() => console.log('Go to Slides')}>
+				<TTouchableOpacity testID={testIDs.slidesTouchable} flexDirection='row' alignItems='center' py={10} mb={10} bb={1} borderColor='crust' onPress={() => console.log('Go to Slides')}>
 					<Icon name={slidesIcon} size={iconSizes.md} testID={testIDs.slidesIcon} />
-					{/* Other possible icons : document-outline, document-text-outline */}
 					<TText size={16} ml={10} testID={testIDs.slidesText} >Slides</TText>
 				</TTouchableOpacity>
-				<TTouchableOpacity flexDirection='row' alignItems='center' py={10} mb={10} bb={1} borderColor='crust' onPress={() => console.log('Go to Exercises')}>
+				<TTouchableOpacity testID={testIDs.exercisesTouchable} flexDirection='row' alignItems='center' py={10} mb={10} bb={1} borderColor='crust' onPress={() => console.log('Go to Exercises')}>
 					<Icon name={exerciseIcon} size={iconSizes.md} testID={testIDs.exercisesIcon} />
 					<TText size={16} ml={10} testID={testIDs.exercisesText} >Exercises</TText>
 				</TTouchableOpacity>
-				<TTouchableOpacity flexDirection='row' alignItems='center' py={10} mb={30} bb={1} borderColor='crust' onPress={() => console.log('Go to Feedbacks')}>
+				<TTouchableOpacity testID={testIDs.feedbacksTouchable} flexDirection='row' alignItems='center' py={10} mb={30} bb={1} borderColor='crust' onPress={() => console.log('Go to Feedbacks')}>
 					<Icon name={feedbackIcon} size={iconSizes.md} testID={testIDs.feedbacksIcon} />
 					<TText size={16} ml={10} testID={testIDs.feedbacksText} >Feedbacks</TText>
 				</TTouchableOpacity>
