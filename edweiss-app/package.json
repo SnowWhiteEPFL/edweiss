@@ -20,7 +20,9 @@
       "!**/babel.config.js",
       "!**/expo-env.d.ts",
       "!**/.expo/**"
-    ]
+    ],
+    "coverageDirectory": "./coverage",
+    "coverageReporters": ["lcov", "text"]
   },
   "dependencies": {
     "@config-plugins/react-native-blob-util": "^8.0.0",
