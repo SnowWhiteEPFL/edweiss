@@ -187,14 +187,6 @@ const DisplayCard: ReactComponent<{ card: Memento.Card, isSelected: boolean, tog
 	// Determine the text color based on the learning status
 	const statusColor = getStatusColor(card.learning_status ?? "");
 
-	/*const handlePress_old = () => {
-		if (!selectionMode) {
-			goToPath();
-		} else {
-			toggleSelection(card); // Select or deselect
-		}
-	};*/
-
 	return (
 		<TTouchableOpacity bb={5}
 			onLongPress={() => {
