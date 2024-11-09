@@ -84,12 +84,6 @@ const CardListScreen: ApplicationRoute = () => {
 
 		await callFunction(Memento.Functions.deleteDeck, { deckId: id });
 		router.back();
-		/*
-		if (res.status == 1) {
-			console.log(`OKAY, deck deleted with id ${res.data.id}`);
-			router.back();
-		}*/
-
 	}
 
 	const toggleDropDown = () => { setShowDropdown(prev => !prev); }; // Open/close dropdown
