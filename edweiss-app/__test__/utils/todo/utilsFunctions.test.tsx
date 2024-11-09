@@ -1,36 +1,47 @@
+/**
+ * @file utilsFunctions.test.tsx
+ * @description Test suite for utils function used in the context of a todo
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import { callFunction } from '@/config/firebase';
 import Todolist from '@/model/todo';
 import Toast from 'react-native-toast-message';
 import { sameTodos, statusColorMap, statusIconMap, statusNextAction, statusNextMap, toogleArchivityOfTodo } from '../../../utils/todo/utilsFunctions';
 
+
+// ------------------------------------------------------------
+// -----------------  Mocking dependencies    -----------------
+// ------------------------------------------------------------
+
+// `t` to return the key as the translation
 jest.mock('@/config/i18config', () => ({
     __esModule: true,
     default: jest.fn((key: string) => key),
 }));
 
-jest.mock('@/config/i18config', () => ({
-    __esModule: true, // This ensures it's treated as a module with a default export
-    default: jest.fn((key: string) => key), // Mock `t` to return the key as the translation
-}));
-
+// Firebase callfunction and to do collection for anonymous user
 jest.mock('@/config/firebase', () => ({
     callFunction: jest.fn(),
     Collections: { todos: 'users/anonymous/todos' }
 }));
 
-// Mock Firebase auth module
+// Firebase auth module to anonymous user
 jest.mock('@react-native-firebase/auth', () => {
     return {
-        currentUser: { uid: 'anonymous' },  // Mock anonymous user
+        currentUser: { uid: 'anonymous' },
         signInAnonymously: jest.fn(() => Promise.resolve({ user: { uid: 'anonymous' } }))
     };
 });
 
-// Mock Firestore module correctly
+// Firestore containing the database 
 jest.mock('@react-native-firebase/firestore', () => {
     return {
-        // Mock Firestore to return an object with a collection method
-        __esModule: true, // This is necessary for the default import to work
+        __esModule: true,
         default: jest.fn(() => ({
             collection: jest.fn((path) => {
                 if (path === 'users/anonymous/todos') {
@@ -58,14 +69,14 @@ jest.mock('@react-native-firebase/firestore', () => {
     };
 });
 
-// Mock Firebase functions
+// Firebase http callable functions
 jest.mock('@react-native-firebase/functions', () => {
     return {
         httpsCallable: jest.fn(() => jest.fn(() => Promise.resolve({ data: { status: true } })))
     };
 });
 
-// Mock Storage module
+// Firebase Storage module
 jest.mock('@react-native-firebase/storage', () => {
     return {
         ref: jest.fn(() => ({
@@ -76,7 +87,7 @@ jest.mock('@react-native-firebase/storage', () => {
     };
 });
 
-// Mock Google Signin module
+// Google Signin module
 jest.mock('@react-native-google-signin/google-signin', () => ({
     GoogleSignin: {
         configure: jest.fn(),
@@ -86,7 +97,7 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
     },
 }));
 
-// Mock Toast to prevent UI interference
+// Toast message
 jest.mock('react-native-toast-message', () => ({
     show: jest.fn()
 }));
@@ -97,9 +108,13 @@ jest.spyOn(console, 'error').mockImplementation((message) => {
     console.error(message);
 });
 
-// Testing utility functions
-describe("Utility Function Tests", () => {
-    // Mapping Tests
+
+// ------------------------------------------------------------
+// ----------     To do utils functions  Test suite     -------
+// ------------------------------------------------------------
+
+describe("Utility Function Tests suite", () => {
+
     it("should return correct icons for each todo status", () => {
         expect(statusIconMap.yet).toBe("alert-circle");
         expect(statusIconMap.in_progress).toBe("construct");
@@ -120,121 +135,135 @@ describe("Utility Function Tests", () => {
         expect(statusNextMap.done).toBe("yet");
         expect(statusNextMap.archived).toBe("archived");
     });
+});
 
-    // statusNextAction Tests
-    describe("statusNextAction function", () => {
-        const todoMock: Todolist.Todo = { name: "Sample Todo", status: "yet" };
 
-        beforeEach(() => {
-            jest.clearAllMocks();
-        });
 
-        afterEach(() =>
-            jest.restoreAllMocks()
+// ------------------------------------------------------------
+// -----------     Status Next Actions Test suite     ---------
+// ------------------------------------------------------------
+
+describe("statusNextAction function Tests suite", () => {
+    const todoMock: Todolist.Todo = { name: "Sample Todo", status: "yet" };
+
+    // Clean all mocks before test starts
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    // Restore all previously set mock on test completion
+    afterEach(() =>
+        jest.restoreAllMocks()
+    );
+
+    it("should show success toast on successful update", async () => {
+        (callFunction as jest.Mock).mockResolvedValue({ status: true });
+
+        await statusNextAction("1", todoMock);
+
+        expect(callFunction).toHaveBeenCalledWith(
+            {
+                exportedName: "todolist_updateTodo",
+                originalName: "updateTodo",
+                path: "todolist/updateTodo"
+            },
+            { id: "1", status: "in_progress" }
         );
-
-        it("should show success toast on successful update", async () => {
-            (callFunction as jest.Mock).mockResolvedValue({ status: true });
-
-            await statusNextAction("1", todoMock);
-
-            expect(callFunction).toHaveBeenCalledWith(
-                {
-                    exportedName: "todolist_updateTodo",
-                    originalName: "updateTodo",
-                    path: "todolist/updateTodo"
-                },
-                { id: "1", status: "in_progress" }
-            );
-            expect(Toast.show).toHaveBeenCalledWith(expect.objectContaining({ type: "success" }));
-        });
-
-        it("should show error toast on failed update", async () => {
-            (callFunction as jest.Mock).mockResolvedValue({ status: false });
-
-            await statusNextAction("1", todoMock);
-
-            expect(callFunction).toHaveBeenCalledWith(
-                {
-                    exportedName: "todolist_updateTodo",
-                    originalName: "updateTodo",
-                    path: "todolist/updateTodo"
-                },
-                { id: "1", status: "in_progress" }
-            );
-            expect(Toast.show).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
-        });
-
-        it("should handle errors and show error toast", async () => {
-            (callFunction as jest.Mock).mockRejectedValue(new Error("Update failed"));
-
-            await statusNextAction("1", todoMock);
-
-            expect(callFunction).toHaveBeenCalledWith(
-                {
-                    exportedName: "todolist_updateTodo",
-                    originalName: "updateTodo",
-                    path: "todolist/updateTodo"
-                },
-                { id: "1", status: "in_progress" }
-            );
-            expect(Toast.show).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
-        });
+        expect(Toast.show).toHaveBeenCalledWith(expect.objectContaining({ type: "success" }));
     });
 
-    // toogleArchivityOfTodo Tests
-    describe("toogleArchivityOfTodo function", () => {
-        const todoMock: Todolist.Todo = { name: "Sample Todo", status: "yet" };
+    it("should show error toast on failed update", async () => {
+        (callFunction as jest.Mock).mockResolvedValue({ status: false });
 
-        beforeEach(() => {
-            jest.clearAllMocks();
-        });
+        await statusNextAction("1", todoMock);
 
-        it("should archive a todo and show success toast", async () => {
-            (callFunction as jest.Mock).mockResolvedValue({ status: true });
-
-            await toogleArchivityOfTodo("1", todoMock);
-
-            expect(callFunction).toHaveBeenCalledWith(
-                {
-                    exportedName: "todolist_updateTodo",
-                    originalName: "updateTodo",
-                    path: "todolist/updateTodo"
-                },
-                { id: "1", status: "archived" }
-            );
-            expect(Toast.show).toHaveBeenCalledWith(expect.objectContaining({ type: "success" }));
-        });
-
-        it("should unarchive a todo and show success toast", async () => {
-            (callFunction as jest.Mock).mockResolvedValue({ status: true });
-
-            await toogleArchivityOfTodo("1", { ...todoMock, status: "archived" });
-
-            expect(callFunction).toHaveBeenCalledWith(
-                {
-                    exportedName: "todolist_updateTodo",
-                    originalName: "updateTodo",
-                    path: "todolist/updateTodo"
-                },
-                { id: "1", status: "yet" }
-            );
-            expect(Toast.show).toHaveBeenCalledWith(expect.objectContaining({ type: "success" }));
-        });
+        expect(callFunction).toHaveBeenCalledWith(
+            {
+                exportedName: "todolist_updateTodo",
+                originalName: "updateTodo",
+                path: "todolist/updateTodo"
+            },
+            { id: "1", status: "in_progress" }
+        );
+        expect(Toast.show).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
     });
 
-    // sameTodos Function Tests
-    describe("sameTodos function", () => {
-        const todo1: Todolist.Todo = { name: "Sample Todo", description: "Description", status: "yet" };
-        const todo2 = { ...todo1 };
-        const todo3 = { ...todo1, name: "Different Todo" };
+    it("should handle errors and show error toast", async () => {
+        (callFunction as jest.Mock).mockRejectedValue(new Error("Update failed"));
 
-        it("should return true for identical todos", () => {
-            expect(sameTodos(todo1, todo2)).toBe(true);
-        });
+        await statusNextAction("1", todoMock);
 
-        it("should return false for non-identical todos", () => {
-            expect(sameTodos(todo1, todo3)).toBe(false);
-        });
+        expect(callFunction).toHaveBeenCalledWith(
+            {
+                exportedName: "todolist_updateTodo",
+                originalName: "updateTodo",
+                path: "todolist/updateTodo"
+            },
+            { id: "1", status: "in_progress" }
+        );
+        expect(Toast.show).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
+    });
+});
+
+// ------------------------------------------------------------
+// ---------      Toogle To Do Archivity Test suite    --------
+// ------------------------------------------------------------
+
+describe("toogleArchivityOfTodo function", () => {
+    const todoMock: Todolist.Todo = { name: "Sample Todo", status: "yet" };
+
+    // Clean all mocks before test starts
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it("should archive a todo and show success toast", async () => {
+        (callFunction as jest.Mock).mockResolvedValue({ status: true });
+
+        await toogleArchivityOfTodo("1", todoMock);
+
+        expect(callFunction).toHaveBeenCalledWith(
+            {
+                exportedName: "todolist_updateTodo",
+                originalName: "updateTodo",
+                path: "todolist/updateTodo"
+            },
+            { id: "1", status: "archived" }
+        );
+        expect(Toast.show).toHaveBeenCalledWith(expect.objectContaining({ type: "success" }));
+    });
+
+    it("should unarchive a todo and show success toast", async () => {
+        (callFunction as jest.Mock).mockResolvedValue({ status: true });
+
+        await toogleArchivityOfTodo("1", { ...todoMock, status: "archived" });
+
+        expect(callFunction).toHaveBeenCalledWith(
+            {
+                exportedName: "todolist_updateTodo",
+                originalName: "updateTodo",
+                path: "todolist/updateTodo"
+            },
+            { id: "1", status: "yet" }
+        );
+        expect(Toast.show).toHaveBeenCalledWith(expect.objectContaining({ type: "success" }));
+    });
+});
+
+// ------------------------------------------------------------
+// ---------------    Same To Do  Test suite      -------------
+// ------------------------------------------------------------
+
+describe("sameTodos function", () => {
+    const todo1: Todolist.Todo = { name: "Sample Todo", description: "Description", status: "yet" };
+    const todo2 = { ...todo1 };
+    const todo3 = { ...todo1, name: "Different Todo" };
+
+    it("should return true for identical todos", () => {
+        expect(sameTodos(todo1, todo2)).toBe(true);
+    });
+
+    it("should return false for non-identical todos", () => {
+        expect(sameTodos(todo1, todo3)).toBe(false);
     });
 });

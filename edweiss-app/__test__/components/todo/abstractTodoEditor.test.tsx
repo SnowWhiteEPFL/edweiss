@@ -1,3 +1,13 @@
+/**
+ * @file edit.test.tsx
+ * @description Test suite for AbstractTodoEditor component
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import { AbstractTodoEditor } from '@/components/todo/abstractTodoEditor';
 import { callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
@@ -8,24 +18,34 @@ import React from 'react';
 import Toast from 'react-native-toast-message';
 
 
+// ------------------------------------------------------------
+// -----------------  Mocking dependencies    -----------------
+// ------------------------------------------------------------
+
+// Firebase callFunction
 jest.mock('@/config/firebase', () => ({
     callFunction: jest.fn(),
 }));
 
+// Firebase Timestamp
 jest.mock('@react-native-firebase/firestore', () => {
     return {
         Timestamp: jest.fn(),
     };
 });
+
+// Toast message
 jest.mock('react-native-toast-message', () => ({
     show: jest.fn(),
 }));
 
+// `t` to return the key as the translation
 jest.mock('@/config/i18config', () => ({
-    __esModule: true, // This ensures it's treated as a module with a default export
-    default: jest.fn((key: string) => key), // Mock `t` to return the key as the translation
+    __esModule: true,
+    default: jest.fn((key: string) => key),
 }));
 
+// Expo router with stack screen to test up buttons and title
 jest.mock('expo-router', () => ({
     useRouter: jest.fn(),
     router: {
@@ -39,12 +59,30 @@ jest.mock('expo-router', () => ({
     },
 }));
 
-describe('AbstractTodoEditor', () => {
+// DateTimePicker component
+// Note: only the set is simulated, one could also add 
+//       the onClose event type to capture closing
+jest.mock('@react-native-community/datetimepicker', () => ({
+    __esModule: true,
+    default: ({ onChange }: any) => {
+        return onChange(
+            { type: 'set' },
+            new Date(2012, 3, 4, 12, 34, 56)
+        );
+    },
+}));
 
+
+// ------------------------------------------------------------
+// ---------    Abstract Editor for To do Test suite   --------
+// ------------------------------------------------------------
+
+describe('AbstractTodoEditor Tests Suites', () => {
+
+    // Clean the mock's before each tests
     beforeEach(() => {
         jest.clearAllMocks();
     });
-
 
     it('renders correctly in create mode', () => {
         const { getByPlaceholderText } = render(<AbstractTodoEditor />);
@@ -273,41 +311,19 @@ describe('AbstractTodoEditor', () => {
 
 
 
-jest.mock('@/config/firebase', () => ({
-    callFunction: jest.fn(),
-}));
-
-// Mocking the DateTimePicker component
-jest.mock('@react-native-community/datetimepicker', () => ({
-    __esModule: true,
-    default: ({ onChange }: any) => {
-        return onChange(
-            { type: 'set' }, // Simulate a "set" event for confirming selection
-            new Date(2012, 3, 4, 12, 34, 56) // Mocked selected date and time
-        );
-    },
-}));
-
 describe('AbstractTodoEditor DateTimePicker and API error handling', () => {
     const defaultDate = new Date(2012, 3, 4, 12, 34, 56);
 
     it('should open date picker and set selected date', async () => {
         const { getByTestId } = render(<AbstractTodoEditor />);
-
-        // Find and press the date button to open DatePicker
         fireEvent.press(getByTestId('date-button'));
-
-        // Check that DateTimePicker has been triggered and set the date
         expect(getByTestId('date-holder').props.children).toBe(defaultDate.toDateString());
     });
 
     it('should open time picker and set selected time', async () => {
         const { getByTestId } = render(<AbstractTodoEditor />);
 
-        // Find and press the time button to open TimePicker
         fireEvent.press(getByTestId('time-button'));
-
-        // Check that DateTimePicker has been triggered and set the time
         const expectedTime = defaultDate.toTimeString().split(':').slice(0, 2).join(':');
         expect(getByTestId('time-holder').props.children).toBe(expectedTime);
     });

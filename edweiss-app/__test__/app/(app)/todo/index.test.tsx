@@ -1,3 +1,13 @@
+/**
+ * @file index.test.tsx
+ * @description Test suite for TodoListScreen component
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import TodoListScreen from '@/app/(app)/todo';
 import t from '@/config/i18config';
 import { useAuth } from '@/contexts/auth';
@@ -7,7 +17,11 @@ import { router } from 'expo-router';
 import React from 'react';
 
 
+// ------------------------------------------------------------
+// -----------------  Mocking dependencies    -----------------
+// ------------------------------------------------------------
 
+// Modals that appear on the front page
 jest.mock('../../../../components/todo/modal', () => {
     const TView = require('@/components/core/containers/TView').default;
     return {
@@ -17,19 +31,15 @@ jest.mock('../../../../components/todo/modal', () => {
 });
 
 
-
+// `t` to return the key as the translation
 jest.mock('@/config/i18config', () => ({
     __esModule: true,
     default: jest.fn((key: string) => key),
 }));
 
-jest.mock('@/config/i18config', () => ({
-    __esModule: true, // This ensures it's treated as a module with a default export
-    default: jest.fn((key: string) => key), // Mock `t` to return the key as the translation
-}));
-
+// Expo router with stack screen to test up buttons and title
 jest.mock('expo-router', () => {
-    const { Text } = require('react-native'); // Import Text inside the mock function scope
+    const { Text } = require('react-native');
     return {
         router: { push: jest.fn() },
         Stack: {
@@ -44,6 +54,7 @@ jest.mock('expo-router', () => {
     };
 });
 
+// Gesture handler for list scroll animated view
 jest.mock('react-native-gesture-handler', () => {
     return {
         GestureHandlerRootView: ({ children }: { children: React.ReactNode; }) => children,
@@ -59,20 +70,20 @@ jest.mock('react-native-gesture-handler', () => {
 });
 
 
-// Mock Firebase modules
+// Firebase modules
 jest.mock('@react-native-firebase/auth', () => ({
     currentUser: { uid: 'anonymous' },
     signInAnonymously: jest.fn(() => Promise.resolve({ user: { uid: 'anonymous' } })),
 }));
 
-// Mock useAuth hook to return a user with an `authUser` and `uid`
+// useAuth hook to return a user with an `authUser` and `uid`
 jest.mock('@/contexts/auth', () => ({
     useAuth: jest.fn(() => ({
-        authUser: { uid: 'anonymous' }, // Mocked auth user with uid
+        authUser: { uid: 'anonymous' },
     })),
 }));
 
-// Mock Google Signin module
+// Google Signin module
 jest.mock('@react-native-google-signin/google-signin', () => ({
     GoogleSignin: {
         configure: jest.fn(),
@@ -82,27 +93,26 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
     },
 }));
 
-
+// BottomSheet to detect modal appearance
 jest.mock('@gorhom/bottom-sheet', () => ({
     BottomSheetModal: jest.fn(({ present }) => (
-        <div>{present}</div> // Simple mock
+        <div>{present}</div>
     )),
     BottomSheetView: jest.fn(({ children }) => (
-        <div>{children}</div> // Simple mock
+        <div>{children}</div>
     )),
     BottomSheetBackdrop: jest.fn(),
 }));
 
 
-
-// Mock Firebase functions
+// Firebase functions
 jest.mock('@react-native-firebase/functions', () => {
     return {
         httpsCallable: jest.fn(() => jest.fn(() => Promise.resolve({ data: { status: true } })))
     };
 });
 
-// Mock Storage module
+// Storage module
 jest.mock('@react-native-firebase/storage', () => {
     return {
         ref: jest.fn(() => ({
@@ -114,15 +124,13 @@ jest.mock('@react-native-firebase/storage', () => {
 });
 
 
-
-
+// Firestore communication with database
 jest.mock('@react-native-firebase/firestore', () => ({
     __esModule: true,
     default: jest.fn(() => ({
         collection: jest.fn((path) => {
             if (path === 'users/anonymous/todos') {
                 return {
-                    // Mock for Firestore's doc method, which returns an object with set, get, and update methods
                     doc: jest.fn((id) => ({
                         set: jest.fn(() => Promise.resolve({})),
                         get: jest.fn(() =>
@@ -133,10 +141,7 @@ jest.mock('@react-native-firebase/firestore', () => ({
                         ),
                         update: jest.fn(() => Promise.resolve({})),
                     })),
-                    // Mock for add method to simulate adding a document
                     add: jest.fn(() => Promise.resolve({ id: '3' })),
-
-                    // Mock for get method to return a list of documents
                     get: jest.fn(() =>
                         Promise.resolve({
                             docs: [
@@ -145,8 +150,6 @@ jest.mock('@react-native-firebase/firestore', () => ({
                             ],
                         })
                     ),
-
-                    // Mock for onSnapshot to simulate real-time updates
                     onSnapshot: jest.fn((callback) => {
                         const mockSnapshot = {
                             docs: [
@@ -154,15 +157,12 @@ jest.mock('@react-native-firebase/firestore', () => ({
                                 { id: '2', data: () => ({ name: 'Another Todo', status: 'done' }) },
                             ],
                         };
-                        callback(mockSnapshot); // Call callback with mock data
-                        return jest.fn(); // Return unsubscribe function
+                        callback(mockSnapshot);
+                        return jest.fn();
                     }),
-
-                    // Mock for setDocuments to handle setting documents
                     setDocuments: jest.fn(() => Promise.resolve({})),
                 };
             }
-            // Return default mocks for other paths
             return {
                 doc: jest.fn(),
                 add: jest.fn(),
@@ -175,24 +175,29 @@ jest.mock('@react-native-firebase/firestore', () => ({
 }));
 
 
-// Mock the useAuth hook
+// useAuth hook
 (useAuth as jest.Mock).mockReturnValue({
     authUser: { uid: 'anonymous' },
 });
 
 
-// Default mock setup for useAuth and useDynamicDocs hooks
-(useAuth as jest.Mock).mockReturnValue({
-    authUser: { uid: 'anonymous' },
-});
-
+// useDynamicDocs hooks
 jest.mock('@/hooks/firebase/firestore', () => ({
     useDynamicDocs: jest.fn(() => [
         { id: '1', data: () => ({ name: 'Sample Todo', status: 'yet' }) },
         { id: '2', data: () => ({ name: 'Another Todo', status: 'done' }) },
     ])
 }));
-describe('TodoListScreen', () => {
+
+
+
+
+
+// ------------------------------------------------------------
+// ----------------   To do Screen Test suite   ---------------
+// ------------------------------------------------------------
+
+describe('TodoListScreen Tests Suites', () => {
     let modalRef: React.RefObject<BottomSheetModal>;
 
 
