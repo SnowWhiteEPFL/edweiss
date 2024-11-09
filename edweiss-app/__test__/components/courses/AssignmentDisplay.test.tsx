@@ -16,12 +16,6 @@ jest.mock('../../../config/firebase', () => ({
     callFunction: jest.fn(),
     getFunction: jest.fn(),
 }));
-jest.mock('@react-native-firebase/auth', () => ({
-    // Mock Firebase auth methods you use in your component
-    signInWithCredential: jest.fn(() => Promise.resolve({ user: { uid: 'firebase-test-uid', email: 'firebase-test@example.com' } })),
-    signOut: jest.fn(() => Promise.resolve()),
-    currentUser: { uid: 'firebase-test-uid', email: 'firebase-test@example.com' },
-}));
 
 jest.mock('@react-native-firebase/firestore', () => { // this one does not work yet.
     const mockCollection = jest.fn(() => ({
@@ -39,52 +33,8 @@ jest.mock('@react-native-firebase/firestore', () => { // this one does not work 
     };
 });
 
-// Mock Firebase Functions
-jest.mock('@react-native-firebase/functions', () => ({
-    httpsCallable: jest.fn(() => () => Promise.resolve({ data: 'function response' })),
-}));
-
-// Mock Firebase Storage
-jest.mock('@react-native-firebase/storage', () => ({
-    ref: jest.fn(() => ({
-        putFile: jest.fn(() => Promise.resolve({ state: 'success' })),
-        getDownloadURL: jest.fn(() => Promise.resolve('https://example.com/file.png')),
-    })),
-}));
-jest.mock('@/contexts/auth', () => ({
-    useAuth: jest.fn(),					// mock authentication
-}));
-
-jest.mock('react-native/Libraries/Settings/Settings', () => ({
-    get: jest.fn(),
-    set: jest.fn(),
-}));
-jest.mock('@react-native-google-signin/google-signin', () => ({ // mock google sign-in
-    GoogleSignin: {
-        configure: jest.fn(),
-        hasPlayServices: jest.fn(() => Promise.resolve(true)),
-        signIn: jest.fn(() => Promise.resolve({ user: { id: 'test-id', email: 'test@example.com' } })),
-        signOut: jest.fn(() => Promise.resolve()),
-        isSignedIn: jest.fn(() => Promise.resolve(true)),
-        getTokens: jest.fn(() => Promise.resolve({ idToken: 'test-id-token', accessToken: 'test-access-token' })),
-    },
-}));
-
-jest.mock('@react-native-async-storage/async-storage', () => ({
-    setItem: jest.fn(),
-    getItem: jest.fn(),
-    removeItem: jest.fn(),
-}));
 jest.mock('react-native-toast-message', () => ({
     show: jest.fn(),
-}));
-
-jest.mock('expo-router', () => ({
-    ...jest.requireActual('expo-router'),
-    useLocalSearchParams: jest.fn(() => ({ id: 'default-id' })),
-    router: {
-        push: jest.fn(),
-    },
 }));
 
 jest.mock('../../../components/core/containers/TView.tsx', () => {
@@ -102,6 +52,16 @@ jest.mock('../../../components/core/containers/TTouchableOpacity.tsx', () => {
             <View>{props.children}</View>
         </TouchableOpacity>
     );
+});
+
+jest.mock('@/components/core/Icon', () => {
+    return {
+        __esModule: true,
+        default: ({ name, size = 16, color = 'subtext0', testID }: { name: string; size?: number; color?: string; testID?: string }) => {
+            const { Text } = require('react-native');
+            return <Text testID={testID || 'icon'}>{`Icon - ${name} - Size: ${size} - Color: ${color}`}</Text>;
+        }
+    };
 });
 
 // jest.mock('react-native-gesture-handler', () => {
@@ -188,59 +148,15 @@ jest.doMock('react-native-gesture-handler', () => {
 
 jest.mock('@/config/i18config', () =>
     jest.fn((str: string) => {
-        if (str === 'course:dateFormat') {
-            return 'en-US';
-        }
-        else if (str === 'course:upcoming_assignment_title') {
-            return 'Upcoming assignments';
-        }
-        else if (str === 'course:previous_assignment_title') {
-            return 'Previous assignments';
-        }
-        else if (str === 'course:no_assignment_due') {
-            return 'No assignments due for now';
-        }
-        else if (str === 'course:add_to_todo') {
-            return 'Add to To-Do';
-        }
-        else if (str === 'course:this_week') {
-            return 'This Week';
-        }
-        else if (str === 'course:toast_added_to_todo_text1') {
-            return 'Assignment added to To-Do list';
-        }
-        else if (str === 'course:toast_added_to_todo_text2') {
-            return 'Now you have a new reason to procrastinate! 🎉';
-        }
-        else if (str === 'course:archived_assignments') {
-            return 'Archived Assignments';
-        }
-        else if (str === 'course:no_past_assignment') {
-            return 'No past assignments for the moment';
-        }
-        else if (str === 'todo:error_toast_title') {
-            return 'Error message title';
-        }
-        else if (str === 'todo:couldnot_save_toast') {
-            return 'Could not save todo';
-        }
-        else {
-            return str;
-        }
+        if (str === 'course:dateFormat') return 'en-US';
+        else if (str === 'course:add_to_todo') return 'Add to To-Do';
+        else if (str === 'course:toast_added_to_todo_text1') return 'Assignment added to To-Do list';
+        else if (str === 'course:toast_added_to_todo_text2') return 'Now you have a new reason to procrastinate! 🎉';
+        else if (str === 'todo:error_toast_title') return 'Error message title';
+        else if (str === 'todo:couldnot_save_toast') return 'Could not save todo';
+        else return str;
     })
 );
-
-jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock'));
-
-jest.mock('@/components/core/Icon', () => {
-    return {
-        __esModule: true,
-        default: ({ name, size = 16, color = 'subtext0', testID }: { name: string; size?: number; color?: string; testID?: string }) => {
-            const { Text } = require('react-native');
-            return <Text testID={testID || 'icon'}>{`Icon - ${name} - Size: ${size} - Color: ${color}`}</Text>;
-        }
-    };
-});
 
 
 // Mock des valeurs nécessaires
