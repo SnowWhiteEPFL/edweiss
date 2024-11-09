@@ -1,6 +1,16 @@
 import { Time } from '../../utils/time';
 
 
+jest.mock('@react-native-firebase/firestore', () => ({
+    firebase: jest.fn(),
+    firestore: jest.fn(() => ({
+        collection: jest.fn(),
+        doc: jest.fn(),
+        get: jest.fn(),
+        set: jest.fn(),
+    })),
+}));
+
 describe('getCurrentTimeInMinutes', () => {
     it('should return the correct number of minutes since midnight', () => {
         const now = new Date();

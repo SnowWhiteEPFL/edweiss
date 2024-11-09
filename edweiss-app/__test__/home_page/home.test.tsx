@@ -47,6 +47,8 @@ const mockCourses = [
 ];
 
 
+
+
 jest.mock('@/contexts/auth', () => ({
     useAuth: jest.fn(),
 }));
