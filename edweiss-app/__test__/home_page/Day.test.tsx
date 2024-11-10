@@ -5,10 +5,9 @@ import { Course, CourseTimePeriod } from '@/model/school/courses';
 import { fireEvent, render } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import React from 'react';
-import { Day } from '../../components/core/Day';
 
 jest.mock('@/config/firebase', () => ({
-	callFunction: jest.fn(),
+    callFunction: jest.fn(),
 }));
 
 
@@ -37,16 +36,16 @@ jest.mock('expo-router', () => ({
 }));
 
 const mockCourse: Course = {
-	name: 'Test Course',
-	description: 'A course for testing purposes.',
-	professors: ['prof1'],
-	assistants: ['student1'],
-	periods: [],
-	section: 'IN',
-	credits: 3,
-	assignments: [],
-	started: true,
-	newAssignments: false
+    name: 'Test Course',
+    description: 'A course for testing purposes.',
+    professors: ['prof1'],
+    assistants: ['student1'],
+    periods: [],
+    section: 'IN',
+    credits: 3,
+    assignments: [],
+    started: true,
+    newAssignments: false
 };
 
 const mockPeriod: CourseTimePeriod = {
