@@ -48,7 +48,7 @@ jobs:
             -Dsonar.sources=./edweiss-app
             -Dsonar.tests=./edweiss-app
             -Dsonar.javascript.lcov.reportPaths=./edweiss-app/coverage/lcov.info
-            -Dsonar.exclusions=**/node_modules/**,**/coverage/**,**/__test__/**, **/.expo/**, **/android/**
+            -Dsonar.exclusions=**/node_modules/**,**/coverage/**,**/__test__/**,**/.expo/**,**/android/**
         if: always()
 
       - name: Upload coverage report
