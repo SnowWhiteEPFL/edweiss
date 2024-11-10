@@ -54,7 +54,7 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=SnowWhiteEPFL_edweiss
-            -Dsonar.organization=SnowWhiteEPFL
+            -Dsonar.organization=snowwhiteepfl
             -Dsonar.exclusions=**/__test__/**
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
         if: always()
