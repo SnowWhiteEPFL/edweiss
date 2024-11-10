@@ -29,12 +29,6 @@ jobs:
       
       - name: Check Typescript compilation
         run: npm run tscheck
-      
-      # - name: Run Jest tests
-      #   run: npm test
-      #   env:
-      #     CI: true
-
         
       - name: Test and coverage
         run: npm run test
@@ -43,7 +37,7 @@ jobs:
         continue-on-error: true
 
       - name: List coverage directory contents (debug)
-        run: ls -R coverage
+        run: cat coverage/locv.info
         if: always()
       
       - name: SonarCloud Scan
@@ -56,7 +50,7 @@ jobs:
             -Dsonar.projectKey=SnowWhiteEPFL_edweiss
             -Dsonar.organization=snowwhiteepfl
             -Dsonar.exclusions=**/__test__/**
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov-report/lcov-info.txt
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
         if: always()
 
       - name: Upload coverage report
@@ -64,4 +58,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: coverage-report
-          path: coverage/lcov-report/lcov-info.txt
+          path: coverage/**
