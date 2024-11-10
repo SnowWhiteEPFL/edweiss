@@ -4,22 +4,6 @@ import { Timestamp } from './time';
 
 namespace NotifList {
 
-    // export const NOTIFICATIONS_TYPES = {
-    //     MESSAGE: 'message',
-    //     QUIZ: 'quiz',
-    //     SUBMISSION: 'submission',
-    //     GRADE: 'grade',
-    //     ANNOUNCEMENT: 'announcement',
-    //     EVENT: 'event',
-    //     MEETING: 'meeting',
-    //     GROUP: 'group',
-    //     POST: 'post',
-    //     COMMENT: 'comment',
-    //     LIKE: 'like',
-    //     FOLLOW: 'follow',
-    //     // Define your custom notification types here
-    // };
-
     // Icons
     export const icons = {
         message: 'chatbubbles-outline',
