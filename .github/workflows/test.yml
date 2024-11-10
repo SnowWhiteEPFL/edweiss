@@ -43,7 +43,7 @@ jobs:
         continue-on-error: true
 
       - name: List coverage directory contents (debug)
-        run: ls -R coverage
+        run: cat coverage/lcov.info
         if: always()
       
       - name: SonarCloud Scan
@@ -64,4 +64,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: coverage-report
-          path: coverage
+          path: coverage/lcov.info
