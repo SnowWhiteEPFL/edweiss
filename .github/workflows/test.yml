@@ -45,10 +45,9 @@ jobs:
           args: >
             -Dsonar.projectKey=SnowWhiteEPFL_edweiss
             -Dsonar.organization=snowwhiteepfl
-            -Dsonar.sources=./edweiss-app
-            -Dsonar.tests=./edweiss-app
+            -Dsonar.sources=./edweiss-app/        
             -Dsonar.javascript.lcov.reportPaths=./edweiss-app/coverage/lcov.info
-            -Dsonar.exclusions=**/node_modules/**,**/coverage/**,**/__test__/**,**/.expo/**,**/android/**
+            -Dsonar.exclusions=**/node_modules/**,**/coverage/**,**/__test__/**,**/.expo/**,**/android/**,**/.gitignore,**/app.config.ts,**/babel.config.js,**/declarations.d.ts,**/eas.json,**/expo-env.d.ts,**/metro.config.js,**/metro.config.ts,**/package-lock.json,**/package.json,**/tsconfig.json
         if: always()
 
       - name: Upload coverage report
