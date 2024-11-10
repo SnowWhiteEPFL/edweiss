@@ -3,7 +3,6 @@ import { Day } from '@/components/core/Day';
 import { callFunction } from '@/config/firebase';
 import { Course, CourseTimePeriod } from '@/model/school/courses';
 import { fireEvent, render } from '@testing-library/react-native';
-import { router } from 'expo-router';
 import React from 'react';
 
 jest.mock('@/config/firebase', () => ({
@@ -30,10 +29,12 @@ jest.mock('@/config/firebase', () => ({
 }));
 
 jest.mock('expo-router', () => ({
-    router: {
+    useRouter: () => ({
         push: jest.fn(),
-    },
+    }),
 }));
+
+import { useRouter } from 'expo-router/build';
 
 const mockCourse: Course = {
     name: 'Test Course',
@@ -80,8 +81,7 @@ function renderDayComponent({ user, period, format }: { user: any, period: Cours
     );
 }
 
-
-const { getByText } = renderDayComponent({ user: mockUserProfessor, period: mockPeriod, format: "day" });
+const router = useRouter();
 
 describe('Day Component', () => {
     it('renders correctly for a professor and navigates on press', () => {
