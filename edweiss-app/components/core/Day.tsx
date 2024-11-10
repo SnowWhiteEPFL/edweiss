@@ -1,4 +1,4 @@
-import { Color, courseColors } from '@/constants/Colors';
+import { courseColors } from '@/constants/Colors';
 import { Course, CourseTimePeriod } from '@/model/school/courses';
 import { router } from 'expo-router';
 import TTouchableOpacity from './containers/TTouchableOpacity';
@@ -23,18 +23,16 @@ export const Day = ({ period, course, user, filteredPeriods, index, format }: {
             key={index}
             flex={1 / filteredPeriods.length}
             borderColor="overlay2"
-
+            radius={10}
             b={2}
 
             onPress={() => {
-                {
-                    router.push({
-                        pathname: pathname,
-                        params: params
-                    });
-                }
+                router.push({
+                    pathname: pathname,
+                    params: params
+                });
             }}
-            backgroundColor={courseColors[period.type as keyof typeof courseColors] as Color || 'base'}
+            backgroundColor={courseColors[period.type] || 'base'}
             style={{
                 height: periodHeight,
             }}

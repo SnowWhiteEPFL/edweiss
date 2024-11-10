@@ -1,3 +1,4 @@
+import 'dotenv/config';
 
 import admin = require('firebase-admin');
 admin.initializeApp();
@@ -12,8 +13,6 @@ function exportFnDir(originPath: string) {
 	fs.readdirSync(originPath).forEach(file => {
 		if (typeof file != "string")
 			return;
-
-
 
 		if (file.endsWith(".ts")) {
 			exportFn((originPath + "/" + file).replace("./src/functions/", ""));

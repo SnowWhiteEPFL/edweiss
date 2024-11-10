@@ -12,7 +12,7 @@ export const PeriodBlock = ({ period, course, user, format }: {
     return (
         <TView flexDirection="column">
             <TView justifyContent="space-between" flexDirection={direction}>
-                <TText color="course_title_for_backgroud_color" numberOfLines={1} size={size1} p={5}>
+                <TText color="constantBlack" numberOfLines={1} size={size1} p={5}>
                     {`${period.type.charAt(0).toUpperCase() + period.type.slice(1)}`}
                 </TText>
                 <TText pl={5} pr={10} pt={7} color="overlay2" numberOfLines={1} size={size2}>
