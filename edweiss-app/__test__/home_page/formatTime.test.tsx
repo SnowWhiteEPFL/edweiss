@@ -1,5 +1,14 @@
 import { Time } from '../../utils/time';
 
+jest.mock('@react-native-firebase/firestore', () => ({
+    firebase: jest.fn(),
+    firestore: jest.fn(() => ({
+        collection: jest.fn(),
+        doc: jest.fn(),
+        get: jest.fn(),
+        set: jest.fn(),
+    })),
+}));
 
 describe('formatTime', () => {
     it('should format 0 minutes to "0:00"', () => {
