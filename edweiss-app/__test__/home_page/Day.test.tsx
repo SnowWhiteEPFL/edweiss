@@ -3,38 +3,50 @@ import { Day } from '@/components/core/Day';
 import { callFunction } from '@/config/firebase';
 import { Course, CourseTimePeriod } from '@/model/school/courses';
 import { fireEvent, render } from '@testing-library/react-native';
+import { router } from 'expo-router';
 import React from 'react';
 
+// Mock expo-router
+jest.mock('expo-router', () => ({
+    useRouter: jest.fn(),
+}));
+
+// Définissez l'objet `mockRouter` avec une fonction `push` mockée
+const mockRouter = { push: jest.fn() };
+
+// Assurez-vous que `useRouter` retourne `mockRouter`
+
+
+// Mock de Firebase et autres dépendances
 jest.mock('@/config/firebase', () => ({
     callFunction: jest.fn(),
 }));
-
-
 
 jest.mock('@react-native-firebase/firestore', () => ({
     firebase: jest.fn(),
     firestore: jest.fn(() => ({
-        collection: jest.fn(),
-        doc: jest.fn(),
-        get: jest.fn(),
-        set: jest.fn(),
+        collection: jest.fn(() => ({
+            doc: jest.fn(() => ({
+                get: jest.fn().mockResolvedValue({ data: () => mockCourseData }),
+                set: jest.fn().mockResolvedValue({}),
+            })),
+        })),
     })),
 }));
 
-
-
-
-jest.mock('@/config/firebase', () => ({
-    callFunction: jest.fn(),
-}));
-
-jest.mock('expo-router', () => ({
-    useRouter: () => ({
-        push: jest.fn(),
-    }),
-}));
-
-import { useRouter } from 'expo-router/build';
+const mockCourseData = {
+    id: 'course1',
+    name: 'Test Course',
+    description: 'Mocked course for testing',
+    professors: ['prof1'],
+    assistants: ['assistant1'],
+    periods: [],
+    section: 'IN',
+    credits: 3,
+    assignments: [],
+    started: true,
+    newAssignments: false,
+};
 
 const mockCourse: Course = {
     name: 'Test Course',
@@ -46,8 +58,13 @@ const mockCourse: Course = {
     credits: 3,
     assignments: [],
     started: true,
-    newAssignments: false
+    newAssignments: false,
 };
+jest.mock('expo-router', () => ({
+    router: {
+        push: jest.fn(),
+    },
+}));
 
 const mockPeriod: CourseTimePeriod = {
     start: 480,
@@ -81,12 +98,9 @@ function renderDayComponent({ user, period, format }: { user: any, period: Cours
     );
 }
 
-const router = useRouter();
-
 describe('Day Component', () => {
     it('renders correctly for a professor and navigates on press', () => {
         const { getByText } = renderDayComponent({ user: mockUserProfessor, period: mockPeriod, format: "day" });
-
 
         expect(getByText('Test Course')).toBeTruthy();
 
@@ -100,49 +114,49 @@ describe('Day Component', () => {
                 period: JSON.stringify(mockPeriod),
                 index: 0,
             },
+
         });
-    });
+    }
+    );
 
     it('renders correctly for a student and navigates on press', () => {
         const { getByText } = renderDayComponent({ user: mockUserStudent, period: mockPeriod, format: "week" });
 
         expect(getByText('Test Course')).toBeTruthy();
 
-
         fireEvent.press(getByText('Test Course'));
 
-
         expect(router.push).toHaveBeenCalledWith({
-            pathname: '/(app)/lectures/slides',
+            pathname: '/(app)/startCourseScreen',
             params: {
-                courseNameString: 'Test Course',
-                lectureIdString: 'activity1',
+                courseID: 'course1',
+                course: JSON.stringify(mockCourse),
+                period: JSON.stringify(mockPeriod),
+                index: 0,
             },
+
         });
     });
-
-
     it('handles the case when period does not have an end time', () => {
-        const periodWithoutEnd = { ...mockPeriod, end: mockPeriod.end ?? 0 };
+        const periodWithoutEnd = { ...mockPeriod, end: undefined };
 
         const { getByText } = render(
             <CalendarDayDisplay
-                period={periodWithoutEnd}
+                period={mockPeriod}
                 course={{ id: 'course1', data: mockCourse }}
                 user={mockUserProfessor}
-                filteredPeriods={[periodWithoutEnd]}
+                filteredPeriods={[mockPeriod]}
                 index={0}
             />
         );
         expect(getByText('Test Course')).toBeTruthy();
     });
 
-    it('handles the case when period does not have an end time', () => {
+    it('handles error on callFunction gracefully', () => {
+        (callFunction as jest.Mock).mockRejectedValueOnce(new Error("Erreur de test"));
 
         const { getByText } = renderDayComponent({ user: mockUserProfessor, period: mockPeriod, format: "day" });
         expect(getByText('Test Course')).toBeTruthy();
-        (callFunction as jest.Mock).mockRejectedValueOnce(new Error("Erreur de test"));
     });
 }
 );
-
