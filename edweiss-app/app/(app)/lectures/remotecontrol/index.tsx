@@ -64,7 +64,7 @@ const RemoteControlScreen: ApplicationRoute = () => {
 
 
     Voice.onSpeechError = (e: any) => { console.log(e.error); };
-    Voice.onSpeechResults = (res) => { { setTalked(res.value ? res.value[0] : ""); } };
+    Voice.onSpeechResults = (res) => { setTalked(res.value ? res.value[0] : ""); };
 
     const startRecording = async () => {
         console.log(' > start recording ...');

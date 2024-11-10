@@ -10,6 +10,7 @@ interface Room {
 	geoloc: Geopoint;
 }
 
+
 export interface CyclicTimePeriod {
 	type: CyclicTimePeriodType;
 	dayIndex: WeekDay;

@@ -1,6 +1,6 @@
 /**
  * @file create.tsx
- * @description Screen component for creating a new todo item in the edweiss app
+ * @description Screen component for creating a new to do item in the edweiss app
  * @author Adamm Alaoui
  */
 
@@ -12,7 +12,7 @@ import { ApplicationRoute } from '@/constants/Component';
 import { AbstractTodoEditor } from '../../../components/todo/abstractTodoEditor';
 
 // ------------------------------------------------------------
-// -----------------   Todo Creation Screen   -----------------
+// -----------------   To do Creation Screen   ----------------
 // ------------------------------------------------------------
 
 const CreateTodoScreen: ApplicationRoute =

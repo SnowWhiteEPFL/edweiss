@@ -1,6 +1,6 @@
 /**
  * @file index.tsx
- * @description Main screen for displaying and managing the todo list in the edweiss app
+ * @description Main screen for displaying and managing the to do list in the edweiss app
  * @author Adamm Alaoui
  */
 
@@ -33,7 +33,7 @@ type TodoStatus = Todolist.TodoStatus;
 
 
 // ------------------------------------------------------------
-// -------------------  Main Todolist Screen  -----------------
+// -------------------  Main To do list Screen  ---------------
 // ------------------------------------------------------------
 
 const TodoListScreen: ApplicationRoute = () => {
@@ -52,54 +52,47 @@ const TodoListScreen: ApplicationRoute = () => {
     const todos_filtered = todos.filter(todo => selectedStatus[todo.data.status]);
 
 
-
     return (
         <>
-            <RouteHeader
-                title={t(`todo:todolist_header`)}
-                right={<HeaderButton icon="options-outline" onPress={() => modalRefFilter.current?.present()} />}
-            />
 
-            {todos_filtered.length > 0 ? (
-                <GestureHandlerRootView style={{ flex: 1 }}>
-                    <NativeViewGestureHandler>
-                        <ScrollView>
-                            {todos_filtered.map((todo) => (
-                                <TodoDisplay
-                                    key={todo.id}
-                                    id={todo.id}
-                                    todo={todo.data}
-                                    setTodoToDisplay={setTodoToDisplay}
-                                    modalRef={modalRefTodoInfo}
-                                />
-                            ))}
-                            <TView mt={50} mb={75}></TView>
-                        </ScrollView>
-                    </NativeViewGestureHandler>
-                </GestureHandlerRootView>
-            ) : (
-                <TView justifyContent="center" alignItems="center" flex={1}>
-                    <TText>{t('todo:list_empty')}</TText>
-                </TView>
-            )}
+            <RouteHeader title={t(`todo:todolist_header`)} right={<HeaderButton icon="options-outline" testID='filter-button' onPress={() => modalRefFilter.current?.present()} />} />
+
+            {todos_filtered.length > 0 ? (<GestureHandlerRootView style={{ flex: 1 }}><NativeViewGestureHandler><ScrollView>{todos_filtered.map((todo) => (<TodoDisplay key={todo.id} id={todo.id} todo={todo.data} setTodoToDisplay={setTodoToDisplay} modalRef={modalRefTodoInfo} />))} <TView mt={50} mb={75}></TView></ScrollView></NativeViewGestureHandler></GestureHandlerRootView>)
+                :
+                (
+                    <TView
+                        justifyContent="center"
+                        alignItems="center"
+                        flex={1}>
+                        <TText>
+                            {t('todo:list_empty')}
+                        </TText>
+                    </TView>
+                )
+            }
 
 
             <TTouchableOpacity
                 onPress={() => router.push('/(app)/todo/create')}
-                p={6} m='md' mt={'sm'} mb={'sm'} radius={'lg'} backgroundColor='base'
+                p={6} radius={'lg'}
+                backgroundColor='base'
+                m='md' mt={'sm'} mb={'sm'}
                 b={'sm'} borderColor='overlay0'
-                style={{ position: 'absolute', bottom: 30, right: 10, zIndex: 100 }}>
+                style={{
+                    position: 'absolute',
+                    bottom: 30,
+                    right: 10,
+                    zIndex: 100
+                }}
+                testID='add-todo-button'
+            >
                 <Icon name="duplicate" color='blue' size={50}></Icon>
             </TTouchableOpacity >
 
 
-            <TodoModalDisplay
-                modalRef={modalRefTodoInfo} todo={todoToDisplay}
-                onClose={() => { setTodoToDisplay(undefined); modalRefTodoInfo.current?.close(); }} />
+            <TodoModalDisplay modalRef={modalRefTodoInfo} todo={todoToDisplay} onClose={() => { setTodoToDisplay(undefined); modalRefTodoInfo.current?.close(); }} />
 
-            <FilterModalDisplay
-                modalRef={modalRefFilter} selectedStatus={selectedStatus}
-                setSelectedStatus={setSelectedStatus} onClose={() => modalRefFilter.current?.close()} />
+            <FilterModalDisplay modalRef={modalRefFilter} selectedStatus={selectedStatus} setSelectedStatus={setSelectedStatus} onClose={() => modalRefFilter.current?.close()} />
 
         </>
     );
