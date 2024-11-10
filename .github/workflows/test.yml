@@ -37,7 +37,7 @@ jobs:
         continue-on-error: true
 
       - name: List coverage directory contents (debug)
-        run: cat coverage/locv.info
+        run: cat coverage/lcov.info
         if: always()
       
       - name: SonarCloud Scan
