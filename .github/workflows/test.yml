@@ -47,7 +47,7 @@ jobs:
 
 
       - name: Test and coverage
-        run: npm run test --coverage
+        run: npm run test -- --coverage
         env:
           CI: true
 
@@ -65,7 +65,7 @@ jobs:
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
 
       - name: Upload coverage report
-        if: success()
+        if: always() # always upload the code coverage, even on sonar cloud analysis failure
         uses: actions/upload-artifact@v3
         with:
           name: coverage-report
