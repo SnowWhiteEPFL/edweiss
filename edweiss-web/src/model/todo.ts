@@ -1,6 +1,6 @@
 /**
  * @file todo.ts
- * @description Module for managing todo items in the edweiss app
+ * @description Module for managing to do items in the edweiss app
  * @author Adamm Alaoui
  */
 
@@ -13,7 +13,7 @@ import { Timestamp } from './time';
 
 
 // ------------------------------------------------------------
-// ---------------------  Todo Namespace  ---------------------
+// ---------------------  To do Namespace  ---------------------
 // ------------------------------------------------------------
 namespace Todolist {
 

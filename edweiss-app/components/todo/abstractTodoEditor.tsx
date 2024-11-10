@@ -1,6 +1,6 @@
 /**
  * @file abstractTodoEditor.tsx
- * @description Module for editing todo items in the edweiss app
+ * @description Module for editing to do items in the edweiss app
  * @author Adamm Alaoui
  */
 
@@ -33,7 +33,7 @@ type TodoStatus = Todolist.TodoStatus;
 
 
 // ------------------------------------------------------------
-// --------------  The Custumisable Todo Editor   -------------
+// --------------  The Custumisable To do Editor   ------------
 // ------------------------------------------------------------
 
 export const AbstractTodoEditor: React.FC<{
@@ -44,7 +44,7 @@ export const AbstractTodoEditor: React.FC<{
 } & LightDarkProps
 > = ({ editable = false, todo, id }) => {
 
-    const providedDate = editable && todo && todo.dueDate;
+    const providedDate = editable && todo?.dueDate;
 
     // Use states
     const [name, setName] = useState(editable ? todo!.name : "");
@@ -56,25 +56,25 @@ export const AbstractTodoEditor: React.FC<{
     const [showPickerDate, setShowPickerDate] = useState(false);
     const [showPickerTime, setShowPickerTime] = useState(false);
 
-    // Constants    
-    const downButtonTitle = (editable) ? t(`todo:edit_button`) : t(`todo:save_button`);
-    const downButtonIconName = (editable) ? "create" : "save";
-    const screenTitle = (editable) ? t(`todo:edit_header`) : t(`todo:create_header`);
-    const downButtonAction = (editable) ? editTodoAction : saveAction;
-
-
     // Toogle the save button only when valid
-    const modifiedTodo = !(editable && todo) ? undefined :
-        {
-            name: name, description: description === "" ? undefined : description, status: status,
-            dueDate: (!providedDate && !(dateChanged || timeChanged)) ? undefined : date
-        };
-    // const isInvalid = (editable) ? sameTodos(todo!, modifiedTodo!) : name === ""; // FIX ME !
     const isInvalid = name === "";
+
+    // Constants for save state
+    let downButtonIconName: "create" | "save" = "save";
+    let downButtonTitle = t(`todo:save_button`);
+    let screenTitle = t(`todo:create_header`);
+    let downButtonAction = saveAction;
+
+    if (editable) {
+        downButtonIconName = "create";
+        downButtonTitle = t(`todo:edit_button`);
+        screenTitle = t(`todo:create_header`);
+        downButtonAction = editTodoAction;
+    }
+
 
 
     // On change date and time update event handlers
-
     const onChangeDate = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
             setDateChanged(true);
@@ -163,10 +163,8 @@ export const AbstractTodoEditor: React.FC<{
     }
 
     async function deleteTodoAction() {
-        if (!id) {
-            console.log("Error: id is undefined");
-            return;
-        }
+        if (!id) return;
+
         const res = await callFunction(Functions.deleteTodo, { id });
 
         if (res.status) {
@@ -225,10 +223,10 @@ export const AbstractTodoEditor: React.FC<{
                         <TTouchableOpacity onPress={() => setShowPickerDate(true)}
 
                             pr={'sm'} pl={'md'} pb={'sm'}
-                            flexDirection='row' justifyContent='flex-start' alignItems='center'>
+                            flexDirection='row' justifyContent='flex-start' alignItems='center' testID='date-button'>
 
                             <Icon name='calendar' size='md' color='overlay0' />
-                            <TText ml={14} color={dateChanged || providedDate ? 'text' : 'overlay0'}>{date.toDateString()}</TText>
+                            <TText ml={14} color={dateChanged || providedDate ? 'text' : 'overlay0'} testID='date-holder'>{date.toDateString()}</TText>
                         </TTouchableOpacity>
                     </TView>
 
@@ -240,10 +238,10 @@ export const AbstractTodoEditor: React.FC<{
                         <TTouchableOpacity onPress={() => setShowPickerTime(true)}
 
                             pr={'sm'} pl={'md'} pb={'sm'}
-                            flexDirection='row' justifyContent='flex-start' alignItems='center'>
+                            flexDirection='row' justifyContent='flex-start' alignItems='center' testID='time-button'>
 
                             <Icon name='alarm' size='md' color='overlay0' />
-                            <TText ml={10} color={timeChanged || providedDate ? 'text' : 'overlay0'}>{date.toTimeString().split(':').slice(0, 2).join(':')}</TText>
+                            <TText ml={10} color={timeChanged || providedDate ? 'text' : 'overlay0'} testID='time-holder'>{date.toTimeString().split(':').slice(0, 2).join(':')}</TText>
                         </TTouchableOpacity>
                     </TView>
 
@@ -252,7 +250,7 @@ export const AbstractTodoEditor: React.FC<{
 
                 {showPickerDate && (
                     <DateTimePicker
-                        testID="dateTimePicker"
+                        testID="dateTimePicker1"
                         value={date}
                         mode='date'
                         is24Hour={true}
@@ -269,7 +267,7 @@ export const AbstractTodoEditor: React.FC<{
 
                 {showPickerTime && (
                     <DateTimePicker
-                        testID="dateTimePicker"
+                        testID="dateTimePicker2"
                         value={date}
                         mode='time'
                         is24Hour={true}
