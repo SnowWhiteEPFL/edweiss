@@ -2,7 +2,6 @@ import TView from '@/components/core/containers/TView';
 import AssignmentDisplay, { AssignmentWithColor } from '@/components/courses/AssignmentDisplay';
 import { render } from "@testing-library/react-native";
 import React from 'react';
-import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 
 // Mocking the external dependencies
@@ -19,6 +18,7 @@ import { Swipeable } from 'react-native-gesture-handler';
 jest.mock('react-native-toast-message', () => ({
     show: jest.fn(),
 }));
+/*
 jest.mock('../../../components/core/containers/TView.tsx', () => {
     const { View } = require('react-native');
     return (props: ViewProps) => <View {...props} />;
@@ -35,6 +35,7 @@ jest.mock('../../../components/core/containers/TTouchableOpacity.tsx', () => {
         </TouchableOpacity>
     );
 });
+*/
 // jest.mock('react-native-gesture-handler', () => {
 //     const { TouchableOpacity, View } = require('react-native');
 //     return (props: React.PropsWithChildren<TouchableOpacityProps>) => (
@@ -43,6 +44,70 @@ jest.mock('../../../components/core/containers/TTouchableOpacity.tsx', () => {
 //         </TouchableOpacity>
 //     );
 // });
+
+
+
+jest.mock('@/contexts/auth', () => ({
+    useAuth: jest.fn(),
+}));
+jest.mock('@/hooks/firebase/firestore', () => ({
+    useDynamicDocs: jest.fn(),
+}));
+jest.mock('@react-native-firebase/auth', () => ({
+    __esModule: true,
+    default: jest.fn(() => ({
+        currentUser: { uid: 'test-user-id' },
+    })),
+}));
+
+jest.mock('@react-native-firebase/firestore', () => {
+    return {
+        __esModule: true,
+        default: jest.fn(() => ({
+            collection: jest.fn(() => ({
+                doc: jest.fn(() => ({
+                    get: jest.fn(() => Promise.resolve({
+                        exists: true,
+                        data: jest.fn(() => ({
+                            name: 'Test Assignment',
+                            description: 'This is a test assignment',
+                        })),
+                    })),
+                })),
+            })),
+        })),
+    };
+});
+
+jest.mock('@react-native-firebase/functions', () => ({
+    __esModule: true,
+    default: jest.fn(() => ({
+        httpsCallable: jest.fn(),
+    })),
+}));
+
+
+jest.mock('@react-native-firebase/storage', () => ({
+    __esModule: true,
+    default: jest.fn(() => ({
+        ref: jest.fn(),
+    })),
+}));
+
+jest.mock('@react-native-google-signin/google-signin', () => ({
+    __esModule: true,
+    GoogleSignin: {
+        configure: jest.fn(),
+        hasPlayServices: jest.fn(),
+        signIn: jest.fn(),
+        signOut: jest.fn(),
+        isSignedIn: jest.fn(),
+        getCurrentUser: jest.fn(),
+    },
+}));
+
+
+
 jest.doMock('react-native-gesture-handler', () => {
     return {
         Swipeable: ({ onSwipeableOpen, children }: { onSwipeableOpen: Function, children: React.ReactNode; }) => {

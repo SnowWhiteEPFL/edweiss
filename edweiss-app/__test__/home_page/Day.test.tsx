@@ -9,6 +9,21 @@ import { fireEvent, render } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import React from 'react';
 
+
+
+jest.mock('@react-native-firebase/firestore', () => ({
+    firebase: jest.fn(),
+    firestore: jest.fn(() => ({
+        collection: jest.fn(),
+        doc: jest.fn(),
+        get: jest.fn(),
+        set: jest.fn(),
+    })),
+}));
+
+
+
+
 jest.mock('@/config/firebase', () => ({
     callFunction: jest.fn(),
 }));
@@ -67,76 +82,66 @@ const { getByText } = renderDayComponent({ user: mockUserProfessor, period: mock
 
 describe('Day Component', () => {
 
+
     it('renders correctly for a professor and navigates on press', () => {
+        const { getByText } = renderDayComponent({ user: mockUserProfessor, period: mockPeriod, format: "day" });
+
+
+        expect(getByText('Test Course')).toBeTruthy();
+
+        fireEvent.press(getByText('Test Course'));
+
+        expect(router.push).toHaveBeenCalledWith({
+            pathname: '/(app)/startCourseScreen',
+            params: {
+                courseID: 'course1',
+                course: JSON.stringify(mockCourse),
+                period: JSON.stringify(mockPeriod),
+                index: 0,
+            },
+        });
+    });
+
+    it('renders correctly for a student and navigates on press', () => {
+        const { getByText } = renderDayComponent({ user: mockUserStudent, period: mockPeriod, format: "week" });
+
+        expect(getByText('Test Course')).toBeTruthy();
+
+
+        fireEvent.press(getByText('Test Course'));
+
+
+        expect(router.push).toHaveBeenCalledWith({
+            pathname: '/(app)/lectures/slides',
+            params: {
+                courseNameString: 'Test Course',
+                lectureIdString: 'activity1',
+            },
+        });
+    });
+
+
+    it('handles the case when period does not have an end time', () => {
+        const periodWithoutEnd = { ...mockPeriod, end: mockPeriod.end ?? 0 };
+
         const { getByText } = render(
             <CalendarDayDisplay
-                period={mockPeriod}
+                period={periodWithoutEnd}
                 course={{ id: 'course1', data: mockCourse }}
                 user={mockUserProfessor}
-                filteredPeriods={[mockPeriod]}
+                filteredPeriods={[periodWithoutEnd]}
                 index={0}
             />
         );
+        expect(getByText('Test Course')).toBeTruthy();
+    });
 
-        it('renders correctly for a professor and navigates on press', () => {
-            const { getByText } = renderDayComponent({ user: mockUserProfessor, period: mockPeriod, format: "day" });
+    it('handles the case when period does not have an end time', () => {
 
+        const { getByText } = renderDayComponent({ user: mockUserProfessor, period: mockPeriod, format: "day" });
+        expect(getByText('Test Course')).toBeTruthy();
+        (callFunction as jest.Mock).mockRejectedValueOnce(new Error("Erreur de test"));
+    });
+}
+);
 
-            expect(getByText('Test Course')).toBeTruthy();
-
-            fireEvent.press(getByText('Test Course'));
-
-            expect(router.push).toHaveBeenCalledWith({
-                pathname: '/(app)/startCourseScreen',
-                params: {
-                    courseID: 'course1',
-                    course: JSON.stringify(mockCourse),
-                    period: JSON.stringify(mockPeriod),
-                    index: 0,
-                },
-            });
-        });
-
-        it('renders correctly for a student and navigates on press', () => {
-            const { getByText } = renderDayComponent({ user: mockUserStudent, period: mockPeriod, format: "week" });
-
-            expect(getByText('Test Course')).toBeTruthy();
-
-
-            fireEvent.press(getByText('Test Course'));
-
-
-            expect(router.push).toHaveBeenCalledWith({
-                pathname: '/(app)/lectures/slides',
-                params: {
-                    courseNameString: 'Test Course',
-                    lectureIdString: 'activity1',
-                },
-            });
-        });
-
-
-        it('handles the case when period does not have an end time', () => {
-            const periodWithoutEnd = { ...mockPeriod, end: mockPeriod.end ?? 0 };
-
-            const { getByText } = render(
-                <CalendarDayDisplay
-                    period={periodWithoutEnd}
-                    course={{ id: 'course1', data: mockCourse }}
-                    user={mockUserProfessor}
-                    filteredPeriods={[periodWithoutEnd]}
-                    index={0}
-                />
-            );
-            expect(getByText('Test Course')).toBeTruthy();
-        });
-
-        it('handles the case when period does not have an end time', () => {
-
-            const { getByText } = renderDayComponent({ user: mockUserProfessor, period: mockPeriod, format: "day" });
-            expect(getByText('Test Course')).toBeTruthy();
-            (callFunction as jest.Mock).mockRejectedValueOnce(new Error("Erreur de test"));
-        });
-    }
-    );
-});
