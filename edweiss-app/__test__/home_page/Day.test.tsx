@@ -1,8 +1,32 @@
+
+import CalendarDayDisplay from '@/components/calendar/CalendarDayDisplay';
+import { Day } from '@/components/core/Day';
+
+import { callFunction } from '@/config/firebase';
+
 import { Course, CourseTimePeriod } from '@/model/school/courses';
 import { fireEvent, render } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import React from 'react';
-import { Day } from '../../components/core/Day';
+
+
+
+jest.mock('@react-native-firebase/firestore', () => ({
+    firebase: jest.fn(),
+    firestore: jest.fn(() => ({
+        collection: jest.fn(),
+        doc: jest.fn(),
+        get: jest.fn(),
+        set: jest.fn(),
+    })),
+}));
+
+
+
+
+jest.mock('@/config/firebase', () => ({
+    callFunction: jest.fn(),
+}));
 
 jest.mock('expo-router', () => ({
     router: {
@@ -18,8 +42,6 @@ const mockCourse: Course = {
     periods: [],
     section: 'IN',
     credits: 3,
-    newAssignments: false,
-    assignments: [],
     started: true,
 };
 
@@ -44,17 +66,26 @@ const mockUserStudent = {
     },
 };
 
+function renderDayComponent({ user, period, format }: { user: any, period: CourseTimePeriod, format: string; }) {
+    return render(
+        <Day
+            course={{ id: 'course1', data: mockCourse }}
+            user={user}
+            filteredPeriods={[period]}
+            index={0}
+            format={format} period={period} />
+    );
+}
+
+
+const { getByText } = renderDayComponent({ user: mockUserProfessor, period: mockPeriod, format: "day" });
+
 describe('Day Component', () => {
+
+
     it('renders correctly for a professor and navigates on press', () => {
-        const { getByText } = render(
-            <Day
-                period={mockPeriod}
-                course={{ id: 'course1', data: mockCourse }}
-                user={mockUserProfessor}
-                filteredPeriods={[mockPeriod]}
-                index={0}
-            />
-        );
+        const { getByText } = renderDayComponent({ user: mockUserProfessor, period: mockPeriod, format: "day" });
+
 
         expect(getByText('Test Course')).toBeTruthy();
 
@@ -72,15 +103,7 @@ describe('Day Component', () => {
     });
 
     it('renders correctly for a student and navigates on press', () => {
-        const { getByText } = render(
-            <Day
-                period={mockPeriod}
-                course={{ id: 'course1', data: mockCourse }}
-                user={mockUserStudent}
-                filteredPeriods={[mockPeriod]}
-                index={0}
-            />
-        );
+        const { getByText } = renderDayComponent({ user: mockUserStudent, period: mockPeriod, format: "week" });
 
         expect(getByText('Test Course')).toBeTruthy();
 
@@ -97,11 +120,12 @@ describe('Day Component', () => {
         });
     });
 
+
     it('handles the case when period does not have an end time', () => {
         const periodWithoutEnd = { ...mockPeriod, end: mockPeriod.end ?? 0 };
 
         const { getByText } = render(
-            <Day
+            <CalendarDayDisplay
                 period={periodWithoutEnd}
                 course={{ id: 'course1', data: mockCourse }}
                 user={mockUserProfessor}
@@ -111,4 +135,13 @@ describe('Day Component', () => {
         );
         expect(getByText('Test Course')).toBeTruthy();
     });
-});
+
+    it('handles the case when period does not have an end time', () => {
+
+        const { getByText } = renderDayComponent({ user: mockUserProfessor, period: mockPeriod, format: "day" });
+        expect(getByText('Test Course')).toBeTruthy();
+        (callFunction as jest.Mock).mockRejectedValueOnce(new Error("Erreur de test"));
+    });
+}
+);
+

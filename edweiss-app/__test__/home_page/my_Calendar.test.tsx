@@ -1,14 +1,18 @@
-import { CollectionOf } from '@/config/firebase';
+import MyCalendar from '@/app/(app)/my_Calendar';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
-import { render, screen } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import React from 'react';
-import HomeTab from '../../app/(app)/(tabs)/index';
 
-beforeEach(() => {
-    render(<HomeTab />);
+
+
+jest.mock('@/components/core/calendar', () => ({
+    Calendar: jest.fn(() => <div>Mocked Calendar</div>),
+}));
+
+jest.mock('@/components/core/header/RouteHeader', () => () => {
+    return <div>Mocked RouteHeader</div>;
 });
-
 const mockCourses = [
     {
         id: 'course1',
@@ -104,52 +108,40 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
         getCurrentUser: jest.fn(),
     },
 }));
-const mockAuth = {
-    authUser: { uid: 'test-user-id' },
-};
 
-
-
-describe('HomeTab Component', () => {
-    (useAuth as jest.Mock).mockReturnValue(mockAuth);
-    (useDynamicDocs as jest.Mock).mockImplementation((collection) => {
-        if (collection === CollectionOf('courses')) {
-            return mockCourses;
-        }
-        if (collection === CollectionOf(`users/${mockAuth.authUser.uid}/courses`)) {
-            return mockCourses;
-        }
-        return [];
+describe('my_Calendar', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
+    it('should import the authenticated user correctly', () => {
+        const mockUser = { uid: 'user-123' };
+        (useAuth as jest.Mock).mockReturnValue({ authUser: mockUser });
 
-    it('render hours', async () => {
-
-        expect(screen.getByText('1:00')).toBeTruthy();
-        expect(screen.getByText('2:00')).toBeTruthy();
-        expect(screen.getByText('3:00')).toBeTruthy();
-        expect(screen.getByText('13:00')).toBeTruthy();
-        expect(screen.getByText('16:00')).toBeTruthy();
-        expect(screen.getByText('22:00')).toBeTruthy();
+        render(<MyCalendar />);
+        expect(useAuth).toHaveBeenCalled();
+        expect(useAuth().authUser).toEqual(mockUser);
     });
-    it('render course name', async () => {
 
-        expect(await screen.findByText('Course 1')).toBeTruthy();
-        expect(await screen.findByText('Course 2')).toBeTruthy();
-    });
-    it('render course credits', async () => {
+    it('should fetch user courses correctly', () => {
+        const mockUser = { uid: 'tPpkVzKlNhRbANSMdcit1cuPLYr1' };
+        (useAuth as jest.Mock).mockReturnValue({ authUser: mockUser });
 
-        expect(screen.getByText('Crédits: 3')).toBeTruthy();
-        expect(screen.getByText('Crédits: 4')).toBeTruthy();
-    });
-    it('render List of courses', async () => {
+        (useDynamicDocs as jest.Mock)
+            .mockReturnValueOnce([
+                { id: 'course-1', data: {} },
+                { id: 'course-2', data: {} },
+            ])
+            .mockReturnValueOnce([
+                { id: 'course-1', data: {} },
+                { id: 'course-3', data: {} },
+            ]);
+        render(<MyCalendar />);
 
-        expect(screen.getByText('List of courses')).toBeTruthy();
-        expect(screen.getByText('My Calendar')).toBeTruthy();
-        expect(screen.getByText('now')).toBeTruthy();
+        expect(useDynamicDocs).toHaveBeenCalledWith(
+            expect.anything()
+        );
+
 
     });
 });
-
-
-

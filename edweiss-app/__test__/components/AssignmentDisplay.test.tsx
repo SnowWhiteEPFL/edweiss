@@ -1,36 +1,157 @@
+import TView from '@/components/core/containers/TView';
 import AssignmentDisplay, { AssignmentWithColor } from '@/components/courses/AssignmentDisplay';
 import { render } from "@testing-library/react-native";
 import React from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
 
 // Mocking the external dependencies
-jest.mock('react-native-gesture-handler', () => {
-    const originalModule = jest.requireActual('react-native-gesture-handler');
-    return {
-        ...originalModule,
-        Swipeable: jest.fn().mockImplementation(({ children, renderRightActions }) => (
-            <>{children}{renderRightActions && renderRightActions()}</>
-        )),
-    };
-});
+// jest.mock('react-native-gesture-handler', () => {
+//     const originalModule = jest.requireActual('react-native-gesture-handler');
+//     return {
+//         ...originalModule,
+//         Swipeable: jest.fn().mockImplementation(({ children, renderRightActions }) => (
+//             <>{children}{renderRightActions && renderRightActions()}</>
+//         )),
+//     };
+// });
 
 jest.mock('react-native-toast-message', () => ({
     show: jest.fn(),
 }));
-
-jest.mock('@/components/core/containers/TView', () => {
+/*
+jest.mock('../../../components/core/containers/TView.tsx', () => {
     const { View } = require('react-native');
-    return jest.fn(({ children }) => <View>{children}</View>);
+    return (props: ViewProps) => <View {...props} />;
 });
-jest.mock('@/components/core/TText', () => {
+jest.mock('../../../components/core/TText.tsx', () => {
     const { Text } = require('react-native');
-    return jest.fn(({ children }) => <Text>{children}</Text>);
+    return (props: TextProps) => <Text {...props} />;
 });
-jest.mock('@/components/core/containers/TTouchableOpacity', () => {
-    const { TouchableOpacity } = require('react-native');
-    return jest.fn(({ children }) => <TouchableOpacity>{children}</TouchableOpacity>);
+jest.mock('../../../components/core/containers/TTouchableOpacity.tsx', () => {
+    const { TouchableOpacity, View } = require('react-native');
+    return (props: React.PropsWithChildren<TouchableOpacityProps>) => (
+        <TouchableOpacity {...props}>
+            <View>{props.children}</View>
+        </TouchableOpacity>
+    );
+});
+*/
+// jest.mock('react-native-gesture-handler', () => {
+//     const { TouchableOpacity, View } = require('react-native');
+//     return (props: React.PropsWithChildren<TouchableOpacityProps>) => (
+//         <TouchableOpacity {...props}>
+//             <View>{props.children}</View>
+//         </TouchableOpacity>
+//     );
+// });
+
+
+
+jest.mock('@/contexts/auth', () => ({
+    useAuth: jest.fn(),
+}));
+jest.mock('@/hooks/firebase/firestore', () => ({
+    useDynamicDocs: jest.fn(),
+}));
+jest.mock('@react-native-firebase/auth', () => ({
+    __esModule: true,
+    default: jest.fn(() => ({
+        currentUser: { uid: 'test-user-id' },
+    })),
+}));
+
+jest.mock('@react-native-firebase/firestore', () => {
+    return {
+        __esModule: true,
+        default: jest.fn(() => ({
+            collection: jest.fn(() => ({
+                doc: jest.fn(() => ({
+                    get: jest.fn(() => Promise.resolve({
+                        exists: true,
+                        data: jest.fn(() => ({
+                            name: 'Test Assignment',
+                            description: 'This is a test assignment',
+                        })),
+                    })),
+                })),
+            })),
+        })),
+    };
 });
 
+jest.mock('@react-native-firebase/functions', () => ({
+    __esModule: true,
+    default: jest.fn(() => ({
+        httpsCallable: jest.fn(),
+    })),
+}));
+
+
+jest.mock('@react-native-firebase/storage', () => ({
+    __esModule: true,
+    default: jest.fn(() => ({
+        ref: jest.fn(),
+    })),
+}));
+
+jest.mock('@react-native-google-signin/google-signin', () => ({
+    __esModule: true,
+    GoogleSignin: {
+        configure: jest.fn(),
+        hasPlayServices: jest.fn(),
+        signIn: jest.fn(),
+        signOut: jest.fn(),
+        isSignedIn: jest.fn(),
+        getCurrentUser: jest.fn(),
+    },
+}));
+
+
+
+jest.doMock('react-native-gesture-handler', () => {
+    return {
+        Swipeable: ({ onSwipeableOpen, children }: { onSwipeableOpen: Function, children: React.ReactNode; }) => {
+            return (
+                <TView
+                    data-testid="swipe-component"
+                    onTouchStart={() => {
+                        if (onSwipeableOpen) {
+                            onSwipeableOpen('right'); // Simuler un swipe à droite
+                        }
+                    }}
+                >
+                    {children}
+                </TView>
+            );
+        }
+    };
+});
+// jest.mock('react-native-gesture-handler', () => {
+//     const { View } = require('react-native');
+
+//     return {
+//         Swipeable: ({ children, renderRightActions, onSwipeableOpen }: {
+//             children: React.ReactNode;
+//             renderRightActions?: () => React.ReactNode;
+//             onSwipeableOpen?: (direction: string) => void;
+//         }) => {
+//             return (
+//                 <View
+//                     testID="swipe-component"
+//                     onTouchStart={() => {
+//                         // Simule un swipe à droite en appelant la fonction onSwipeableOpen
+//                         if (onSwipeableOpen) {
+//                             onSwipeableOpen('right');  // Change à 'left' si tu veux simuler un swipe gauche
+//                         }
+//                     }}
+//                 >
+//                     {children}
+//                     {renderRightActions && renderRightActions()}  {/* Exécute renderRightActions si fourni */}
+//                 </View>
+//             );
+//         }
+//     };
+// });
 // Mock the i18n translation function and locale
 jest.mock('@/config/i18config', () => jest.fn(() => 'en-US'));
 
@@ -46,134 +167,35 @@ describe('AssignmentDisplay', () => {
         // Manually mock swipeableRefs as a MutableRefObject
         const swipeableRefs = { current: [null] as (Swipeable | null)[] };
 
-        const dateFormats = { year: 'numeric', month: 'long', day: 'numeric' };
-
-        const { getByText, getByTestId } = render(
+        const screen = render(
             <AssignmentDisplay
                 item={assignment}
                 index={0}
-                backgroundColor='mantle'
-                swipeBackgroundColor='clearGreen'
-                defaultColor='darkNight'
-                swipeableRefs={swipeableRefs} // Pass mock array directly
+                isSwipeable={true}
             />
         );
 
-        // Check if the assignment name and date are rendered
-        expect(getByText('Assignment 1')).toBeTruthy();
-        expect(getByText('Thursday, January 1')).toBeTruthy();
+        //Check if the assignment name and date are rendered
+        expect(screen.getByText('Assignment 1')).toBeTruthy();
+        expect(screen.getByText('Thursday, January 1')).toBeTruthy();
+        //expect(screen.getByText('en-US')).toBeTruthy();
+        //expect(screen.getByTestId('mockSwipeable')).toBeTruthy();
 
-        // // Mock console.log to check if the swipe is detected
-        // const consoleLogSpy = jest.spyOn(console, 'log');
+        // Define the onSwipeableOpen function
+        const onSwipeableOpen = jest.fn((direction) => {
+            console.log(`Swiped to the ${direction}`);
+        });
 
-        // // Simulate swipe by firing event on the swipe action container
-        // fireEvent.press(getByTestId(testIDs.swipeView));
+        // Simuler un swipe
+        //fireEvent.press(screen.getByTestId('swipe-component')); // Simule un swipe en appuyant sur le composant
 
-        // // Check if Toast was shown
-        // expect(Toast.show).toHaveBeenCalledWith({
-        //     type: 'success',
-        //     text1: 'course:toast_added_to_to_do_text1',
-        //     text2: 'course:toast_added_to_to_do_text2',
-        // });
+        // Vérifier que la fonction onSwipeableOpen a été appelée
+        //expect(onSwipeableOpen).toHaveBeenCalled();
 
-        // // Check if the console log was called with the correct message
-        // expect(consoleLogSpy).toHaveBeenCalledWith('Swipe detected on assignment: Assignment 1');
-
-        // // Ensure the swipeable component was closed
-        // expect(swipeableRefs.current[0]?.close).toHaveBeenCalled();
+        //expect(screen.getByTestId('swipe-component')).toBeTruthy();
+        //expect(screen.getByTestId('swipeView')).toBeTruthy();
+        //expect(screen.getByTestId('assignment-icon')).toBeTruthy();
+        expect(screen.getByTestId('assignment-title')).toBeTruthy();
+        expect(screen.getByTestId('assignment-date')).toBeTruthy();
     });
 });
-
-
-
-// import AssignmentDisplay from '@/components/courses/AssignmentDisplay';
-// import { Assignment } from '@/model/school/courses';
-// import { render } from "@testing-library/react-native";
-// import React from 'react';
-// import { Swipeable } from 'react-native-gesture-handler';
-
-// // Mocking the external dependencies
-// jest.mock('react-native-gesture-handler', () => {
-//     return {
-//         Swipeable: jest.fn().mockImplementation(({ children }) => children),
-//     };
-// });
-
-// jest.mock('react-native-toast-message', () => ({
-//     show: jest.fn(),
-// }));
-
-// jest.mock('@/components/core/containers/TView', () => {
-//     const { View } = require('react-native');
-//     return jest.fn(({ children }) => <View>{children}</View>);
-// });
-// jest.mock('@/components/core/TText', () => {
-//     const { Text } = require('react-native');
-//     return jest.fn(({ children }) => <Text>{children}</Text>);
-// });
-// jest.mock('@/components/core/containers/TTouchableOpacity', () => {
-//     const { TouchableOpacity } = require('react-native');
-//     return jest.fn(({ children }) => <TouchableOpacity>{children}</TouchableOpacity>);
-// });
-
-// // Mock the i18n translation function and locale
-// jest.mock('@/config/i18config', () => jest.fn(() => 'en-US'));
-
-// describe('AssignmentDisplay', () => {
-//     test("renders assignment information and handles swipe", async () => {
-//         const assignement: Assignment = {
-//             name: "Assignment 1",
-//             type: "quiz",
-//             dueDate: { seconds: 2000, nanoseconds: 0 },
-//             color: "red"
-//         };
-
-//         // Manually mock swipeableRefs as a MutableRefObject
-//         const swipeableRefs = { current: [null] as (Swipeable | null)[] };
-
-//         const dateFormats = { year: 'numeric', month: 'long', day: 'numeric' };
-
-//         const screen = render(
-//             <AssignmentDisplay
-//                 item={assignement}
-//                 index={0}
-//                 backgroundColor='mantle'
-//                 swipeBackgroundColor='clearGreen'
-//                 defaultColor='darkNight'
-//                 swipeableRefs={swipeableRefs} // Pass mock array directly
-//             />
-//         );
-
-//         // Checking if the translations and assignment name are rendered
-//         expect(screen.getByText('Assignment 1')).toBeTruthy();
-//         //expect(screen.getByTestId(testIDs.assignmentDate)).toBeTruthy();
-//     });
-// });
-
-// import AssignmentDisplay, { testIDs } from '@/components/courses/AssignmentDisplay';
-// import { Assignment } from '@/model/school/courses';
-// import { render } from "@testing-library/react-native";
-// import React, { useRef } from 'react';
-// import { Swipeable } from 'react-native-gesture-handler';
-// import t from '/Users/flo/Desktop/edweiss/edweiss-app/config/i18config';
-
-// describe('CoursePage', () => {
-
-//     test("calls onPress function when pressed", async () => {
-
-//         const assignement: Assignment = { name: "Assignment 1", type: "quiz", dueDate: { seconds: 2000, nanoseconds: 0 }, color: "red" };
-//         const swipeableRefs = useRef<(Swipeable | null)[]>([]);
-
-//         const screen = render(<AssignmentDisplay item={assignement} index={0} backgroundColor='mantle' swipeBackgroundColor='clearGreen' defaultColor='darkNight' swipeableRefs={swipeableRefs} />);
-
-//         expect(screen.getByText(t(`course:add_to_to_do`))).toBeTruthy();
-//         expect(screen.getByText(assignement.name)).toBeTruthy();
-
-//         //fireEvent.press(screen.getByTestId("checkbox"));
-
-//         expect(screen.getByText(testIDs.swipeView));
-//         expect(screen.getByText(testIDs.assignmentIcon));
-//         expect(screen.getByText(testIDs.assignmentTitle));
-//         expect(screen.getByText(testIDs.assignmentDate));
-//     });
-// });

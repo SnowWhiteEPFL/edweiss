@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 
 
-const StartCourseScreen: ApplicationRoute = () => {
+export const StartCourseScreen: ApplicationRoute = () => {
 	const { courseID, course, period } = useLocalSearchParams() as unknown as { courseID: string; course: string; period: string; index: number; };
 	const [loading, setLoading] = useState(false);
 	const [parsedCourse, setParsedCourse] = useState<Course>(JSON.parse(course));
@@ -19,8 +19,8 @@ const StartCourseScreen: ApplicationRoute = () => {
 	const [textButton, setTextButton] = useState("Start course");
 	const [colorButtonStartStop, setColorButtonStartStop] = useState<Color>("transparent");
 	const [colorButtonShow, setColorButtonShow] = useState<Color>("transparent");
-	const [colorTextStartStop, setColorTextStartStop] = useState<Color>("course_title_for_backgroud_color");
-	const [colorTextShow, setColorTextShow] = useState<Color>("course_title_for_backgroud_color");
+	const [colorTextStartStop, setColorTextStartStop] = useState<Color>("constantBlack");
+	const [colorTextShow, setColorTextShow] = useState<Color>("constantBlack");
 	const lectureId = parsedPeriod.activityId;
 	const [textButtonShow, setTextButtonShow] = useState("Show to student");
 	const [available, setAvailable] = useState<boolean>(false);
@@ -63,9 +63,9 @@ const StartCourseScreen: ApplicationRoute = () => {
 	useEffect(() => {
 		setColorButtonStartStop(parsedCourse.started ? "transparent" : "overlay2");
 		setTextButton(parsedCourse.started ? "Stop course" : "Start course");
-		setColorTextStartStop(parsedCourse.started ? "flamingo" : "course_title_for_backgroud_color");
+		setColorTextStartStop(parsedCourse.started ? "flamingo" : "constantBlack");
 		setTextButtonShow(available ? "Sharing in progress..." : "Show to student");
-		setColorTextShow(available ? "flamingo" : "course_title_for_backgroud_color");
+		setColorTextShow(available ? "flamingo" : "constantBlack");
 		setColorButtonShow(available ? "transparent" : "overlay2");
 	}, [parsedCourse.started, available]);
 
@@ -93,7 +93,7 @@ const StartCourseScreen: ApplicationRoute = () => {
 								lectureIdString: lectureId
 							}
 						});
-					}} ><TText color='course_title_for_backgroud_color'>Go to show Time</TText></FancyButton>
+					}} ><TText color='constantBlack'>Go to show Time</TText></FancyButton>
 
 
 					<FancyButton style={{ borderRadius: 40, borderColor: "blue", }} backgroundColor={'overlay2'} m={15} onPress={() => {
@@ -106,12 +106,12 @@ const StartCourseScreen: ApplicationRoute = () => {
 
 						});
 					}} >
-						<TText color='course_title_for_backgroud_color'> Go to STRC</TText>
+						<TText color='constantBlack'> Go to STRC</TText>
 					</FancyButton>
 
 
 					<FancyButton style={{ borderRadius: 40, borderColor: "blue", }} backgroundColor={'overlay2'} m={15}>
-						<TText color='course_title_for_backgroud_color'> Send my Token</TText>
+						<TText color='constantBlack'> Send my Token</TText>
 					</FancyButton>
 
 

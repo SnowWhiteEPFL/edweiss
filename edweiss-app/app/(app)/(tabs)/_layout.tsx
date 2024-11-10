@@ -28,11 +28,20 @@ const TabLayout: ApplicationLayout = () => {
 				}}
 			/>
 			<Tabs.Screen
-				name="explore"
+				name="community"
 				options={{
-					title: 'Explore',
+					title: 'Community',
 					tabBarIcon: ({ color, focused }) => (
-						<TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+						<TabBarIcon name={focused ? 'planet' : 'planet-outline'} color={color} />
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="notifications"
+				options={{
+					title: 'Notifications',
+					tabBarIcon: ({ color, focused }) => (
+						<TabBarIcon name={focused ? 'notifications' : 'notifications-outline'} color={color} />
 					),
 				}}
 			/>

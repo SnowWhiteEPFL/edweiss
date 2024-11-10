@@ -5,11 +5,10 @@ import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import Memento from '@/model/memento';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Button, StyleSheet } from 'react-native';
 import { State, TapGestureHandler } from 'react-native-gesture-handler';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import TView from '../core/containers/TView';
-import HeaderButton from '../core/header/HeaderButton';
 import RouteHeader from '../core/header/RouteHeader';
 import TText from '../core/TText';
 import FancyButton from '../input/FancyButton';
@@ -73,14 +72,10 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
 
     async function deleteCard() {
 
-        try {
-            const res = await callFunction(Memento.Functions.deleteCard, { deckId: deckId, cardIndex: cardIndex });
-            if (res.status == 1) {
-                console.log(`Card deleted with id ${res.data.id}`);
-                router.back();
-            }
-        } catch (error) {
-            console.error("Error deleting card:", error);
+        const res = await callFunction(Memento.Functions.deleteCard, { deckId: deckId, cardIndex: cardIndex });
+        if (res.status == 1) {
+            console.log(`Card deleted with id ${res.data.id}`);
+            router.back();
         }
 
     }
@@ -101,19 +96,18 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
     return (
         <TView style={isModal ? styles.modalContainer : styles.container}>
             {!isModal && <RouteHeader
-                title='Card Screen'
+                title='Test Your Might!'
                 right={
-                    <HeaderButton icon="ellipsis-vertical-outline" onPress={toggleDropDown}>
-                    </HeaderButton>
+                    <Button testID='toggleButton' onPress={toggleDropDown} title='⋮' />
                 }
             />}
 
             {showDropdown && (
-                <TView borderColor='blue' style={{ position: 'absolute', top: -16, right: 0, padding: 0, zIndex: 1000 }} >
-                    <FancyButton onPress={deleteCard} backgroundColor='transparent' textColor='red' mt={'md'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
+                <TView testID='2ButtonsDropDown' borderColor='blue' style={{ position: 'absolute', top: -16, right: 0, padding: 0, zIndex: 1000 }} >
+                    <FancyButton testID='deleteCardButton' onPress={deleteCard} backgroundColor='transparent' textColor='red' mt={'md'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
                         Delete Card
                     </FancyButton>
-                    <FancyButton onPress={() => router.push({ pathname: `/deck/${deckId}/card/edition` as any, params: { deckId: deckId, prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex } })}
+                    <FancyButton testID='editCardButton' onPress={() => router.push({ pathname: `/deck/${deckId}/card/edition` as any, params: { deckId: deckId, prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex } })}
                         backgroundColor='transparent' textColor='teal' mb={'sm'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
                         Edit Card
                     </FancyButton>
@@ -121,6 +115,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
             )}
 
             <TapGestureHandler
+                testID='flipCardToSeeAnswer'
                 onHandlerStateChange={({ nativeEvent }) => {
                     if (nativeEvent.state === State.END) {
                         toggleFlip();
@@ -134,6 +129,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
             </TapGestureHandler>
 
             <TapGestureHandler
+                testID='flipCardToSeeQuestion'
                 onHandlerStateChange={({ nativeEvent }) => {
                     if (nativeEvent.state === State.END) {
                         toggleFlip();
@@ -150,6 +146,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
             <TView style={[styles.buttonContainer]}>
                 <TView style={styles.buttonHalf}>
                     <FancyButton
+                        testID='notYetButton'
                         backgroundColor='red'
                         onPress={() => updateLearningStatusCard(deckId, cardIndex, updateCard, "Not yet", card)}
                         style={{ width: '100%', height: '100%' }} // Make button fill its half
@@ -160,6 +157,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
                 </TView>
                 <TView style={styles.lastButtonHalf}>
                     <FancyButton
+                        testID='gotItButton'
                         backgroundColor='green'
                         onPress={() => updateLearningStatusCard(deckId, cardIndex, updateCard, "Got it", card)}
                         style={{ width: '100%', height: '100%' }} // Make button fill its half
@@ -175,7 +173,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
 
 };
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
