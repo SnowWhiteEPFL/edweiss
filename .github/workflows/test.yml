@@ -37,15 +37,14 @@ jobs:
 
         
       - name: Test and coverage
-        run: npm run test -- --coverage --coverageReporters=lcov
+        run: npm run test
         env:
           CI: true
         continue-on-error: true
 
       - name: List coverage directory contents (debug)
-        run: >
-          cat coverage/lcov.info
-          echo
+        run:
+          ls -R
           cat coverage/lcov-report/lcov-info.txt
         if: always()
       
