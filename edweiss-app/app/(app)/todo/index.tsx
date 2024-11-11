@@ -57,7 +57,7 @@ const TodoListScreen: ApplicationRoute = () => {
 
             <RouteHeader title={t(`todo:todolist_header`)} right={<HeaderButton icon="options-outline" testID='filter-button' onPress={() => modalRefFilter.current?.present()} />} />
 
-            {todos_filtered.length > 0 ? (<GestureHandlerRootView style={{ flex: 1 }}><NativeViewGestureHandler><ScrollView>{todos_filtered.map((todo) => (<TodoDisplay key={todo.id} id={todo.id} todo={todo.data} setTodoToDisplay={setTodoToDisplay} modalRef={modalRefTodoInfo} />))} <TView mt={50} mb={75}></TView></ScrollView></NativeViewGestureHandler></GestureHandlerRootView>)
+            {todos_filtered.length > 0 ? (<GestureHandlerRootView style={{ flex: 1 }}><NativeViewGestureHandler><ScrollView>{todos_filtered.map((todo) => (<TodoDisplay key={todo.id} id={todo.id} todo={todo.data} setTodoToDisplay={setTodoToDisplay} modalRef={modalRefTodoInfo} />))}</ScrollView></NativeViewGestureHandler></GestureHandlerRootView>)
                 :
                 (
                     <TView

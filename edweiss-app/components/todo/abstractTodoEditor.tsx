@@ -68,7 +68,7 @@ export const AbstractTodoEditor: React.FC<{
     if (editable) {
         downButtonIconName = "create";
         downButtonTitle = t(`todo:edit_button`);
-        screenTitle = t(`todo:create_header`);
+        screenTitle = t(`todo:edit_header`);
         downButtonAction = editTodoAction;
     }
 
@@ -109,6 +109,12 @@ export const AbstractTodoEditor: React.FC<{
                     text1: name + t(`todo:was_added_toast`),
                     text2: t(`todo:funny_phrase_on_add`)
                 });
+            } else if (res.error === "duplicate_todo") {
+                Toast.show({
+                    type: 'info',
+                    text1: t(`todo:already_existing_todo_toast_title`),
+                    text2: t(`todo:already_existing_todo_toast_funny`)
+                });
             } else {
                 Toast.show({
                     type: 'error',
@@ -145,6 +151,12 @@ export const AbstractTodoEditor: React.FC<{
                     type: 'success',
                     text1: name + t(`todo:was_edited_toast`),
                     text2: t(`todo:funny_phrase_on_edit`)
+                });
+            } else if (res.error === "duplicate_todo") {
+                Toast.show({
+                    type: 'info',
+                    text1: t(`todo:already_existing_todo_toast_title`),
+                    text2: t(`todo:already_existing_todo_toast_funny`)
                 });
             } else {
                 Toast.show({
