@@ -30,6 +30,7 @@ namespace Memento {
 		deleteCard: FunctionOf<{ deckId: string; cardIndex: number; }, { id: string; }, 'deck_not_found'>("deleteCard"),
 		updateDeck: FunctionOf<{ deckId: any; card: Memento.Card; }, { id: string; }, 'deck_not_found'>("updateDeck"),
 		updateCard: FunctionOf<{ deckId: any; newCard: Memento.Card; cardIndex: number; }, { id: string; }, {}>("updateCard"),
+		deleteCards: FunctionOf<{ deckId: any; cardIndices: number[]; }, { id: string; }, 'card_not_found'>("deleteCards"),
 	});
 
 }
