@@ -1,0 +1,6 @@
+appId: com.edweiss
+---
+- launchApp:
+    clearState: true
+
+- assertVisible: "Open up App.js to start working on your app!"
