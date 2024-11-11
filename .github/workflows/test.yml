@@ -2,9 +2,9 @@ name: "Run Application Tests"
 
 on:
   push:
-    branches: [master, main, feature/*, refractor/*]
+    branches: [master, main, feature/*, refractor/*, bugfix/*]
   pull_request:
-    branches: [master, main, feature/*, refractor/*]
+    branches: [master, main, feature/*, refractor/*, bugfix/*]
 
 defaults:
   run:

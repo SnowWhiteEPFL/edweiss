@@ -10,11 +10,10 @@ import { dateFormats, timeInMS } from '@/constants/Time';
 import { Assignment } from '@/model/school/courses';
 import Todolist from '@/model/todo';
 import { Time as OurTime } from '@/utils/time';
-import { Timestamp } from '@react-native-firebase/firestore';
-import { router } from 'expo-router';
 import { useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
+import { Timestamp } from '../../model/time';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
 
@@ -82,7 +81,7 @@ const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, index: numb
         isSwipeable ?
             <Swipeable
                 ref={(ref) => { swipeableRefs.current[index] = ref; }} renderRightActions={renderRightActions} onSwipeableOpen={(direction) => {
-                    if (direction === 'right') { console.log(`Swipe detected on assignment: ${item.name}`); Toast.show({ type: 'success', text1: t(`course:toast_added_to_todo_text1`), text2: t(`course:toast_added_to_todo_text2`), }); swipeableRefs.current[index]?.close(); }
+                    if (direction === 'right') { console.log(`Swipe detected on assignment: ${item.name}`); saveTodo(item.name, item.dueDate, item.type); swipeableRefs.current[index]?.close(); }
                 }
                 }>
                 {assignmentView()}
@@ -104,11 +103,16 @@ async function saveTodo(name: string, dueDate: Timestamp, description: string) {
         });
 
         if (res.status) {
-            router.back();
             Toast.show({
                 type: 'success',
                 text1: t(`course:toast_added_to_todo_text1`),
                 text2: t(`course:toast_added_to_todo_text2`)
+            });
+        } else if (res.error === "duplicate_todo") {
+            Toast.show({
+                type: 'info',
+                text1: t(`todo:already_existing_todo_toast_title`),
+                text2: t(`todo:already_existing_todo_toast_funny`)
             });
         } else {
             Toast.show({

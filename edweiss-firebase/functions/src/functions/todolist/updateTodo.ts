@@ -31,6 +31,14 @@ export const updateTodo = onAuthentifiedCall(Functions.updateTodo, async (userId
     if (todo == undefined)
         return fail("firebase_error");
 
+    const todoCollection = CollectionOf<Todo>(`users/${userId}/todos`);
+
+    const existingTodos = await todoCollection.where('name', '==', args.name).get();
+
+    if (!existingTodos.empty) {
+        return fail("duplicate_todo");
+    }
+
     const updatedFields: Partial<Todo> = {};
     if (args.name) updatedFields.name = args.name;
     if (args.status) updatedFields.status = args.status;
