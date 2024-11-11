@@ -15,6 +15,7 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import Icon from '@/components/core/Icon';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
+import { testIDs } from '@/components/courses/AssignmentDisplay';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { callFunction, CollectionOf, getDownloadURL } from '@/config/firebase';
 import t from '@/config/i18config';
@@ -69,8 +70,6 @@ const LectureScreen: ApplicationRoute = () => {
     }, [lectureDoc]);
 
     useEffect(() => {
-        addQuestion('test question 1');
-        addQuestion('test question 2');
         const onOrientationChange = (currentOrientation: ScreenOrientation.OrientationChangeEvent) => {
             const orientationValue = currentOrientation.orientationInfo.orientation;
             console.log(orientationValue);
