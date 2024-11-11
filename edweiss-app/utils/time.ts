@@ -29,7 +29,9 @@ export namespace Time {
 	}
 
 	export function isToday(date: Date): boolean {
-		return sameDay(date, new Date());
+		const today = new Date(new Date().setHours(0, 0, 0, 0));
+		const dateToCheck = new Date(new Date(date).setHours(0, 0, 0, 0));
+		return today.toDateString() === dateToCheck.toDateString();
 	}
 
 	export function wasYesterday(date: Date): boolean {
