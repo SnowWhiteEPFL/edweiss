@@ -136,7 +136,7 @@ export const AbstractTodoEditor: React.FC<{
         if (!id) return;
 
 
-        if (editable) {
+        try {
             const res = await callFunction(Functions.updateTodo, {
                 name: name, description: description === "" ? undefined : description, status: status,
                 dueDate: (!(dateChanged || timeChanged)) ? undefined : date.toISOString(),
@@ -165,7 +165,7 @@ export const AbstractTodoEditor: React.FC<{
                     text2: t(`todo:couldnot_edit_toast`)
                 });
             }
-        } else {
+        } catch (error) {
             Toast.show({
                 type: 'error',
                 text1: t(`todo:error_toast_title`),

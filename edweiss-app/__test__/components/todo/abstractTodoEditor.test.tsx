@@ -248,6 +248,21 @@ describe('AbstractTodoEditor Tests Suites', () => {
         }));
     });
 
+    it('shows error toast on duplicate todo', async () => {
+        (callFunction as jest.Mock).mockResolvedValue({ status: false, error: "duplicate_todo" });
+
+        const { getByPlaceholderText, getByText } = render(<AbstractTodoEditor />);
+
+        fireEvent.changeText(getByPlaceholderText('todo:name_placeholder'), 'New Todo');
+        fireEvent.press(getByText('todo:save_button'));
+
+        await waitFor(() => expect(Toast.show).toHaveBeenCalledWith({
+            type: 'info',
+            text1: `todo:already_existing_todo_toast_title`,
+            text2: `todo:already_existing_todo_toast_funny`,
+        }));
+    });
+
     it('calls deleteTodo when delete button is pressed', async () => {
         (callFunction as jest.Mock).mockResolvedValue({ status: true });
         const todo: TodoList.Todo = {
@@ -307,11 +322,27 @@ describe('AbstractTodoEditor Tests Suites', () => {
             text2: t('todo:couldnot_delete_toast'),
         }));
     });
+
+    it('shows error toast when saveAction throws an exception', async () => {
+        (callFunction as jest.Mock).mockRejectedValue(new Error('API error'));
+
+        const { getByPlaceholderText, getByText } = render(<AbstractTodoEditor />);
+
+        fireEvent.changeText(getByPlaceholderText('todo:name_placeholder'), 'New Todo');
+        fireEvent.press(getByText('todo:save_button'));
+
+        await waitFor(() => expect(Toast.show).toHaveBeenCalledWith({
+            type: 'error',
+            text1: t('todo:error_toast_title'),
+            text2: t('todo:couldnot_save_toast')
+        }));
+    });
+
 });
 
 
 
-describe('AbstractTodoEditor DateTimePicker and API error handling', () => {
+describe('AbstractTodoEditor DateTimePicker', () => {
     const defaultDate = new Date(2012, 3, 4, 12, 34, 56);
 
     it('should open date picker and set selected date', async () => {
@@ -329,62 +360,109 @@ describe('AbstractTodoEditor DateTimePicker and API error handling', () => {
     });
 });
 
-it('shows error toast when editTodoAction fails due to missing id', async () => {
-    const todo: TodoList.Todo = {
-        name: 'Todo to Edit',
-        description: 'This todo will be edited',
-        status: 'yet'
-    };
+describe('AbstractTodoEditor API error handling', () => {
+    it('shows error toast when editTodoAction fails due to missing id', async () => {
+        const todo: TodoList.Todo = {
+            name: 'Todo to Edit',
+            description: 'This todo will be edited',
+            status: 'yet'
+        };
 
-    const { getByPlaceholderText, getByText } = render(<AbstractTodoEditor editable={true} todo={todo} />);
+        const { getByPlaceholderText, getByText } = render(<AbstractTodoEditor editable={true} todo={todo} />);
 
-    fireEvent.changeText(getByPlaceholderText('todo:name_placeholder'), 'New Title');
-    fireEvent.press(getByText('todo:edit_button'));
+        fireEvent.changeText(getByPlaceholderText('todo:name_placeholder'), 'New Title');
+        fireEvent.press(getByText('todo:edit_button'));
 
-    await waitFor(() => expect(Toast.show).toHaveBeenCalledWith({
-        type: 'error',
-        text1: t(`todo:error_toast_title`),
-        text2: t(`todo:couldnot_delete_toast`)
-    }));
+        await waitFor(() => expect(Toast.show).toHaveBeenCalledWith({
+            type: 'error',
+            text1: t(`todo:error_toast_title`),
+            text2: t(`todo:couldnot_save_toast`)
+        }));
+    });
+
+    it('shows error toast when editTodoAction fails due to API error', async () => {
+        (callFunction as jest.Mock).mockResolvedValue({ status: false });
+        const todo: TodoList.Todo = {
+            name: 'Todo to Edit',
+            description: 'This todo will be edited',
+            status: 'yet'
+        };
+
+        const { getByPlaceholderText, getByText } = render(<AbstractTodoEditor editable={true} todo={todo} id="1" />);
+
+        fireEvent.changeText(getByPlaceholderText('todo:name_placeholder'), 'New Title');
+        fireEvent.press(getByText('todo:edit_button'));
+
+        await waitFor(() => expect(Toast.show).toHaveBeenCalledWith({
+            type: 'error',
+            text1: t(`todo:error_toast_title`),
+            text2: t(`todo:couldnot_edit_toast`)
+        }));
+    });
+
+    it('shows error toast when editTodoAction fails due to duplicate todo error', async () => {
+        (callFunction as jest.Mock).mockResolvedValue({ status: false, error: "duplicate_todo" });
+        const todo: TodoList.Todo = {
+            name: 'Todo to Edit',
+            description: 'This todo will be edited',
+            status: 'yet'
+        };
+
+        const { getByPlaceholderText, getByText } = render(<AbstractTodoEditor editable={true} todo={todo} id="1" />);
+
+        fireEvent.changeText(getByPlaceholderText('todo:name_placeholder'), 'New Title');
+        fireEvent.press(getByText('todo:edit_button'));
+
+        await waitFor(() => expect(Toast.show).toHaveBeenCalledWith({
+            type: 'info',
+            text1: `todo:already_existing_todo_toast_title`,
+            text2: `todo:already_existing_todo_toast_funny`,
+        }));
+    });
+
+
+
+    it('shows success toast when editTodoAction succeeds', async () => {
+        (callFunction as jest.Mock).mockResolvedValue({ status: true });
+        const todo: TodoList.Todo = {
+            name: 'Todo to Edit',
+            description: 'This todo will be edited',
+            status: 'yet'
+        };
+
+        const { getByPlaceholderText, getByText } = render(<AbstractTodoEditor editable={true} todo={todo} id="1" />);
+
+        fireEvent.changeText(getByPlaceholderText('todo:name_placeholder'), 'New Title');
+        fireEvent.press(getByText('todo:edit_button'));
+
+        await waitFor(() => expect(Toast.show).toHaveBeenCalledWith({
+            type: 'success',
+            text1: 'New Title' + t(`todo:was_edited_toast`),
+            text2: t(`todo:funny_phrase_on_edit`)
+        }));
+    });
+
+
+    it('shows error toast when editTodoAction fails when updateTodo throws exception', async () => {
+        (callFunction as jest.Mock).mockRejectedValue(new Error('API error'));
+
+        const todo: TodoList.Todo = {
+            name: 'Todo to Edit',
+            description: 'This todo will be edited',
+            status: 'yet'
+        };
+
+        const { getByPlaceholderText, getByText } = render(<AbstractTodoEditor editable={true} todo={todo} id="1" />);
+
+        fireEvent.changeText(getByPlaceholderText('todo:name_placeholder'), 'New Title');
+        fireEvent.press(getByText('todo:edit_button'));
+
+        await waitFor(() => expect(Toast.show).toHaveBeenCalledWith({
+            type: 'error',
+            text1: t(`todo:error_toast_title`),
+            text2: t(`todo:couldnot_edit_toast`)
+        }));
+
+    });
+
 });
-
-it('shows error toast when editTodoAction fails due to API error', async () => {
-    (callFunction as jest.Mock).mockResolvedValue({ status: false });
-    const todo: TodoList.Todo = {
-        name: 'Todo to Edit',
-        description: 'This todo will be edited',
-        status: 'yet'
-    };
-
-    const { getByPlaceholderText, getByText } = render(<AbstractTodoEditor editable={true} todo={todo} id="1" />);
-
-    fireEvent.changeText(getByPlaceholderText('todo:name_placeholder'), 'New Title');
-    fireEvent.press(getByText('todo:edit_button'));
-
-    await waitFor(() => expect(Toast.show).toHaveBeenCalledWith({
-        type: 'error',
-        text1: t(`todo:error_toast_title`),
-        text2: t(`todo:couldnot_edit_toast`)
-    }));
-});
-
-it('shows success toast when editTodoAction succeeds', async () => {
-    (callFunction as jest.Mock).mockResolvedValue({ status: true });
-    const todo: TodoList.Todo = {
-        name: 'Todo to Edit',
-        description: 'This todo will be edited',
-        status: 'yet'
-    };
-
-    const { getByPlaceholderText, getByText } = render(<AbstractTodoEditor editable={true} todo={todo} id="1" />);
-
-    fireEvent.changeText(getByPlaceholderText('todo:name_placeholder'), 'New Title');
-    fireEvent.press(getByText('todo:edit_button'));
-
-    await waitFor(() => expect(Toast.show).toHaveBeenCalledWith({
-        type: 'success',
-        text1: 'New Title' + t(`todo:was_edited_toast`),
-        text2: t(`todo:funny_phrase_on_edit`)
-    }));
-});
-
