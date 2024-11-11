@@ -98,4 +98,58 @@ describe('Time Utilities Tests Suites', () => {
             expect(Time.isTomorrow(yesterday)).toBe(false);
         });
     });
+
+    describe('Check margin day gap for isToday', () => {
+        const duringDayDelta = 100;
+        it('should return true if the day is within today', () => {
+            const today = new Date(new Date().setHours(0, 0, 0, 0) + duringDayDelta);
+            expect(Time.isToday(today)).toBe(true);
+        });
+
+        it('should return false for yesterday\'s date', () => {
+            const yesterday = new Date(new Date().setHours(0, 0, 0, 0) - 86400000 + duringDayDelta);
+            expect(Time.isToday(yesterday)).toBe(false);
+        });
+
+        it('should return false for tomorrow\'s date', () => {
+            const tomorrow = new Date(new Date().setHours(0, 0, 0, 0) + 86400000 + duringDayDelta);
+            expect(Time.isToday(tomorrow)).toBe(false);
+        });
+    });
+    describe('Check margin day gap for isTomorrow', () => {
+        const duringDayDelta = 100;
+        it('should return true if the day is within tomorrow', () => {
+            const tomorrow = new Date(new Date().setHours(0, 0, 0, 0) + 86400000 + duringDayDelta);
+            expect(Time.isTomorrow(tomorrow)).toBe(true);
+        });
+
+        it('should return false for today\'s date', () => {
+            const today = new Date(new Date().setHours(0, 0, 0, 0) + duringDayDelta);
+            expect(Time.isTomorrow(today)).toBe(false);
+        });
+
+        it('should return false for yesterday\'s date', () => {
+            const yesterday = new Date(new Date().setHours(0, 0, 0, 0) - 86400000 + duringDayDelta);
+            expect(Time.isTomorrow(yesterday)).toBe(false);
+        });
+    });
+
+    describe('Check margin day gap for wasYesterday', () => {
+        const duringDayDelta = 100;
+        it('should return true if the day is within yesterday', () => {
+            const yesterday = new Date(new Date().setHours(0, 0, 0, 0) - 86400000 + duringDayDelta);
+            expect(Time.wasYesterday(yesterday)).toBe(true);
+        });
+
+        it('should return false for today\'s date', () => {
+            const today = new Date(new Date().setHours(0, 0, 0, 0) + duringDayDelta);
+            expect(Time.wasYesterday(today)).toBe(false);
+        });
+
+        it('should return false for tomorrow\'s date', () => {
+            const tomorrow = new Date(new Date().setHours(0, 0, 0, 0) + 86400000 + duringDayDelta);
+            expect(Time.wasYesterday(tomorrow)).toBe(false);
+        });
+    });
+
 });
