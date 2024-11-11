@@ -8,7 +8,6 @@ import TTouchableOpacity from './containers/TTouchableOpacity';
 import TView from './containers/TView';
 import { Day } from './Day';
 import For from './For';
-
 import { getCurrentDay } from '@/utils/calendar/getCurrentDay';
 import { getCurrentTimeInMinutes } from '@/utils/calendar/getCurrentTimeInMinutes';
 import TText from './TText';
@@ -19,6 +18,7 @@ const TOTAL_HOURS = 24;
 const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
+
 export const Calendar = ({ courses, type }: { courses: { id: string; data: Course; }[]; type: "week" | "day" | undefined; }) => {
 
     const [currentMinutes, setCurrentMinutes] = useState(getCurrentTimeInMinutes());
@@ -27,6 +27,7 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
     const userId = useAuth().uid;
 
     const [format, setFormat] = useState(type);
+  
     useEffect(() => {
         if (type === undefined) {
             setFormat("day");
@@ -46,7 +47,7 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
         return () => {
             ScreenOrientation.removeOrientationChangeListener(screenOrientationListener);
         };
-    }, []);
+    }, [type]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -154,3 +155,4 @@ export const Calendar = ({ courses, type }: { courses: { id: string; data: Cours
         </TView>
     );
 };
+
