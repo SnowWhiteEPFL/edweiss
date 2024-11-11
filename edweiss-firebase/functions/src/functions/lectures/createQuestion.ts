@@ -7,7 +7,7 @@ export const createQuestion = onAuthentifiedCall(LectureDisplay.Functions.create
     if (!args.courseId || !args.lectureId) {
         return fail('invalid_arg');
     }
-    if (args.question.question.length == 0)
+    if (args.question.text.length == 0)
         return fail("empty_question");
 
     const [lecture, ref] = await getDocumentAndRef(CollectionOf<LectureDisplay.Lecture>(`users/${args.courseId}/lectures`), args.lectureId);
@@ -19,7 +19,7 @@ export const createQuestion = onAuthentifiedCall(LectureDisplay.Functions.create
     try {
         await ref.update({ [`questions`]: updatedQuestions });
     } catch (error) {
-        return fail('firebase_error');
+        return fail('error_firebase');
     }
 
     console.log("Question successfully updated!");

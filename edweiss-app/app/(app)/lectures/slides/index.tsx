@@ -15,6 +15,7 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import Icon from '@/components/core/Icon';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
+import { testIDs } from '@/components/courses/AssignmentDisplay';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { callFunction, CollectionOf, getDownloadURL } from '@/config/firebase';
 import t from '@/config/i18config';
@@ -57,6 +58,7 @@ const LectureScreen: ApplicationRoute = () => {
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);    // FullScreen display of pdf toggle
     const [widthPercent, setWidthPercent] = useState<string[]>([]);
     const [heightPercent, setHeightPercent] = useState<string[]>([]);
+    const [question, setQuestion] = useState<string>('');
 
     const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
 
@@ -68,8 +70,6 @@ const LectureScreen: ApplicationRoute = () => {
     }, [lectureDoc]);
 
     useEffect(() => {
-        addQuestion('test question 1');
-        addQuestion('test question 2');
         const onOrientationChange = (currentOrientation: ScreenOrientation.OrientationChangeEvent) => {
             const orientationValue = currentOrientation.orientationInfo.orientation;
             if (orientationValue == 1 || orientationValue == 2) {
@@ -106,6 +106,7 @@ const LectureScreen: ApplicationRoute = () => {
         setUri(url);
     }
 
+    // Function for updating the UI display values when switching through orientations an fullscreen modes
     function updateUI() {
         if (isFullscreen) {
             setWidthPercent(["100%", "0%"]);
@@ -117,7 +118,6 @@ const LectureScreen: ApplicationRoute = () => {
             setHeightPercent(["40%", "60%"]);
             setWidthPercent(["100%", "100%"]);
         }
-
     }
 
     // Portrait display for the screen
@@ -126,22 +126,24 @@ const LectureScreen: ApplicationRoute = () => {
         updateUI();
     };
 
-    const renderQuestion = (questionKey: string) => (
+    // Display each question given as parameters as a component 
+    const renderQuestion = (question: string) => (
         <TView mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
             <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
             <TView pr={'sm'} pl={'md'} pb={'sm'} flexDirection='row' justifyContent='flex-start' alignItems='center'>
-                <TText ml={10} color='overlay0'>{t(questionKey as any)}</TText>
+                <TText ml={10} color='overlay0'>{question}</TText>
             </TView>
         </TView>
     );
 
+    // Function for adding new question into the firebase storage
     function addQuestion(question: string) {
         try {
             callFunction(LectureDisplay.Functions.createQuestion, {
                 courseId: courseName,
                 lectureId: lectureId,
                 question: {
-                    question: question,
+                    text: question,
                     anonym: false,
                     likes: 0,
                     postedTime: Timestamp.now()
@@ -215,11 +217,16 @@ const LectureScreen: ApplicationRoute = () => {
 
                             <TScrollView flex={0.5} mt={15} mr={'md'} ml={'md'} mb={15}>
 
-                                {/* Dummy Questions */}
-                                {[...Array(7).keys()].map(i => renderQuestion(`showtime:dummy_question_${i}`))}
+                                {/* Questions Display */}
+                                {currentLecture.questions.map((question) => renderQuestion(question.text))}
 
-                                {/* Your Question */}
-                                <FancyTextInput mb={'sm'} multiline label='Ask your questions' icon='chatbubbles-outline' placeholder='Got something on your mind? Type away!' />
+                                {/* Enter Your Question */}
+                                <TView flexDirection='row'>
+                                    <FancyTextInput value={question} onChangeText={n => { setQuestion(n) }} mb={'sm'} multiline label='Ask your questions' icon='chatbubbles-outline' placeholder='Got something on your mind? Type away!' />
+                                    <TTouchableOpacity backgroundColor='transparent' onPress={() => addQuestion(question)} pl={'md'}>
+                                        <Icon size={'xl'} name='send-outline' color='text'></Icon>
+                                    </TTouchableOpacity>
+                                </TView>
                             </TScrollView>
                         </>}
                 </TView>
