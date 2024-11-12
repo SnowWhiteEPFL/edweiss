@@ -53,13 +53,12 @@ const ArchiveScreen: ApplicationRoute = () => {
     if (typeof extraInfo === 'string') {
         try {
             assignments = JSON.parse(extraInfo);
-            assignments.map((assignment: AssignmentWithColor) => ({
-                ...assignment,
-                dueDate: {
+            assignments.forEach((assignment: AssignmentWithColor) => {
+                assignment.dueDate = {
                     seconds: assignment.dueDate.seconds,
                     nanoseconds: assignment.dueDate.nanoseconds,
-                },
-            }));
+                };
+            });
         } catch (error) {
             console.error('Failed to parse extraInfo: ', error);
             assignments = [];
