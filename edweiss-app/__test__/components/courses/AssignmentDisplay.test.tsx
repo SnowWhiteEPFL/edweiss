@@ -1,6 +1,7 @@
 import TView from '@/components/core/containers/TView';
-import AssignmentDisplay, { AssignmentWithColor, saveTodo } from '@/components/courses/AssignmentDisplay';
+import AssignmentDisplay, { AssignmentWithColor } from '@/components/courses/AssignmentDisplay';
 import { callFunction } from '@/config/firebase';
+import { saveTodo } from '@/utils/courses/saveToDo';
 import { Time } from '@/utils/time';
 import { render } from "@testing-library/react-native";
 import React from 'react';

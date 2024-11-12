@@ -9,7 +9,6 @@
 // ------------------------------------------------------------
 
 import { Timestamp } from '@/model/time';
-import { Timestamp as FBTimestamp } from '@react-native-firebase/firestore';
 
 // ------------------------------------------------------------
 // ---------------   App's Time Utils Functions   -------------
@@ -21,7 +20,7 @@ export namespace Time {
 		const seconds: number = (timestamp as any).seconds;
 		const _seconds: number = (timestamp as any)._seconds;
 		const millis = (seconds ?? _seconds) * 1000;
-		return FBTimestamp.fromMillis(millis).toDate();
+		return new Date(millis);
 	}
 
 	// Fonction utilitaire pour créer un Timestamp à partir d'une Date
