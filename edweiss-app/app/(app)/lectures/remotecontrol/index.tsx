@@ -33,7 +33,7 @@ const RemoteControlScreen: ApplicationRoute = () => {
     const { courseNameString, lectureIdString } = useLocalSearchParams();
     const courseName = courseNameString as string;
     const lectureId = lectureIdString as string;
-    const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
+    const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined) || [];
     const [isRecording, setIsRecording] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [pageToTranscribe, setPageToTranscribe] = useState<number>(1);
@@ -53,12 +53,14 @@ const RemoteControlScreen: ApplicationRoute = () => {
     Voice.onSpeechResults = (res) => { setTalked(res.value ? res.value[0] : ""); };
 
     return (
-        <AbstractRmtCrl
-            handleRight={() => handleRight(isRecording, currentPage, totalPages, setIsRecording, setCurrentPage, stopRecording)}
-            handleLeft={() => handleLeft(isRecording, currentPage, setIsRecording, setCurrentPage, stopRecording)}
-            handleMic={() => handleMic(isRecording, setIsRecording, startRecording, stopRecording)}
-            isRecording={isRecording}
-        />
+        <>
+            {<AbstractRmtCrl
+                handleRight={() => handleRight(isRecording, currentPage, totalPages, setIsRecording, setCurrentPage, stopRecording)}
+                handleLeft={() => handleLeft(isRecording, currentPage, setIsRecording, setCurrentPage, stopRecording)}
+                handleMic={() => handleMic(isRecording, setIsRecording, startRecording, stopRecording)}
+                isRecording={isRecording}
+            />}
+        </>
     );
 };
 

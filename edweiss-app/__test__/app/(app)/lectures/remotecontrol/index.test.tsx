@@ -9,9 +9,12 @@
 // ------------------------------------------------------------
 
 
-import { setPortrait, startRecording, stopRecording } from '@/app/(app)/lectures/remotecontrol';
-import { FC, ReactNode } from 'react';
-
+import RemoteControlScreen, { setPortrait, startRecording, stopRecording } from '@/app/(app)/lectures/remotecontrol';
+import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import Voice from '@react-native-voice/voice';
+import { act, render } from '@testing-library/react-native';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import React, { ReactNode } from 'react';
 
 // ------------------------------------------------------------
 // -----------------  Mocking dependencies    -----------------
@@ -23,7 +26,13 @@ jest.mock('@/config/i18config', () => ({
 }));
 
 jest.mock('expo-router', () => ({
-    useLocalSearchParams: jest.fn(),
+    router: { push: jest.fn() },
+    Stack: {
+        Screen: jest.fn(({ options }) => (
+            <>{options.title}</> // Simulate rendering the title for the test
+        )),
+    },
+    useLocalSearchParams: jest.fn(() => ({ courseNameString: 'testCourse', lectureIdString: 'testLectureId' }))
 }));
 
 jest.mock('@react-navigation/native-stack', () => {
@@ -37,13 +46,8 @@ jest.mock('@react-navigation/native-stack', () => {
     };
 });
 
-
 jest.mock('@/contexts/auth', () => ({
     useAuth: jest.fn(),
-}));
-
-jest.mock('@/config/firebase', () => ({
-    callFunction: jest.fn(),
 }));
 
 jest.mock('react-native/Libraries/Settings/Settings', () => ({
@@ -57,29 +61,11 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
     removeItem: jest.fn(),
 }));
 
-
-
-// Mock the RouteHeader component if it's using Stack.Screen
-jest.mock('@/components/core/header/RouteHeader', () => {
-    const MockRouteHeader: FC<{ children: ReactNode; }> = ({ children }) => <>{children}</>;
-    return MockRouteHeader;
-});
-
-
-jest.mock('@/hooks/firebase/firestore', () => ({
-    usePrefetchedDynamicDoc: jest.fn(),
-}));
-
 jest.mock('@/config/firebase', () => ({
     CollectionOf: jest.fn(),
     getDownloadURL: jest.fn(),
-}));
-
-jest.mock('@/config/firebase', () => ({
     callFunction: jest.fn()
 }));
-
-
 
 // Mock react-native-blob-util to prevent NativeEventEmitter errors
 jest.mock('react-native-blob-util', () => ({
@@ -103,16 +89,6 @@ jest.mock('@react-native-firebase/messaging', () => ({
     })),
 }));
 
-
-
-
-// Mock react-native-pdf to prevent native calls
-jest.mock('react-native-pdf', () => {
-    return () => <div data-testid="mock-pdf-viewer">PDF Viewer Mock</div>;
-});
-
-
-
 // Updated mock for expo-screen-orientation
 jest.mock('expo-screen-orientation', () => ({
     lockAsync: jest.fn(),
@@ -127,9 +103,10 @@ jest.mock('expo-screen-orientation', () => ({
     removeOrientationChangeListener: jest.fn(),
 }));
 
+/* THIS IS THE PROBLEM
 jest.mock('react-native', () => ({
     Vibration: { vibrate: jest.fn() }
-}));
+}));*/
 
 jest.mock('@react-native-voice/voice', () => ({
     start: jest.fn(),
@@ -138,29 +115,36 @@ jest.mock('@react-native-voice/voice', () => ({
     onSpeechError: jest.fn(),
 }));
 
-
-jest.mock('expo-router', () => ({
-    useLocalSearchParams: jest.fn(),
-}));
-
-jest.mock('@/hooks/firebase/firestore', () => ({
-    usePrefetchedDynamicDoc: jest.fn(),
-}));
-
-
 // Mocked data and utility functions
 const mockLectureData = {
-    nbOfPages: 5,
-    data: { nbOfPages: 5 }
-};
+    data: {
+        nbOfPages: 5,
+    },
+}
 const mockParams = { courseNameString: 'testCourse', lectureIdString: 'testLectureId' };
 
+jest.mock('@/hooks/firebase/firestore', () => ({
+    usePrefetchedDynamicDoc: jest.fn(),  // Note the double array to match [lectureDoc]
+}));
 
-// AbstractEditor for to dos
+// We need this
+jest.mock('expo-modules-core', () => ({
+    NativeModulesProxy: {},
+    // Mock any other functions from expo-modules-core if needed
+}));
+
+jest.mock('@expo/vector-icons', () => {
+    const React = require('react');
+    return {
+        Ionicons: (props: React.ComponentProps<'div'>) => React.createElement('div', props),
+    };
+});
+
+// Mock the AbstractRmtCtl component
 jest.mock('@/components/lectures/remotecontrol/abstractRmtCtl', () => {
     const TView = require('@/components/core/containers/TView').default;
     return {
-        AbstractRmtCtl: () => <TView testID="abstract-rmt-ctl" />,
+        AbstractRmtCrl: () => <TView testID="abstract-rmt-ctl" />,
     };
 });
 
@@ -170,36 +154,10 @@ jest.mock('@/components/lectures/remotecontrol/abstractRmtCtl', () => {
 // ------------------------------------------------------------
 
 
-
-import Voice from '@react-native-voice/voice';
-import { act } from '@testing-library/react-native';
-import * as ScreenOrientation from 'expo-screen-orientation';
-import React from 'react';
-
-
-// AbstractEditor for to dos
-jest.mock('@/components/lectures/remotecontrol/abstractRmtCtl', () => {
-    const TView = require('@/components/core/containers/TView').default;
-    return {
-        AbstractRmtCrl: () => <TView testID="abstract-rmt-crl" />,
-    };
-});
-
-// Mock dependencies
-jest.mock('@react-native-voice/voice', () => ({
-    start: jest.fn(),
-    stop: jest.fn(),
-}));
-
-jest.mock('expo-screen-orientation', () => ({
-    lockAsync: jest.fn(),
-}));
-
 describe('RemoteControlScreen Test Suite', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
-
 
     it('calls startRecording to begin voice recording', async () => {
         await act(async () => {
@@ -225,10 +183,10 @@ describe('RemoteControlScreen Test Suite', () => {
         expect(ScreenOrientation.lockAsync).toHaveBeenCalledWith(ScreenOrientation.OrientationLock.PORTRAIT_UP);
     });
 
-
-    // it('renders the AbstractRmtCrl component', () => {
-    //     const { getByTestId } = render(<RemoteControlScreen />);
-
-    //     expect(getByTestId('abstract-rmt-crl')).toBeTruthy();
-    // });
+    it('renders the RemoteControlScreen component', () => {
+        (usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockLectureData]);
+        const { getByTestId } = render(<RemoteControlScreen />);
+        //renderer.debug();
+        expect(getByTestId('abstract-rmt-ctl')).toBeTruthy();
+    });
 });
