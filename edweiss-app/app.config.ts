@@ -13,6 +13,15 @@ const config: ExpoConfig = {
 		"resizeMode": "contain",
 		"backgroundColor": "#ffffff",
 	},
+	"extra": {
+		"eas": {
+			"projectId": "280737b3-0a7c-42fd-98de-8dbc058e51c5"
+		},
+		"router": {
+			"origin": false
+		}
+	},
+	"owner": "snowwhiteepfl",
 	"ios": {
 		"supportsTablet": true,
 		"bundleIdentifier": "com.edweiss",
@@ -96,16 +105,7 @@ const config: ExpoConfig = {
 	],
 	"experiments": {
 		"typedRoutes": true
-	},
-	"extra": {
-		"router": {
-			"origin": false
-		},
-		"eas": {
-			"projectId": "280737b3-0a7c-42fd-98de-8dbc058e51c5"
-		}
-	},
-	"owner": "snowwhiteepfl"
+	}
 };
 
 export default config;
