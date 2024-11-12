@@ -48,7 +48,7 @@ export type AssignmentWithColor = Assignment & { color: Color; };
  * 
  * @returns JSX.Element - The rendered component for the assignment display.
  */
-const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, index: number, isSwipeable: boolean; }> = ({ item, index, isSwipeable }) => {
+const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, index: number, isSwipeable: boolean, key: React.Key | null | undefined; }> = ({ item, index, isSwipeable, key }) => {
 
     // Define swipeableRefs
     const swipeableRefs = useRef<(Swipeable | null)[]>([]);
@@ -61,7 +61,7 @@ const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, index: numb
     );
 
     const assignmentView = () => (
-        <TView testID={testIDs.assignmentView} flexDirection='row' alignItems="center" justifyContent='space-between' key={item.name}>
+        <TView testID={testIDs.assignmentView} flexDirection='row' alignItems="center" justifyContent='space-between' key={key}>
             {/* TODO: Handle onPress event qui envoie vers le quiz ou la soumission. ATTENTION SI LE QUIZ OU SUBMIT EST DEJA FINI */}
             <TTouchableOpacity testID={testIDs.assignmentTouchable} backgroundColor='mantle' flexDirection='row' alignItems='center' py={12} bb={1} borderColor='crust' flex={1}>
                 {/* // Icon */}

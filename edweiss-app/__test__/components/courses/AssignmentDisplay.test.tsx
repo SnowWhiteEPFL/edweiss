@@ -128,6 +128,7 @@ describe('AssignmentDisplay', () => {
                 item={assignment}
                 index={0}
                 isSwipeable={true}
+                key={assignment.name}
             />
         );
 
@@ -161,6 +162,7 @@ describe('AssignmentDisplay', () => {
                 item={assignment}
                 index={0}
                 isSwipeable={false}
+                key={assignment.name}
             />
         );
 

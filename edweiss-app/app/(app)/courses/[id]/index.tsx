@@ -146,7 +146,7 @@ const CoursePage: ApplicationRoute = () => {
 				{upcomingAssignments.length > 0
 					?
 					upcomingAssignments.map((assignment) => (
-						<AssignmentDisplay item={assignment} index={upcomingAssignments.indexOf(assignment)} isSwipeable={true} />
+						<AssignmentDisplay item={assignment} index={upcomingAssignments.indexOf(assignment)} isSwipeable={true} key={assignment.name} />
 					))
 					:
 					<TText size={16} testID={testIDs.noAssignmentDue} >{t('course:no_assignment_due')}</TText>
