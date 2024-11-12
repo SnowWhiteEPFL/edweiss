@@ -18,7 +18,13 @@
   	},
   	"production": {
   		"channel": "preview"
-  	}
+  	},
+	"development-sim":{
+		"distribution": "internal",
+		"android": {
+			"simulator": true
+		}
+	}
   	},
   	"submit": {
   	"production": {}
