@@ -86,22 +86,24 @@ const CoursePage: ApplicationRoute = () => {
 	const isValidId = typeof id === 'string';
 
 	// Récupérer les données du cours et des assignments depuis Firestore
-	const [course] = usePrefetchedDynamicDoc(
+	const result = usePrefetchedDynamicDoc(
 		CollectionOf<Course>('courses'),
 		isValidId ? id : '',
 		undefined
 	);
 
+	const [course] = Array.isArray(result) ? result : [undefined];
+
 	const firebase_data = useDynamicDocs(
 		CollectionOf<Assignment>(`courses/${isValidId ? id : ''}/assignments`)
-	);
+	) || [];
 
 	if (!isValidId) { return <Redirect href={'/'} />; }
 
 	// Afficher un indicateur de chargement si les données ne sont pas encore prêtes
 	if (course == undefined || firebase_data == undefined) { return <TActivityIndicator size={40} />; }
 
-	const assignmentsArray = firebase_data ? firebase_data.map(doc => ({ id: doc.id, data: doc.data })) : [];
+	const assignmentsArray = firebase_data.map(doc => ({ id: doc.id, data: doc.data }));
 
 	// Sort assignments by due date and add color based on time difference
 	const assignments: AssignmentWithColor[] = assignmentsArray

@@ -1,7 +1,8 @@
 import CoursePage from '@/app/(app)/courses/[id]/index';
+import TActivityIndicator from '@/components/core/TActivityIndicator';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { fireEvent, render } from "@testing-library/react-native";
-import { router } from 'expo-router';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
 
@@ -58,7 +59,8 @@ jest.mock('@/config/firebase', () => ({
 
 jest.mock('expo-router', () => ({
     ...jest.requireActual('expo-router'),
-    useLocalSearchParams: jest.fn(() => ({ id: 'default-id' })),
+    useLocalSearchParams: jest.fn(),
+    Redirect: jest.fn(() => null),
     router: {
         push: jest.fn(),
     },
@@ -85,10 +87,26 @@ jest.mock('@react-native-firebase/firestore', () => { // this one does not work 
     };
 });
 
+jest.mock('@/components/core/TActivityIndicator', () => {
+    return {
+        __esModule: true,  // Ceci est nécessaire pour simuler un module ES6
+        default: jest.fn(() => null), // On retourne une version mockée de TActivityIndicator qui ne rend rien
+    };
+});
+
 
 describe('CoursePage with assignments', () => {
 
+    const fixedDate = new Date('2025-01-01T00:02:00Z'); // 1st of January 2025
+
+    const date1 = new Date('2025-01-03T00:02:00Z'); // 3rd of January 2025
+    const seconds1 = Math.floor(date1.getTime() / 1000);
+
+    const date2 = new Date('2025-01-02T00:02:00Z'); // 2nd of January 2025
+    const seconds2 = Math.floor(date2.getTime() / 1000);
+
     beforeEach(() => {
+        (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
         jest.spyOn(console, 'log').mockImplementation(() => { }); // Transforme `console.log` en une fonction mock
         (usePrefetchedDynamicDoc as jest.Mock).mockImplementation(() => [{
             id: "courseID",
@@ -110,7 +128,7 @@ describe('CoursePage with assignments', () => {
                 data: {
                     name: "Assignment 1",
                     type: "quiz",
-                    dueDate: { seconds: 1735689600, nanoseconds: 0 },
+                    dueDate: { seconds: seconds1, nanoseconds: 0 },
                     color: "red",
                 },
             },
@@ -119,11 +137,22 @@ describe('CoursePage with assignments', () => {
                 data: {
                     name: "Assignment 2",
                     type: "quiz",
-                    dueDate: { seconds: 1735689600 + 86400, nanoseconds: 0 },
+                    dueDate: { seconds: seconds2, nanoseconds: 0 },
                     color: "blue",
                 },
             },
         ]);
+
+        const RealDate = Date;
+
+        // Mock de Date
+        jest.spyOn(global, 'Date').mockImplementation((...args: any[]) => {
+            if (args.length === 0) {
+                return fixedDate; // retourne la date fixée par défaut si aucun argument n'est passé
+            }
+            // Utilise le constructeur d'origine pour créer une nouvelle instance de Date
+            return new RealDate(args[0]);
+        });
     });
 
     // Mock `console.log`
@@ -153,8 +182,8 @@ describe('CoursePage with assignments', () => {
         //Checks
         //Texts presence check
         expect(screen.getByText('Swent')).toBeTruthy();
-        expect(screen.getByText('Wednesday, January 1')).toBeTruthy();
         expect(screen.getByText('Thursday, January 2')).toBeTruthy();
+        expect(screen.getByText('Friday, January 3')).toBeTruthy();
         expect(screen.getByText('Assignment 1')).toBeTruthy();
         expect(screen.getByText('Assignment 2')).toBeTruthy();
         expect(screen.getByText('Upcoming assignments')).toBeTruthy();
@@ -196,6 +225,7 @@ describe('CoursePage with assignments', () => {
 
 describe("CoursePage without assignments", () => {
     beforeEach(() => {
+        (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
         jest.spyOn(console, 'log').mockImplementation(() => { }); // Transforme `console.log` en une fonction mock
         (usePrefetchedDynamicDoc as jest.Mock).mockImplementation(() => [{
             id: "courseID",
@@ -263,6 +293,7 @@ describe("CoursePage without assignments", () => {
 describe('Navigate to PreviousPage', () => {
 
     beforeEach(() => {
+        (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
         jest.spyOn(console, 'log').mockImplementation(() => { });
 
         // Mock des données de cours
@@ -341,5 +372,58 @@ describe('Navigate to PreviousPage', () => {
 
         // Nettoyage après test
         pushSpy.mockRestore();
+    });
+});
+
+describe('Case where id is invalid', () => {
+    beforeEach(() => {
+        (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 1 });
+        jest.spyOn(console, 'log').mockImplementation(() => { });
+        (usePrefetchedDynamicDoc as jest.Mock).mockImplementation(() => [{
+            id: "courseID",
+            data: {
+                name: "Swent",
+                description: "This is a mocked course description",
+                professors: ["TeacherID"],
+                assistants: ["StudentID"],
+                periods: [],
+                section: "IN",
+                credits: 8,
+                started: true,
+            },
+        }]);
+
+        // Mock sans assignments
+        (useDynamicDocs as jest.Mock).mockImplementation(() => []);
+    });
+
+    test('should redirect to home page when id is invalid', () => {
+        // Render the CoursePage component
+        render(<CoursePage />);
+
+        // Vérifie que router.push a bien été appelé avec les bons paramètres
+        expect(Redirect as jest.Mock).toHaveBeenCalledWith(
+            expect.objectContaining({
+                href: '/',
+            }),
+            expect.anything() // L'autre argument est l'objet props (tu peux vérifier des props si nécessaire)
+        );
+    });
+});
+
+describe('Case where course data is not available', () => {
+    beforeEach(() => {
+        (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
+        jest.spyOn(console, 'log').mockImplementation(() => { });
+        (usePrefetchedDynamicDoc as jest.Mock).mockImplementation(() => undefined);
+        (useDynamicDocs as jest.Mock).mockImplementation(() => undefined);
+    });
+
+    test('should show loading indicator when course data is not available', () => {
+        // Render the CoursePage component
+        render(<CoursePage />);
+
+        // Vérifie que le composant TActivityIndicator a bien été rendu
+        expect(TActivityIndicator as jest.Mock).toHaveBeenCalledWith({ size: 40 }, {});
     });
 });

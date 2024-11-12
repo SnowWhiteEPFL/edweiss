@@ -1,14 +1,17 @@
 import TView from '@/components/core/containers/TView';
 import AssignmentDisplay, { AssignmentWithColor, saveTodo } from '@/components/courses/AssignmentDisplay';
 import { callFunction } from '@/config/firebase';
-import { fromDate } from '@/model/time';
+import { Time } from '@/utils/time';
 import { render } from "@testing-library/react-native";
 import React from 'react';
 import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
 import Toast from 'react-native-toast-message';
+const { fromDate } = Time;
 
-jest.mock('@/model/time', () => ({
-    fromDate: jest.fn(),
+jest.mock('@/utils/time', () => ({
+    Time: {
+        fromDate: jest.fn(),
+    },
 }));
 
 jest.mock('@/config/firebase', () => ({
