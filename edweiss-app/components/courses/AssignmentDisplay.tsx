@@ -10,7 +10,6 @@ import { Assignment } from '@/model/school/courses';
 import { saveTodo } from '@/utils/courses/saveToDo';
 import { useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
-import Toast from 'react-native-toast-message';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
 
@@ -85,7 +84,7 @@ const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, index: numb
                 onSwipeableOpen={(direction) => {
                     if (direction === 'right') {
                         console.log(`Swipe detected on assignment: ${item.name}`);
-                        saveTodo(item.name, item.dueDate, item.type); Toast.show({ type: 'success', text1: t(`course:toast_added_to_todo_text1`), text2: t(`course:toast_added_to_todo_text2`), });
+                        saveTodo(item.name, item.dueDate, item.type);
                         swipeableRefs.current[index]?.close();
                     }
                 }}
