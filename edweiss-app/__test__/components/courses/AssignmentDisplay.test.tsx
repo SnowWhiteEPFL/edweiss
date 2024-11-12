@@ -172,6 +172,8 @@ describe('AssignmentDisplay', () => {
         expect(screen.getByTestId('assignment-date')).toBeTruthy();
     });
 
+    // TODO: I still can't mock correctly saveToDo function so I can't test it yet.
+
     // it('should successfully save a todo and show success toast', async () => {
     //     // Mock du comportement de callFunction (réussite)
     //     (callFunction as jest.Mock).mockResolvedValueOnce({ status: true });
