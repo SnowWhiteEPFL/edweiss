@@ -19,9 +19,9 @@
   	"production": {
   		"channel": "preview"
   	},
-	"development-sim":{
+	"development-sim": {
 		"distribution": "internal",
-		"android": {
+		"ios": {
 			"simulator": true
 		}
 	}
