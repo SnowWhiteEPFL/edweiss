@@ -13,7 +13,6 @@
  * 
  * The component uses various custom components like TActivityIndicator, TText, TTouchableOpacity, and TView for rendering UI elements.
  * 
- * @component
  */
 import Icon from '@/components/core/Icon';
 import TActivityIndicator from '@/components/core/TActivityIndicator';

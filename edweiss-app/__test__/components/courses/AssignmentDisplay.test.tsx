@@ -178,56 +178,6 @@ describe('AssignmentDisplay', () => {
         expect(screen.getByTestId('assignment-date')).toBeTruthy();
     });
 
-    // TODO: I still can't mock correctly saveToDo function so I can't test it yet.
-
-    // it('should successfully save a todo and show success toast', async () => {
-    //     // Mock du comportement de callFunction (réussite)
-    //     (callFunction as jest.Mock).mockResolvedValueOnce({ status: true });
-
-    //     // Appel de la fonction saveTodo
-    //     const name = 'Test Todo';
-    //     const dueDate = fromDate(new Date());
-    //     const description = 'Test Description';
-
-    //     saveTodo(name, dueDate, description);
-
-    //     // Vérifier si callFunction a été appelé avec les bons arguments
-    //     expect(callFunction as jest.Mock).toHaveBeenCalledWith(Todolist.Functions.createTodo, {
-    //         name,
-    //         description,
-    //         dueDate: expect.any(String), // Vérifier que la date est bien formatée en ISO
-    //         status: 'yet',
-    //     });
-
-    //     // Vérifier si le toast de succès a été affiché
-    //     expect(mockToast).toHaveBeenCalledWith({
-    //         type: 'success',
-    //         text1: 'Success message text1', // Remplace par la valeur correcte dans t()
-    //         text2: 'Success message text2', // Remplace par la valeur correcte dans t()
-    //     });
-    // });
-
-    // it('should show error toast if callFunction fails', async () => {
-    //     // Mock du comportement de callFunction (échec)
-    //     (callFunction as jest.Mock).mockResolvedValueOnce({ status: false });
-
-    //     const name = 'Test Todo';
-    //     const dueDate = fromDate(new Date());
-    //     const description = 'Test Description';
-
-    //     await saveTodo(name, dueDate, description);
-
-    //     // Vérifier si callFunction a été appelé
-    //     expect(callFunction as jest.Mock).toHaveBeenCalled();
-
-    //     // Vérifier si le toast d'erreur a été affiché
-    //     expect(mockToast).toHaveBeenCalledWith({
-    //         type: 'error',
-    //         text1: 'Error message title', // Remplace par la valeur correcte dans t()
-    //         text2: 'Could not save todo', // Remplace par la valeur correcte dans t()
-    //     });
-    // });
-
     it('should handle exceptions and show error toast', async () => {
         // Simuler une erreur dans la fonction saveTodo
         (callFunction as jest.Mock).mockRejectedValueOnce(new Error('Some error'));
