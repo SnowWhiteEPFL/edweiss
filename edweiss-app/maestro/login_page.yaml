@@ -1,0 +1,8 @@
+appId: com.edweiss
+---
+- launchApp:
+    clearState: true
+
+- assertVisible: "Login"
+- assertVisible: "Continue with Google"
+- tapOn: "Continue with Google"

@@ -1,6 +1,0 @@
-appId: com.edweiss
----
-- launchApp:
-    clearState: true
-
-- assertVisible: "Login"
