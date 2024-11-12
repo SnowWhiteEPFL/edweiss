@@ -89,11 +89,6 @@ jest.mock('@react-native-firebase/messaging', () => ({
     })),
 }));
 
-// Mock react-native-pdf to prevent native calls
-jest.mock('react-native-pdf', () => {
-    return () => <div data-testid="mock-pdf-viewer">PDF Viewer Mock</div>;
-});
-
 // Updated mock for expo-screen-orientation
 jest.mock('expo-screen-orientation', () => ({
     lockAsync: jest.fn(),
