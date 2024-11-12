@@ -39,4 +39,5 @@ jobs:
         run: eas build --platform android --non-interactive --no-wait --profile development-sim
         env:
           CI: true
+          GOOGLE_SERVICES_ANDROID: "./android/src/debug/google-services.json"
         shell: bash
