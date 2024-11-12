@@ -20,6 +20,10 @@
   		"channel": "preview"
   	},
 	"development-sim": {
+		"env": {
+			"GOOGLE_SERVICES_ANDROID" :"./android/src/debug/google-services.json"
+		},
+		
 		"distribution": "internal",
 		"ios": {
 			"simulator": true
