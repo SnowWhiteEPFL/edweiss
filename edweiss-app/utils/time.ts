@@ -1,5 +1,19 @@
+/**
+ * @file time.ts
+ * @description time helper to interface easily with from firebase Timestamp to a JS Date
+ * @author Adamm Alaoui & Youssef Laraki
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import { Timestamp } from '@/model/time';
 import { Timestamp as FBTimestamp } from '@react-native-firebase/firestore';
+
+// ------------------------------------------------------------
+// ---------------   App's Time Utils Functions   -------------
+// ------------------------------------------------------------
 
 export namespace Time {
 
@@ -15,7 +29,9 @@ export namespace Time {
 	}
 
 	export function isToday(date: Date): boolean {
-		return sameDay(date, new Date());
+		const today = new Date(new Date().setHours(0, 0, 0, 0));
+		const dateToCheck = new Date(new Date(date).setHours(0, 0, 0, 0));
+		return today.toDateString() === dateToCheck.toDateString();
 	}
 
 	export function wasYesterday(date: Date): boolean {

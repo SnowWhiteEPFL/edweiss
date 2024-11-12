@@ -5,15 +5,13 @@ import FancyButton from '@/components/input/FancyButton';
 import { callFunction } from '@/config/firebase';
 import { Color } from '@/constants/Colors';
 import { ApplicationRoute } from '@/constants/Component';
-import LectureDisplay from '@/model/lectures/lectureDoc';
 import { Course, Course_functions, CourseTimePeriod } from '@/model/school/courses';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 
-type Lecture = LectureDisplay.Lecture;
 
-const StartCourseScreen: ApplicationRoute = () => {
+export const StartCourseScreen: ApplicationRoute = () => {
 	const { courseID, course, period } = useLocalSearchParams() as unknown as { courseID: string; course: string; period: string; index: number; };
 	const [loading, setLoading] = useState(false);
 	const [parsedCourse, setParsedCourse] = useState<Course>(JSON.parse(course));

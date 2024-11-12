@@ -1,6 +1,6 @@
 /**
  * @file todo.ts
- * @description Module for managing todo items in the edweiss app
+ * @description Module for managing to do items in the edweiss app
  * @author Adamm Alaoui
  */
 
@@ -13,7 +13,7 @@ import { Timestamp } from './time';
 
 
 // ------------------------------------------------------------
-// ---------------------  Todo Namespace  ---------------------
+// ---------------------  To do Namespace  ---------------------
 // ------------------------------------------------------------
 namespace Todolist {
 
@@ -28,8 +28,8 @@ namespace Todolist {
 
 
     export const Functions = FunctionFolder("todolist", {
-        createTodo: FunctionOf<{ name: string; description?: string; status: TodoStatus; dueDate?: string; }, {}, 'invalid_arg' | 'error_date' | 'firebase_error'>("createTodo"),
-        updateTodo: FunctionOf<{ name?: string; description?: string; status?: TodoStatus; dueDate?: string; id: string; }, {}, 'invalid_arg' | 'invalid_id' | 'error_date' | 'firebase_error'>("updateTodo"),
+        createTodo: FunctionOf<{ name: string; description?: string; status: TodoStatus; dueDate?: string; }, {}, 'invalid_arg' | 'error_date' | 'firebase_error' | 'duplicate_todo'>("createTodo"),
+        updateTodo: FunctionOf<{ name?: string; description?: string; status?: TodoStatus; dueDate?: string; id: string; }, {}, 'invalid_arg' | 'invalid_id' | 'error_date' | 'firebase_error' | 'duplicate_todo'>("updateTodo"),
         deleteTodo: FunctionOf<{ id: string; }, {}, 'invalid_id' | 'firebase_error'>("deleteTodo")
     });
 
