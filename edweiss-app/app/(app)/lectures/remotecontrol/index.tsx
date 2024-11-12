@@ -39,15 +39,8 @@ const RemoteControlScreen: ApplicationRoute = () => {
     const [pageToTranscribe, setPageToTranscribe] = useState<number>(1);
     const [talked, setTalked] = useState('');
 
-    useEffect(() => {
-        if (lectureDoc) {
-            setPortrait();
-        }
-    }, [lectureDoc]);
-
-    useEffect(() => {
-        updateSlideAudioRecording(talked, pageToTranscribe, courseName, lectureId, isRecording, currentPage, setPageToTranscribe, setTalked, startRecording);
-    }, [talked]);
+    useEffect(() => { if (lectureDoc) { setPortrait(); } }, [lectureDoc]);
+    useEffect(() => { updateSlideAudioRecording(talked, pageToTranscribe, courseName, lectureId, isRecording, currentPage, setPageToTranscribe, setTalked, startRecording); }, [talked]);
 
 
     if (!lectureDoc) return <TActivityIndicator size={40} />;
@@ -56,33 +49,8 @@ const RemoteControlScreen: ApplicationRoute = () => {
 
     Voice.onSpeechStart = () => { };
     Voice.onSpeechEnd = () => { };
-
-
     Voice.onSpeechError = (e: any) => { console.log(e.error); };
     Voice.onSpeechResults = (res) => { setTalked(res.value ? res.value[0] : ""); };
-
-    const startRecording = async () => {
-        console.log(' > start recording ...');
-        try {
-            await Voice.start('en-US');
-        } catch (e: any) {
-            console.log(e);
-        }
-    };
-
-    const stopRecording = async () => {
-        console.log(' > stop recording ...');
-        try {
-            await Voice.stop();
-        } catch (e: any) {
-            console.log(e);
-        }
-    };
-
-    // Portrait display for the screen
-    const setPortrait = async () => {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-    };
 
     return (
         <AbstractRmtCrl
@@ -95,3 +63,28 @@ const RemoteControlScreen: ApplicationRoute = () => {
 };
 
 export default RemoteControlScreen;
+
+
+
+export const startRecording = async () => {
+    console.log(' > start recording ...');
+    try {
+        await Voice.start('en-US');
+    } catch (e: any) {
+        console.log(e);
+    }
+};
+
+export const stopRecording = async () => {
+    console.log(' > stop recording ...');
+    try {
+        await Voice.stop();
+    } catch (e: any) {
+        console.log(e);
+    }
+};
+
+// Portrait display for the screen
+export const setPortrait = async () => {
+    await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+};

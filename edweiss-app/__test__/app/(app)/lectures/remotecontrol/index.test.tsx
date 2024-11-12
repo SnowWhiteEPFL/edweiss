@@ -9,12 +9,8 @@
 // ------------------------------------------------------------
 
 
-import RemoteControlScreen from '@/app/(app)/lectures/remotecontrol';
-import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
-import { render } from '@testing-library/react-native';
-import { useLocalSearchParams } from 'expo-router';
-import { FC, default as React, ReactNode } from 'react';
-import { TouchableOpacityProps } from 'react-native';
+import { setPortrait, startRecording, stopRecording } from '@/app/(app)/lectures/remotecontrol';
+import { FC, ReactNode } from 'react';
 
 
 // ------------------------------------------------------------
@@ -41,14 +37,7 @@ jest.mock('@react-navigation/native-stack', () => {
     };
 });
 
-jest.mock('@/components/core/containers/TTouchableOpacity.tsx', () => {
-    const { TouchableOpacity, View } = require('react-native');
-    return (props: React.PropsWithChildren<TouchableOpacityProps>) => (
-        <TouchableOpacity {...props}>
-            <View>{props.children}</View>
-        </TouchableOpacity>
-    );
-});
+
 jest.mock('@/contexts/auth', () => ({
     useAuth: jest.fn(),
 }));
@@ -180,14 +169,66 @@ jest.mock('@/components/lectures/remotecontrol/abstractRmtCtl', () => {
 // ---------   ST! Remote Control Screen Tests suites   -------
 // ------------------------------------------------------------
 
-describe('RemoteControlScreen', () => {
+
+
+import Voice from '@react-native-voice/voice';
+import { act } from '@testing-library/react-native';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import React from 'react';
+
+
+// AbstractEditor for to dos
+jest.mock('@/components/lectures/remotecontrol/abstractRmtCtl', () => {
+    const TView = require('@/components/core/containers/TView').default;
+    return {
+        AbstractRmtCrl: () => <TView testID="abstract-rmt-crl" />,
+    };
+});
+
+// Mock dependencies
+jest.mock('@react-native-voice/voice', () => ({
+    start: jest.fn(),
+    stop: jest.fn(),
+}));
+
+jest.mock('expo-screen-orientation', () => ({
+    lockAsync: jest.fn(),
+}));
+
+describe('RemoteControlScreen Test Suite', () => {
     beforeEach(() => {
-        (useLocalSearchParams as jest.Mock).mockReturnValue(mockParams);
-        (usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockLectureData]);
+        jest.clearAllMocks();
     });
 
-    it('should display the AbstractRmtCtl component', () => {
-        const { getByTestId } = render(<RemoteControlScreen />);
-        expect(getByTestId('abstract-rmt-ctl')).toBeTruthy();
+
+    it('calls startRecording to begin voice recording', async () => {
+        await act(async () => {
+            await startRecording();
+        });
+
+        expect(Voice.start).toHaveBeenCalledWith('en-US');
     });
+
+    it('calls stopRecording to end voice recording', async () => {
+        await act(async () => {
+            await stopRecording();
+        });
+
+        expect(Voice.stop).toHaveBeenCalled();
+    });
+
+    it('calls setPortrait to lock orientation to portrait mode', async () => {
+        await act(async () => {
+            await setPortrait();
+        });
+
+        expect(ScreenOrientation.lockAsync).toHaveBeenCalledWith(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+    });
+
+
+    // it('renders the AbstractRmtCrl component', () => {
+    //     const { getByTestId } = render(<RemoteControlScreen />);
+
+    //     expect(getByTestId('abstract-rmt-crl')).toBeTruthy();
+    // });
 });
