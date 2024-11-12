@@ -20,7 +20,7 @@ jobs:
         
       - name: Set up Node.js
         uses: actions/setup-node@v3
-        
+
         with:
           node-version: '18'
         
@@ -37,5 +37,5 @@ jobs:
         run: npm ci
 
       - name: 🚀 Send build request
-        run: eas build --platform all --non-interactive --no-wait --profile development-sim
+        run: eas build --platform android --non-interactive --no-wait --profile development-sim
         shell: bash
