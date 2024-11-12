@@ -24,17 +24,17 @@ export async function saveTodo(name: string, dueDate: Timestamp, description: st
                 text2: t(`todo:already_existing_todo_toast_funny`)
             });
         } else {
-            Toast.show({
-                type: 'error',
-                text1: t(`todo:error_toast_title`),
-                text2: t(`todo:couldnot_save_toast`)
-            });
+            showToastError();
         }
     } catch (error) {
-        Toast.show({
-            type: 'error',
-            text1: t(`todo:error_toast_title`),
-            text2: t(`todo:couldnot_save_toast`)
-        });
+        showToastError();
     }
 }
+
+const showToastError = () => {
+    Toast.show({
+        type: 'error',
+        text1: t(`todo:error_toast_title`),
+        text2: t(`todo:couldnot_save_toast`)
+    });
+};
