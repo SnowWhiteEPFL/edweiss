@@ -24,9 +24,6 @@ jobs:
         with:
           node-version: '18'
         
-      - name: Install dependencies
-        run: npm ci
-
       - name: 🏗 Setup EAS
         uses: expo/expo-github-action@v8
         with:
@@ -35,7 +32,11 @@ jobs:
 
       - name: 📦 Install dependencies
         run: npm ci
+        env:
+          CI: true
 
       - name: 🚀 Send build request
         run: eas build --platform android --non-interactive --no-wait --profile development-sim
+        env:
+          CI: true
         shell: bash
