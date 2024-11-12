@@ -6,12 +6,12 @@ import React from 'react';
 import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
 
 
-jest.mock('../../../components/core/containers/TView.tsx', () => {
+jest.mock('@/components/core/containers/TView.tsx', () => {
     const { View } = require('react-native');
     return (props: ViewProps) => <View {...props} />;
 });
 
-jest.mock('../../../components/core/TText.tsx', () => {
+jest.mock('@/components/core/TText.tsx', () => {
     const { Text } = require('react-native');
     return (props: TextProps) => <Text {...props} />;
 });
@@ -26,7 +26,7 @@ jest.mock('@/components/core/Icon', () => {
     };
 });
 
-jest.mock('../../../components/core/containers/TTouchableOpacity.tsx', () => {
+jest.mock('@/components/core/containers/TTouchableOpacity.tsx', () => {
     const { TouchableOpacity, View } = require('react-native');
     return (props: React.PropsWithChildren<TouchableOpacityProps>) => (
         <TouchableOpacity {...props}>
@@ -54,7 +54,7 @@ jest.mock('expo-router', () => ({
     useLocalSearchParams: jest.fn(),
 }));
 
-jest.mock('../../../components/core/header/RouteHeader', () => {
+jest.mock('@/components/core/header/RouteHeader', () => {
     const { Text } = require('react-native');
     return ({ title }: { title: string }) => <Text>{title}</Text>;
 });

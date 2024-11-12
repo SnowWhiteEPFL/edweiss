@@ -135,7 +135,7 @@ const CoursePage: ApplicationRoute = () => {
 			<RouteHeader title={course.data.name} align="center" isBold={true} />
 
 			{/* ScrollView pour permettre le défilement */}
-			<TScrollView p={16} backgroundColor="mantle" testID={testIDs.scrollView} >
+			<TScrollView testID={testIDs.scrollView} p={16} backgroundColor="mantle" >
 
 				{/* Section des Pending Assignments */}
 				<TText mb={10} size={18} color='darkBlue' bold={true} testID={testIDs.upcomingAssignments} >{t(`course:upcoming_assignment_title`)}</TText>
