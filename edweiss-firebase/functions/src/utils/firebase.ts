@@ -30,6 +30,15 @@ export function onAuthentifiedCall<Args, Result, Error>(
 	return { signature, handler };
 }
 
+/**
+ * This function achieves practically the same thing as `onAuthentifiedCall`, it additionnaly
+ * checks if the arguments predicates are satisfied before the callback.
+ * 
+ * @param signature The function signature that defines all relevant types
+ * @param sanitizer All predicates that the argument fields must satisfy 
+ * @param callback The actual business logic
+ * @returns The function handler
+ */
 export function onSanitizedCall<Args extends object, Result, Error>(
 	signature: FunctionSignature<Args, Result, Error>,
 	sanitizer: PredicateOnFields<Args>,
