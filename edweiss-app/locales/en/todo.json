@@ -48,7 +48,9 @@
 	"couldnot_edit_toast": "Couldn't edit the Todo, please try again.",
 	"was_deleted_toast": " was deleted !",
 	"funny_phrase_on_delete": "Gone, but not forgotten!",
-	"couldnot_delete_toast": "Couldn't delete the Todo, please try again."
+	"couldnot_delete_toast": "Couldn't delete the Todo, please try again.",
+	"already_existing_todo_toast_title": "This todo is already present in your todo list", 
+	"already_existing_todo_toast_funny": "Déjà vu, you already have this one!"
 
 
 }
