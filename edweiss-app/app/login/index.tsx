@@ -1,5 +1,6 @@
 import { ApplicationRoute } from '@/constants/Component';
 
+import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
@@ -68,15 +69,15 @@ const Login: ApplicationRoute = () => {
 
 			<RouteHeader disabled title='Login' />
 
-			<TView style={{ flex: 1, backgroundColor: 'white' }} pl={'lg'} pr={'lg'}>
 
+			<TView style={{ flex: 1, backgroundColor: 'white' }} pl={'lg'} pr={'lg'}>
 
 				<TView flex={1} justifyContent='flex-start' alignItems='center'>
 					<Image
 						source={require('../../assets/images/mountain_logo.png')}
 						style={{ width: width * 0.8, height: height * 0.45, resizeMode: 'contain' }}
 					/>
-					<TText mb={25} bold size={50}>{t(`login:Welcome_title`)}</TText>
+					<TText mb={25} bold size={50}>{t(`login:welcome_title`)}</TText>
 					<TText align='center' size={18} color='darkNight'>{t(generateQuotes() as any)}</TText>
 
 					<TView flexDirection='row' justifyContent='space-between' style={{ width: '75%' }} mr={20} ml={20} mt={30}>
@@ -100,9 +101,39 @@ const Login: ApplicationRoute = () => {
 					{t(`login:continue_annymous`)}
 				</FancyButton>
 
+
+
 			</TView>
 		</>
 	);
 };
 
 export default Login;
+
+
+
+
+
+
+export const LoadingPageCompoment: React.FC = () => {
+
+	const { width, height } = useWindowDimensions();
+
+	return (
+		<>
+			<TView style={{ flex: 1, backgroundColor: 'white' }} pl={'lg'} pr={'lg'}>
+				<TView flex={1} justifyContent='flex-start' alignItems='center' mt={90} mb={20}>
+					<Image
+						source={require('../../assets/images/flower_logo.png')}
+						style={{ width: width * 0.8, height: height * 0.45, resizeMode: 'contain' }}
+					/>
+
+
+					<TActivityIndicator mt={100} mb={70} />
+
+					<TText mt={80} size={20}>{t(`login:by_snowwhite_team`)}</TText>
+				</TView>
+			</TView>
+		</>
+	);
+};

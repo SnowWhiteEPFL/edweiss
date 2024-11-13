@@ -1,8 +1,9 @@
 {
-    "Welcome_title": "Welcome", 
+    "by_snowwhite_team": "By the SnowWhite Team",
+    "welcome_title": "Welcome", 
 	"quotes_1": "Reach new academic heights with EdWeiss, your study companion to turn every challenge into success.",
-"quotes_2": "EdWeiss: Your all-in-one tool for mastering any subject, anytime, anywhere.",
-"quotes_3": "Unlock your full potential with EdWeiss, the ultimate resource for every learner.",
-"continue_with_google": "Continue with Google",
-"continue_annymous": "Login Anonymously"
+    "quotes_2": "EdWeiss: Your all-in-one tool for mastering any subject, anytime, anywhere.",
+    "quotes_3": "Unlock your full potential with EdWeiss, the ultimate resource for every learner.",
+    "continue_with_google": "Continue with Google",
+    "continue_annymous": "Login Anonymously"
 }
