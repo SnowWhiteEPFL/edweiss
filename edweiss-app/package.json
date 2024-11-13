@@ -30,7 +30,6 @@
   "dependencies": {
     "@config-plugins/react-native-blob-util": "^8.0.0",
     "@config-plugins/react-native-pdf": "^8.0.0",
-    "@expo/config-plugins": "^8.0.11",
     "@expo/vector-icons": "^14.0.2",
     "@gorhom/bottom-sheet": "^4.6.4",
     "@react-native-async-storage/async-storage": "1.23.1",
@@ -63,7 +62,6 @@
     "expo-splash-screen": "~0.27.6",
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "~3.0.7",
-    "expo-updates": "~0.25.27",
     "expo-web-browser": "~13.0.3",
     "firebase": "^10.14.1",
     "i18next-react-native-async-storage": "^1.0.4",
@@ -79,7 +77,8 @@
     "react-native-screens": "3.31.1",
     "react-native-svg": "15.2.0",
     "react-native-toast-message": "^2.2.1",
-    "react-native-web": "~0.19.10"
+    "react-native-web": "~0.19.10",
+    "expo-updates": "~0.25.27"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
