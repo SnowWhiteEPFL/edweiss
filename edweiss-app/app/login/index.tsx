@@ -1,7 +1,8 @@
 /**
- * @file abstractTodoEditor.tsx
- * @description Module for editing to do items in the edweiss app
- * @author Adamm Alaoui
+ * @file index.tsx
+ * @description The main login screen for the EdWeiss app, 
+ * 				with it loading screen component.
+ * @author Adamm Alaoui & Youssef Laraki
  */
 
 // ------------------------------------------------------------
@@ -95,9 +96,10 @@ const Login: ApplicationRoute = () => {
 					<Image
 						source={require('../../assets/images/mountain_logo.png')}
 						style={{ width: width * 0.8, height: height * 0.45, resizeMode: 'contain' }}
+						testID='mountain_logo_png'
 					/>
 					<TText mb={25} bold size={50}>{t(`login:welcome_title`)}</TText>
-					<TText align='center' size={18} color='darkNight'>{t(generateQuotes() as any)}</TText>
+					<TText align='center' size={18} color='darkNight' testID='quote-text-output'>{t(generateQuotes() as any)}</TText>
 
 					<TView flexDirection='row' justifyContent='space-between' style={{ width: '75%' }} mr={20} ml={20} mt={30}>
 						<TTouchableOpacity borderColor='subtext0' b={1} backgroundColor={getColor(1)} radius={'md'} onPress={() => setQuoteN(1)} testID='quote-but-1'>
@@ -149,9 +151,10 @@ export const LoadingPageCompoment: React.FC = () => {
 					<Image
 						source={require('../../assets/images/flower_logo.png')}
 						style={{ width: width * 0.8, height: height * 0.45, resizeMode: 'contain' }}
+						testID='flower_logo_png'
 					/>
 
-					<TActivityIndicator mt={100} mb={70} />
+					<TActivityIndicator mt={100} mb={70} testID='load-indicator' />
 
 					<TText mt={80} size={20}>{t(`login:by_snowwhite_team`)}</TText>
 				</TView>
