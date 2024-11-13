@@ -92,11 +92,11 @@ const Login: ApplicationRoute = () => {
 					</TView>
 				</TView>
 
-				<FancyButton onPress={signInGoogle} loading={loadingGoogle} icon='logo-google' mb={'md'}>
+				<FancyButton onPress={signInGoogle} loading={loadingGoogle} icon='logo-google' mb={'md'} testID='google-but'>
 					{t(`login:continue_with_google`)}
 				</FancyButton>
 
-				<FancyButton onPress={signInAnounymous} loading={loadingAnon} icon='shield-half-outline' mb={'lg'} outlined>
+				<FancyButton onPress={signInAnounymous} loading={loadingAnon} icon='shield-half-outline' mb={'lg'} outlined testID='anon-but'>
 					{t(`login:continue_annymous`)}
 				</FancyButton>
 
