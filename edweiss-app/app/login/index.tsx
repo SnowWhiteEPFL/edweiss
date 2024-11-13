@@ -17,11 +17,12 @@ const Login: ApplicationRoute = () => {
 	const auth = useAuth();
 
 	const { width, height } = useWindowDimensions();
-	const [loading, setLoading] = useState(false);
+	const [loadingGoogle, setLoadingGoogle] = useState(false);
+	const [loadingAnon, setLoadingAnon] = useState(false);
 	const [quoteN, setQuoteN] = useState(1);
 
 	async function signInGoogle() {
-		setLoading(true);
+		setLoadingGoogle(true);
 
 		const res = await signInWithGoogle();
 
@@ -32,13 +33,13 @@ const Login: ApplicationRoute = () => {
 				router.replace("/");
 			} else {
 				console.log(accountRes.error);
-				setLoading(false);
+				setLoadingGoogle(false);
 			}
 		}
 	}
 
 	async function signInAnounymous() {
-		setLoading(true);
+		setLoadingAnon(true);
 
 		const res = await signInAnonymously();
 
@@ -49,7 +50,7 @@ const Login: ApplicationRoute = () => {
 				router.replace("/");
 			} else {
 				console.log(accountRes.error);
-				setLoading(false);
+				setLoadingAnon(false);
 			}
 		}
 	}
@@ -91,11 +92,11 @@ const Login: ApplicationRoute = () => {
 					</TView>
 				</TView>
 
-				<FancyButton onPress={signInGoogle} loading={loading} icon='logo-google' mb={'md'}>
+				<FancyButton onPress={signInGoogle} loading={loadingGoogle} icon='logo-google' mb={'md'}>
 					{t(`login:continue_with_google`)}
 				</FancyButton>
 
-				<FancyButton onPress={signInAnounymous} loading={loading} icon='shield-half-outline' mb={'lg'} outlined>
+				<FancyButton onPress={signInAnounymous} loading={loadingAnon} icon='shield-half-outline' mb={'lg'} outlined>
 					{t(`login:continue_annymous`)}
 				</FancyButton>
 
