@@ -73,17 +73,21 @@ export function assertNonEmptyString(string: string, error: AssertionError = DEF
 	assertThat(string, Predicate.isNonEmptyString, error);
 }
 
-export function assertIsIn<T>(t: T, list: T[], error: AssertionError = DEFAULT_ASSERTION_ERROR) {
+export function assertNonEmptyStrings(...strings: string[]) {
+	assertThat(strings, Predicate.forEach(Predicate.isNonEmptyString));
+}
+
+export function assertIsIn<const T>(t: T, list: T[], error: AssertionError = DEFAULT_ASSERTION_ERROR) {
 	assertArray(list, error);
 	assertThat(t, Predicate.isIn(list), error);
 }
 
-export function assertIsNotIn<T>(t: T, list: T[], error: AssertionError = DEFAULT_ASSERTION_ERROR) {
+export function assertIsNotIn<const T>(t: T, list: T[], error: AssertionError = DEFAULT_ASSERTION_ERROR) {
 	assertArray(list, error);
 	assertThat(t, Predicate.isNotIn(list), error);
 }
 
-export function assertForEach<T>(list: T[], predicates: CompositePredicate<T>, error: AssertionError = DEFAULT_ASSERTION_ERROR) {
+export function assertForEach<const T>(list: T[], predicates: CompositePredicate<T>, error: AssertionError = DEFAULT_ASSERTION_ERROR) {
 	assertArray(list, error);
 	list.forEach(t => assert(Predicate.verify(t, predicates), error));
 }

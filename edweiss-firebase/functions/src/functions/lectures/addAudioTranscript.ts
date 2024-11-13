@@ -13,6 +13,7 @@ import LectureDisplay from 'model/lectures/lectureDoc';
 import { Course } from 'model/school/courses';
 import { onAuthentifiedCall } from 'utils/firebase';
 import { CollectionOf, getDocumentAndRef, getRequiredDocument } from 'utils/firestore';
+import { assertNonEmptyStrings, assertPositiveNumber } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = LectureDisplay.Functions;
 
@@ -24,9 +25,8 @@ type Lecture = LectureDisplay.Lecture;
 // ------------------------------------------------------------
 
 export const addAudioTranscript = onAuthentifiedCall(Functions.addAudioTranscript, async (userId, args) => {
-	if (!args.courseId || !args.lectureId || !args.pageNumber || !args.transcription) {
-		return fail('invalid_arg');
-	}
+	assertNonEmptyStrings(args.courseId, args.lectureId, args.transcription);
+	assertPositiveNumber(args.pageNumber);
 
 	const course = await getRequiredDocument(CollectionOf<Course>(`courses`), args.courseId, fail("course_not_found"));
 	const [lecture, lectureRef] = await getDocumentAndRef(CollectionOf<Lecture>(`courses/${args.courseId}/lectures`), args.lectureId);
