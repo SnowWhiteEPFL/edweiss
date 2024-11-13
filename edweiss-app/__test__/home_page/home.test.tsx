@@ -1,5 +1,4 @@
 import HomeTab from '@/app/(app)/(tabs)/GwenHomePage';
-import { CollectionOf } from '@/config/firebase';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { render, screen } from '@testing-library/react-native';
@@ -120,20 +119,23 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
 }));
 const mockAuth = {
     authUser: { uid: 'test-user-id' },
+    data: { type: 'professor' },
 };
 
 
 
 describe('HomeTab Component', () => {
-    (useAuth as jest.Mock).mockReturnValue(mockAuth);
-    (useDynamicDocs as jest.Mock).mockImplementation((collection) => {
-        if (collection === CollectionOf('courses')) {
-            return mockCourses;
-        }
-        if (collection === CollectionOf(`users/${mockAuth.authUser.uid}/courses`)) {
-            return mockCourses;
-        }
-        return [];
+    beforeEach(() => {
+        (useAuth as jest.Mock).mockReturnValue(mockAuth);
+        (useDynamicDocs as jest.Mock).mockImplementation((collection) => {
+            if (collection === 'courses') {
+                return mockCourses;
+            }
+            if (collection === `users/${mockAuth.authUser.uid}/courses`) {
+                return mockCourses;
+            }
+            return [];
+        });
     });
 
 
