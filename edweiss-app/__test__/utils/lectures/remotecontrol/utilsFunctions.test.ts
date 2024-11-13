@@ -1,6 +1,7 @@
 /**
  * @file utilsFunctions.test.tsx
- * @description Unit tests for utilsFunctions.tsx to ensure high line coverage
+ * @description Unit tests for utilsFunctions.tsx to ensure correct
+ *              utils functionality and corner cases handling.
  * @author Adamm Alaoui
  */
 

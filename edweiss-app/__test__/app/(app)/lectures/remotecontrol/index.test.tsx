@@ -119,9 +119,10 @@ jest.mock('@react-native-voice/voice', () => ({
 }));
 
 
-// 
+// The Firestore usePrefetchedDynamicDoc instance
+// Note: it requires a double array to match [lectureDoc] 
 jest.mock('@/hooks/firebase/firestore', () => ({
-    usePrefetchedDynamicDoc: jest.fn(),  // Note the double array to match [lectureDoc]
+    usePrefetchedDynamicDoc: jest.fn(),
 }));
 
 // The expo core modules for the voice support
@@ -196,7 +197,6 @@ describe('RemoteControlScreen Test Suite', () => {
     it('renders the RemoteControlScreen component', () => {
         (usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockLectureData]);
         const { getByTestId } = render(<RemoteControlScreen />);
-        //renderer.debug();
         expect(getByTestId('abstract-rmt-ctl')).toBeTruthy();
     });
 
