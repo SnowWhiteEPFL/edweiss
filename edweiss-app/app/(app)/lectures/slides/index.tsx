@@ -19,10 +19,9 @@ import FancyTextInput from '@/components/input/FancyTextInput';
 import { callFunction, CollectionOf, getDownloadURL } from '@/config/firebase';
 import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
-import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import useListenToMessages from '@/hooks/useListenToMessages';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import { Timestamp } from '@react-native-firebase/firestore';
 import { useLocalSearchParams } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import React, { useEffect, useState } from 'react';
@@ -31,6 +30,7 @@ import Pdf from 'react-native-pdf';
 
 // Types
 type Lecture = LectureDisplay.Lecture;
+type Question = LectureDisplay.Question;
 
 // ------------------------------------------------------------
 // -------------------  Remote Control Screen  ----------------
@@ -60,6 +60,7 @@ const LectureScreen: ApplicationRoute = () => {
     const [question, setQuestion] = useState<string>('');
 
     const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
+    const questionsDoc = useDynamicDocs(CollectionOf<Question>(`courses/${courseName}/lectures/${lectureId}/questions`));
 
     // Load images when the component mounts
     useEffect(() => {
@@ -69,21 +70,11 @@ const LectureScreen: ApplicationRoute = () => {
     }, [lectureDoc]);
 
     useEffect(() => {
+        ScreenOrientation.unlockAsync();
+        updateUI(ScreenOrientation.Orientation.PORTRAIT_UP);
         const onOrientationChange = (currentOrientation: ScreenOrientation.OrientationChangeEvent) => {
             const orientationValue = currentOrientation.orientationInfo.orientation;
-            console.log(orientationValue);
-            console.log(isLandscape);
-            if (orientationValue == 1 || orientationValue == 2) {
-                setIsLandscape(false);
-                console.log('a');
-            } else {
-                setIsLandscape(true);
-                console.log(' iiii b' + isLandscape);
-            }
-            console.log(orientationValue);
-            console.log(isLandscape);
-            updateUI();
-            console.log(isLandscape);
+            updateUI(orientationValue);
         };
 
         const screenOrientationListener =
@@ -114,24 +105,30 @@ const LectureScreen: ApplicationRoute = () => {
     }
 
     // Function for updating the UI display values when switching through orientations an fullscreen modes
-    function updateUI() {
+    function updateUI(orientation: ScreenOrientation.Orientation) {
+        const bool = ((orientation == ScreenOrientation.Orientation.LANDSCAPE_LEFT || orientation == ScreenOrientation.Orientation.LANDSCAPE_RIGHT))
+        setIsLandscape(bool);
         if (isFullscreen) {
+            console.log("aa")
             setWidthPercent(["100%", "0%"]);
             setHeightPercent(["100%", "0%"]);
-        } else if (isLandscape) {
+        } else if (bool) {
+            console.log("bb")
             setHeightPercent(["100%", "100%"]);
             setWidthPercent(["60%", "40%"]);
         } else {
+            console.log("cc")
             setHeightPercent(["40%", "60%"]);
             setWidthPercent(["100%", "100%"]);
         }
+        console.log(heightPercent)
+        console.log(widthPercent)
     }
 
     // Landscape display for the screen
     const setLandscape = async () => {
-        console.log("landscape was set");
         await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-        updateUI();
+        updateUI(ScreenOrientation.Orientation.LANDSCAPE_LEFT);
     };
 
     // Display each question given as parameters as a component 
@@ -150,12 +147,7 @@ const LectureScreen: ApplicationRoute = () => {
             callFunction(LectureDisplay.Functions.createQuestion, {
                 courseId: courseName,
                 lectureId: lectureId,
-                question: {
-                    text: question,
-                    anonym: false,
-                    likes: 0,
-                    postedTime: Timestamp.now()
-                }
+                question: question
             });
         } catch (error) {
             console.error("Error creating question:", error);
@@ -201,7 +193,6 @@ const LectureScreen: ApplicationRoute = () => {
                             !isLandscape && setLandscape();
                             isLandscape && ScreenOrientation.unlockAsync();
                             setIsFullscreen(!isFullscreen);
-                            updateUI();
                         }}>
                             <Icon size={'xl'} name={isFullscreen ? 'contract-outline' : 'expand-outline'} dark='text'></Icon>
                         </TTouchableOpacity>
@@ -223,7 +214,7 @@ const LectureScreen: ApplicationRoute = () => {
 
                                 <TScrollView flex={0.5} mt={15} mr={'md'} ml={'md'} mb={15}>
                                     {/* Questions Display */}
-                                    {currentLecture.questions && currentLecture.questions.map((question, index) => renderQuestion(question.text, index))}
+                                    {questionsDoc && questionsDoc.map((question, index) => renderQuestion(question?.data.text, index))}
 
                                     {/* Enter Your Question */}
                                     <TView flexDirection='row'>

@@ -7,19 +7,20 @@ export const updateQuestion = onAuthentifiedCall(LectureDisplay.Functions.update
     if (!args.id)
         return fail("invalid_id");
 
-    const [lecture, ref] = await getDocumentAndRef(CollectionOf<LectureDisplay.Lecture>(`users/${userId}/lectures/`), args.id);
+    const [question, ref] = await getDocumentAndRef(CollectionOf<LectureDisplay.Question>(`users/${userId}/lectures/${args.lectureId}/questions`), args.id);
 
-    if (lecture == undefined)
+    if (question == undefined)
         return fail("error_firebase");
 
-    const updatedFields: Partial<LectureDisplay.Lecture> = {};
-    updatedFields.questions = []
-    if (args.question) updatedFields.questions[0] = args.question as LectureDisplay.Question;
-
-
-    const updatedQuestions = [...lecture.questions, updatedFields.questions]
+    const updatedQuestion: Partial<LectureDisplay.Question> = {
+        anonym: question.anonym,
+        likes: args.likes,
+        postedTime: question.postedTime,
+        text: question.text,
+        userID: question.userID
+    };
     try {
-        await ref.update({ [`questions`]: updatedQuestions });
+        await ref.update({ updatedQuestion });
     } catch (error) {
         return fail('error_firebase');
     }
