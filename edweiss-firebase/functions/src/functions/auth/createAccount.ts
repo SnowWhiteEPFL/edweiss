@@ -1,13 +1,13 @@
 import { Auth } from 'model/users';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { Collections, getDocumentAndRef } from 'utils/firestore';
-import { assertNonEmptyString } from 'utils/sanitizer';
+import { Predicate, tag } from 'utils/sanitizer';
 import { OK, fail } from 'utils/status';
 import { Time } from 'utils/time';
 
-export const createAccount = onAuthentifiedCall(Auth.Functions.createAccount, async (userId, args) => {
-	assertNonEmptyString(args.name, "invalid_name");
-
+export const createAccount = onSanitizedCall(Auth.Functions.createAccount, {
+	name: tag(Predicate.isNonEmptyString, 'invalid_name')
+}, async (userId, args) => {
 	const [user, userRef] = await getDocumentAndRef(Collections.users, userId);
 
 	if (user != undefined)

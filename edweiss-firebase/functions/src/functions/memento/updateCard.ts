@@ -1,15 +1,15 @@
 import Memento from 'model/memento';
 import { CustomPredicateMemento } from 'utils/custom-sanitizer/memento';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf } from 'utils/firestore';
-import { assertNonEmptyString, assertPositiveNumber, assertThat } from 'utils/sanitizer';
+import { Predicate } from 'utils/sanitizer';
 import { ok } from 'utils/status';
 
-export const updateCard = onAuthentifiedCall(Memento.Functions.updateCard, async (userId, args) => {
-	assertPositiveNumber(args.cardIndex);
-	assertNonEmptyString(args.deckId);
-	assertThat(args.newCard, CustomPredicateMemento.isValidCard);
-
+export const updateCard = onSanitizedCall(Memento.Functions.updateCard, {
+	cardIndex: Predicate.isPositive,
+	deckId: Predicate.isNonEmptyString,
+	newCard: CustomPredicateMemento.isValidCard
+}, async (userId, args) => {
 	const deckCollection = CollectionOf<Memento.Deck>("decks");
 	const deckDoc = await deckCollection.doc(args.deckId).get();
 	const cards = deckDoc.data()?.cards;

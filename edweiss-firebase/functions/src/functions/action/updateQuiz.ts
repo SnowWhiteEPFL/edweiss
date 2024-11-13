@@ -1,11 +1,14 @@
 import Quizzes from 'model/quizzes';
 import { CustomPredicateQuiz } from 'utils/custom-sanitizer/quiz';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocumentRef } from 'utils/firestore';
-import { assertNonEmptyString, assertThat } from 'utils/sanitizer';
+import { Predicate, assertNonEmptyString, assertThat, tag } from 'utils/sanitizer';
 import { INVALID_COURSE_ID, ok } from 'utils/status';
 
-export const updateQuiz = onAuthentifiedCall(Quizzes.Functions.updateQuiz, async (userId, args) => {
+export const updateQuiz = onSanitizedCall(Quizzes.Functions.updateQuiz, {
+	courseId: tag(Predicate.isNonEmptyString, INVALID_COURSE_ID),
+	quiz: CustomPredicateQuiz.isValidQuiz
+}, async (userId, args) => {
 	//const thisUser = await getDocument(Collections.users, userId);
 	// if (thisUser?.type != "professor") {
 	// 	return fail("not_authorized");

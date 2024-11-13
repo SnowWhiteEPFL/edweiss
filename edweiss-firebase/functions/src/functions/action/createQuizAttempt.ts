@@ -1,29 +1,16 @@
 import { QuizzesAttempts } from 'model/quizzes';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { CustomPredicateQuiz } from 'utils/custom-sanitizer/quiz';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocumentRef } from 'utils/firestore';
-import { Predicate, assertNonEmptyString, assertThatFields } from 'utils/sanitizer';
+import { Predicate } from 'utils/sanitizer';
 import { ok } from 'utils/status';
 
-export const createQuizAttempt = onAuthentifiedCall(QuizzesAttempts.Functions.createQuizAttempt, async (userId, args) => {
-	assertNonEmptyString(args.courseId);
-	assertNonEmptyString(args.path);
-	assertNonEmptyString(args.quizId);
-	assertThatFields(args.quizAttempt, {
-		attempts: Predicate.isPositive,
-		answers: [Predicate.isNonEmptyArray, Predicate.forEach(
-			Predicate.dispatch("type", {
-				MCQAnswersIndices: Predicate.fields({
-					type: Predicate.is("MCQAnswersIndices"),
-					value: Predicate.forEach(Predicate.isNumber)
-				}),
-				TFAnswer: Predicate.fields({
-					type: Predicate.is("TFAnswer"),
-					value: Predicate.isOptionalBoolean
-				})
-			})
-		)]
-	})
-
+export const createQuizAttempt = onSanitizedCall(QuizzesAttempts.Functions.createQuizAttempt, {
+	courseId: Predicate.isNonEmptyString,
+	path: Predicate.isNonEmptyString,
+	quizId: Predicate.isNonEmptyString,
+	quizAttempt: CustomPredicateQuiz.isValidQuizAttempt
+}, async (userId, args) => {
 	const ref = getDocumentRef(CollectionOf<QuizzesAttempts.QuizAttempt>(args.path), userId);
 
 	await ref.set(args.quizAttempt);

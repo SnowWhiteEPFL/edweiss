@@ -1,13 +1,13 @@
 import Memento from 'model/memento';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf } from 'utils/firestore';
-import { assertNonEmptyString, assertPositiveNumber } from 'utils/sanitizer';
+import { Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 
-export const deleteCard = onAuthentifiedCall(Memento.Functions.deleteCard, async (userId, args) => {
-	assertPositiveNumber(args.cardIndex);
-	assertNonEmptyString(args.deckId);
-
+export const deleteCard = onSanitizedCall(Memento.Functions.deleteCard, {
+	cardIndex: Predicate.isPositive,
+	deckId: Predicate.isNonEmptyString
+}, async (userId, args) => {
 	const deckCollection = CollectionOf<Memento.Deck>("decks");
 	const deckDoc = await deckCollection.doc(args.deckId).get();
 	const deckData = deckDoc.data();

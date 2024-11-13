@@ -9,9 +9,9 @@
 // ------------------------------------------------------------
 
 import Todolist from 'model/todo';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf } from 'utils/firestore';
-import { Predicate, assertThatFields } from 'utils/sanitizer';
+import { Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import { Time } from 'utils/time';
 import Functions = Todolist.Functions;
@@ -25,14 +25,12 @@ type TodoStatus = Todolist.TodoStatus;
 // ----------------  Create to do Cloud Function  -------------
 // ------------------------------------------------------------
 
-export const createTodo = onAuthentifiedCall(Functions.createTodo, async (userId, args) => {
-	assertThatFields(args, {
-		name: Predicate.isNonEmptyString,
-		status: Predicate.isIn(['archived', 'done', 'in_progress', 'yet']),
-		description: Predicate.isOptionalString,
-		dueDate: Predicate.isOptionalString
-	}, "invalid_arg");
-
+export const createTodo = onSanitizedCall(Functions.createTodo, {
+	name: Predicate.isNonEmptyString,
+	status: Predicate.isIn(['archived', 'done', 'in_progress', 'yet'] as const),
+	description: Predicate.isOptionalString,
+	dueDate: Predicate.isOptionalString
+}, async (userId, args) => {
 	const name: string = args.name;
 	const status: TodoStatus = args.status;
 

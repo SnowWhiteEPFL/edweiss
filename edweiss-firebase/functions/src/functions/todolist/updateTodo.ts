@@ -9,9 +9,9 @@
 // ------------------------------------------------------------
 
 import Todolist from 'model/todo';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocumentAndRef } from 'utils/firestore';
-import { assertNonEmptyString } from 'utils/sanitizer';
+import { Predicate, assertNonEmptyString } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import { Time } from 'utils/time';
 import Functions = Todolist.Functions;
@@ -23,7 +23,13 @@ type Todo = Todolist.Todo;
 // ----------------  Update to do Cloud Function  -------------
 // ------------------------------------------------------------
 
-export const updateTodo = onAuthentifiedCall(Functions.updateTodo, async (userId, args) => {
+export const updateTodo = onSanitizedCall(Functions.updateTodo, {
+	id: Predicate.isNonEmptyString,
+	description: Predicate.isOptionalString,
+	dueDate: Predicate.isOptionalString,
+	name: Predicate.isOptionalString,
+	status: Predicate.isOptional(Predicate.isIn<Todolist.TodoStatus>(["archived", "done", "in_progress", "yet"] as const))
+}, async (userId, args) => {
 	assertNonEmptyString(args.id, "invalid_id");
 
 	const [todo, todoRef] = await getDocumentAndRef(CollectionOf<Todo>(`users/${userId}/todos/`), args.id);

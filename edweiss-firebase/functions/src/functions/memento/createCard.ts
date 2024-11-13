@@ -1,17 +1,17 @@
 import Memento from 'model/memento';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf } from 'utils/firestore';
-import { Predicate, assertNonEmptyString, assertThatFields } from 'utils/sanitizer';
+import { Predicate } from 'utils/sanitizer';
 import { ok } from 'utils/status';
 
-export const createCard = onAuthentifiedCall(Memento.Functions.createCard, async (userId, args) => {
-	assertNonEmptyString(args.deckId);
-	assertThatFields(args.card, {
+export const createCard = onSanitizedCall(Memento.Functions.createCard, {
+	deckId: Predicate.isNonEmptyString,
+	card: Predicate.fields({
 		answer: Predicate.isNonEmptyString,
 		question: Predicate.isNonEmptyString,
 		learning_status: Predicate.isOptional(Predicate.isIn(["Got it", "Not yet"] as const))
 	})
-
+}, async (userId, args) => {
 	const deckCollection = CollectionOf<Memento.Deck>("decks");
 	const deckDoc = await deckCollection.doc(args.deckId).get();
 	const deckData = deckDoc.data();

@@ -1,13 +1,13 @@
 import sendFCMMessage from 'actions/sendFCMMessage';
 import { FCMCommunication } from 'model/users';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { Collections, getDocument } from 'utils/firestore';
-import { assertPositiveNumber } from 'utils/sanitizer';
+import { Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 
-export const sendFCMPage = onAuthentifiedCall(FCMCommunication.Functions.sendFCMPage, async (userId, args) => {
-	assertPositiveNumber(args.page);
-
+export const sendFCMPage = onSanitizedCall(FCMCommunication.Functions.sendFCMPage, {
+	page: Predicate.isPositive
+}, async (userId, args) => {
 	const user = await getDocument(Collections.users, userId);
 
 	if (!user)

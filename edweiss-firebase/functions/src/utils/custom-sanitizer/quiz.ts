@@ -1,7 +1,7 @@
 
 import { Predicate } from 'utils/sanitizer';
 
-import Quizzes from 'model/quizzes';
+import Quizzes, { QuizzesAttempts } from 'model/quizzes';
 
 export namespace CustomPredicateQuiz {
 
@@ -47,5 +47,22 @@ export namespace CustomPredicateQuiz {
 			name: Predicate.isNonEmptyString,
 			showResultToStudents: Predicate.isBoolean
 		});
+
+	export const isValidQuizAttempt: Predicate<QuizzesAttempts.QuizAttempt> =
+		Predicate.fields<QuizzesAttempts.QuizAttempt>({
+			attempts: Predicate.isPositive,
+			answers: [Predicate.isNonEmptyArray, Predicate.forEach(
+				Predicate.dispatch("type", {
+					MCQAnswersIndices: Predicate.fields({
+						type: Predicate.is("MCQAnswersIndices"),
+						value: Predicate.forEach(Predicate.isNumber)
+					}),
+					TFAnswer: Predicate.fields({
+						type: Predicate.is("TFAnswer"),
+						value: Predicate.isOptionalBoolean
+					})
+				})
+			)]
+		})
 
 }

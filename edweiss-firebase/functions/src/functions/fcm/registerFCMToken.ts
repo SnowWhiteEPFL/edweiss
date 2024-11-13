@@ -1,12 +1,12 @@
 import { FCMCommunication } from 'model/users';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { Collections, getDocumentAndRef } from 'utils/firestore';
-import { assertNonEmptyString } from 'utils/sanitizer';
+import { Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 
-export const registerFCMToken = onAuthentifiedCall(FCMCommunication.Functions.registerFCMToken, async (userId, args) => {
-	assertNonEmptyString(args.fcmToken);
-
+export const registerFCMToken = onSanitizedCall(FCMCommunication.Functions.registerFCMToken, {
+	fcmToken: Predicate.isNonEmptyString
+}, async (userId, args) => {
 	const [user, userRef] = await getDocumentAndRef(Collections.users, userId);
 
 	if (!user)
