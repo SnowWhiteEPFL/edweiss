@@ -17,6 +17,55 @@ import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
 
 
+//Constants
+
+// Icons
+const icons = {
+    message: 'chatbubbles-outline',
+    quiz: 'help-circle-outline',
+    submission: 'clipboard-outline',
+    grade: 'school-outline',                // others:  trophy-outline / ribbon-outline / medal-outline
+    announcement: 'megaphone-outline',      // others:  warning-outline / alert-circle-outline / alert-outline
+    event: 'pizza-outline',                 // others:  information-circle-outline
+    meeting: 'people-outline',
+    group: 'people-circle-outline',         // others:  people-circle
+    post: 'create-outline',
+    comment: 'chatbubble-ellipses-outline', // others:  chatbubble-outline
+    like: 'heart-outline',                  // others:  heart-sharp / thumbs-up-outline
+    follow: 'person-add-outline',
+};
+
+const iconsColor = {
+    message: 'blue',
+    quiz: 'yellow',
+    submission: 'peach',
+    grade: 'mauve',
+    announcement: 'red',
+    event: 'sky',
+    meeting: 'darkBlue',
+    group: 'pink',
+    post: 'rosewater',
+    comment: 'green',
+    like: 'lavender',
+    follow: 'maroon',
+};
+
+const iconsColorBackground = {
+    message: '#1e66f5',  //"79B8FE", //color11
+    quiz: '#df8e1d', //"FFDF5E", //color5
+    submission: '#fe640b', //"FFBB5B", //color4
+    grade: '#8839ef', //"451F48", //color17
+    announcement: '#d20f39', //"651510", //color1
+    event: '#04a5e5', //"71D3BC", //color9
+    meeting: '#191D63', //"4F6CFD", //color12
+    group: '#ea76cb', //"844D92", //color15
+    post: '#dc8a78', //"8F8ED7", //color13
+    comment: '#40a02b', //"608E55", //color7
+    like: '#7287fd', //"6AC979", //color8
+    follow: '#e64553', //"E97F78",  //color3
+};
+
+
 // Tests Tags
 export const testIDs = {
     swipeLeftTounchable: 'swipe-left-touchable',
@@ -82,7 +131,7 @@ const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSect
                 <TTouchableOpacity testID={testIDs.notifTouchable} backgroundColor='mantle' flexDirection='row' alignItems='center' py={12} flex={1} onPress={() => { console.log(`Notif \"${item.title}\" has been clicked`); if (!item.read) markAsReadAction(id); }}>
                     {/* // Icon */}
                     {(() => {
-                        const rgb = hexToRgb(NotifList.iconsColorBackground[item.type as keyof typeof NotifList.iconsColorBackground]);
+                        const rgb = hexToRgb(iconsColorBackground[item.type as keyof typeof iconsColorBackground]);
                         return (
                             <TView
                                 testID={testIDs.iconView}
@@ -95,7 +144,7 @@ const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSect
                                     alignItems: 'center', // Centrer horizontalement
                                     marginBottom: 20,
                                 }}>
-                                <Icon testID={testIDs.notifIcon} name={NotifList.icons[item.type as keyof typeof NotifList.icons] as IconType} size={iconSizes.sm} color={NotifList.iconsColor[item.type as keyof typeof NotifList.iconsColor] as Color} />
+                                <Icon testID={testIDs.notifIcon} name={icons[item.type as keyof typeof icons] as IconType} size={iconSizes.sm} color={iconsColor[item.type as keyof typeof iconsColor] as Color} />
                             </TView>
                         );
                     })()}

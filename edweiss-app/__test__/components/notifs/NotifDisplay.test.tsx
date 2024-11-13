@@ -48,38 +48,6 @@ jest.mock('@/components/core/Icon', () => {
     };
 });
 
-// jest.mock('react-native-gesture-handler', () => {
-//     return {
-//         Swipeable: jest.fn().mockImplementation(({ children, testID, renderRightActions, onSwipeableOpen }) => {
-//             const { View } = require('react-native');
-//             return (
-//                 <View testID={testID}>
-//                     {children}
-//                 </View>
-//             );
-//         }),
-//     };
-// });
-
-// jest.doMock('react-native-gesture-handler', () => {
-//     return {
-//         Swipeable: ({ onSwipeableOpen, children }: { onSwipeableOpen: Function, children: React.ReactNode; }) => {
-//             return (
-//                 <TView
-//                     data-testid="swipe-component"
-//                     onTouchStart={() => {
-//                         if (onSwipeableOpen) {
-//                             onSwipeableOpen('right'); // Simuler un swipe à droite
-//                         }
-//                     }}
-//                 >
-//                     {children}
-//                 </TView>
-//             );
-//         }
-//     };
-// });
-
 jest.mock('react-native-gesture-handler', () => {
     return {
         Swipeable: jest.fn().mockImplementation(({ children, testID, renderLeftActions, renderRightActions, onSwipeableOpen }) => {
@@ -94,56 +62,6 @@ jest.mock('react-native-gesture-handler', () => {
         }),
     };
 });
-
-// jest.doMock('react-native-gesture-handler', () => {
-//     return {
-//         Swipeable: ({ item, index, isSwipeable, renderRightActions, children }: { item: any, index: number, isSwipeable: boolean, renderRightActions: Function, children: React.ReactNode }) => {
-//             if (isSwipeable) {
-//                 return (
-//                     <TView
-//                         data-testid="swipeable-component"
-//                         onTouchStart={() => {
-//                             // Simuler un swipe à droite pour tester onSwipeableOpen
-//                             renderRightActions(); // Appeler renderRightActions
-//                         }}
-//                     >
-//                         {children}
-//                     </TView>
-//                 );
-//             }
-//             return <TView>{children}</TView>;
-//         }
-//     };
-// });
-
-// jest.mock('react-native-gesture-handler', () => {
-//     const originalModule = jest.requireActual('react-native-gesture-handler');
-
-//     return {
-//         ...originalModule,
-//         Swipeable: ({
-//             renderRightActions,
-//             children
-//         }: {
-//             renderRightActions?: () => React.ReactNode;  // ou tout autre type spécifique que tu utilises
-//             children: React.ReactNode;
-//         }) => {
-//             return (
-//                 <originalModule.View
-//                     testID="swipeable-component"
-//                     onTouchStart={() => {
-//                         // Simuler un swipe à droite
-//                         if (renderRightActions) {
-//                             renderRightActions();  // appelle renderRightActions si défini
-//                         }
-//                     }}
-//                 >
-//                     {children}
-//                 </originalModule.View>
-//             );
-//         }
-//     };
-// });
 
 jest.mock('@/config/i18config', () =>
     jest.fn((str: string) => {
@@ -170,72 +88,7 @@ jest.mock('../../../config/firebase', () => ({
     getFunction: jest.fn(),
 }));
 
-// jest.mock('@/model/notifs', () => ({
-//     Functions: {
-//         markAsUnread: jest.fn().mockResolvedValue({ status: 0 }), // Simule une réponse réussie
-//         markAsRead: jest.fn().mockResolvedValue({ status: 0 }), // Simule une réponse réussie
-//         pushNotif: jest.fn().mockResolvedValue({ status: 0 }), // Simule une réponse réussie
-//         deleteNotif: jest.fn().mockResolvedValue({ status: 0 }), // Simule une réponse réussie
-//     },
-// }));
-
 jest.mock('@/model/notifs', () => ({
-
-    // Mock des icônes
-    icons: {
-        message: 'chatbubbles-outline',
-        quiz: 'help-circle-outline',
-        submission: 'clipboard-outline',
-        grade: 'school-outline',
-        announcement: 'megaphone-outline',
-        event: 'pizza-outline',
-        meeting: 'people-outline',
-        group: 'people-circle-outline',
-        post: 'create-outline',
-        comment: 'chatbubble-ellipses-outline',
-        like: 'heart-outline',
-        follow: 'person-add-outline',
-    },
-
-    // Mock des couleurs des icônes
-    iconsColor: {
-        message: 'blue',
-        quiz: 'yellow',
-        submission: 'peach',
-        grade: 'mauve',
-        announcement: 'red',
-        event: 'sky',
-        meeting: 'darkBlue',
-        group: 'pink',
-        post: 'rosewater',
-        comment: 'green',
-        like: 'lavender',
-        follow: 'maroon',
-    },
-
-    // Mock des couleurs de fond des icônes
-    iconsColorBackground: {
-        message: '#1e66f5',
-        quiz: '#df8e1d',
-        submission: '#fe640b',
-        grade: '#8839ef',
-        announcement: '#d20f39',
-        event: '#04a5e5',
-        meeting: '#191D63',
-        group: '#ea76cb',
-        post: '#dc8a78',
-        comment: '#40a02b',
-        like: '#7287fd',
-        follow: '#e64553',
-    },
-
-    // Mock de la fonction `Functions`
-    // Functions: {
-    //     markAsUnread: jest.fn(() => Promise.resolve()),
-    //     markAsRead: jest.fn(() => Promise.resolve()),
-    //     pushNotif: jest.fn(() => Promise.resolve()),
-    //     deleteNotif: jest.fn(() => Promise.resolve()),
-    // },
     Functions: {
         markAsUnread: jest.fn().mockResolvedValue({ status: 0 }), // Simule une réponse réussie
         markAsRead: jest.fn().mockResolvedValue({ status: 0 }), // Simule une réponse réussie
@@ -264,26 +117,6 @@ describe('NotifDisplay', () => {
     });
 
     test("renders correctly today notif information", async () => {
-
-        //const renderRightActionsMock = jest.fn();
-        // export interface Notif {
-        //     type: NotifType;
-        //     title: string;
-        //     message: string;
-        //     date: Timestamp;
-        //     read: boolean;
-        //     courseID?: CourseID | null;
-        // }
-        // const today = new Date();
-        // const seconds = Math.floor(today.getTime() / 1000);
-        // const notif: NotifList.Notif = {
-        //     type: 'submission',
-        //     title: 'MS2',
-        //     message: 'This is a notification message',
-        //     date: { seconds, nanoseconds: 0 }, // Today's date
-        //     read: false,
-        //     courseID: 'Swent'
-        // };
 
         const today = new Date('2025-01-01T00:00:00Z');
         const seconds = Math.floor(today.getTime() / 1000);
