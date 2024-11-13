@@ -105,6 +105,12 @@ const config: ExpoConfig = {
 	],
 	"experiments": {
 		"typedRoutes": true
+	},
+	"updates": {
+		"url": "https://u.expo.dev/280737b3-0a7c-42fd-98de-8dbc058e51c5"
+	},
+	"runtimeVersion": {
+		"policy": "appVersion"
 	}
 };
 
