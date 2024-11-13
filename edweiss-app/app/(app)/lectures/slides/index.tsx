@@ -15,7 +15,6 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import Icon from '@/components/core/Icon';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
-import { testIDs } from '@/components/courses/AssignmentDisplay';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { callFunction, CollectionOf, getDownloadURL } from '@/config/firebase';
 import t from '@/config/i18config';
@@ -94,6 +93,7 @@ const LectureScreen: ApplicationRoute = () => {
             ScreenOrientation.removeOrientationChangeListener(screenOrientationListener);
         };
     }, []);
+
 
     if (!lectureDoc) return <TActivityIndicator size={40} />;
     const currentLecture = lectureDoc.data;
@@ -195,7 +195,6 @@ const LectureScreen: ApplicationRoute = () => {
                             <TTouchableOpacity backgroundColor='transparent' onPress={pageForward} pl={'md'}>
                                 <Icon size={'xl'} name='arrow-forward-circle-outline' color='text'></Icon>
                             </TTouchableOpacity>
-
                         </TView>
 
                         <TTouchableOpacity backgroundColor='transparent' onPress={() => {
@@ -207,42 +206,39 @@ const LectureScreen: ApplicationRoute = () => {
                             <Icon size={'xl'} name={isFullscreen ? 'contract-outline' : 'expand-outline'} dark='text'></Icon>
                         </TTouchableOpacity>
                     </TView>
-                </TView >
 
-                <TView flexDirection='column' style={{ width: widthPercent[1] as DimensionValue, height: heightPercent[1] as DimensionValue }}>
-                    {isFullscreen ?
-                        <TView></TView> : // Speech to Text transcript display and question forum display
-                        <>
-                            <TScrollView b={'sm'} mt={25} mr={'md'} ml={'md'} radius={'lg'} flex={1}>
-                                {currentLecture.audioTranscript?.[page] ? (
-                                    <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[page]}</TText>
-                                ) : (
-                                    <TText pt={'sm'} pl={'sm'} pr={'sm'} color='overlay0'>
-                                        {t(`showtime:lecturer_transcript_deftxt`)}
-                                    </TText>
-                                )}
-                            </TScrollView>
+                    <TView flexDirection='column' style={{ width: widthPercent[1] as DimensionValue, height: heightPercent[1] as DimensionValue }}>
+                        {isFullscreen ?
+                            <TView></TView> : // Speech to Text transcript display and question forum display
+                            <>
+                                <TScrollView b={'sm'} mt={25} mr={'md'} ml={'md'} radius={'lg'} flex={1}>
+                                    {currentLecture.audioTranscript?.[page] ? (
+                                        <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[page]}</TText>
+                                    ) : (
+                                        <TText pt={'sm'} pl={'sm'} pr={'sm'} color='overlay0'>
+                                            {t(`showtime:lecturer_transcript_deftxt`)}
+                                        </TText>
+                                    )}
+                                </TScrollView>
 
-                            <TScrollView flex={0.5} mt={15} mr={'md'} ml={'md'} mb={15}>
+                                <TScrollView flex={0.5} mt={15} mr={'md'} ml={'md'} mb={15}>
+                                    {/* Questions Display */}
+                                    {currentLecture.questions && currentLecture.questions.map((question, index) => renderQuestion(question.text, index))}
 
-                                {/* Questions Display */}
-                                {currentLecture.questions && currentLecture.questions.map((question, index) => renderQuestion(question.text, index))}
-
-                                {/* Enter Your Question */}
-                                <TView flexDirection='row'>
-                                    <FancyTextInput value={question} onChangeText={n => { setQuestion(n) }} mb={'sm'} multiline label='Ask your questions' icon='chatbubbles-outline' placeholder='Got something on your mind? Type away!' />
-                                    <TTouchableOpacity backgroundColor='transparent' onPress={() => addQuestion(question)} pl={'md'}>
-                                        <Icon size={'xl'} name='send-outline' color='text'></Icon>
-                                    </TTouchableOpacity>
-                                </TView>
-                            </TScrollView>
-                        </>}
+                                    {/* Enter Your Question */}
+                                    <TView flexDirection='row'>
+                                        <FancyTextInput value={question} onChangeText={n => { setQuestion(n) }} mb={'sm'} multiline label='Ask your questions' icon='chatbubbles-outline' placeholder='Got something on your mind? Type away!' />
+                                        <TTouchableOpacity backgroundColor='transparent' onPress={() => addQuestion(question)} pl={'md'}>
+                                            <Icon size={'xl'} name='send-outline' color='text'></Icon>
+                                        </TTouchableOpacity>
+                                    </TView>
+                                </TScrollView>
+                            </>}
+                    </TView>
                 </TView>
-            </TView >
+            </TView>
         </>
     );
 };
 
 export default LectureScreen;
-
-

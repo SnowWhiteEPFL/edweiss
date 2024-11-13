@@ -95,6 +95,7 @@ const Colors = {
 		text: "#cdd6f4",
 		subtext1: "#bac2de",
 		darkNight: "#B7BDD9",
+		darkNight: "#B7BDD9",
 		subtext0: "#a6adc8",
 		overlay2: "#9399b2",
 		overlay1: "#7f849c",
