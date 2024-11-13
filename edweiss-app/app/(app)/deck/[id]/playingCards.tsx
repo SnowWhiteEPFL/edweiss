@@ -1,5 +1,4 @@
 import TView from '@/components/core/containers/TView';
-import RouteHeader from '@/components/core/header/RouteHeader';
 import TText from '@/components/core/TText';
 import CardScreenComponent from '@/components/memento/CardScreenComponent';
 import { Collections } from '@/config/firebase';
@@ -7,7 +6,7 @@ import { ApplicationRoute } from '@/constants/Component';
 import { useDoc } from '@/hooks/firebase/firestore';
 import { useLocalSearchParams } from 'expo-router';
 import React, { forwardRef, useState } from 'react';
-import { StyleSheet, View, ViewProps } from 'react-native';
+import { View, ViewProps } from 'react-native';
 import { PanGestureHandler, PanGestureHandlerStateChangeEvent, State } from 'react-native-gesture-handler';
 
 // Forward ref to TView component and type the ref as a View
@@ -55,10 +54,6 @@ const TestYourMightScreen: ApplicationRoute = () => {
 
     return (
         <>
-            <RouteHeader title='Test Your Might!'>
-
-            </RouteHeader>
-
             {cards && cards.length > 0 && (
                 <>
                     <TView style={{ position: 'absolute', top: '5%', left: '50%' }}>
@@ -66,7 +61,7 @@ const TestYourMightScreen: ApplicationRoute = () => {
                             {currentCardIndex + 1}/{cards.length}
                         </TText>
                     </TView>
-                    <PanGestureHandler onHandlerStateChange={handleGesture}>
+                    <PanGestureHandler onHandlerStateChange={handleGesture} testID='pan-gesture'>
                         <TViewWithRef style={{ flex: 1 }}>
                             <CardScreenComponent
                                 deckId={id as string}
@@ -75,32 +70,6 @@ const TestYourMightScreen: ApplicationRoute = () => {
                         </TViewWithRef>
                     </PanGestureHandler>
 
-                    {/* Add buttons for navigating between cards 
-                    <TView style={[styles.buttonExtraContainer]}>
-                        <TView style={styles.buttonHalf}>
-                            <FancyButton
-                                onPress={() => {
-                                    handlePrevious();
-                                }}
-                                style={{ width: '40%', height: '100%', marginRight: '55%' }} // Make button fill its half
-                                icon='arrow-back'
-                            >
-
-                            </FancyButton>
-                        </TView>
-                        <TView style={styles.lastButtonHalf}>
-                            <FancyButton
-                                onPress={() => {
-                                    handleNext();
-                                }}
-                                style={{ width: '40%', height: '100%', marginLeft: '325%' }} // Make button fill its half
-                                icon='arrow-forward'
-                            >
-
-                            </FancyButton>
-                        </TView>
-                    </TView>
-                    */}
                 </>
             )}
         </>
@@ -109,27 +78,3 @@ const TestYourMightScreen: ApplicationRoute = () => {
 
 
 export default TestYourMightScreen;
-
-const styles = StyleSheet.create({
-    buttonExtraContainer: {
-        position: 'absolute',
-        bottom: '55%', // Place the row near the bottom
-        width: '60%', // Keep the row aligned with the card width
-        flexDirection: 'row', // Create a horizontal row
-        justifyContent: 'space-between',
-        paddingHorizontal: 0,
-        borderRadius: 20,
-    },
-    buttonHalf: {
-        flex: 1, // Take up half the width for each button
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: 50, // Set height of the button row
-    },
-    lastButtonHalf: {
-        flex: 1, // Take up half the width for the second button
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: 50,
-    },
-});

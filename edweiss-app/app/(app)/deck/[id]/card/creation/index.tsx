@@ -83,7 +83,7 @@ const CreateCardScreen: ApplicationRoute = () => {
                     />
                 </TView>
 
-                <FancyButton backgroundColor='blue' mt={'md'} mb={'sm'} icon='logo-firebase' onPress={createCard}>
+                <FancyButton testID='createCardButton' backgroundColor='blue' mt={'md'} mb={'sm'} icon='logo-firebase' onPress={createCard}>
                     Create Card
                 </FancyButton>
 

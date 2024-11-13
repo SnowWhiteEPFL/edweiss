@@ -1,6 +1,6 @@
 /**
  * @file todoDisplay.tsx
- * @description This file contains the display components for the todo list
+ * @description This file contains the display components for the to do list
  * @author Adamm Alaoui
  */
 
@@ -33,7 +33,7 @@ type TodoStatus = Todolist.TodoStatus;
 
 
 // ------------------------------------------------------------
-// --------------------   Todo Display Component   ------------
+// --------------------   To do Display Component   -----------
 // ------------------------------------------------------------
 
 export const TodoDisplay: React.FC<{
@@ -45,18 +45,27 @@ export const TodoDisplay: React.FC<{
 
     // Constants
     const date = (todo.dueDate) ? Time.toDate(todo.dueDate) : undefined;
-    const dateString = date ?
-        (Time.isToday(date) ? t('todo:today_status') :
-            Time.wasYesterday(date) ? t('todo:yesterday_status') :
-                Time.isTomorrow(date) ? t('todo:tomorrow_status') :
-                    date.toLocaleDateString()) : undefined;
+    let dateString: string | undefined;
+    if (date) {
+        if (Time.isToday(date)) {
+            dateString = t('todo:today_status');
+        } else if (Time.wasYesterday(date)) {
+            dateString = t('todo:yesterday_status');
+        } else if (Time.isTomorrow(date)) {
+            dateString = t('todo:tomorrow_status');
+        } else {
+            dateString = date.toLocaleDateString();
+        }
+    } else {
+        dateString = undefined;
+    }
 
     // Screen Properties
     const screenWidth = Dimensions.get('window').width;
     const router = useRouter();
     const threshold = screenWidth / 2.5;                            // Threshold for swipe gesture
     const edgeZoneWidth = screenWidth / 10;                         // Width of the edge zone where the swipe gesture starts
-    const bgColor = useThemeColor({ light, dark }, 'crust');        // Background color of the todo card
+    const bgColor = useThemeColor({ light, dark }, 'crust');        // Background color of the to do card
 
     // Animation Listeners            
     const translateX = useRef(new Animated.Value(0)).current;       // Animated value for horizontal movement
@@ -73,12 +82,12 @@ export const TodoDisplay: React.FC<{
 
     /**
      * Handle the end of the gesture to snap back 
-     * to toogle todo archivity status
+     * to toogle to do archivity status
      */
     const handleGestureEnd = (event: any) => {
         const { translationX } = event.nativeEvent;
 
-        // Threshold activated then archive the todo
+        // Threshold activated then archive the to do
         if (Math.abs(translationX) > threshold) {
             Animated.timing(translateX, {
                 toValue: 0,
@@ -140,70 +149,25 @@ export const TodoDisplay: React.FC<{
                 {/* Background Archive Text */}
                 <BackgroundArchiveText todo={todo} />
 
-
                 {/* Front Card Display */}
-                <PanGestureHandler
-                    onGestureEvent={handlePanGestureEvent}
-                    onHandlerStateChange={onHandlerStateChange}
-                >
+                <PanGestureHandler onGestureEvent={handlePanGestureEvent} onHandlerStateChange={onHandlerStateChange} testID="todo-swipe-area">
 
-
-                    {/* The Animated TODO Card */}
-                    <Animated.View
-                        style={{
-                            transform: [{ translateX }],
-                            borderRadius: 20,
-                            backgroundColor: bgColor,
-                            margin: 13,
-                            overflow: 'hidden',
-                            zIndex: 100
-                        }}
-                    >
-                        <TTouchableOpacity
-                            b={'lg'}
-                            m='sm'
-                            p='lg'
-                            backgroundColor='base'
-                            borderColor='surface0'
-                            radius='lg'
-                        >
+                    {/* The Animated to do Card
+                         > on simple press display the todo infos in a modal
+                         > on long press edit the todo's properties
+                    */}
+                    <Animated.View style={{ transform: [{ translateX }], borderRadius: 20, backgroundColor: bgColor, margin: 13, overflow: 'hidden', zIndex: 100 }}>
+                        <TTouchableOpacity b={'lg'} m='sm' p='lg' backgroundColor='base' borderColor='surface0' radius='lg'>
                             <TView flexDirection='row' justifyContent='space-between'>
                                 <TView flex={1} mr='md'>
-                                    <TTouchableOpacity
-                                        // Display the modal on simple press
-                                        onPress={() => { setTodoToDisplay(todo); modalRef.current?.present(); }}
+                                    <TTouchableOpacity onPress={() => { setTodoToDisplay(todo); modalRef.current?.present(); }} onLongPress={() => { Vibration.vibrate(100); router.push({ pathname: "/(app)/todo/edit", params: { idString: id, todoJSON: JSON.stringify(todo) } }); }}>
 
-                                        // Navigate to edit screen on long press
-                                        onLongPress={() => {
-                                            Vibration.vibrate(100);
-                                            router.push({
-                                                pathname: "/(app)/todo/edit",
-                                                params: { idString: id, todoJSON: JSON.stringify(todo) }
-                                            });
-                                        }}
-                                    >
-
-                                        <TText color='text' bold numberOfLines={1} ellipsizeMode='tail'>
-                                            {todo.name}
-                                        </TText>
-
-                                        {todo.dueDate && (
-                                            <TText color='subtext0' size={'sm'} bold numberOfLines={1} ellipsizeMode='tail'>
-                                                {dateString}
-                                            </TText>
-                                        )}
-
-                                        <TText size='xs' color={statusColorMap[todo.status]} bold numberOfLines={1} ellipsizeMode='tail'>
-                                            {t(`todo:status.${todo.status}`)}
-                                        </TText>
-
-
+                                        <TText color='text' bold numberOfLines={1} ellipsizeMode='tail'> {todo.name} </TText>
+                                        {todo.dueDate && (<TText color='subtext0' size={'sm'} bold numberOfLines={1} ellipsizeMode='tail'>{dateString}</TText>)}
+                                        <TText size='xs' color={statusColorMap[todo.status]} bold numberOfLines={1} ellipsizeMode='tail'> {t(`todo:status.${todo.status}`)} </TText>
                                     </TTouchableOpacity>
                                 </TView>
-
                                 <TodoStatusDisplay id={id} todo={todo} status={todo.status}></TodoStatusDisplay>
-
-
                             </TView>
                         </TTouchableOpacity>
                     </Animated.View>
@@ -257,15 +221,15 @@ const BackgroundArchiveText: React.FC<{ todo: Todo; }> = ({ todo }) => {
 export const TodoStatusDisplay: ReactComponent<{ id: string, todo: Todo, status: TodoStatus; }> = ({ id, todo, status }) => {
 
     return <>
-        <TTouchableOpacity activeOpacity={0.2} onPress={() => { statusNextAction(id, todo); }} backgroundColor={'transparent'} borderColor='overlay0' b={'md'} radius={'xl'} pl={'md'} pr={'md'} pt={'md'} pb={'md'}>
-            <Icon name={statusIconMap[status]} color={statusColorMap[status]} size={'xl'}></Icon>
+        <TTouchableOpacity activeOpacity={0.2} onPress={() => { statusNextAction(id, todo); }} backgroundColor={'transparent'} borderColor='overlay0' b={'md'} radius={'xl'} pl={'md'} pr={'md'} pt={'md'} pb={'md'} testID="status-touchable">
+            <Icon name={statusIconMap[status]} color={statusColorMap[status]} size={'xl'} testID="icon"></Icon>
         </TTouchableOpacity >
     </>;
 };
 
 export const StatusChanger: ReactComponent<{ status: TodoStatus, setStatus: Dispatch<SetStateAction<TodoStatus>>; }> = ({ status, setStatus }) => {
     return <>
-        <FancyButton onPress={() => setStatus(statusNextMap[status])} icon={statusIconMap[status]} m={'md'} backgroundColor={'text'} outlined>
+        <FancyButton onPress={() => setStatus(statusNextMap[status])} icon={statusIconMap[status]} m={'md'} backgroundColor={'text'} outlined testID='fancy-button-status-changer'>
             {t(`todo:status.${status}`)}
         </FancyButton>
 

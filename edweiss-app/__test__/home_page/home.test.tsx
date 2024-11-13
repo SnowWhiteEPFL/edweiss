@@ -1,9 +1,10 @@
+import HomeTab from '@/app/(app)/(tabs)/GwenHomePage';
 import { CollectionOf } from '@/config/firebase';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { render, screen } from '@testing-library/react-native';
 import React from 'react';
-import HomeTab from '../../app/(app)/(tabs)/index';
+
 
 beforeEach(() => {
     render(<HomeTab />);
@@ -45,6 +46,19 @@ const mockCourses = [
         },
     },
 ];
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+    getItem: jest.fn().mockResolvedValue('mocked value'),
+    setItem: jest.fn().mockResolvedValue(undefined),
+    removeItem: jest.fn().mockResolvedValue(undefined),
+}));
+
+
+jest.mock('i18next-react-native-async-storage', () => ({
+    default: jest.fn().mockReturnValue({
+        use: jest.fn().mockReturnThis(), // Mock de la méthode use pour permettre le chaînage
+    }),
+}));
 
 
 jest.mock('@/contexts/auth', () => ({

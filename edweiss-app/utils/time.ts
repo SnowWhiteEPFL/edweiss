@@ -1,5 +1,18 @@
+/**
+ * @file time.ts
+ * @description time helper to interface easily with from firebase Timestamp to a JS Date
+ * @author Adamm Alaoui & Youssef Laraki & Florian Dinant
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import { Timestamp } from '@/model/time';
-import { Timestamp as FBTimestamp } from '@react-native-firebase/firestore';
+
+// ------------------------------------------------------------
+// ---------------   App's Time Utils Functions   -------------
+// ------------------------------------------------------------
 
 export namespace Time {
 
@@ -7,7 +20,14 @@ export namespace Time {
 		const seconds: number = (timestamp as any).seconds;
 		const _seconds: number = (timestamp as any)._seconds;
 		const millis = (seconds ?? _seconds) * 1000;
-		return FBTimestamp.fromMillis(millis).toDate();
+		return new Date(millis);
+	}
+
+	// Fonction utilitaire pour créer un Timestamp à partir d'une Date
+	export function fromDate(date: Date): Timestamp {
+		const seconds = Math.floor(date.getTime() / 1000);
+		const nanoseconds = (date.getTime() % 1000) * 1_000_000;
+		return { seconds, nanoseconds };
 	}
 
 	export function sameDay(d1: Date, d2: Date) {
@@ -15,7 +35,9 @@ export namespace Time {
 	}
 
 	export function isToday(date: Date): boolean {
-		return sameDay(date, new Date());
+		const today = new Date(new Date().setHours(0, 0, 0, 0));
+		const dateToCheck = new Date(new Date(date).setHours(0, 0, 0, 0));
+		return today.toDateString() === dateToCheck.toDateString();
 	}
 
 	export function wasYesterday(date: Date): boolean {
@@ -34,7 +56,6 @@ export namespace Time {
 		const now = new Date();
 		return now.getHours() * 60 + now.getMinutes();
 	}
-
 
 	export function getCurrentDay() {
 		const now = new Date();

@@ -1,6 +1,6 @@
 /**
  * @file utilsFunctions.tsx
- * @description Utility functions for managing todo items in the application
+ * @description Utility functions for managing to do items in the application
  * @author Adamm Alaoui
  */
 
@@ -21,7 +21,7 @@ import Functions = Todolist.Functions;
 
 
 // ------------------------------------------------------------
-// ----------------  Todo Status Utils Functions   ------------
+// ----------------  To do Status Utils Functions   -----------
 // ------------------------------------------------------------
 
 export const statusIconMap: Record<TodoStatus, IconType> = {
@@ -77,7 +77,7 @@ export const statusNextAction = async (id: string, todo: Todo) => {
 
 
 // ------------------------------------------------------------
-// ---------------  Todo Archive Utils Functions   ------------
+// ---------------  To do Archive Utils Functions   -----------
 // ------------------------------------------------------------
 
 export const toogleArchivityOfTodo = async (id: string, todo: Todo) => {

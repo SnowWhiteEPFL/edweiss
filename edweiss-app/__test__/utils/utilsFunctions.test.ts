@@ -1,5 +1,6 @@
 import { callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
+import { Timestamp } from '@/model/time';
 import Todolist from '@/model/todo';
 import { cleanup } from '@testing-library/react-native';
 import Toast from 'react-native-toast-message';
@@ -25,7 +26,10 @@ const mockTodo: Todolist.Todo = {
     name: 'Test Todo',
     description: 'Test Description',
     status: 'yet',
-    dueDate: '2024-12-31',
+    dueDate: {
+        seconds: 1735689600, // 2024-12-31
+        nanoseconds: 0,
+    } as Timestamp,
 };
 
 // Mock console.error before each test

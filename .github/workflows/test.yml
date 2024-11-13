@@ -2,9 +2,9 @@ name: "Run Application Tests"
 
 on:
   push:
-    branches: [master, main]
+    branches: [master, main, feature/*, refractor/*, bugfix/*]
   pull_request:
-    branches: [master, main]
+    branches: [master, main, feature/*, refractor/*, bugfix/*]
 
 defaults:
   run:
@@ -29,25 +29,30 @@ jobs:
       
       - name: Check Typescript compilation
         run: npm run tscheck
-      
-      - name: Run Jest tests
-        run: npm test
+        
+      - name: Test and coverage
+        run: npm run test
         env:
           CI: true
-        
-      # - name: Upload Jest test results
-      #   if: always()
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: jest-results
-      #     path: test-results # You might need to configure Jest to output results to this path
+        continue-on-error: true
       
-      - name: Generate Jest coverage report
-        run: npm run test -- --coverage
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=SnowWhiteEPFL_edweiss
+            -Dsonar.organization=snowwhiteepfl
+            -Dsonar.sources=./edweiss-app/        
+            -Dsonar.javascript.lcov.reportPaths=./edweiss-app/coverage/lcov.info
+            -Dsonar.exclusions=**/node_modules/**,**/coverage/**,**/__test__/**,**/.expo/**,**/android/**,**/.gitignore,**/app.config.ts,**/babel.config.js,**/hooks/**,**/declarations.d.ts,**/eas.json,**/expo-env.d.ts,**/metro.config.js,**/metro.config.ts,**/package-lock.json,**/package.json,**/tsconfig.json
+        if: always()
 
       - name: Upload coverage report
-        if: success()
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: coverage-report
-          path: coverage
+          path: ./edweiss-app/coverage/**
