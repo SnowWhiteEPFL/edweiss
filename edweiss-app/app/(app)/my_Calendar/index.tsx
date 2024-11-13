@@ -26,7 +26,7 @@ export const MyCalendar = () => {
     <>
       <RouteHeader disabled />
       <TView flex={1} p={16} backgroundColor='base'>
-        <Calendar courses={filteredCourses} type={undefined} />
+        <Calendar courses={filteredCourses} type={undefined} date={new Date()} />
       </TView>
     </>
   );

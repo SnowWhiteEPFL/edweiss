@@ -10,11 +10,11 @@ export const Day = ({ period, course, user, filteredPeriods, index, format }: {
     period: CourseTimePeriod; course: { id: string; data: Course; }; user: any; filteredPeriods: any[]; index: number; format: string;
 }) => {
     const periodHeight = period.end ? ((period.end - period.start) / 60) * HOUR_BLOCK_HEIGHT : HOUR_BLOCK_HEIGHT;
-    const pathname = user.data.type == 'professor' ? '/(app)/startCourseScreen' : '/(app)/lectures/slides';
-    const params = user.data.type == 'professor' ? {
-        courseID: course.id, course: JSON.stringify(course.data), period: JSON.stringify(period), index,
+    const pathname = user?.data.type == 'professor' ? '/(app)/startCourseScreen' : '/(app)/lectures/slides';
+    const params = user?.data.type == 'professor' ? {
+        courseID: course.id, course: JSON.stringify(course?.data), period: JSON.stringify(period), index,
     } : {
-        courseNameString: course.data.name,
+        courseNameString: course?.data.name,
         lectureIdString: period.activityId
     };
     return (
