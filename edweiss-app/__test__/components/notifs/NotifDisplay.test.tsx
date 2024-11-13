@@ -135,6 +135,7 @@ describe('NotifDisplay', () => {
                 id='id_1'
                 dateSection='today'
                 index={0}
+                key={notif.title}
             />
         );
 
@@ -202,6 +203,7 @@ describe('NotifDisplay', () => {
                 id='id_2'
                 dateSection='thisWeek'
                 index={0}
+                key={notif.title}
             />
         );
 
@@ -263,6 +265,7 @@ describe('NotifDisplay', () => {
                 id='id_3'
                 dateSection='thisMonth'
                 index={0}
+                key={notif.title}
             />
         );
 
@@ -323,6 +326,7 @@ describe('NotifDisplay', () => {
                 id='id_4'
                 dateSection='thisYear'
                 index={0}
+                key={notif.title}
             />
         );
 
@@ -383,6 +387,7 @@ describe('NotifDisplay', () => {
                 id='id_5'
                 dateSection='older'
                 index={0}
+                key={notif.title}
             />
         );
 
@@ -445,6 +450,7 @@ describe('NotifDisplay', () => {
                 id='id_6'
                 dateSection='today'
                 index={0}
+                key={notif.title}
             />
         );
 
@@ -482,6 +488,7 @@ describe('NotifDisplay', () => {
                 id='id_6'
                 dateSection='today'
                 index={0}
+                key={notif.title}
             />
         );
 
@@ -519,6 +526,7 @@ describe('NotifDisplay', () => {
                 id='id_6'
                 dateSection='today'
                 index={0}
+                key={notif.title}
             />
         );
 

@@ -129,9 +129,7 @@ const NotificationsTab: ApplicationRoute = () => {
                             <TView testID={testIDs.todayView}>
                                 <TText testID={testIDs.todayText} mb={10} mt={15} ml={2} size={16} color='darkBlue' bold={true}>{t(`notifications:today`)}</TText>
                                 {notifsDay.map((notif, index) => (
-                                    <TView key={index}>
-                                        <NotifDisplay item={notif.data} id={notif.id} dateSection='today' index={index} />
-                                    </TView>
+                                    <NotifDisplay item={notif.data} id={notif.id} dateSection='today' index={index} key={notif.data.title} />
                                 ))}
                             </TView>
                         )}
@@ -139,9 +137,7 @@ const NotificationsTab: ApplicationRoute = () => {
                             <TView testID={testIDs.thisWeekView}>
                                 <TText testID={testIDs.thisWeekText} mb={10} mt={15} ml={2} size={16} color='darkBlue' bold={true}>{t(`notifications:this_week`)}</TText>
                                 {notifsWeek.map((notif, index) => (
-                                    <TView key={index}>
-                                        <NotifDisplay item={notif.data} id={notif.id} dateSection='thisWeek' index={index} />
-                                    </TView>
+                                    <NotifDisplay item={notif.data} id={notif.id} dateSection='thisWeek' index={index} key={notif.data.title} />
                                 ))}
                             </TView>
                         )}
@@ -149,9 +145,7 @@ const NotificationsTab: ApplicationRoute = () => {
                             <TView testID={testIDs.thisMonthView}>
                                 <TText testID={testIDs.thisMonthText} mb={10} mt={15} ml={2} size={16} color='darkBlue' bold={true}>{t(`notifications:this_month`)}</TText>
                                 {notifsMonth.map((notif, index) => (
-                                    <TView key={index}>
-                                        <NotifDisplay item={notif.data} id={notif.id} dateSection='thisMonth' index={index} />
-                                    </TView>
+                                    <NotifDisplay item={notif.data} id={notif.id} dateSection='thisMonth' index={index} key={notif.data.title} />
                                 ))}
                             </TView>
                         )}
@@ -159,9 +153,7 @@ const NotificationsTab: ApplicationRoute = () => {
                             <TView testID={testIDs.thisYearView}>
                                 <TText testID={testIDs.thisYearText} mb={10} mt={15} ml={2} size={16} color='darkBlue' bold={true}>{t(`notifications:this_year`)}</TText>
                                 {notifsYear.map((notif, index) => (
-                                    <TView key={index}>
-                                        <NotifDisplay item={notif.data} id={notif.id} dateSection='thisYear' index={index} />
-                                    </TView>
+                                    <NotifDisplay item={notif.data} id={notif.id} dateSection='thisYear' index={index} key={notif.data.title} />
                                 ))}
                             </TView>
                         )}
@@ -169,9 +161,7 @@ const NotificationsTab: ApplicationRoute = () => {
                             <TView testID={testIDs.olderView}>
                                 <TText testID={testIDs.allTimeText} mb={10} mt={15} ml={2} size={16} color='darkBlue' bold={true}>{t(`notifications:all_time`)}</TText>
                                 {otherNotifs.map((notif, index) => (
-                                    <TView key={index}>
-                                        <NotifDisplay item={notif.data} id={notif.id} dateSection='older' index={index} />
-                                    </TView>
+                                    <NotifDisplay item={notif.data} id={notif.id} dateSection='older' index={index} key={notif.data.title} />
                                 ))}
                             </TView>
                         )}

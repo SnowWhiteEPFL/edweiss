@@ -91,14 +91,14 @@ type dateSection = 'today' | 'thisWeek' | 'thisMonth' | 'thisYear' | 'older';
 
 
 
-const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSection: dateSection, index: number; }> = ({ item, id, dateSection, index }) => {
+const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSection: dateSection, index: number, key: React.Key | null | undefined; }> = ({ item, id, dateSection, index, key }) => {
 
     // Define swipeableRefs
     const swipeableRefs = useRef<(Swipeable | null)[]>([]);
 
     // Render left actions on swipe
     const renderLeftActions = () => (
-        <TTouchableOpacity testID={testIDs.swipeLeftTounchable} onPress={() => { console.log('Read/Unread Button pressed'); if (item.read) markAsUnreadAction(id); else markAsReadAction(id); swipeableRefs.current[index]?.close(); }}>
+        <TTouchableOpacity testID={testIDs.swipeLeftTounchable} onPress={() => { console.log('Read/Unread Button pressed'); if (item.read) { markAsUnreadAction(id); } else { markAsReadAction(id); } swipeableRefs.current[index]?.close(); }}>
             <TView testID={testIDs.swipeLeftView} justifyContent='center' alignItems='flex-end' py={20} backgroundColor='blue'>
                 <TText testID={testIDs.swipeLeftText} size={16} bold={true} px={12} color='constantWhite'>
                     {item.read ? t(`notifications:unread`) : t(`notifications:read`)}
@@ -120,6 +120,7 @@ const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSect
     return (
         <Swipeable
             testID={testIDs.swipeableComponent}
+            key={key}
             ref={(ref) => { swipeableRefs.current[index] = ref; }}
             renderLeftActions={renderLeftActions}  // Render actions on swipe
             renderRightActions={renderRightActions}  // Render actions on swipe
@@ -127,7 +128,7 @@ const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSect
             }>
             <TView testID={testIDs.swipeView} flexDirection='row' alignItems="center" justifyContent='space-between'>
                 {/* TODO: Handle onPress event qui envoie vers le quiz ou la soumission. ATTENTION SI LE QUIZ OU SUBMIT EST DEJA FINI */}
-                <TTouchableOpacity testID={testIDs.notifTouchable} backgroundColor='mantle' flexDirection='row' alignItems='center' py={12} flex={1} onPress={() => { console.log(`Notif \"${item.title}\" has been clicked`); if (!item.read) markAsReadAction(id); }}>
+                <TTouchableOpacity testID={testIDs.notifTouchable} backgroundColor='mantle' flexDirection='row' alignItems='center' py={12} flex={1} onPress={() => { console.log(`Notif "${item.title}" has been clicked`); if (!item.read) markAsReadAction(id); }}>
                     {/* // Icon */}
                     {(() => {
                         const rgb = hexToRgb(iconsColorBackground[item.type as keyof typeof iconsColorBackground]);
