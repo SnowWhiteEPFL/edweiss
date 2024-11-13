@@ -44,7 +44,7 @@ export const addAudioTranscript = onAuthentifiedCall(Functions.addAudioTranscrip
                 [pageKey]: args.transcription
             });
         } catch (error) {
-            return fail('firebase_error');
+            return fail('error_firebase');
         }
     } else if (args.transcription) {
         try {
@@ -52,7 +52,7 @@ export const addAudioTranscript = onAuthentifiedCall(Functions.addAudioTranscrip
                 [pageKey]: lecture.audioTranscript[args.pageNumber] + args.transcription
             });
         } catch (error) {
-            return fail('firebase_error');
+            return fail('error_firebase');
         }
     }
 

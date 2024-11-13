@@ -32,7 +32,7 @@ import Pdf from 'react-native-pdf';
 type Lecture = LectureDisplay.Lecture;
 
 // ------------------------------------------------------------
-// -------------------  Remote Control Screen  ----------------
+// --------------------  Lecture Screen  ----------------------
 // ------------------------------------------------------------
 
 const LectureScreen: ApplicationRoute = () => {
@@ -69,11 +69,7 @@ const LectureScreen: ApplicationRoute = () => {
     useEffect(() => {
         const onOrientationChange = (currentOrientation: ScreenOrientation.OrientationChangeEvent) => {
             const orientationValue = currentOrientation.orientationInfo.orientation;
-            if (orientationValue == 1 || orientationValue == 2) {
-                setIsLandscape(false);
-            } else {
-                setIsLandscape(true);
-            }
+            setIsLandscape(!(orientationValue == 1 || orientationValue == 2))
             updateUI();
         };
 
