@@ -5,7 +5,6 @@ export type Predicate<T> = (t: T) => boolean;
 export type CompositePredicate<T> = Predicate<T> | CompositePredicate<T>[];
 
 type AssertionError = FailedCallResult<string> | string;
-type Condition = boolean | (() => boolean) | boolean;
 type PredicateOnFields<T> = { [x in keyof T]: CompositePredicate<T[x]> };
 
 const DEFAULT_ASSERTION_ERROR = INVALID_ARGUMENT;
@@ -14,12 +13,8 @@ function throwable(error: AssertionError): FailedCallResult<string> {
 	return typeof error == "string" ? fail(error) : error;
 }
 
-function computeCondition(condition: Condition): boolean {
-	return typeof condition == "function" ? condition() : condition;
-}
-
-export function assert(condition: Condition, error: AssertionError = DEFAULT_ASSERTION_ERROR) {
-	if (!computeCondition(condition))
+export function assert(condition: boolean, error: AssertionError = DEFAULT_ASSERTION_ERROR): asserts condition is true {
+	if (!condition)
 		throw throwable(error);
 }
 
@@ -90,6 +85,29 @@ export function assertIsNotIn<const T>(t: T, list: T[], error: AssertionError = 
 export function assertForEach<const T>(list: T[], predicates: CompositePredicate<T>, error: AssertionError = DEFAULT_ASSERTION_ERROR) {
 	assertArray(list, error);
 	list.forEach(t => assert(Predicate.verify(t, predicates), error));
+}
+
+export function tag<T>(predicate: CompositePredicate<T>, tag: string): CompositePredicate<T> {
+	return (t: T) => {
+		try {
+			const part = Predicate.verify(t, predicate);
+
+			if (part == false)
+				throw sanitizationError(tag);
+
+			return true;
+		} catch (e: FailedCallResult<string> | any) {
+			if (e.status == 0) {
+				throw fail(`${e.error}(${tag})`);
+			}
+
+			throw sanitizationError(tag);
+		}
+	}
+}
+
+export function sanitizationError(tag: string): FailedCallResult<string> {
+	return fail(`SANITIZATION_ERROR(${tag})`);
 }
 
 export namespace Predicate {
