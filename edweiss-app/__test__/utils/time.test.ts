@@ -152,4 +152,56 @@ describe('Time Utilities Tests Suites', () => {
         });
     });
 
+    describe('fromDate', () => {
+        it('should correctly convert a typical date to Timestamp', () => {
+            const date = new Date('2023-01-01T00:00:00.123Z'); // Sample date with milliseconds
+            const timestamp = Time.fromDate(date);
+
+            expect(timestamp).toEqual({
+                seconds: Math.floor(date.getTime() / 1000),
+                nanoseconds: (date.getTime() % 1000) * 1_000_000,
+            });
+        });
+
+        it('should correctly handle a date without milliseconds', () => {
+            const date = new Date('2023-01-01T00:00:00.000Z'); // No milliseconds
+            const timestamp = Time.fromDate(date);
+
+            expect(timestamp).toEqual({
+                seconds: Math.floor(date.getTime() / 1000),
+                nanoseconds: 0,
+            });
+        });
+
+        it('should handle dates in the past (negative nanoseconds)', () => {
+            const date = new Date('1970-01-01T00:00:00.000Z'); // UNIX epoch
+            const timestamp = Time.fromDate(date);
+
+            expect(timestamp).toEqual({
+                seconds: 0,
+                nanoseconds: 0,
+            });
+        });
+
+        it('should handle dates far in the future', () => {
+            const date = new Date('2100-01-01T00:00:00.123Z'); // Future date with milliseconds
+            const timestamp = Time.fromDate(date);
+
+            expect(timestamp).toEqual({
+                seconds: Math.floor(date.getTime() / 1000),
+                nanoseconds: (date.getTime() % 1000) * 1_000_000,
+            });
+        });
+
+        it('should handle leap second dates correctly', () => {
+            const date = new Date('2016-12-31T23:59:60.999Z'); // Date with leap second
+            const timestamp = Time.fromDate(date);
+
+            expect(timestamp).toEqual({
+                seconds: Math.floor(date.getTime() / 1000),
+                nanoseconds: (date.getTime() % 1000) * 1_000_000,
+            });
+        });
+    });
+
 });
