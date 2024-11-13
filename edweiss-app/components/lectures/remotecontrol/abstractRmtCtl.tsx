@@ -35,29 +35,32 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
         <>
             <RouteHeader disabled title={"Lecture's Slides"} />
 
-            <TView mt={100} mb={100} justifyContent='center' alignItems='center'>
-                <TText size={25} mb={'md'}> {t(`showtime:showtime_title`)}</TText>
-                <TText size={35} >{t(`showtime:rmt_cntl_title`)}</TText>
-                {isRecording ? (
-                    <TText mt={15} size={15} color='red'> {t(`showtime:recording_start`)} </TText>
-                ) : (
-                    <TText mt={15} size={15} color='green'> {t(`showtime:tap_to_start_recording`)} </TText>
-                )}
-            </TView>
+            <TView borderColor='text' m={'md'} mt={'xl'} mb={'xl'} b={0.5} backgroundColor='base' radius={'lg'}>
+                <TView mt={60} mb={70} justifyContent='center' alignItems='center'>
+                    <TText size={25} mb={'md'}> {t(`showtime:showtime_title`)}</TText>
+                    <TText size={35} >{t(`showtime:rmt_cntl_title`)}</TText>
+                    {isRecording ? (
+                        <TText mt={15} size={15} color='red'> {t(`showtime:recording_start`)} </TText>
+                    ) : (
+                        <TText mt={15} size={15} color='green'> {t(`showtime:tap_to_start_recording`)} </TText>
+                    )}
+                </TView>
 
-            <TView mr={20} ml={20} flexDirection='row' justifyContent='space-between'>
-                <TTouchableOpacity backgroundColor='blue' borderColor='surface0' b={1} p={20} pt={60} pb={60} radius={'lg'} onPress={handleLeft} testID='prev-button'>
-                    <Icon size={70} name='chevron-back-outline' color='base'></Icon>
-                </TTouchableOpacity>
-                <TTouchableOpacity backgroundColor='blue' borderColor='surface0' b={1} p={20} pt={60} pb={60} radius={'lg'} onPress={handleRight} testID='next-button'>
-                    <Icon size={70} name='chevron-forward-outline' color='base'></Icon>
-                </TTouchableOpacity>
-            </TView>
+                <TView mr={20} ml={20} flexDirection='row' justifyContent='space-between'>
+                    <TTouchableOpacity backgroundColor='surface0' borderColor='surface0' b={1} p={20} pt={60} pb={60} radius={'lg'} onPress={handleLeft} testID='prev-button'>
+                        <Icon size={85} name='chevron-back-outline' color='text'></Icon>
+                    </TTouchableOpacity>
+                    <TTouchableOpacity backgroundColor='surface0' borderColor='surface0' b={1} p={20} pt={60} pb={60} radius={'lg'} onPress={handleRight} testID='next-button'>
+                        <Icon size={85} name='chevron-forward-outline' color='text'></Icon>
+                    </TTouchableOpacity>
+                </TView>
 
-            <TView mt={70} mb={30} justifyContent='center' alignItems='center'>
-                <TTouchableOpacity backgroundColor={isRecording ? 'red' : 'base'} borderColor={isRecording ? 'base' : 'red'} b={5} p={10} radius={1000} onPress={handleMic} testID='mic-button'>
-                    <Icon size={70} name='mic-outline' color={isRecording ? 'base' : 'red'}></Icon>
-                </TTouchableOpacity>
+                <TView mt={60} mb={25} justifyContent='center' alignItems='center'>
+                    <TTouchableOpacity backgroundColor={isRecording ? 'red' : 'base'} borderColor={isRecording ? 'base' : 'red'} b={5} p={10} radius={1000} onPress={handleMic} testID='mic-button'>
+                        <Icon size={55} name='mic-outline' color={isRecording ? 'base' : 'red'}></Icon>
+                    </TTouchableOpacity>
+                </TView>
+
             </TView>
         </>
     );
