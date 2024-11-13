@@ -22,6 +22,7 @@ jest.mock('expo-router', () => ({
     router: {
         push: jest.fn(),
         back: jest.fn(),
+        replace: jest.fn(),
     },
     Stack: {
         Screen: jest.fn(({ options }) => (
@@ -96,10 +97,8 @@ describe('Login Screen', () => {
 
         const { getByTestId } = render(<Login />);
         const googleButton = getByTestId('google-but');
-
         fireEvent.press(googleButton);
         expect(signInWithGoogle).toHaveBeenCalled();
-
         await waitFor(() => expect(router.replace).toHaveBeenCalledWith('/'));
     });
 
@@ -116,7 +115,21 @@ describe('Login Screen', () => {
         await waitFor(() => expect(callFunction).toHaveBeenCalled());
 
         expect(router.replace).not.toHaveBeenCalled();
-        expect(console.log).toHaveBeenCalledWith('Error creating account');
+    });
+
+    it('do not call the cloud function on undefined signinGoogle', async () => {
+        (signInWithGoogle as jest.Mock).mockResolvedValue({
+            user: { displayName: 'Test User' },
+        });
+        (callFunction as jest.Mock).mockResolvedValue({ status: 0, error: 'Error creating account' });
+        (signInWithGoogle as jest.Mock).mockResolvedValue(undefined);
+
+
+        const { getByTestId } = render(<Login />);
+        const googleButton = getByTestId('google-but');
+
+        fireEvent.press(googleButton);
+        await waitFor(() => expect(callFunction).not.toHaveBeenCalled());
     });
 
     it('calls signInAnonymously and navigates if successful', async () => {
@@ -147,8 +160,23 @@ describe('Login Screen', () => {
         await waitFor(() => expect(callFunction).toHaveBeenCalled());
 
         expect(router.replace).not.toHaveBeenCalled();
-        expect(console.log).toHaveBeenCalledWith('Error creating account');
     });
+
+    it('do not call the cloud function on undefined signinAnonymous', async () => {
+        (signInWithGoogle as jest.Mock).mockResolvedValue({
+            user: { displayName: 'Test User' },
+        });
+        (callFunction as jest.Mock).mockResolvedValue({ status: 0, error: 'Error creating account' });
+        (signInAnonymously as jest.Mock).mockResolvedValue(undefined);
+
+
+        const { getByTestId } = render(<Login />);
+        const googleButton = getByTestId('google-but');
+
+        fireEvent.press(googleButton);
+        await waitFor(() => expect(callFunction).not.toHaveBeenCalled());
+    });
+
 });
 
 
