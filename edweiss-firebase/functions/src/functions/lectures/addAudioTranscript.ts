@@ -34,7 +34,7 @@ export const addAudioTranscript = onSanitizedCall(Functions.addAudioTranscript, 
 	const [lecture, lectureRef] = await getDocumentAndRef(CollectionOf<Lecture>(`courses/${args.courseId}/lectures`), args.lectureId);
 
 	if (lecture == undefined)
-		return fail("firebase_error");
+		return fail("error_firebase");
 
 	assert(args.pageNumber > lecture.nbOfPages);
 
@@ -53,13 +53,21 @@ export const addAudioTranscript = onSanitizedCall(Functions.addAudioTranscript, 
 	});
 
 	if (!lecture.audioTranscript || !lecture.audioTranscript[args.pageNumber]) {
-		await lectureRef.update({
-			[pageKey]: correctedTranscript
-		});
+		try {
+			await lectureRef.update({
+				[pageKey]: correctedTranscript
+			});
+		} catch (error) {
+			return fail('error_firebase');
+		}
 	} else if (args.transcription) {
-		await lectureRef.update({
-			[pageKey]: lecture.audioTranscript[args.pageNumber] + correctedTranscript
-		});
+		try {
+			await lectureRef.update({
+				[pageKey]: lecture.audioTranscript[args.pageNumber] + correctedTranscript
+			});
+		} catch (error) {
+			return fail('error_firebase');
+		}
 	}
 
 	return ok('successfully_added'); // Use OK. ("successfully_added" is a useless information)

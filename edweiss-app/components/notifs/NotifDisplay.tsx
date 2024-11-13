@@ -38,13 +38,7 @@ const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSect
     // Render left actions on swipe
     const renderLeftActions = () => (
         <TTouchableOpacity onPress={() => {
-            if (item.read) {
-                markAsUnreadAction();
-            } else {
-                markAsReadAction();
-                // const date: Timestamp = Timestamp.fromDate(new Date(1730697600000));
-                // pushNotifAction('meeting', 'Meeting', 'Test Add Notif', false, null, OurTime.toDate(date).toISOString());
-            }
+            if (item.read) markAsUnreadAction(); else markAsReadAction();
             swipeableRefs.current[index]?.close();
         }}>
             <TView justifyContent='center' alignItems='flex-end' py={20} backgroundColor='blue' testID={testIDs.swipeView}>
