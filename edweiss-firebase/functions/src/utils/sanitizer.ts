@@ -3,9 +3,9 @@ import { INVALID_ARGUMENT, fail } from './status';
 
 export type Predicate<T> = (t: T) => boolean;
 export type CompositePredicate<T> = Predicate<T> | CompositePredicate<T>[];
+export type PredicateOnFields<T> = { [x in keyof T]: CompositePredicate<T[x]> };
 
 type AssertionError = FailedCallResult<string> | string;
-type PredicateOnFields<T> = { [x in keyof T]: CompositePredicate<T[x]> };
 
 const DEFAULT_ASSERTION_ERROR = INVALID_ARGUMENT;
 
@@ -87,7 +87,7 @@ export function assertForEach<const T>(list: T[], predicates: CompositePredicate
 	list.forEach(t => assert(Predicate.verify(t, predicates), error));
 }
 
-export function tag<T>(predicate: CompositePredicate<T>, tag: string): CompositePredicate<T> {
+export function tag<T>(predicate: CompositePredicate<T>, tag: AssertionError): CompositePredicate<T> {
 	return (t: T) => {
 		try {
 			const part = Predicate.verify(t, predicate);
@@ -106,8 +106,11 @@ export function tag<T>(predicate: CompositePredicate<T>, tag: string): Composite
 	}
 }
 
-export function sanitizationError(tag: string): FailedCallResult<string> {
-	return fail(`SANITIZATION_ERROR(${tag})`);
+export function sanitizationError(tag: AssertionError): FailedCallResult<string> {
+	if (typeof tag == "string") {
+		return fail(`SANITIZATION_ERROR(${tag})`);
+	}
+	return tag;
 }
 
 export namespace Predicate {
