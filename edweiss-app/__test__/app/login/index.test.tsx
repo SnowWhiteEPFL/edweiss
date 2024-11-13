@@ -1,6 +1,6 @@
 /**
  * @file index.test.tsx
- * @description Test suite for /login/index component
+ * @description Test suite for /login/index screen and LoadingPageComponent
  * @author Adamm Alaoui
  */
 
@@ -207,7 +207,7 @@ describe('Login Screen Tests Suites', () => {
 // ----------------    Loading Screen Test suite   --------------
 // ------------------------------------------------------------
 
-describe('LoadingPageComponent', () => {
+describe('LoadingPageComponent Tests suites', () => {
     it('renders the loading screen with an image and loading indicator', () => {
         const { getByText, getByTestId } = render(<LoadingPageCompoment />);
         expect(getByTestId('flower_logo_png')).toBeTruthy();
