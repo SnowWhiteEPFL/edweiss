@@ -65,29 +65,6 @@ const LectureScreen: ApplicationRoute = () => {
             setLandscape();
         }
 
-        /* todo for a next sprint, detection of rotation change from landscape to portrait and different UI for each mode
-
-        // Orientation change listener
-        const subscription = ScreenOrientation.addOrientationChangeListener(({ orientationInfo }) => {
-            const { orientation } = orientationInfo;
-            // If the orientation is portrait (either portrait up or down), trigger setPortrait
-            if (
-                orientation === ScreenOrientation.Orientation.PORTRAIT_UP ||
-                orientation === ScreenOrientation.Orientation.PORTRAIT_DOWN
-            ) {
-                setPortrait();
-                setIsLandscape(false);
-            } else {
-                setLandscape();
-                setIsLandscape(true);
-            }
-        }); 
-
-        // Cleanup function to remove listener when component unmounts
-        return () => {
-            ScreenOrientation.removeOrientationChangeListener(subscription);
-        };*/
-
     }, [lectureDoc]);
 
     if (!lectureDoc) return <TActivityIndicator size={40} />;

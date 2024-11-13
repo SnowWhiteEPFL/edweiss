@@ -1,6 +1,6 @@
 /**
  * @file modal.tsx
- * @description Module for displaying todo modals in the edweiss app
+ * @description Module for displaying to do modals in the edweiss app
  * @author Adamm Alaoui
  */
 
@@ -98,7 +98,7 @@ export const TodoModalDisplay: ReactComponent<{
     todo?: Todo; onClose: () => void;
 }> = ({ modalRef, todo, onClose }) => {
 
-    const date = (todo && todo.dueDate) ? Time.toDate(todo.dueDate) : undefined;
+    const date = (todo?.dueDate) ? Time.toDate(todo.dueDate) : undefined;
     const dateString = date ? date.toDateString() : undefined;
     const timeString = date ? date.toTimeString().split(':').slice(0, 2).join(':') : undefined;
     const fullDateText = (date) ? t(`todo:dued_on`) + `${dateString}` + t(`todo:at`) + `${timeString}` : undefined;
@@ -117,7 +117,7 @@ export const TodoModalDisplay: ReactComponent<{
                     {todo.description && (
                         <TView>
                             {todo.description.split('\n').map((line, index) => (
-                                <TText key={index} color='subtext0' size='md' mb='sm'>
+                                <TText color='subtext0' size='md' mb='sm'>
                                     {`• ${line}`}
                                 </TText>
                             ))}

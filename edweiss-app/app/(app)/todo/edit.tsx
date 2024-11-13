@@ -1,6 +1,6 @@
 /**
  * @file edit.tsx
- * @description Screen component for editing a todo item in the edweiss app
+ * @description Screen component for editing a to do item in the edweiss app
  * @author Adamm Alaoui
  */
 
@@ -18,7 +18,7 @@ type Todo = Todolist.Todo;
 
 
 // ------------------------------------------------------------
-// -------------------   Todo Edit Screen   -------------------
+// -------------------   To do Edit Screen   ------------------
 // ------------------------------------------------------------
 
 const EditTodoScreen: ApplicationRoute = () => {
