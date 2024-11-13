@@ -2,17 +2,16 @@ import ReactComponent from '@/constants/Component';
 
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
-import { callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
 import { Color } from '@/constants/Colors';
 import { iconSizes } from '@/constants/Sizes';
 import { IconType } from '@/constants/Style';
 import { timeInMS } from '@/constants/Time';
 import { default as NotifList } from '@/model/notifs';
-import { CourseID } from '@/model/school/courses';
+import { hexToRgb } from '@/utils/color';
+import { deleteNotifAction, markAsReadAction, markAsUnreadAction } from '@/utils/notifs/notifsActionsFunctions';
 import { useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
-import { hexToRgb } from '../../utils/color';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
 
@@ -208,14 +207,3 @@ const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSect
 };
 
 export default NotifDisplay;
-
-export async function markAsUnreadAction(id: string) { if (!id) return; const res = await callFunction(NotifList.Functions.markAsUnread, { id: id }); }
-
-export async function markAsReadAction(id: string) { if (!id) return; const res = await callFunction(NotifList.Functions.markAsRead, { id: id }); }
-
-export async function pushNotifAction(id: string, type: string, title: string, message: string, read: boolean, courseID?: CourseID | null, date?: string) {
-    if (!id) return;
-    try { const res = await callFunction(NotifList.Functions.pushNotif, { type: type, title: title, message: message, date: date, read: read, courseID: courseID }); if (res.status == 0) { console.log('Notification failed to push'); } }
-    catch (error) { console.error('Error pushing notification:', error); }
-}
-export async function deleteNotifAction(id: string) { if (!id) return; const res = await callFunction(NotifList.Functions.deleteNotif, { id: id }); }
