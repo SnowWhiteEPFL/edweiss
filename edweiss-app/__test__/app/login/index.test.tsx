@@ -1,8 +1,22 @@
+/**
+ * @file index.test.tsx
+ * @description Test suite for /login/index component
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import Login, { LoadingPageCompoment } from '@/app/login';
 import { callFunction, signInAnonymously, signInWithGoogle } from '@/config/firebase';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import React from 'react';
+
+// ------------------------------------------------------------
+// -----------------  Mocking dependencies    -----------------
+// ------------------------------------------------------------
 
 // Use auth for the current user
 jest.mock('@/contexts/auth', () => ({
@@ -44,7 +58,12 @@ jest.mock('@/config/i18config', () => ({
     default: jest.fn((key: string) => key),
 }));
 
-describe('Login Screen', () => {
+
+// ------------------------------------------------------------
+// ----------------    Login Screen Test suite   --------------
+// ------------------------------------------------------------
+
+describe('Login Screen Tests Suites', () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -68,22 +87,26 @@ describe('Login Screen', () => {
         const quoteButton2 = getByTestId('quote-but-2');
         const quoteButton3 = getByTestId('quote-but-3');
 
-        expect(quoteButton1.props.style.backgroundColor).toBe("#04a5e5"); // Selected color for quote 1
+        // Selected color for quote 1
+        expect(quoteButton1.props.style.backgroundColor).toBe("#04a5e5");
         expect(quoteButton2.props.style.backgroundColor).toBe("#ccd0da");
         expect(quoteButton3.props.style.backgroundColor).toBe("#ccd0da");
 
+        // Selected color for quote 2
         fireEvent.press(quoteButton2);
         expect(quoteButton1.props.style.backgroundColor).toBe("#ccd0da");
-        expect(quoteButton2.props.style.backgroundColor).toBe("#04a5e5"); // Selected color for quote 2
+        expect(quoteButton2.props.style.backgroundColor).toBe("#04a5e5");
         expect(quoteButton3.props.style.backgroundColor).toBe("#ccd0da");
 
+        // Selected color for quote 3
         fireEvent.press(quoteButton3);
         expect(quoteButton1.props.style.backgroundColor).toBe("#ccd0da");
         expect(quoteButton2.props.style.backgroundColor).toBe("#ccd0da");
-        expect(quoteButton3.props.style.backgroundColor).toBe("#04a5e5"); // Selected color for quote 3
+        expect(quoteButton3.props.style.backgroundColor).toBe("#04a5e5");
 
+        // Selected color for quote 1
         fireEvent.press(quoteButton1);
-        expect(quoteButton1.props.style.backgroundColor).toBe("#04a5e5"); // Selected color for quote 1
+        expect(quoteButton1.props.style.backgroundColor).toBe("#04a5e5");
         expect(quoteButton2.props.style.backgroundColor).toBe("#ccd0da");
         expect(quoteButton3.props.style.backgroundColor).toBe("#ccd0da");
 
@@ -179,6 +202,10 @@ describe('Login Screen', () => {
 
 });
 
+
+// ------------------------------------------------------------
+// ----------------    Loading Screen Test suite   --------------
+// ------------------------------------------------------------
 
 describe('LoadingPageComponent', () => {
     it('renders the loading screen with an image and loading indicator', () => {
