@@ -1,4 +1,12 @@
-import { ApplicationRoute } from '@/constants/Component';
+/**
+ * @file abstractTodoEditor.tsx
+ * @description Module for editing to do items in the edweiss app
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
 
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
@@ -8,20 +16,28 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
 import { callFunction, signInAnonymously, signInWithGoogle } from '@/config/firebase';
 import t from '@/config/i18config';
+import { ApplicationRoute } from '@/constants/Component';
 import { useAuth } from '@/contexts/auth';
 import { Auth } from '@/model/users';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, useWindowDimensions } from 'react-native';
 
+
+// ------------------------------------------------------------
+// --------------------  Main Login Screen    -----------------
+// ------------------------------------------------------------
+
 const Login: ApplicationRoute = () => {
 	const auth = useAuth();
 
+	// Use states
 	const { width, height } = useWindowDimensions();
 	const [loadingGoogle, setLoadingGoogle] = useState(false);
 	const [loadingAnon, setLoadingAnon] = useState(false);
 	const [quoteN, setQuoteN] = useState(1);
 
+	// Signin with google function
 	async function signInGoogle() {
 		setLoadingGoogle(true);
 
@@ -39,7 +55,8 @@ const Login: ApplicationRoute = () => {
 		}
 	}
 
-	async function signInAnounymous() {
+	// Log the app Anonymously
+	async function signInAnonymous() {
 		setLoadingAnon(true);
 
 		const res = await signInAnonymously();
@@ -56,10 +73,12 @@ const Login: ApplicationRoute = () => {
 		}
 	}
 
-
+	// Get the color depending on the active state
 	function getColor(quoteNumber: number) {
 		return quoteN === quoteNumber ? 'sky' : 'surface0';
 	}
+
+	// Generate the quotes name
 	function generateQuotes() {
 		return `login:quotes_${quoteN}`
 	}
@@ -97,7 +116,7 @@ const Login: ApplicationRoute = () => {
 					{t(`login:continue_with_google`)}
 				</FancyButton>
 
-				<FancyButton onPress={signInAnounymous} loading={loadingAnon} icon='shield-half-outline' mb={'lg'} outlined testID='anon-but'>
+				<FancyButton onPress={signInAnonymous} loading={loadingAnon} icon='shield-half-outline' mb={'lg'} outlined testID='anon-but'>
 					{t(`login:continue_annymous`)}
 				</FancyButton>
 
@@ -114,9 +133,13 @@ export default Login;
 
 
 
+// ------------------------------------------------------------
+// -----------------  The Loading Component    ----------------
+// ------------------------------------------------------------
 
 export const LoadingPageCompoment: React.FC = () => {
 
+	// Use the window informations
 	const { width, height } = useWindowDimensions();
 
 	return (
@@ -127,7 +150,6 @@ export const LoadingPageCompoment: React.FC = () => {
 						source={require('../../assets/images/flower_logo.png')}
 						style={{ width: width * 0.8, height: height * 0.45, resizeMode: 'contain' }}
 					/>
-
 
 					<TActivityIndicator mt={100} mb={70} />
 
