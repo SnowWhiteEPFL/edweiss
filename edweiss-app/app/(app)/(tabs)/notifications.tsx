@@ -1,3 +1,9 @@
+/**
+ * @file notifications.tsx
+ * @description Module for displaying the notifications screen
+ * @author Florian Dinant
+ */
+
 import { ApplicationRoute } from '@/constants/Component';
 
 import TScrollView from '@/components/core/containers/TScrollView';
@@ -22,16 +28,43 @@ import { Image, useWindowDimensions } from 'react-native';
 
 // Tests Tags
 export const testIDs = {
+    parametersTouchable: 'parameters-touchable',
     parameters: 'parameters_icon',
-    notifView: 'notif-view',
+
+    divider: 'divider',
+
     scrollView: 'scroll-view',
+    notifsView: 'notifs-view',
+    todayView: 'today-view',
+    todayText: 'today-text',
+    thisWeekView: 'this-week-view',
+    thisWeekText: 'this-week-text',
+    thisMonthView: 'this-month-view',
+    thisMonthText: 'this-month-text',
+    thisYearView: 'this-year-view',
+    thisYearText: 'this-year-text',
+    olderView: 'older-view',
+    allTimeText: 'all-time-text',
+
+    noNotifView: 'no-notif-view',
+    noNotifImage: 'no-notif-image',
+    noNotifTitle: 'no-notif-title',
+    noNotifText: 'no-notif-text',
 };
 
 
 type Notif = NotifList.Notif;
 
 
-const NotificationsTab: ApplicationRoute = () => {
+/**
+ * This component renders the notifications screen, displaying notifications
+ * categorized by time periods (today, this week, this month, this year, and older).
+ * It fetches notifications from Firebase for the authenticated user and sorts them
+ * into the appropriate categories based on their timestamps.
+ * 
+ * @returns JSX.Element - The rendered component for the notifications screen.
+ */
+const NotificationsPage: ApplicationRoute = () => {
 
     const { width, height } = useWindowDimensions();
     const auth = useAuth();
@@ -40,142 +73,114 @@ const NotificationsTab: ApplicationRoute = () => {
     const firebase_data = useDynamicDocs(CollectionOf<Notif>(`users/${auth.authUser.uid}/notifications`));
     const notifs = firebase_data ? firebase_data.map(doc => ({ id: doc.id, data: doc.data })) : [];
 
-    const notifsDay: { id: string, data: Notif; }[] = [];
-    const notifsWeek: { id: string, data: Notif; }[] = [];
-    const notifsMonth: { id: string, data: Notif; }[] = [];
-    const notifsYear: { id: string, data: Notif; }[] = [];
-    const otherNotifs: { id: string, data: Notif; }[] = [];
+    const notifsDay: { id: string, data: Notif; }[] = [], notifsWeek: { id: string, data: Notif; }[] = [], notifsMonth: { id: string, data: Notif; }[] = [], notifsYear: { id: string, data: Notif; }[] = [], otherNotifs: { id: string, data: Notif; }[] = [];
 
     // Sort notifs by date
     const now = new Date();
     const midnight = new Date(now.setHours(0, 0, 0, 0)); // Minuit du jour courant
 
-    // Calcul du début de la semaine (dernier lundi à minuit)
-    const dayOfWeek = midnight.getDay(); // Jour actuel (0 = dimanche, 1 = lundi, etc.)
+    // Compute last Monday at midnight
+    const dayOfWeek = midnight.getDay();
     const mondayMidnight = new Date(midnight);
-    mondayMidnight.setDate(midnight.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)); // Revenir au lundi précédent
+    mondayMidnight.setDate(midnight.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)); // Go back to last Monday
 
-    // Calcul du début du mois (1er du mois courant à minuit)
+    // Compute start of the month (1st of the month at midnight)
     const monthStart = new Date(midnight);
     monthStart.setDate(1);
 
-    // Calcul du début de l'année (1er janvier à minuit)
+    // Compute start of the year (1st of January at midnight)
     const yearStart = new Date(midnight);
     yearStart.setMonth(0); // Janvier
     yearStart.setDate(1);
 
-    notifs.forEach((notif) => {
-        const notifDate = new Date(notif.data.date.seconds * timeInMS.SECOND); // Date de la notif
+    // Function to categorize notifications by date
+    const categorizeNotif = (notif: { id: string, data: Notif }) => {
+        const notifDate = new Date(notif.data.date.seconds * timeInMS.SECOND);
+        if (notifDate >= midnight) return notifsDay.push(notif);
+        if (notifDate >= mondayMidnight) return notifsWeek.push(notif);
+        if (notifDate >= monthStart) return notifsMonth.push(notif);
+        if (notifDate >= yearStart) return notifsYear.push(notif);
+        return otherNotifs.push(notif);
+    };
 
-        // Vérifier si la notification est du jour actuel
-        if (notifDate >= midnight) {
-            notifsDay.push(notif);
-        }
-        // Vérifier si la notification est de cette semaine
-        else if (notifDate >= mondayMidnight) {
-            notifsWeek.push(notif);
-        }
-        // Vérifier si la notification est de ce mois-ci
-        else if (notifDate >= monthStart) {
-            notifsMonth.push(notif);
-        }
-        // Vérifier si la notification est de cette année
-        else if (notifDate >= yearStart) {
-            notifsYear.push(notif);
-        }
-        // Si c'est plus ancien, la mettre dans les autres notifications
-        else {
-            otherNotifs.push(notif);
-        }
-    });
+    // Categorize each notification
+    notifs.forEach(categorizeNotif);
+
+    // Function to sort notifications by date in descending order
+    const sortByDateDesc = (a: { data: Notif }, b: { data: Notif }) => b.data.date.seconds - a.data.date.seconds;
 
     // Sort each array by date in descending order (most recent first)
-    notifsDay.sort((a, b) => b.data.date.seconds - a.data.date.seconds);
-    notifsWeek.sort((a, b) => b.data.date.seconds - a.data.date.seconds);
-    notifsMonth.sort((a, b) => b.data.date.seconds - a.data.date.seconds);
-    notifsYear.sort((a, b) => b.data.date.seconds - a.data.date.seconds);
-    otherNotifs.sort((a, b) => b.data.date.seconds - a.data.date.seconds);
-
-
-
+    [notifsDay, notifsWeek, notifsMonth, notifsYear, otherNotifs].forEach(notifArray => notifArray.toSorted(sortByDateDesc));
 
     return (
-        <>
-            <RouteHeader isBold title={"Notifications"}
-                right=
-                <TTouchableOpacity onPress={() => console.log("press parameters icon")}>
-                    <Icon name='cog' size={iconSizes.lg} testID={testIDs.parameters} mr={24} />
-                </TTouchableOpacity>
+        <TView>
+            <RouteHeader isBold title={t(`notifications:notifications`)}
+                right={
+                    <TTouchableOpacity testID={testIDs.parametersTouchable} onPress={() => console.log("press parameters icon")}>
+                        <Icon testID={testIDs.parameters} name='cog' size={iconSizes.lg} mr={24} />
+                    </TTouchableOpacity>
+                }
             />
-            <TView bb={0.5} mt={10} borderColor='crust'></TView>
+            <TView testID={testIDs.divider} bb={0.5} mt={10} borderColor='crust'></TView>
 
-            <TScrollView p={16} backgroundColor="transparent" testID={testIDs.scrollView}>
+            <TScrollView testID={testIDs.scrollView} p={16} backgroundColor="transparent">
                 {notifs.length > 0 ? (
-                    <TView mb={30}>
+                    <TView testID={testIDs.notifsView} mb={30}>
                         {notifsDay.length > 0 && (
-                            <>
-                                <TText mb={10} mt={15} ml={2} size={16} color='darkBlue' bold={true}>{t(`notifications:today`)}</TText>
+                            <TView testID={testIDs.todayView}>
+                                <TText testID={testIDs.todayText} mb={10} mt={15} ml={2} size={16} color='darkBlue' bold={true}>{t(`notifications:today`)}</TText>
                                 {notifsDay.map((notif, index) => (
-                                    <TView key={index} testID={testIDs.notifView}>
-                                        <NotifDisplay item={notif.data} id={notif.id} dateSection='today' index={notifs.indexOf(notif)} />
-                                    </TView>
+                                    <NotifDisplay item={notif.data} id={notif.id} dateSection='today' index={index} key={notif.data.title} />
                                 ))}
-                            </>
+                            </TView>
                         )}
                         {notifsWeek.length > 0 && (
-                            <>
-                                <TText mb={10} mt={15} ml={2} size={16} color='darkBlue' bold={true}>{t(`notifications:this_week`)}</TText>
+                            <TView testID={testIDs.thisWeekView}>
+                                <TText testID={testIDs.thisWeekText} mb={10} mt={15} ml={2} size={16} color='darkBlue' bold={true}>{t(`notifications:this_week`)}</TText>
                                 {notifsWeek.map((notif, index) => (
-                                    <TView key={index} testID={testIDs.notifView}>
-                                        <NotifDisplay item={notif.data} id={notif.id} dateSection='thisWeek' index={notifs.indexOf(notif)} />
-                                    </TView>
+                                    <NotifDisplay item={notif.data} id={notif.id} dateSection='thisWeek' index={index} key={notif.data.title} />
                                 ))}
-                            </>
+                            </TView>
                         )}
                         {notifsMonth.length > 0 && (
-                            <>
-                                <TText mb={10} mt={15} ml={2} size={16} color='darkBlue' bold={true}>{t(`notifications:this_month`)}</TText>
+                            <TView testID={testIDs.thisMonthView}>
+                                <TText testID={testIDs.thisMonthText} mb={10} mt={15} ml={2} size={16} color='darkBlue' bold={true}>{t(`notifications:this_month`)}</TText>
                                 {notifsMonth.map((notif, index) => (
-                                    <TView key={index} testID={testIDs.notifView}>
-                                        <NotifDisplay item={notif.data} id={notif.id} dateSection='thisMonth' index={notifs.indexOf(notif)} />
-                                    </TView>
+                                    <NotifDisplay item={notif.data} id={notif.id} dateSection='thisMonth' index={index} key={notif.data.title} />
                                 ))}
-                            </>
+                            </TView>
                         )}
                         {notifsYear.length > 0 && (
-                            <>
-                                <TText mb={10} mt={15} ml={2} size={16} color='darkBlue' bold={true}>{t(`notifications:this_year`)}</TText>
+                            <TView testID={testIDs.thisYearView}>
+                                <TText testID={testIDs.thisYearText} mb={10} mt={15} ml={2} size={16} color='darkBlue' bold={true}>{t(`notifications:this_year`)}</TText>
                                 {notifsYear.map((notif, index) => (
-                                    <TView key={index} testID={testIDs.notifView}>
-                                        <NotifDisplay item={notif.data} id={notif.id} dateSection='thisYear' index={notifs.indexOf(notif)} />
-                                    </TView>
+                                    <NotifDisplay item={notif.data} id={notif.id} dateSection='thisYear' index={index} key={notif.data.title} />
                                 ))}
-                            </>
+                            </TView>
                         )}
                         {otherNotifs.length > 0 && (
-                            <>
-                                <TText mb={10} mt={15} ml={2} size={16} color='darkBlue' bold={true}>{t(`notifications:all_time`)}</TText>
+                            <TView testID={testIDs.olderView}>
+                                <TText testID={testIDs.allTimeText} mb={10} mt={15} ml={2} size={16} color='darkBlue' bold={true}>{t(`notifications:all_time`)}</TText>
                                 {otherNotifs.map((notif, index) => (
-                                    <TView key={index} testID={testIDs.notifView}>
-                                        <NotifDisplay item={notif.data} id={notif.id} dateSection='older' index={notifs.indexOf(notif)} />
-                                    </TView>
+                                    <NotifDisplay item={notif.data} id={notif.id} dateSection='older' index={index} key={notif.data.title} />
                                 ))}
-                            </>
+                            </TView>
                         )}
                     </TView>
                 ) :
-                    <TView flex={1} justifyContent='flex-start' alignItems='center'>
+                    <TView testID={testIDs.noNotifView} flex={1} justifyContent='flex-start' alignItems='center'>
                         <Image
+                            testID={testIDs.noNotifImage}
                             source={require('../../../assets/images/no-notification.png')} // chemin relatif de l'image
                             style={{ width: width * 0.9, height: height * 0.5, resizeMode: 'contain' }}
                         />
-                        <TText mb={25} bold size={30}>{t(`notifications:no_notifs_yet`)}</TText>
-                        <TText align='center' mx={20} size={18} color='darkNight'>{t(`notifications:no_notifs_text`)}</TText>
+                        <TText testID={testIDs.noNotifTitle} mb={25} bold size={30}>{t(`notifications:no_notifs_yet`)}</TText>
+                        <TText testID={testIDs.noNotifText} align='center' mx={20} size={18} color='darkNight'>{t(`notifications:no_notifs_text`)}</TText>
                     </TView>
                 }
             </TScrollView>
-        </>
+        </TView>
     );
 };
 
-export default NotificationsTab;
+export default NotificationsPage;
