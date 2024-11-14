@@ -449,12 +449,14 @@ describe('CreateCardScreen', () => {
 
 // Test suite for the CardScreenComponent component
 describe('CardScreen', () => {
+    let modalRef: React.RefObject<BottomSheetModal>;
+
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
     it('should render correctly', () => {
-        const { getByText, getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} />);
+        const { getByText, getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} modalRef={modalRef} />);
         expect(getByText('Question 1')).toBeTruthy();
 
         const flipButton = getByTestId('flipCardToSeeAnswer')
@@ -469,7 +471,7 @@ describe('CardScreen', () => {
     });
 
     it('should delete a card', async () => {
-        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} />);
+        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} modalRef={modalRef} />);
 
         (callFunction as jest.Mock).mockResolvedValueOnce({ status: 1, data: { id: '1' } });
 
@@ -485,7 +487,7 @@ describe('CardScreen', () => {
     });
 
     it('should catch an error when deleting a card', async () => {
-        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} />);
+        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} modalRef={modalRef} />);
 
         (callFunction as jest.Mock).mockRejectedValueOnce('Error deleting card');
         const dropDown = getByTestId('toggleButton')
@@ -500,7 +502,7 @@ describe('CardScreen', () => {
     });
 
     it('should update a card when click on button to change learning status', async () => {
-        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} />);
+        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} modalRef={modalRef} />);
 
         (callFunction as jest.Mock).mockResolvedValueOnce({ status: 1, data: { id: '1' } });
 
@@ -536,7 +538,7 @@ describe('CardScreen', () => {
     });
 
     it('should go to edit card screen when click on button to edit card', () => {
-        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} />);
+        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} modalRef={modalRef} />);
         const dropDownButton = getByTestId('toggleButton');
         fireEvent.press(dropDownButton);
 
@@ -547,7 +549,7 @@ describe('CardScreen', () => {
     });
 
     it('should call toggleFlip on question tap', () => {
-        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} />);
+        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} modalRef={modalRef} />);
 
         const flipCard = getByTestId('flipCardToSeeAnswer');
         fireEvent(flipCard, 'onHandlerStateChange', { nativeEvent: { state: State.END } });
@@ -569,7 +571,7 @@ describe('CardScreen', () => {
     });
 
     it('should display different styles if isModal is true', () => {
-        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} isModal={true} />);
+        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} isModal={true} modalRef={modalRef} />);
         const flipCard = getByTestId('flipCardToSeeAnswer');
 
         expect(flipCard.props.style).toEqual(expect.arrayContaining([{ ...styles.modalCard }]));
