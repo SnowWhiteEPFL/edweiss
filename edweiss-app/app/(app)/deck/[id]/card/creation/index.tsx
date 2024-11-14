@@ -1,3 +1,16 @@
+/**
+ * Create a card screen
+ * User can create a card with a question and an answer
+ * 
+ * @file index.tsx
+ * @description Screen to create a card with a question and an answer
+ * @author Tuan Dang Nguyen
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import RouteHeader from '@/components/core/header/RouteHeader';
 import { ApplicationRoute } from '@/constants/Component';
 
@@ -11,6 +24,16 @@ import Memento from '@/model/memento';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 
+// ------------------------------------------------------------
+// ----------------- CreateCardScreen Component ----------------
+// ------------------------------------------------------------
+
+/**
+ * Create a card screen
+ * User can create a card with a question and an answer
+ * 
+ * @returns {ApplicationRoute} Screen to create a card
+ */
 const CreateCardScreen: ApplicationRoute = () => {
     const { deckId } = useLocalSearchParams();
     const [question, setQuestion] = useState("");
@@ -19,6 +42,7 @@ const CreateCardScreen: ApplicationRoute = () => {
 
     const deck = useDoc(Collections.deck, deckId as string);
 
+    // Create a new card
     async function createCard() {
 
         if (question.length == 0 || answer.length == 0 || existedQuestion)
