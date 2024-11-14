@@ -147,6 +147,7 @@ const LectureScreen: ApplicationRoute = () => {
         } catch (error) {
             console.error("Error creating question:", error);
         }
+        setQuestion('');
     }
 
     return (
