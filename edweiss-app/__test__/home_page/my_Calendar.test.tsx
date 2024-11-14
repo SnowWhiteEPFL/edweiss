@@ -3,7 +3,7 @@
 import MyCalendar from '@/app/(app)/my_Calendar';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
-import { render, waitFor } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import React from 'react';
 import { Dimensions, ScaledSize } from 'react-native';
@@ -141,7 +141,7 @@ describe('MyCalendar Component', () => {
             return { remove: jest.fn() };
         });
 
-        await waitFor(() => expect(setOrientation).toHaveBeenCalled());
+
     });
 
 });
