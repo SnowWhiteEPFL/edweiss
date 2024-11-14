@@ -241,11 +241,8 @@ describe('TemporaryQuizStudentView', () => {
 		(useAuth as jest.Mock).mockReturnValue({ uid: 'test-uid' });
 		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([undefined, true]); // Mock loading state
 
-		// const { getByTestId } = render(<TempQuizStudentViewPage />);
-		// expect(getByTestId('activity-indicator')).toBeTruthy();
 		const { getByTestId } = render(<TemporaryQuizStudentView />);
 		await waitFor(async () => {
-			//const { getByTestId } = render(<TempQuizStudentViewPage />);
 			// Perform assertions after state update
 			expect(getByTestId('undefined-quiz-loading')).toBeTruthy();
 		});
