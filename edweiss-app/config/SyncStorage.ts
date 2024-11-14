@@ -6,9 +6,9 @@ function isTemporary(key: string) {
 
 /**
  * Do not instantiate this class, it is a singleton.
- * Use the already defined below `syncStorage` object.
+ * Use the already defined below `SyncStorage` object.
  */
-class SyncStorageSingleton {
+export class SyncStorageSingleton {
 	data: Map<string, any> = new Map();
 
 	loading: boolean = true;

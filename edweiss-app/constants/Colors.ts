@@ -69,7 +69,7 @@ const Colors = {
 		// color16: "#4D1590",
 		// color17: "#45074A",
 		// color18: "#42041D",
-	},
+	} as const,
 	dark: {
 		transparent: '#0000',
 		constantWhite: "#ffffff",
@@ -125,8 +125,8 @@ const Colors = {
 		// color16: "#765999", //
 		// color17: "#451F48",
 		// color18: "#441B2C", //
-	},
-};
+	} as const,
+} as const;
 
 export default Colors;
 
@@ -135,4 +135,4 @@ export const courseColors: Record<CourseTimePeriodType, Color> = {
 	exercises: 'pink',
 	lab: 'green',
 	project: 'peach',
-};
+} as const;

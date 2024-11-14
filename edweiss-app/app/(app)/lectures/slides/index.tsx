@@ -33,7 +33,7 @@ type Lecture = LectureDisplay.Lecture;
 type Question = LectureDisplay.Question;
 
 // ------------------------------------------------------------
-// -------------------  Remote Control Screen  ----------------
+// --------------------  Lecture Screen  ----------------------
 // ------------------------------------------------------------
 
 const LectureScreen: ApplicationRoute = () => {
@@ -84,7 +84,6 @@ const LectureScreen: ApplicationRoute = () => {
             ScreenOrientation.removeOrientationChangeListener(screenOrientationListener);
         };
     }, []);
-
 
     if (!lectureDoc) return <TActivityIndicator size={40} />;
     const currentLecture = lectureDoc.data;

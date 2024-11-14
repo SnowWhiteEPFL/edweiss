@@ -9,8 +9,9 @@
 // ------------------------------------------------------------
 
 import Todolist from 'model/todo';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf } from 'utils/firestore';
+import { Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import { Time } from 'utils/time';
 import Functions = Todolist.Functions;
@@ -24,51 +25,60 @@ type TodoStatus = Todolist.TodoStatus;
 // ----------------  Create to do Cloud Function  -------------
 // ------------------------------------------------------------
 
-export const createTodo = onAuthentifiedCall(Functions.createTodo, async (userId, args) => {
-    if (!args.name || !args.status && (args.status !== "yet" && args.status !== "in_progress" && args.status !== "done" && args.status !== "archived"))
-        return fail("invalid_arg");
+export const createTodo = onSanitizedCall(Functions.createTodo, {
+	name: Predicate.isNonEmptyString,
+	status: Predicate.isIn(['archived', 'done', 'in_progress', 'yet'] as const),
+	description: Predicate.isOptionalString,
+	dueDate: Predicate.isOptionalString
+}, async (userId, args) => {
+	const name: string = args.name;
+	const status: TodoStatus = args.status;
 
-    const name: string = args.name;
-    const status: TodoStatus = args.status;
+	const todoCollection = CollectionOf<Todo>(`users/${userId}/todos`);
 
-    const todoCollection = CollectionOf<Todo>(`users/${userId}/todos`);
+	const existingTodos = await todoCollection.where('name', '==', name).get();
 
-    const todoToInsert: Todo = {
-        name: name,
-        status: status,
-    };
+	if (!existingTodos.empty) {
+		return fail("duplicate_todo");
+	}
 
-    if (args.description) {
-        const description: string = args.description;
-        todoToInsert.description = description;
-    }
 
-    if (args.dueDate) {
-        let dueDate: Date;
+	const todoToInsert: Todo = {
+		name: name,
+		status: status,
+	};
 
-        if (typeof args.dueDate === 'string') {
-            dueDate = new Date(args.dueDate);
-        } else {
-            return fail('error_date');
-        }
+	if (args.description) {
+		const description: string = args.description;
+		todoToInsert.description = description;
+	}
 
-        try {
-            todoToInsert.dueDate = Time.fromDate(dueDate);
-        } catch (error) {
-            return fail('error_date');
-        }
-    }
+	if (args.dueDate) {
+		let dueDate: Date;
 
-    try {
-        const res = await todoCollection.add(todoToInsert);
+		if (typeof args.dueDate === 'string') {
+			dueDate = new Date(args.dueDate);
+		} else {
+			return fail('error_date');
+		}
 
-        if (!res.id) {
-            return fail("firebase_error");
-        }
+		try {
+			todoToInsert.dueDate = Time.fromDate(dueDate);
+		} catch (error) {
+			return fail('error_date');
+		}
+	}
 
-        return ok({ id: res.id });
+	try {
+		const res = await todoCollection.add(todoToInsert);
 
-    } catch (error) {
-        return fail("firebase_error");
-    }
+		if (!res.id) {
+			return fail("firebase_error");
+		}
+
+		return ok({ id: res.id });
+
+	} catch (error) {
+		return fail("firebase_error");
+	}
 });

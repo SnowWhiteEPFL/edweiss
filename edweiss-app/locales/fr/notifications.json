@@ -1,0 +1,13 @@
+{
+    "notifications": "Notifications",
+    "no_notifs_yet": "Pas encore de notifications!",
+    "no_notifs_text": "On dirait que la cloche de notifications fait une petite sieste. Ne la dérangeons pas ! Elle se réveillera quand il y aura quelque chose d'intéressant à savoir.",
+    "today": "Aujourd'hui",
+    "this_week": "Cette semaine",
+    "this_month": "Ce mois-ci",
+    "this_year": "Cette année",
+    "all_time": "Anciennes",
+    "unread": "Non lue",
+    "read": "Lue",
+    "delete": "Supprimer"
+}
