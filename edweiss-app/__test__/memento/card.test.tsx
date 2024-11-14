@@ -120,7 +120,7 @@ describe('CardListScreen', () => {
         const deleteButton = getByText('Delete Selected Cards');
         fireEvent.press(deleteButton);
 
-        expect(callFunction).toHaveBeenCalledWith(Memento.Functions.deleteCard, { deckId: '1', cardIndex: 1 });
+        expect(callFunction).toHaveBeenCalledWith(Memento.Functions.deleteCards, { deckId: '1', cardIndices: [1] });
     });
 
     it('can cancel card selection', () => {
