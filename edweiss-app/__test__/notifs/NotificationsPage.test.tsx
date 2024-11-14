@@ -1,19 +1,33 @@
+/**
+ * @file NotificationsPage.test.tsx
+ * @description Tests for the Notifications Page
+ * @author Florian Dinant
+ */
+
 import NotificationsTab from '@/app/(app)/(tabs)/notifications';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { fireEvent, render } from '@testing-library/react-native';
 import { TextProps, TouchableOpacityProps, useWindowDimensions, ViewProps } from 'react-native';
 
+
+// ------------------------------------------------------------------------------------------
+// --------------------------------------  Mocks  -------------------------------------------
+// ------------------------------------------------------------------------------------------
+
+// Mock View component
 jest.mock('../../components/core/containers/TView.tsx', () => {
     const { View } = require('react-native');
     return (props: ViewProps) => <View {...props} />;
 });
 
+// Mock Text component
 jest.mock('../../components/core/TText.tsx', () => {
     const { Text } = require('react-native');
     return (props: TextProps) => <Text {...props} />;
 });
 
+// Mock TouchableOpacity component
 jest.mock('../../components/core/containers/TTouchableOpacity.tsx', () => {
     const { TouchableOpacity, View } = require('react-native');
     return (props: React.PropsWithChildren<TouchableOpacityProps>) => (
@@ -23,6 +37,7 @@ jest.mock('../../components/core/containers/TTouchableOpacity.tsx', () => {
     );
 });
 
+// Mock Icon component
 jest.mock('@/components/core/Icon', () => {
     return {
         __esModule: true,
@@ -33,7 +48,7 @@ jest.mock('@/components/core/Icon', () => {
     };
 });
 
-// Mock t() function
+// Mock t() function for language translation
 jest.mock('@/config/i18config', () =>
     jest.fn((str: string) => {
         if (str === 'notifications:notifications') return 'Notifications';
@@ -51,18 +66,22 @@ jest.mock('@/config/i18config', () =>
     })
 );
 
+// Mock useDynamicDocs hook
 jest.mock('../../hooks/firebase/firestore', () => ({
     useDynamicDocs: jest.fn(),
 }));
 
+// Mock useAuth hook
 jest.mock('@/contexts/auth', () => ({
     useAuth: jest.fn(),
 }));
 
+// Mock CollectionOf function
 jest.mock('@/config/firebase', () => ({
     CollectionOf: jest.fn(() => 'mocked-collection'),
 }));
 
+// Mock useLocalSearchParams hook
 jest.mock('expo-router', () => ({
     ...jest.requireActual('expo-router'),
     useLocalSearchParams: jest.fn(() => ({ id: 'default-id' })),
@@ -71,6 +90,7 @@ jest.mock('expo-router', () => ({
     },
 }));
 
+// Mock RouteHeader component
 jest.mock('../../components/core/header/RouteHeader', () => {
     const { Text, View } = require('react-native');
     return ({ title, right }: { title: string; right?: React.ReactNode }) => (
@@ -81,6 +101,7 @@ jest.mock('../../components/core/header/RouteHeader', () => {
     );
 });
 
+// Mock Firestore
 jest.mock('@react-native-firebase/firestore', () => { // this one does not work yet.
     const mockCollection = jest.fn(() => ({
         doc: jest.fn(() => ({
@@ -97,14 +118,17 @@ jest.mock('@react-native-firebase/firestore', () => { // this one does not work 
     };
 });
 
+// Mock Settings
 jest.mock('react-native/Libraries/Settings/Settings', () => ({
     SettingsManager: {
         settings: {},
     },
 }));
 
+// Mock Reanimated
 jest.mock('react-native-reanimated/mock'); // Mock de reanimated
 
+// Mock `useWindowDimensions`
 jest.mock('react-native', () => {
     const originalModule = jest.requireActual('react-native');
     return {
@@ -114,9 +138,13 @@ jest.mock('react-native', () => {
 });
 
 
+// ------------------------------------------------------------------------------------------
+// --------------------------------------  Tests  -------------------------------------------
+// ------------------------------------------------------------------------------------------
+
 describe('NotificationsPage', () => {
 
-    const fixedDate = new Date('2025-02-04T12:00:00Z');
+    const fixedDate = new Date('2025-02-04T12:00:00Z'); // 4th of February 2025, noon UTC
 
     const date1 = new Date('2025-02-04T00:01:00Z'); // 4th of February 2025, midnight UTC
     const seconds1 = Math.floor(date1.getTime() / 1000);
@@ -134,6 +162,7 @@ describe('NotificationsPage', () => {
     const seconds5 = Math.floor(date5.getTime() / 1000);
 
     beforeEach(() => {
+
         // Mock `useWindowDimensions`
         const mockWidth = 375;
         const mockHeight = 812;
@@ -144,7 +173,10 @@ describe('NotificationsPage', () => {
             authUser: { uid: 'test-user-id' },
         });
 
+        // Spy on `console.log`
         jest.spyOn(console, 'log').mockImplementation(() => { }); // Transforme `console.log` en une fonction mock
+
+        // Mock `useDynamicDocs` to return a list of notifications
         (useDynamicDocs as jest.Mock).mockImplementation(() => [
             {
                 id: 'notif1',
@@ -203,10 +235,10 @@ describe('NotificationsPage', () => {
             },
         ]);
 
-        // On sauvegarde le constructeur d'origine de Date
+        // We save the original Date constructor
         const RealDate = Date;
 
-        // Mock de Date
+        // Mock Date to return a fixed date
         jest.spyOn(global, 'Date').mockImplementation((...args: any[]) => {
             if (args.length === 0) {
                 return fixedDate; // retourne la date fixée par défaut si aucun argument n'est passé
@@ -216,7 +248,7 @@ describe('NotificationsPage', () => {
         });
     });
 
-    // Mock `console.log`
+    // Restore mocks after each test
     afterEach(() => {
         jest.restoreAllMocks(); // Réinitialise les mocks pour les prochains tests
     });
@@ -267,9 +299,10 @@ describe('NotificationsPage', () => {
 
 describe('NotificationsPage - No Notifications', () => {
 
-    const fixedDate = new Date('2025-02-04T12:00:00Z');
+    const fixedDate = new Date('2025-02-04T12:00:00Z'); // 4th of February 2025, noon UTC
 
     beforeEach(() => {
+
         // Mock `useWindowDimensions`
         const mockWidth = 375;
         const mockHeight = 812;
@@ -280,13 +313,14 @@ describe('NotificationsPage - No Notifications', () => {
             authUser: { uid: 'test-user-id' },
         });
 
+        // Spy on `console.log`
         jest.spyOn(console, 'log').mockImplementation(() => { }); // Transforme `console.log` en une fonction mock
         (useDynamicDocs as jest.Mock).mockImplementation(() => []);
 
-        // On sauvegarde le constructeur d'origine de Date
+        // We save the original Date constructor
         const RealDate = Date;
 
-        // Mock de Date
+        // Mock de Date to return a fixed date
         jest.spyOn(global, 'Date').mockImplementation((...args: any[]) => {
             if (args.length === 0) {
                 return fixedDate; // retourne la date fixée par défaut si aucun argument n'est passé
@@ -296,13 +330,14 @@ describe('NotificationsPage - No Notifications', () => {
         });
     });
 
-    // Mock `console.log`
+    // Restore mocks after each test
     afterEach(() => {
         jest.restoreAllMocks(); // Réinitialise les mocks pour les prochains tests
     });
 
     test('should render no notifications', () => {
 
+        // Crée un mock pour console.log
         const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 
         const screen = render(<NotificationsTab />);

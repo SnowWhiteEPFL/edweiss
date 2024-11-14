@@ -1,3 +1,9 @@
+/**
+ * @file notifications.tsx
+ * @description Module for displaying the notifications screen
+ * @author Florian Dinant
+ */
+
 import { ApplicationRoute } from '@/constants/Component';
 
 import TScrollView from '@/components/core/containers/TScrollView';
@@ -50,6 +56,14 @@ export const testIDs = {
 type Notif = NotifList.Notif;
 
 
+/**
+ * This component renders the notifications screen, displaying notifications
+ * categorized by time periods (today, this week, this month, this year, and older).
+ * It fetches notifications from Firebase for the authenticated user and sorts them
+ * into the appropriate categories based on their timestamps.
+ * 
+ * @returns JSX.Element - The rendered component for the notifications screen.
+ */
 const NotificationsTab: ApplicationRoute = () => {
 
     const { width, height } = useWindowDimensions();
@@ -65,51 +79,38 @@ const NotificationsTab: ApplicationRoute = () => {
     const now = new Date();
     const midnight = new Date(now.setHours(0, 0, 0, 0)); // Minuit du jour courant
 
-    // Calcul du début de la semaine (dernier lundi à minuit)
+    // Compute last Monday at midnight
     const dayOfWeek = midnight.getDay();
     const mondayMidnight = new Date(midnight);
-    mondayMidnight.setDate(midnight.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)); // Revenir au lundi précédent
+    mondayMidnight.setDate(midnight.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)); // Go back to last Monday
 
-    // Calcul du début du mois (1er du mois courant à minuit)
+    // Compute start of the month (1st of the month at midnight)
     const monthStart = new Date(midnight);
     monthStart.setDate(1);
 
-    // Calcul du début de l'année (1er janvier à minuit)
+    // Compute start of the year (1st of January at midnight)
     const yearStart = new Date(midnight);
     yearStart.setMonth(0); // Janvier
     yearStart.setDate(1);
 
-    notifs.forEach((notif) => {
-        const notifDate = new Date(notif.data.date.seconds * timeInMS.SECOND); // Date de la notif
+    // Function to categorize notifications by date
+    const categorizeNotif = (notif: { id: string, data: Notif }) => {
+        const notifDate = new Date(notif.data.date.seconds * timeInMS.SECOND);
+        if (notifDate >= midnight) return notifsDay.push(notif);
+        if (notifDate >= mondayMidnight) return notifsWeek.push(notif);
+        if (notifDate >= monthStart) return notifsMonth.push(notif);
+        if (notifDate >= yearStart) return notifsYear.push(notif);
+        return otherNotifs.push(notif);
+    };
 
-        // Vérifier si la notification est du jour actuel
-        if (notifDate >= midnight) {
-            notifsDay.push(notif);
-        }
-        // Vérifier si la notification est de cette semaine
-        else if (notifDate >= mondayMidnight) {
-            notifsWeek.push(notif);
-        }
-        // Vérifier si la notification est de ce mois-ci
-        else if (notifDate >= monthStart) {
-            notifsMonth.push(notif);
-        }
-        // Vérifier si la notification est de cette année
-        else if (notifDate >= yearStart) {
-            notifsYear.push(notif);
-        }
-        // Si c'est plus ancien, la mettre dans les autres notifications
-        else {
-            otherNotifs.push(notif);
-        }
-    });
+    // Categorize each notification
+    notifs.forEach(categorizeNotif);
+
+    // Function to sort notifications by date in descending order
+    const sortByDateDesc = (a: { data: Notif }, b: { data: Notif }) => b.data.date.seconds - a.data.date.seconds;
 
     // Sort each array by date in descending order (most recent first)
-    notifsDay.sort((a, b) => b.data.date.seconds - a.data.date.seconds);
-    notifsWeek.sort((a, b) => b.data.date.seconds - a.data.date.seconds);
-    notifsMonth.sort((a, b) => b.data.date.seconds - a.data.date.seconds);
-    notifsYear.sort((a, b) => b.data.date.seconds - a.data.date.seconds);
-    otherNotifs.sort((a, b) => b.data.date.seconds - a.data.date.seconds);
+    [notifsDay, notifsWeek, notifsMonth, notifsYear, otherNotifs].forEach(notifArray => notifArray.sort(sortByDateDesc));
 
     return (
         <TView>

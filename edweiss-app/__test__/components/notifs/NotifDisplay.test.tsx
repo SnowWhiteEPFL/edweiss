@@ -1,3 +1,9 @@
+/**
+ * @file NotifDisplay.test.tsx
+ * @description Tests for the NotifDisplay component
+ * @author Florian Dinant
+ */
+
 import NotifDisplay from '@/components/notifs/NotifDisplay';
 import { default as NotifList } from '@/model/notifs';
 import { fireEvent, render } from "@testing-library/react-native";
@@ -5,6 +11,11 @@ import React from 'react';
 import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
 
 
+// ------------------------------------------------------------------------------------------
+// --------------------------------------  Mocks  -------------------------------------------
+// ------------------------------------------------------------------------------------------
+
+// Mock Firebase Firestore
 jest.mock('@react-native-firebase/firestore', () => { // this one does not work yet.
     const mockCollection = jest.fn(() => ({
         doc: jest.fn(() => ({
@@ -21,14 +32,19 @@ jest.mock('@react-native-firebase/firestore', () => { // this one does not work 
     };
 });
 
+// Mock View components
 jest.mock('../../../components/core/containers/TView.tsx', () => {
     const { View } = require('react-native');
     return (props: ViewProps) => <View {...props} />;
 });
+
+// Mock Text components
 jest.mock('../../../components/core/TText.tsx', () => {
     const { Text } = require('react-native');
     return (props: TextProps) => <Text {...props} />;
 });
+
+// Mock TouchableOpacity components
 jest.mock('../../../components/core/containers/TTouchableOpacity.tsx', () => {
     const { TouchableOpacity, View } = require('react-native');
     return (props: React.PropsWithChildren<TouchableOpacityProps>) => (
@@ -38,6 +54,7 @@ jest.mock('../../../components/core/containers/TTouchableOpacity.tsx', () => {
     );
 });
 
+// Mock Icon components
 jest.mock('@/components/core/Icon', () => {
     return {
         __esModule: true,
@@ -48,6 +65,7 @@ jest.mock('@/components/core/Icon', () => {
     };
 });
 
+// Mock Swipeable components
 jest.mock('react-native-gesture-handler', () => {
     return {
         Swipeable: jest.fn().mockImplementation(({ children, testID, renderLeftActions, renderRightActions, onSwipeableOpen }) => {
@@ -63,6 +81,7 @@ jest.mock('react-native-gesture-handler', () => {
     };
 });
 
+// Mock i18config language configuration
 jest.mock('@/config/i18config', () =>
     jest.fn((str: string) => {
         if (str === 'notifications:no_notifs_yet') return 'No notifications, yet!';
@@ -79,15 +98,18 @@ jest.mock('@/config/i18config', () =>
     })
 );
 
+// Mock CollectionOf from Firebase Firestore
 jest.mock('@/config/firebase', () => ({
     CollectionOf: jest.fn(() => 'mocked-collection'),
 }));
 
+// Mock callFunction & getFunction from Expo Router
 jest.mock('../../../config/firebase', () => ({
     callFunction: jest.fn().mockResolvedValue({ status: 0, data: 'someData' }), //callFunction: jest.fn(),
     getFunction: jest.fn(),
 }));
 
+// Mock Firbase functions from Notifs
 jest.mock('@/model/notifs', () => ({
     Functions: {
         markAsUnread: jest.fn().mockResolvedValue({ status: 0 }), // Simule une réponse réussie
@@ -97,7 +119,7 @@ jest.mock('@/model/notifs', () => ({
     },
 }));
 
-// Mock Firebase Functions
+// Mock httpsCallable from Firebase Functions
 jest.mock('@react-native-firebase/functions', () => ({
     httpsCallable: jest.fn(() => () => Promise.resolve({ data: 'function response' })),
 }));
@@ -110,6 +132,11 @@ jest.mock('@react-native-firebase/storage', () => ({
     })),
 }));
 
+
+// ------------------------------------------------------------------------------------------
+// --------------------------------------- Tests --------------------------------------------
+// ------------------------------------------------------------------------------------------
+
 describe('NotifDisplay', () => {
 
     afterEach(() => {
@@ -118,8 +145,10 @@ describe('NotifDisplay', () => {
 
     test("renders correctly today notif information", async () => {
 
-        const today = new Date('2025-01-01T00:00:00Z');
-        const seconds = Math.floor(today.getTime() / 1000);
+        const today = new Date('2025-01-01T00:00:00Z'); // January 1st, 2025
+        const seconds = Math.floor(today.getTime() / 1000); // get the seconds
+
+        // notif mock
         const notif: NotifList.Notif = {
             type: 'submission',
             title: 'MS2',
@@ -139,7 +168,7 @@ describe('NotifDisplay', () => {
             />
         );
 
-
+        //Date formatting
         const hours = today.getHours();
         const minutes = today.getMinutes().toString().padStart(2, '0');
         const period = hours >= 12 ? 'PM' : 'AM';
@@ -186,8 +215,10 @@ describe('NotifDisplay', () => {
 
     test("renders correctly week notif information", async () => {
 
-        const today = new Date('2025-01-01T00:00:00Z');
-        const seconds = Math.floor(today.getTime() / 1000);
+        const today = new Date('2025-01-01T00:00:00Z'); //  January 1st, 2025
+        const seconds = Math.floor(today.getTime() / 1000); // get the seconds
+
+        // notif mock
         const notif: NotifList.Notif = {
             type: 'quiz',
             title: 'MS2',
@@ -248,8 +279,10 @@ describe('NotifDisplay', () => {
 
     test("renders correctly month notif information", async () => {
 
-        const today = new Date('2025-01-02T00:00:00Z');
-        const seconds = Math.floor(today.getTime() / 1000);
+        const today = new Date('2025-01-02T00:00:00Z'); // January 2nd, 2025
+        const seconds = Math.floor(today.getTime() / 1000); // get the seconds
+
+        // notif mock
         const notif: NotifList.Notif = {
             type: 'announcement',
             title: 'Welcome!',
@@ -309,8 +342,10 @@ describe('NotifDisplay', () => {
 
     test("renders correctly year notif information", async () => {
 
-        const today = new Date('2025-01-02T00:00:00Z');
+        const today = new Date('2025-01-02T00:00:00Z'); // January 2nd, 2025
         const seconds = Math.floor(today.getTime() / 1000);
+
+        // notif mock
         const notif: NotifList.Notif = {
             type: 'group',
             title: 'You have been added to a group!',
@@ -370,8 +405,10 @@ describe('NotifDisplay', () => {
 
     test("renders correctly old notif information", async () => {
 
-        const today = new Date('2025-01-02T00:00:00Z');
+        const today = new Date('2025-01-02T00:00:00Z'); // January 2nd, 2025
         const seconds = Math.floor(today.getTime() / 1000);
+
+        // notif mock
         const notif: NotifList.Notif = {
             type: 'grade',
             title: 'New Grade Available',
@@ -431,10 +468,13 @@ describe('NotifDisplay', () => {
 
     test("clic on delete button", async () => {
 
+        // Spy on console.log
         const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 
-        const today = new Date('2025-01-03T00:00:00Z');
+        const today = new Date('2025-01-03T00:00:00Z'); // January 3rd, 2025
         const seconds = Math.floor(today.getTime() / 1000);
+
+        // notif mock
         const notif: NotifList.Notif = {
             type: 'post',
             title: 'New Association Post',
@@ -457,6 +497,7 @@ describe('NotifDisplay', () => {
         // Clic sur le TouchableOpacity
         fireEvent.press(screen.getByTestId('swipe-right-touchable'));
 
+        // Check if the console.log has been called correctly
         expect(consoleLogSpy).toHaveBeenCalledWith('Delete Button pressed');
         consoleLogSpy.mockRestore();
 
@@ -471,8 +512,10 @@ describe('NotifDisplay', () => {
         // Mock de la référence swipeable
         const swipeableRefs = { current: [{ close: jest.fn() }] };
 
-        const today = new Date('2025-01-03T00:00:00Z');
+        const today = new Date('2025-01-03T00:00:00Z'); // January 3rd, 2025
         const seconds = Math.floor(today.getTime() / 1000);
+
+        // notif mock
         const notif: NotifList.Notif = {
             type: 'post',
             title: 'New Association Post',
@@ -506,11 +549,9 @@ describe('NotifDisplay', () => {
 
         const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 
-        // Mock de la référence swipeable
-        const swipeableRefs = { current: [{ close: jest.fn() }] };
-
-        const today = new Date('2025-01-03T00:00:00Z');
+        const today = new Date('2025-01-03T00:00:00Z'); // January 3rd, 2025
         const seconds = Math.floor(today.getTime() / 1000);
+
         const notif: NotifList.Notif = {
             type: 'post',
             title: 'New Association Post',
@@ -530,9 +571,10 @@ describe('NotifDisplay', () => {
             />
         );
 
-        // Clic sur le TouchableOpacity
+        // Clic on the TouchableOpacity
         fireEvent.press(screen.getByTestId('notif-touchable'));
 
+        // Check if the console.log has been called correctly
         expect(consoleLogSpy).toHaveBeenCalledWith('Notif "New Association Post" has been clicked');
         consoleLogSpy.mockRestore();
 

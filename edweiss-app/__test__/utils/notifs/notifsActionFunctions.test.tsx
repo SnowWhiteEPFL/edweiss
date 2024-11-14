@@ -1,12 +1,24 @@
+/**
+ * @file notifsActionsFunctions.test.tsx
+ * @description Test file for the notification action functions
+ * @author Florian Dinant
+ */
+
 import { callFunction } from '@/config/firebase';
 import NotifList from '@/model/notifs';
 import { deleteNotifAction, markAsReadAction, markAsUnreadAction, pushNotifAction } from '@/utils/notifs/notifsActionsFunctions';
 
+
+// Mock the callFunction function
 jest.mock('@/config/firebase', () => ({
     callFunction: jest.fn(),
 }));
 
+
+// Tests
 describe('Notification Action Functions', () => {
+
+    // Mock data
     const mockId = 'test-id';
     const mockType = 'info';
     const mockTitle = 'Test Notification';
@@ -15,6 +27,7 @@ describe('Notification Action Functions', () => {
     const mockCourseID = 'course-id';
     const mockDate = '2023-11-12T10:00:00Z';
 
+    // Reset mocks before each test
     beforeEach(() => {
         jest.clearAllMocks();
     });

@@ -10,7 +10,7 @@ import { timeInMS } from '@/constants/Time';
 import { default as NotifList } from '@/model/notifs';
 import { hexToRgb } from '@/utils/color';
 import { deleteNotifAction, markAsReadAction, markAsUnreadAction } from '@/utils/notifs/notifsActionsFunctions';
-import { useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
@@ -91,14 +91,33 @@ type dateSection = 'today' | 'thisWeek' | 'thisMonth' | 'thisYear' | 'older';
 
 
 
+/**
+ * NotifDisplay Component
+ * 
+ * This component is responsible for displaying a notification in the notification page.
+ * It is a swipeable component that allows the user to mark the notification as read/unread or delete it.
+ * 
+ * @param item - The notification data to be displayed.
+ * @param id - The id of the notification in the list.
+ * @param dateSection - The section of the date to be displayed.
+ * @param index - The index of the notification in the list.
+ * @param key - The key of the notification in the list.
+ * 
+ * @returns JSX.Element - The rendered component for the notification display.
+ */
 const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSection: dateSection, index: number, key: React.Key | null | undefined; }> = ({ item, id, dateSection, index, key }) => {
 
     // Define swipeableRefs
     const swipeableRefs = useRef<(Swipeable | null)[]>([]);
 
+    // Extract the logic for marking as read/unread
+    const handleMarkAsReadUnread = useCallback(() => {
+        item.read ? markAsUnreadAction(id) : markAsReadAction(id);
+    }, [item, id, markAsUnreadAction, markAsReadAction]);
+
     // Render left actions on swipe
     const renderLeftActions = () => (
-        <TTouchableOpacity testID={testIDs.swipeLeftTounchable} onPress={() => { console.log('Read/Unread Button pressed'); if (item.read) { markAsUnreadAction(id); } else { markAsReadAction(id); } swipeableRefs.current[index]?.close(); }}>
+        <TTouchableOpacity testID={testIDs.swipeLeftTounchable} onPress={() => { console.log('Read/Unread Button pressed'); handleMarkAsReadUnread(); swipeableRefs.current[index]?.close(); }}>
             <TView testID={testIDs.swipeLeftView} justifyContent='center' alignItems='flex-end' py={20} backgroundColor='blue'>
                 <TText testID={testIDs.swipeLeftText} size={16} bold={true} px={12} color='constantWhite'>
                     {item.read ? t(`notifications:unread`) : t(`notifications:read`)}
@@ -120,7 +139,7 @@ const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSect
     return (
         <Swipeable
             testID={testIDs.swipeableComponent}
-            key={key}
+            key={key ? key : id}
             ref={(ref) => { swipeableRefs.current[index] = ref; }}
             renderLeftActions={renderLeftActions}  // Render actions on swipe
             renderRightActions={renderRightActions}  // Render actions on swipe
