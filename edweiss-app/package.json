@@ -15,11 +15,19 @@
     "collectCoverage": true,
     "collectCoverageFrom": [
       "**/*.{ts,tsx,js,jsx}",
-      "!**/coverage/**",
+	  "!**/__test__/**",
+	  "!**/coverage/**",
       "!**/node_modules/**",
-      "!**/babel.config.js",
       "!**/expo-env.d.ts",
-      "!**/.expo/**"
+      "!**/.expo/**",
+	  "!**/android/**",
+	  "!**/ios/**",
+	  "!**/**config.js",
+	  "!**/**config.ts",
+	  "!**/**config.tsx",
+	  "!**/config/firebase.ts",
+	  "!**/locales/**.json",
+	  "!**/**.d.ts"
     ],
     "coverageDirectory": "./coverage",
     "coverageReporters": ["lcov", "text"]
