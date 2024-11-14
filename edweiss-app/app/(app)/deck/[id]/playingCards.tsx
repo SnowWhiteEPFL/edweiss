@@ -19,8 +19,9 @@ import CardScreenComponent from '@/components/memento/CardScreenComponent';
 import { Collections } from '@/config/firebase';
 import { ApplicationRoute } from '@/constants/Component';
 import { useDoc } from '@/hooks/firebase/firestore';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useLocalSearchParams } from 'expo-router';
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef, useRef, useState } from 'react';
 import { View, ViewProps } from 'react-native';
 import { PanGestureHandler, PanGestureHandlerStateChangeEvent, State } from 'react-native-gesture-handler';
 
@@ -40,6 +41,7 @@ const TViewWithRef = forwardRef<View, ViewProps>((props, ref) => (
 const TestYourMightScreen: ApplicationRoute = () => {
     const { id } = useLocalSearchParams(); // Get deckId from params
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
+    const modalRef = useRef<BottomSheetModal>(null); // Reference for the modal
 
     const deck = useDoc(Collections.deck, id as string);
     const cards = deck?.data.cards;
@@ -89,6 +91,7 @@ const TestYourMightScreen: ApplicationRoute = () => {
                             <CardScreenComponent
                                 deckId={id as string}
                                 cardIndex={currentCardIndex}
+                                modalRef={modalRef}
                             />
                         </TViewWithRef>
                     </PanGestureHandler>
