@@ -1,0 +1,49 @@
+appId: com.edweiss
+---
+- launchApp:
+    clearState: true
+
+Go to todos
+- assertVisible: 
+    id: "anon-but"
+- tapOn:
+    id: "anon-but"
+- assertVisible: "Home"
+- assertVisible: "Community"
+- tapOn: "Community"
+- assertVisible: "My Todos"
+- tapOn: "My Todos"
+- assertVisible: "No Todos yet, create one !"
+- tapOn:
+    id: "add-todo-button"
+- tapOn:
+    id: "name-input"
+- inputText:
+    text: "TBD"
+- assertVisible: "Due Date"
+- assertVisible: "Time"
+- tapOn: "Save"
+
+- assertVisible:
+    id: "todo-name-text"
+- tapOn:
+    id: "status-touchable"
+- tapOn:
+    id: "tododisplay-touchable"
+- tapOn: "Close"
+
+- longPressOn:
+    id: "tododisplay-touchable"
+- tapOn:
+    id: "description-input"
+- inputText:
+    text: "Soon"
+- tapOn: "Edit"
+- tapOn:
+    id: "tododisplay-touchable"
+- tapOn: "Close"
+
+- longPressOn:
+    id: "tododisplay-touchable"
+- tapOn: "Delete"
+
