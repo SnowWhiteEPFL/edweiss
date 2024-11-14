@@ -85,6 +85,7 @@ const LectureScreen: ApplicationRoute = () => {
         };
     }, []);
 
+
     if (!lectureDoc) return <TActivityIndicator size={40} />;
     const currentLecture = lectureDoc.data;
 
