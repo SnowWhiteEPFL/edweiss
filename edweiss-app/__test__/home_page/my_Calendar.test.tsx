@@ -1,68 +1,44 @@
-import MyCalendar from '@/app/(app)/my_Calendar';
+// InfinitePaginatedCounterScreen.test.tsx
+
+import HomeTab from '@/app/(app)/(tabs)/GwenHomePage';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
-import { render } from '@testing-library/react-native';
+import { render, screen } from '@testing-library/react-native';
 import React from 'react';
-
-
-
-jest.mock('@/components/core/calendar', () => ({
-    Calendar: jest.fn(() => <div>Mocked Calendar</div>),
-}));
-
-jest.mock('@/components/core/header/RouteHeader', () => () => {
-    return <div>Mocked RouteHeader</div>;
-});
-const mockCourses = [
-    {
-        id: 'course1',
-        data: {
-            periods: [
-                {
-                    id: 'period1',
-                    start: 480,
-                    end: 500,
-                    dayIndex: 1,
-                },
-                {
-                    id: 'period2',
-                    start: 540,
-                    dayIndex: 1,
-                },
-            ],
-            name: 'Course 1',
-            credits: 3,
-        },
-    },
-    {
-        id: 'course2',
-        data: {
-            periods: [
-                {
-                    id: 'period3',
-                    start: 600,
-                    dayIndex: 1,
-                },
-            ],
-            name: 'Course 2',
-            credits: 4,
-        },
-    },
-];
-
 
 jest.mock('@/contexts/auth', () => ({
     useAuth: jest.fn(),
 }));
+
 jest.mock('@/hooks/firebase/firestore', () => ({
     useDynamicDocs: jest.fn(),
 }));
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+    getItem: jest.fn().mockResolvedValue('mocked value'),
+    setItem: jest.fn().mockResolvedValue(undefined),
+    removeItem: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('i18next-react-native-async-storage', () => ({
+    default: jest.fn().mockReturnValue({
+        use: jest.fn().mockReturnThis(), // Mock de la méthode use pour permettre le chaînage
+    }),
+}));
+
 jest.mock('@react-native-firebase/auth', () => ({
     __esModule: true,
     default: jest.fn(() => ({
         currentUser: { uid: 'test-user-id' },
     })),
 }));
+
+jest.mock('expo-screen-orientation', () => ({
+    addOrientationChangeListener: jest.fn(),
+    removeOrientationChangeListener: jest.fn(),
+    lockAsync: jest.fn(),
+}));
+
 jest.mock('@react-native-firebase/firestore', () => {
     const collectionMock = {
         doc: jest.fn().mockReturnThis(),
@@ -89,7 +65,6 @@ jest.mock('@react-native-firebase/functions', () => ({
     })),
 }));
 
-
 jest.mock('@react-native-firebase/storage', () => ({
     __esModule: true,
     default: jest.fn(() => ({
@@ -109,39 +84,57 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
     },
 }));
 
-describe('my_Calendar', () => {
+const mockAuth = {
+    authUser: { uid: 'test-user-id' },
+    data: { type: 'professor' },
+};
+
+const mockCourses = [
+    {
+        id: 'course1',
+        data: {
+            name: 'Course 1',
+            periods: [
+                {
+                    id: 'period1',
+                    start: 480,
+                    end: 540,
+                    type: 'lecture',
+                    activityId: 'activity1',
+                    dayIndex: 1,
+                    rooms: [],
+                },
+            ],
+            credits: 3,
+            newAssignments: true,
+            assignments: [{ id: 'assignment1' }],
+        },
+    },
+];
+
+describe('HomeTab Component', () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        (useAuth as jest.Mock).mockReturnValue(mockAuth);
+        (useDynamicDocs as jest.Mock).mockImplementation((collection) => {
+            if (collection === 'courses') {
+                return mockCourses;
+            }
+            if (collection === `users/${mockAuth.authUser.uid}/courses`) {
+                return mockCourses;
+            }
+            return [];
+        });
     });
 
-    it('should import the authenticated user correctly', () => {
-        const mockUser = { uid: 'user-123' };
-        (useAuth as jest.Mock).mockReturnValue({ authUser: mockUser });
-
-        render(<MyCalendar />);
-        expect(useAuth).toHaveBeenCalled();
-        expect(useAuth().authUser).toEqual(mockUser);
+    it('renders List', () => {
+        render(<HomeTab />);
+        expect(screen.getByText('List of courses')).toBeTruthy();
+    });
+    it('renders hours', () => {
+        render(<HomeTab />);
+        expect(screen.getByText('22:00')).toBeTruthy();
     });
 
-    it('should fetch user courses correctly', () => {
-        const mockUser = { uid: 'tPpkVzKlNhRbANSMdcit1cuPLYr1' };
-        (useAuth as jest.Mock).mockReturnValue({ authUser: mockUser });
-
-        (useDynamicDocs as jest.Mock)
-            .mockReturnValueOnce([
-                { id: 'course-1', data: {} },
-                { id: 'course-2', data: {} },
-            ])
-            .mockReturnValueOnce([
-                { id: 'course-1', data: {} },
-                { id: 'course-3', data: {} },
-            ]);
-        render(<MyCalendar />);
-
-        expect(useDynamicDocs).toHaveBeenCalledWith(
-            expect.anything()
-        );
 
 
-    });
 });
