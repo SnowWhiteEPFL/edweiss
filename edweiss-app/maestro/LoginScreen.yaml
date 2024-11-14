@@ -3,5 +3,40 @@ appId: com.edweiss
 - launchApp:
     clearState: true
 
-- assertVisible: "Login"
-- assertVisible: "Continue with Google"
+# Verifying that elements on the Login screen appear as expected
+
+- assertVisible: "Welcome"
+- assertVisible:
+    id:  "quote-text-output"
+- assertVisible:
+     id: "quote-but-1"
+- assertVisible: 
+    id: "quote-but-2"          
+- assertVisible: 
+    id: "quote-but-3"          
+- assertVisible: 
+    id: "google-but"
+- assertVisible: 
+    id: "anon-but"
+
+# Check that the buttons are  responding correctly
+- assertVisible: "Reach new academic heights with EdWeiss, your study companion to turn every challenge into success."
+- tapOn:
+    id: "quote-but-2" 
+- assertVisible: "EdWeiss: Your all-in-one tool for mastering any subject, anytime, anywhere."
+- tapOn:
+    id: "quote-but-3" 
+
+- assertVisible: "Unlock your full potential with EdWeiss, the ultimate resource for every learner."
+- tapOn:
+    id: "quote-but-1" 
+- assertVisible: "Reach new academic heights with EdWeiss, your study companion to turn every challenge into success."
+
+
+# Check login with google
+- tapOn:
+    id: "google-but"
+- pressKey: BACK
+- tapOn:
+    id: "anon-but"
+- assertVisible: "Home"
