@@ -153,7 +153,7 @@ const LectureScreen: ApplicationRoute = () => {
     // Function for adding new question into the firebase storage
     async function addQuestion(question: string) {
         try {
-            callFunction(LectureDisplay.Functions.createQuestion, {
+            await callFunction(LectureDisplay.Functions.createQuestion, {
                 courseId: courseName,
                 lectureId: lectureId,
                 question: question
