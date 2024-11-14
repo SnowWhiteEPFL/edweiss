@@ -1,3 +1,16 @@
+/**
+ * CardListScreen.tsx
+ * Display a list of cards in a deck
+ * 
+ * @file cardListScreen.tsx
+ * @description Screen to display a list of cards in a deck
+ * @author Tuan Dang Nguyen
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
 
 import For from '@/components/core/For';
@@ -18,6 +31,12 @@ import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { Button } from 'react-native';
 
+/**
+ * CardListScreen
+ * Display a list of cards in a deck
+ * 
+ * @returns {ApplicationRoute} Screen to display a list of cards in a deck
+ */
 const CardListScreen: ApplicationRoute = () => {
 	const { id } = useLocalSearchParams();
 	const [showDropdown, setShowDropdown] = useState(false); // State for dropdown visibility
@@ -35,6 +54,7 @@ const CardListScreen: ApplicationRoute = () => {
 
 	const sortedCards = sortingCards(cards);
 
+	// Toggle card selection
 	const toggleCardSelection = (card: Memento.Card) => {
 		const index = selectedCards.findIndex(selected => selected.question === card.question);
 		const isAlreadySelected = index !== -1;
@@ -50,17 +70,14 @@ const CardListScreen: ApplicationRoute = () => {
 		}
 	};
 
+	// Delete selected cards
 	const deleteSelectedCards = async () => {
 		if (selectedCards.length === 0) return;
 
+		const selectedCardIndices = selectedCards.map(card => cards.indexOf(card));
+
 		try {
-			await Promise.all(selectedCards.map(card => {
-				callFunction(Memento.Functions.deleteCard, {
-					deckId: id,
-					cardIndex: cards.indexOf(card)
-				});
-			}
-			));
+			await callFunction(Memento.Functions.deleteCards, { deckId: id, cardIndices: selectedCardIndices });
 			setSelectedCards([]); // Clear selection after deletion
 			setSelectionMode(false); // Exit selection mode
 		} catch (error) {
@@ -79,34 +96,14 @@ const CardListScreen: ApplicationRoute = () => {
 		setSelectionMode(true); // Activate selection mode on long press
 	};
 
-
+	// Delete deck
 	async function deleteDeck() {
 
-		await callFunction(Memento.Functions.deleteDeck, { deckId: id });
+		await callFunction(Memento.Functions.deleteDecks, { deckIds: [id] });
 		router.back();
-		/*
-		if (res.status == 1) {
-			console.log(`OKAY, deck deleted with id ${res.data.id}`);
-			router.back();
-		}*/
-
 	}
 
 	const toggleDropDown = () => { setShowDropdown(prev => !prev); }; // Open/close dropdown
-
-	/*const handleCardPress_old = (index: number) => {
-		if (!selectionMode) {
-			// Open the modal with the selected card
-			if (selectedCardIndex === index) {
-				// If the card is already selected, close the modal
-				modalRef.current?.dismiss(); // You may need to implement dismiss if not provided by BottomSheetModal
-				setSelectedCardIndex(null);
-			} else {
-				setSelectedCardIndex(index); // Set the new selected card index
-				modalRef.current?.present(); // Show the modal
-			}
-		}
-	};*/
 
 	return (
 		<>
@@ -157,7 +154,6 @@ const CardListScreen: ApplicationRoute = () => {
 							toggleSelection={toggleCardSelection}
 							onLongPress={enterSelectionMode}
 							selectionMode={selectionMode}
-							//goToPath={() => handleCardPress_old(index)}
 							goToPath={() => handleCardPress(index, selectionMode, selectedCardIndex, setSelectedCardIndex, modalRef)}
 						/>
 					)}
@@ -189,17 +185,20 @@ const CardListScreen: ApplicationRoute = () => {
 
 export default CardListScreen;
 
+/**
+ * The DisplayCard component displays a card with the question and learning status
+ * 
+ * @param Card: Memento.Card 
+ * @param isSelected: boolean indicates if the card is selected
+ * @param toggleSelection: function to toggle card selection
+ * @param onLongPress: function to handle long press
+ * @param selectionMode: boolean indicates if the selection mode is active
+ * @param goToPath: function to navigate to the handle card press
+ * @returns display card component
+ */
 const DisplayCard: ReactComponent<{ card: Memento.Card, isSelected: boolean, toggleSelection: (card: Memento.Card) => void; onLongPress: () => void; selectionMode: boolean; goToPath: () => void; }> = ({ card, isSelected, toggleSelection, onLongPress, selectionMode, goToPath }) => {
 	// Determine the text color based on the learning status
 	const statusColor = getStatusColor(card.learning_status ?? "");
-
-	/*const handlePress_old = () => {
-		if (!selectionMode) {
-			goToPath();
-		} else {
-			toggleSelection(card); // Select or deselect
-		}
-	};*/
 
 	return (
 		<TTouchableOpacity bb={5}
@@ -207,7 +206,6 @@ const DisplayCard: ReactComponent<{ card: Memento.Card, isSelected: boolean, tog
 				onLongPress();
 				toggleSelection(card);
 			}}
-			//onPress={handlePress_old}
 			onPress={() => handlePress(card, selectionMode, goToPath, toggleSelection)}
 			m='md' mt={'sm'} mb={'sm'} p='lg'
 			backgroundColor={isSelected ? 'rosewater' : 'base'}

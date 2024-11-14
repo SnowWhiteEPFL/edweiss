@@ -1,3 +1,18 @@
+/**
+ * Test Your Might Screen
+ * This screen is used to display the cards in a deck in a quiz format.
+ * The user can swipe left or right to navigate through the cards.
+ * The user can also click on the card to flip it and see the answer.
+ * 
+ * @file playingCards.tsx
+ * @description quiz screen for the user to test their knowledge of the deck
+ * @author Tuan Dang Nguyen
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import CardScreenComponent from '@/components/memento/CardScreenComponent';
@@ -14,6 +29,14 @@ const TViewWithRef = forwardRef<View, ViewProps>((props, ref) => (
     <View ref={ref} {...props} />
 ));
 
+/**
+ * Test Your Might Screen
+ * This screen is used to display the cards in a deck in a quiz format.
+ * The user can swipe left or right to navigate through the cards.
+ * The user can also click on the card to flip it and see the answer.
+ * 
+ * @returns {ApplicationRoute} Screen to test the user's knowledge of the deck
+ */
 const TestYourMightScreen: ApplicationRoute = () => {
     const { id } = useLocalSearchParams(); // Get deckId from params
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -75,6 +98,5 @@ const TestYourMightScreen: ApplicationRoute = () => {
         </>
     );
 };
-
 
 export default TestYourMightScreen;

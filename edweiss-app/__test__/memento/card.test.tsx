@@ -1,3 +1,13 @@
+/**
+ * @file card.test.tsx
+ * @description Tests for the CardListScreen component, which displays a list of cards in a deck.
+ * @author Tuan Dang Nguyen
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import CardListScreen from '@/app/(app)/deck/[id]';
 import CreateCardScreen from '@/app/(app)/deck/[id]/card/creation';
 import TestYourMightScreen from '@/app/(app)/deck/[id]/playingCards';
@@ -13,6 +23,11 @@ import React from 'react';
 import { Button } from 'react-native';
 import { State } from 'react-native-gesture-handler';
 
+// ------------------------------------------------------------
+// ---------------------  Mock Data & Setup -------------------
+// ------------------------------------------------------------
+
+// Mock cards
 const card1: Memento.Card = {
     question: 'Question 1',
     answer: 'Answer 1',
@@ -58,6 +73,7 @@ jest.mock('expo-router', () => ({
     useLocalSearchParams: jest.fn(() => ({ id: '1' })),
 }));
 
+// Mock BottomSheet modal
 jest.mock('@gorhom/bottom-sheet', () => ({
     BottomSheetModal: jest.fn(({ children }) => (
         <div>{children}</div> // Simple mock
@@ -68,26 +84,21 @@ jest.mock('@gorhom/bottom-sheet', () => ({
     BottomSheetBackdrop: jest.fn(),
 }));
 
+// Mock reanimated library
 jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
 
 // Mock toggleFlip function
 const toggleFlip = jest.fn(); // This function is not exported, so we mock it here. UNTIL WE EXPORT IT
 
+// ------------------------------------------------------------
+// ------------------------  Test Suite -----------------------
+// ------------------------------------------------------------
 
+// Test suite for the CardListScreen component
 describe('CardListScreen', () => {
     beforeEach(() => {
         jest.clearAllMocks(); // Clear previous mocks before each test
     });
-
-    /*beforeEach(() => {
-        // Set up `useLocalSearchParams` for tests needing only `id`
-        const useLocalSearchParams = require('expo-router').useLocalSearchParams;
-        useLocalSearchParams.mockReturnValue({ id: '1' });
-    });
-
-    afterEach(() => {
-        jest.clearAllMocks(); // Clear mocks after each test
-    });*/
 
     it('renders without crashing', () => {
         const { getByText } = render(<CardListScreen />);
@@ -120,7 +131,7 @@ describe('CardListScreen', () => {
         const deleteButton = getByText('Delete Selected Cards');
         fireEvent.press(deleteButton);
 
-        expect(callFunction).toHaveBeenCalledWith(Memento.Functions.deleteCard, { deckId: '1', cardIndex: 1 });
+        expect(callFunction).toHaveBeenCalledWith(Memento.Functions.deleteCards, { deckId: '1', cardIndices: [1] });
     });
 
     it('can cancel card selection', () => {
@@ -190,7 +201,7 @@ describe('CardListScreen', () => {
 
 });
 
-
+// Test suite for the utility functions
 describe('handlePress', () => {
     const mockCard: Memento.Card = {
         question: 'Test Question',
@@ -281,6 +292,7 @@ describe('RouteHeader', () => {
     });
 });
 
+// Test suite for the TestYourMightScreen component
 describe('TestYourMightScreen', () => {
     it('should render correctly', () => {
         const { getByText } = render(<TestYourMightScreen />);
@@ -367,6 +379,7 @@ describe('TestYourMightScreen', () => {
     });
 });
 
+// Test suite for the CreateCardScreen component
 describe('CreateCardScreen', () => {
     afterAll(() => {
         jest.clearAllMocks();
@@ -434,6 +447,7 @@ describe('CreateCardScreen', () => {
     });
 });
 
+// Test suite for the CardScreenComponent component
 describe('CardScreen', () => {
     beforeEach(() => {
         jest.clearAllMocks();
@@ -466,7 +480,7 @@ describe('CardScreen', () => {
         fireEvent.press(deleteButton);
 
         await waitFor(() => {
-            expect(callFunction).toHaveBeenCalledWith(Memento.Functions.deleteCard, { deckId: '1', cardIndex: 0 });
+            expect(callFunction).toHaveBeenCalledWith(Memento.Functions.deleteCards, { deckId: '1', cardIndices: [0] });
         });
     });
 
@@ -481,7 +495,7 @@ describe('CardScreen', () => {
         fireEvent.press(deleteButton);
 
         await waitFor(() => {
-            expect(callFunction).toHaveBeenCalledWith(Memento.Functions.deleteCard, { deckId: '1', cardIndex: 0 });
+            expect(callFunction).toHaveBeenCalledWith(Memento.Functions.deleteCards, { deckId: '1', cardIndices: [0] });
         });
     });
 
@@ -562,58 +576,3 @@ describe('CardScreen', () => {
     });
 
 });
-/*
-describe('EditCardScreen', () => {
-    beforeEach(() => {
-        const useLocalSearchParams = require('expo-router').useLocalSearchParams;
-        useLocalSearchParams.mockReturnValue({
-            deckId: '1',
-            prev_question: 'Question 1',
-            prev_answer: 'Answer 1',
-            cardIndex: '0'
-        });
-    });
-
-
-    it('should render correctly', () => {
-        const { getByText, getByTestId } = render(<EditCardScreen />);
-        expect(getByText('Question')).toBeTruthy();
-        expect(getByText('Answer')).toBeTruthy();
-        expect(getByTestId('updateCardButton')).toBeTruthy();
-    });
-
-    it('should display the correct previous question and answer', () => {
-        const { getByDisplayValue } = render(<EditCardScreen />);
-        expect(getByDisplayValue('Question 1')).toBeTruthy();
-        expect(getByDisplayValue('Answer 1')).toBeTruthy();
-    });
-
-    it('should update a card when the fields are filled', async () => {
-
-        const { getByTestId, getByDisplayValue } = render(<EditCardScreen />);
-        const updateButton = getByTestId('updateCardButton');
-
-        fireEvent.changeText(getByDisplayValue('Question 1'), 'Test Question');
-        fireEvent.changeText(getByDisplayValue('Answer 1'), 'Test Answer');
-
-        expect(getByDisplayValue('Test Question')).toBeTruthy();
-
-        // Mock successful response for creating a card
-        (callFunction as jest.Mock).mockResolvedValueOnce({ status: 1 });
-
-        fireEvent.press(updateButton);
-
-        await waitFor(() => {
-            expect(callFunction).toHaveBeenCalledWith(Memento.Functions.updateCard, {
-                deckId: '1',
-                newCard: {
-                    question: 'Test Question',
-                    answer: 'Test Answer',
-                    learning_status: 'Got it',
-                },
-                cardIndex: 0
-            });
-        });
-
-    });
-});*/
