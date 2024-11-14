@@ -221,7 +221,7 @@ const LectureScreen: ApplicationRoute = () => {
 
                                 <TScrollView flex={0.5} mt={15} mr={'md'} ml={'md'} mb={15}>
                                     {/* Questions Display */}
-                                    {questionsDoc && questionsDoc.map((question, index) => renderQuestion(question?.data.text, index))}
+                                    {questionsDoc?.map((question, index) => renderQuestion(question?.data.text, index))}
 
                                     {/* Enter Your Question */}
                                     <TView flexDirection='row'>
