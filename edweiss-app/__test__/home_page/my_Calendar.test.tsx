@@ -140,8 +140,6 @@ describe('MyCalendar Component', () => {
             (listener as (event: { orientationInfo: { orientation: number } }) => void)({ orientationInfo: { orientation: 3 } });
             return { remove: jest.fn() };
         });
-
-
     });
 
 });
