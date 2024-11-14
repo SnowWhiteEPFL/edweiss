@@ -1,70 +1,21 @@
-// InfinitePaginatedCounterScreen.test.tsx
 
-import HomeTab from '@/app/(app)/(tabs)/GwenHomePage';
+
+import MyCalendar from '@/app/(app)/my_Calendar';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import React from 'react';
-
+import { Dimensions, ScaledSize } from 'react-native';
 jest.mock('@/contexts/auth', () => ({
     useAuth: jest.fn(),
 }));
-
-jest.mock('@/hooks/firebase/firestore', () => ({
-    useDynamicDocs: jest.fn(),
-}));
-
-jest.mock('@react-native-async-storage/async-storage', () => ({
-    getItem: jest.fn().mockResolvedValue('mocked value'),
-    setItem: jest.fn().mockResolvedValue(undefined),
-    removeItem: jest.fn().mockResolvedValue(undefined),
-}));
-
-jest.mock('i18next-react-native-async-storage', () => ({
-    default: jest.fn().mockReturnValue({
-        use: jest.fn().mockReturnThis(), // Mock de la méthode use pour permettre le chaînage
-    }),
-}));
-
-jest.mock('@react-native-firebase/auth', () => ({
-    __esModule: true,
-    default: jest.fn(() => ({
-        currentUser: { uid: 'test-user-id' },
-    })),
-}));
-
-jest.mock('expo-screen-orientation', () => ({
-    addOrientationChangeListener: jest.fn(),
-    removeOrientationChangeListener: jest.fn(),
-    lockAsync: jest.fn(),
-}));
-
-jest.mock('@react-native-firebase/firestore', () => {
-    const collectionMock = {
-        doc: jest.fn().mockReturnThis(),
-        get: jest.fn().mockResolvedValue({
-            id: 'course1',
-            data: jest.fn(() => mockCourses.map((course) => course.data)),
-        }),
-    };
-    return {
-        __esModule: true,
-        default: jest.fn(() => ({
-            collection: jest.fn(() => collectionMock),
-        })),
-        FirebaseFirestoreTypes: {
-            DocumentReference: jest.fn(),
-        },
-    };
-});
-
 jest.mock('@react-native-firebase/functions', () => ({
     __esModule: true,
     default: jest.fn(() => ({
         httpsCallable: jest.fn(),
     })),
 }));
-
 jest.mock('@react-native-firebase/storage', () => ({
     __esModule: true,
     default: jest.fn(() => ({
@@ -84,9 +35,54 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
     },
 }));
 
+
+
+jest.mock('@/hooks/firebase/firestore', () => ({
+    useDynamicDocs: jest.fn(),
+}));
+
+jest.mock('@react-native-firebase/auth', () => ({
+    __esModule: true,
+    default: jest.fn(() => ({
+        currentUser: { uid: 'test-user-id' },
+    })),
+}));
+
+jest.mock('@react-native-firebase/firestore', () => {
+    const collectionMock = {
+        doc: jest.fn().mockReturnThis(),
+        get: jest.fn().mockResolvedValue({
+            exists: true,
+            data: jest.fn(() => ({
+                name: 'Test Course',
+                description: 'A course for testing purposes.',
+                professors: ['prof1'],
+                assistants: ['student1'],
+                periods: [],
+                section: 'IN',
+                credits: 3,
+                newAssignments: false,
+                assignments: [],
+                started: true,
+            })),
+        }),
+    };
+    return {
+        __esModule: true,
+        default: jest.fn(() => ({
+            collection: jest.fn(() => collectionMock),
+        })),
+    };
+});
+
+jest.mock('expo-screen-orientation', () => ({
+    addOrientationChangeListener: jest.fn(),
+    removeOrientationChangeListener: jest.fn(),
+}));
+
 const mockAuth = {
     authUser: { uid: 'test-user-id' },
-    data: { type: 'professor' },
+    data: { type: 'student' },
 };
 
 const mockCourses = [
@@ -112,7 +108,7 @@ const mockCourses = [
     },
 ];
 
-describe('HomeTab Component', () => {
+describe('MyCalendar Component', () => {
     beforeEach(() => {
         (useAuth as jest.Mock).mockReturnValue(mockAuth);
         (useDynamicDocs as jest.Mock).mockImplementation((collection) => {
@@ -124,17 +120,74 @@ describe('HomeTab Component', () => {
             }
             return [];
         });
+        Dimensions.get = jest.fn(() => ({ width: 400, height: 600 } as ScaledSize));
     });
 
-    it('renders List', () => {
-        render(<HomeTab />);
-        expect(screen.getByText('List of courses')).toBeTruthy();
-    });
-    it('renders hours', () => {
-        render(<HomeTab />);
-        expect(screen.getByText('22:00')).toBeTruthy();
+    it('renders My Calendar component', () => {
+        render(<MyCalendar />);
+        expect(screen.getByText('My Calendar')).toBeTruthy();
     });
 
+    it('renders list of courses', () => {
+        render(<MyCalendar />);
+        expect(screen.getByText('Course 1')).toBeTruthy();
+        expect(screen.getByText('Crédits: 3')).toBeTruthy();
+        expect(screen.getByText('assignements : 1')).toBeTruthy();
+        expect(screen.getByText('New!')).toBeTruthy();
+    });
 
+    it('should display loading indicator initially', () => {
+        render(<MyCalendar />);
 
+        expect(screen.getByTestId('activity-indicator')).toBeTruthy();
+    });
+
+    it('should display courses after loading', async () => {
+        (useDynamicDocs as jest.Mock).mockReturnValueOnce([{ id: 'course1', data: { name: 'Course 1' } }] as Array<{ id: string; data: { name: string } }>);
+
+        render(<MyCalendar />);
+
+        await waitFor(() => expect(screen.getByText('Course 1')).toBeTruthy());
+    });
+
+    it('should call loadMorePages when scrolling to end', async () => {
+        const { getByTestId } = render(<MyCalendar />);
+
+        // On simule un scroll en bas de la liste
+        const flatList = getByTestId('flat-list');
+        fireEvent.scroll(flatList, {
+            nativeEvent: {
+                contentOffset: { x: 100, y: 0 },
+                contentSize: { width: 1000, height: 100 },
+                layoutMeasurement: { width: 400, height: 600 },
+            },
+        });
+
+        // Vérifier que la page suivante a été ajoutée
+        await waitFor(() => expect(screen.getByText('Course 1')).toBeTruthy());
+    });
+
+    it('should change orientation when screen is rotated', async () => {
+        const setOrientation = jest.fn();
+
+        // Simuler un changement d'orientation
+        render(<MyCalendar />);
+        (ScreenOrientation.addOrientationChangeListener as jest.Mock).mockImplementationOnce((listener) => {
+            (listener as (event: { orientationInfo: { orientation: number } }) => void)({ orientationInfo: { orientation: 3 } });
+            return { remove: jest.fn() };
+        });
+
+        await waitFor(() => expect(setOrientation).toHaveBeenCalled());
+    });
+
+    it('should render Calendar with filtered courses and todos', async () => {
+        (useDynamicDocs as jest.Mock).mockReturnValueOnce([{ id: 'course1', data: { name: 'Course 1' } }]);
+
+        render(<MyCalendar />);
+
+        await waitFor(() => {
+            expect(screen.getByTestId('calendar')).toBeTruthy();
+            expect(screen.getByText('Course 1')).toBeTruthy();
+        });
+    });
 });

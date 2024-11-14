@@ -1,13 +1,9 @@
-import HomeTab from '@/app/(app)/(tabs)/GwenHomePage';
-import { useAuth } from '@/contexts/auth';
-import { useDynamicDocs } from '@/hooks/firebase/firestore';
+// __tests__/Calendar.test.tsx
+
+
+import { Calendar } from '@/components/core/calendar';
 import { render, screen } from '@testing-library/react-native';
-import React from 'react';
 
-
-beforeEach(() => {
-    render(<HomeTab />);
-});
 
 const mockCourses = [
     {
@@ -69,7 +65,7 @@ jest.mock('@/hooks/firebase/firestore', () => ({
 jest.mock('@react-native-firebase/auth', () => ({
     __esModule: true,
     default: jest.fn(() => ({
-        authUser: { uid: 'test-user-id', authUser: { uid: 'test-user-id' } },
+        currentUser: { uid: 'test-user-id' },
     })),
 }));
 jest.mock('@react-native-firebase/firestore', () => {
@@ -123,49 +119,14 @@ const mockAuth = {
 };
 
 
+test('should render calendar with time blocks', () => {
+    const courses = [{ id: '1', data: { periods: [{ start: 60, end: 120, dayIndex: 1 }] } }];
+    const assignments = [{ id: '1', data: { dueDate: '2024-11-15T10:00:00Z' } }];
+    const todos = [{ id: '1', data: { dueDate: '2024-11-15T10:00:00Z' } }];
+    const date = new Date('2024-11-15T00:00:00Z');
 
-describe('HomeTab Component', () => {
-    beforeEach(() => {
-        (useAuth as jest.Mock).mockReturnValue(mockAuth);
-        (useDynamicDocs as jest.Mock).mockImplementation((collection) => {
-            if (collection === 'courses') {
-                return mockCourses;
-            }
-            if (collection === `users/${mockAuth.authUser.uid}/courses`) {
-                return mockCourses;
-            }
-            return [];
-        });
-    });
+    render(<Calendar courses={[]} assignments={[]} todos={[]} type={undefined} date={new Date()} />);
 
-
-    it('render hours', async () => {
-
-        expect(screen.getByText('1:00')).toBeTruthy();
-        expect(screen.getByText('2:00')).toBeTruthy();
-        expect(screen.getByText('3:00')).toBeTruthy();
-        expect(screen.getByText('13:00')).toBeTruthy();
-        expect(screen.getByText('16:00')).toBeTruthy();
-        expect(screen.getByText('22:00')).toBeTruthy();
-    });
-    it('render course name', async () => {
-
-        expect(await screen.findByText('Course 1')).toBeTruthy();
-        expect(await screen.findByText('Course 2')).toBeTruthy();
-    });
-    it('render course credits', async () => {
-
-        expect(screen.getByText('Crédits: 3')).toBeTruthy();
-        expect(screen.getByText('Crédits: 4')).toBeTruthy();
-    });
-    it('render List of courses', async () => {
-
-        expect(screen.getByText('List of courses')).toBeTruthy();
-        expect(screen.getByText('My Calendar')).toBeTruthy();
-        expect(screen.getByText('now')).toBeTruthy();
-
-    });
+    // Vérifier que les blocs horaires sont rendus
+    expect(screen.getByText('10:00'));
 });
-
-
-

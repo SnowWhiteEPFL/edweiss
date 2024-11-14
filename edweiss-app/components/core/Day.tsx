@@ -79,10 +79,10 @@ export const Day = ({
 
             {assignments.length > 0 && (
                 <TView style={styles.assignmentContainer} key={`assignments-${user?.id}`}>
-                    <TText style={styles.assignmentTitle}>Assignments Due Today:</TText>
+                    <TText>Assignments Due Today:</TText>
                     {assignments.map((assignment) => (
                         <TView key={`assignment-${user?.id}-${assignment.id}`} style={styles.assignmentItem}>
-                            <TText style={styles.assignmentName}>{assignment.data.name}</TText>
+                            <TText>{assignment.data.name}</TText>
                         </TView>
                     ))}
                 </TView>
@@ -109,15 +109,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'red',
         borderRadius: 10,
     },
-    assignmentTitle: {
-        fontWeight: 'bold',
-    },
+
     assignmentItem: {
         marginTop: 5,
     },
-    assignmentName: {
-        fontSize: 14,
-    },
+
     todoContainer: {
         marginTop: 10,
         padding: 10,
