@@ -1,3 +1,15 @@
+/**
+ * CardScreenComponent.tsx
+ * 
+ * @file CardScreenComponent.tsx
+ * @description Screen to see a card with a question and an answer
+ * @author Tuan Dang Nguyen
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import ReactComponent from '@/constants/Component';
 
 import { callFunction, Collections } from '@/config/firebase';
@@ -13,6 +25,19 @@ import RouteHeader from '../core/header/RouteHeader';
 import TText from '../core/TText';
 import FancyButton from '../input/FancyButton';
 
+// ------------------------------------------------------------
+// ---------------- CardScreenComponent Component ---------------
+// ------------------------------------------------------------
+
+/**
+ * Card screen
+ * User can see a card with a question and an answer
+ * 
+ * @param {string} deckId - Deck id
+ * @param {number} cardIndex - Card index
+ * @param {boolean} isModal - boolean to check if the screen is a modal then change the style
+ * @returns {ReactComponent} Screen to see a card
+ */
 const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; isModal?: boolean; }> = ({ deckId, cardIndex, isModal }) => {
 
     const [showDropdown, setShowDropdown] = useState(false); // State for dropdown visibility
@@ -25,6 +50,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
 
     const rotation = useSharedValue(0);
 
+    // Reset card flip when changing card
     useEffect(() => {
         setIsFlipped(false);
         rotation.value = 0;
@@ -43,8 +69,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
         return fontSize;
     };
 
-
-
+    // Flip card animation
     const toggleFlip = () => {
         rotation.value = withTiming(
             isFlipped ? 0 : -180,
@@ -58,6 +83,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
         );
     };
 
+    // Animated styles for front and back of the card
     const fronCardStyle = useAnimatedStyle(() => {
         return {
             transform: [{ perspective: 1000 }, { rotateY: `${rotation.value}deg` }]
@@ -70,6 +96,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
         };
     });
 
+    // Delete card
     async function deleteCard() {
 
         const res = await callFunction(Memento.Functions.deleteCards, { deckId: deckId, cardIndices: [cardIndex] });
@@ -80,6 +107,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
 
     }
 
+    // Update card
     async function updateCard() {
         try {
             const res = await callFunction(Memento.Functions.updateCard, { deckId: deckId as any, newCard: card, cardIndex: cardIndex });
@@ -173,6 +201,10 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
 
 };
 
+// ------------------------------------------------------------
+// ----------------------- Stylesheet -------------------------
+// ------------------------------------------------------------
+
 export const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -237,6 +269,15 @@ export const styles = StyleSheet.create({
 
 export default CardScreenComponent;
 
+/**
+ * This function updates the learning status of a card
+ * 
+ * @param deckId: string - deck id 
+ * @param cardIndex: number - index of the card 
+ * @param onPress: function - function to update the card 
+ * @param learning_status: Memento.LearningStatus - new learning status
+ * @param card: Memento.Card - current card 
+ */
 function updateLearningStatusCard(deckId: string, cardIndex: number, onPress: (deckId: any, newCard: Memento.Card, cardIndex: number) => void, learning_status: Memento.LearningStatus, card?: Memento.Card) {
     if (card) {
         card.learning_status = learning_status;
