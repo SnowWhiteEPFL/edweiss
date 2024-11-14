@@ -30,6 +30,11 @@ import React, { useState } from 'react';
 // ---------------------  DeckScreen Component -----------------
 // ------------------------------------------------------------
 
+/**
+ * DeckScreen Component that allows users to create, view, and delete decks of flashcards.
+ * 
+ * @returns {ApplicationRoute} DeckScreen component
+ */
 const DeckScreen: ApplicationRoute = () => {
     const [deckName, setDeckName] = useState("");
     const [existedDeckName, setExistedDeckName] = useState(false);
@@ -175,6 +180,17 @@ export default DeckScreen;
 // ---------------------  DeckDisplay Component -----------------
 // ------------------------------------------------------------
 
+/**
+ * Deck Display Component that displays a deck with its name and last modified time.
+ * 
+ * @param deck: Memento.Deck
+ * @param id: deck id
+ * @param isSelected: boolean indicating if the deck is selected
+ * @param toggleSelection: function to toggle deck selection
+ * @param onLongPress: function to handle long press
+ * @param selectionMode: boolean indicating if the selection mode is active
+ * @returns deck display component
+ */
 export const DeckDisplay: ReactComponent<{ deck: Memento.Deck, id: string; isSelected: boolean; toggleSelection: (deck: Memento.Deck) => void; onLongPress: () => void; selectionMode: boolean; }> = ({ deck, id, isSelected, toggleSelection, onLongPress, selectionMode }) => {
     const handlePress = () => {
         if (!selectionMode) {
