@@ -3,7 +3,7 @@ import { onAuthentifiedCall } from 'utils/firebase';
 import { CollectionOf } from 'utils/firestore';
 import { fail, ok } from 'utils/status';
 
-export const deleteCard = onAuthentifiedCall(Memento.Functions.deleteCards, async (userId, args) => {
+export const deleteCards = onAuthentifiedCall(Memento.Functions.deleteCards, async (userId, args) => {
 
     const deckCollection = CollectionOf<Memento.Deck>("decks");
     const deckDoc = await deckCollection.doc(args.deckId).get();
