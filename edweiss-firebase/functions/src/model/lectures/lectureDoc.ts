@@ -10,6 +10,7 @@
 
 import { FunctionFolder, FunctionOf } from '../functions';
 import Quizzes from '../quizzes';
+import { Timestamp } from '../time';
 
 // ------------------------------------------------------------
 // -------------------   Lecture Namespace   ------------------
@@ -30,6 +31,14 @@ namespace LectureDisplay {
 		quizModel: Quizzes.Quiz;
 	}
 
+	export interface Question {
+		text: string,
+		userID: string,
+		anonym: boolean,
+		likes: number,
+		postedTime: Timestamp,
+	}
+
 	export interface Lecture {
 		pdfUri: string;
 		nbOfPages: number;
@@ -38,8 +47,11 @@ namespace LectureDisplay {
 	}
 
 	export const Functions = FunctionFolder("lectures", {
+    createQuestion: FunctionOf<{ courseId: string, lectureId: string, question: string; }, { id: string; }, 'invalid_arg' | 'error_firebase' | 'empty_question'>("createQuestion"),
+		updateQuestion: FunctionOf<{ id: string, lectureId: string, likes: number; }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("updateQuestion"),
 		addAudioTranscript: FunctionOf<{ courseId: string, lectureId: string, pageNumber: number, transcription: string; }, 'successfully_added', 'invalid_arg' | 'error_firebase' | 'course_not_found'>("addAudioTranscript"),
 	});
 }
 
 export default LectureDisplay;
+
