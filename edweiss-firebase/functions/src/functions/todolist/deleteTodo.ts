@@ -9,9 +9,10 @@
 // ------------------------------------------------------------
 
 import Todolist from 'model/todo';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocumentRef } from 'utils/firestore';
-import { fail, ok } from 'utils/status';
+import { Predicate } from 'utils/sanitizer';
+import { OK } from 'utils/status';
 
 import Functions = Todolist.Functions;
 
@@ -20,15 +21,10 @@ import Functions = Todolist.Functions;
 // ----------------  Delete to do Cloud Function  -------------
 // ------------------------------------------------------------
 
-export const deleteTodo = onAuthentifiedCall(Functions.deleteTodo, async (userId, args) => {
-    if (!args.id)
-        return fail("invalid_id");
+export const deleteTodo = onSanitizedCall(Functions.deleteTodo, {
+	id: Predicate.isNonEmptyString
+}, async (userId, args) => {
+	await getDocumentRef(CollectionOf(`users/${userId}/todos/`), args.id).delete();
 
-    try {
-        await getDocumentRef(CollectionOf(`users/${userId}/todos/`), args.id).delete();
-    } catch (error) {
-        return fail("firebase_error");
-    }
-
-    return ok({});
+	return OK;
 });
