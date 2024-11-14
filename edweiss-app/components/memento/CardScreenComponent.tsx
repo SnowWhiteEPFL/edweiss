@@ -43,8 +43,10 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
 
     const [showDropdown, setShowDropdown] = useState(false); // State for dropdown visibility
     const [isFlipped, setIsFlipped] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const decks = useDynamicDocs(Collections.deck);
+
     const deck = decks?.find(d => d.id == deckId);
 
     const card = deck?.data.cards[cardIndex];
@@ -109,9 +111,10 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
     }
 
     // Update card
-    async function updateCard() {
+    async function updateCard(new_learning_status: Memento.LearningStatus) {
+        if (!card) return;
         try {
-            const res = await callFunction(Memento.Functions.updateCard, { deckId: deckId as any, newCard: card, cardIndex: cardIndex });
+            const res = await callFunction(Memento.Functions.updateCard, { deckId: deckId as any, newCard: { ...card, learning_status: new_learning_status }, cardIndex: cardIndex });
 
             if (res.status == 1) {
                 console.log(`OKAY, card updated with index ${cardIndex}`);
@@ -181,8 +184,14 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
                 <TView style={styles.buttonHalf}>
                     <FancyButton
                         testID='notYetButton'
+                        loading={isLoading}
                         backgroundColor='red'
-                        onPress={() => updateLearningStatusCard(deckId, cardIndex, updateCard, "Not yet", card)}
+                        onPress={async () => {
+                            setIsLoading(true);
+                            await updateCard("Not yet");
+                            setIsLoading(false);
+                        }
+                        }
                         style={{ width: '100%', height: '100%' }} // Make button fill its half
                         icon='close-sharp'
                     >
@@ -191,9 +200,15 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
                 </TView>
                 <TView style={styles.lastButtonHalf}>
                     <FancyButton
+                        loading={isLoading}
                         testID='gotItButton'
                         backgroundColor='green'
-                        onPress={() => updateLearningStatusCard(deckId, cardIndex, updateCard, "Got it", card)}
+                        onPress={async () => {
+                            setIsLoading(true);
+                            await updateCard("Got it");
+                            //await updateLearningStatusCard(deckId, cardIndex, updateCard, "Got it", card);
+                            setIsLoading(false);
+                        }}
                         style={{ width: '100%', height: '100%' }} // Make button fill its half
                         icon='checkmark-sharp'
                     >
@@ -275,19 +290,3 @@ export const styles = StyleSheet.create({
 });
 
 export default CardScreenComponent;
-
-/**
- * This function updates the learning status of a card
- * 
- * @param deckId: string - deck id 
- * @param cardIndex: number - index of the card 
- * @param onPress: function - function to update the card 
- * @param learning_status: Memento.LearningStatus - new learning status
- * @param card: Memento.Card - current card 
- */
-function updateLearningStatusCard(deckId: string, cardIndex: number, onPress: (deckId: any, newCard: Memento.Card, cardIndex: number) => void, learning_status: Memento.LearningStatus, card?: Memento.Card) {
-    if (card) {
-        card.learning_status = learning_status;
-        onPress(deckId, card, cardIndex);
-    }
-}
