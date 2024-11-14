@@ -9,6 +9,9 @@ import React from 'react';
 // Mock expo-router
 jest.mock('expo-router', () => ({
     useRouter: jest.fn(),
+    router: {
+        push: jest.fn(),
+    },
 }));
 
 // Définissez l'objet `mockRouter` avec une fonction `push` mockée
@@ -60,11 +63,6 @@ const mockCourse: Course = {
     started: true,
     newAssignments: false,
 };
-jest.mock('expo-router', () => ({
-    router: {
-        push: jest.fn(),
-    },
-}));
 
 const mockPeriod: CourseTimePeriod = {
     start: 480,
@@ -87,14 +85,47 @@ const mockUserStudent = {
     },
 };
 
+const mockFilteredPeriods: CourseTimePeriod[] = [
+    {
+
+        start: 480,
+        end: 540,
+        type: "lecture" as "lecture", // or use the appropriate CourseTimePeriodType
+        activityId: 'activity1',
+        dayIndex: 1,
+        rooms: [],
+    },
+];
+
+const mockAssignments = [
+    {
+        id: 'assignment1',
+        data: {
+            type: 'homework', // or the appropriate AssignmentType
+            name: 'Assignment 1',
+            dueDate: new Date().toISOString(),
+        },
+    },
+];
+
+const mockTodos = [
+    {
+        id: 'todo1',
+        data: {
+            name: 'Todo 1',
+            status: 'pending', // or the appropriate TodoStatus
+            dueDate: new Date().toISOString(),
+        },
+    },
+];
+
 function renderDayComponent({ user, period, format }: { user: any, period: CourseTimePeriod, format: string; }) {
     return render(
         <Day
-            course={{ id: 'course1', data: mockCourse }}
+            course={[{ id: 'course1', data: mockCourse }]}
             user={user}
             filteredPeriods={[period]}
-            index={0}
-            format={format} period={period} />
+            format={format} assignments={[]} todos={[]} />
     );
 }
 
@@ -156,7 +187,76 @@ describe('Day Component', () => {
         (callFunction as jest.Mock).mockRejectedValueOnce(new Error("Erreur de test"));
 
         const { getByText } = renderDayComponent({ user: mockUserProfessor, period: mockPeriod, format: "day" });
-        expect(getByText('Test Course')).toBeTruthy();
+
     });
-}
-);
+
+    it('renders periods correctly', () => {
+        const { getByText } = render(
+            <Day
+                course={[{ id: 'course1', data: mockCourse }]}
+                user={mockUserStudent}
+                filteredPeriods={mockFilteredPeriods}
+                format="day"
+                assignments={[]}
+                todos={[]}
+            />
+        );
+
+        expect(getByText('Lecture')).toBeTruthy();
+    });
+
+    it('renders assignments correctly', () => {
+        const { getByText } = render(
+            <Day
+                course={[{ id: 'course1', data: mockCourse }]}
+                user={mockUserStudent}
+                filteredPeriods={mockFilteredPeriods}
+                format="day"
+                assignments={[]}
+                todos={[]}
+            />
+        );
+
+        expect(getByText('Assignments Due Today:')).toBeTruthy();
+        expect(getByText('Assignment 1')).toBeTruthy();
+    });
+
+    it('renders todos correctly', () => {
+        const { getByText } = render(
+            <Day
+                course={[{ id: 'course1', data: mockCourse }]}
+                user={mockUserStudent}
+                filteredPeriods={mockFilteredPeriods}
+                format="day"
+                assignments={[]}
+                todos={[]}
+            />
+        );
+
+        expect(getByText('To-Dos:')).toBeTruthy();
+        expect(getByText('Todo 1')).toBeTruthy();
+    });
+
+    it('navigates to the correct screen on period press', () => {
+        const { getByText } = render(
+            <Day
+                course={[{ id: 'course1', data: mockCourse }]}
+                user={mockUserStudent}
+                filteredPeriods={mockFilteredPeriods}
+                format="day"
+                assignments={[]}
+                todos={[]}
+            />
+        );
+
+        fireEvent.press(getByText('Lecture'));
+
+        expect(router.push).toHaveBeenCalledWith({
+            pathname: '/(app)/lectures/slides',
+            params: {
+                courseNameString: 'Test Course',
+                lectureIdString: 'activity1',
+            },
+        });
+    });
+});

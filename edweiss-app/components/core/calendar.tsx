@@ -129,7 +129,7 @@ export const Calendar = ({ courses, assignments, todos, type, date }: {
             {format === "week" && (
                 <View style={{ flexDirection: 'row' }}>
                     <TView style={{ width: '5%' }} />
-                    {getWeekDates().map((weekDate, index) => (
+                    {getWeekDates(date).map((weekDate, index) => (
                         <TText key={index} align='center' style={{ width: '13.3%' }}>
                             {weekDate.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
                         </TText>
