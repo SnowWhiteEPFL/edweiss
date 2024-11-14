@@ -33,7 +33,7 @@ type Lecture = LectureDisplay.Lecture;
 type Question = LectureDisplay.Question;
 
 // ------------------------------------------------------------
-// -------------------  Remote Control Screen  ----------------
+// --------------------  Lecture Screen  ----------------------
 // ------------------------------------------------------------
 
 const LectureScreen: ApplicationRoute = () => {

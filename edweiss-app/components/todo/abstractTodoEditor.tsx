@@ -68,7 +68,7 @@ export const AbstractTodoEditor: React.FC<{
     if (editable) {
         downButtonIconName = "create";
         downButtonTitle = t(`todo:edit_button`);
-        screenTitle = t(`todo:create_header`);
+        screenTitle = t(`todo:edit_header`);
         downButtonAction = editTodoAction;
     }
 
@@ -109,6 +109,12 @@ export const AbstractTodoEditor: React.FC<{
                     text1: name + t(`todo:was_added_toast`),
                     text2: t(`todo:funny_phrase_on_add`)
                 });
+            } else if (res.error === "duplicate_todo") {
+                Toast.show({
+                    type: 'info',
+                    text1: t(`todo:already_existing_todo_toast_title`),
+                    text2: t(`todo:already_existing_todo_toast_funny`)
+                });
             } else {
                 Toast.show({
                     type: 'error',
@@ -130,7 +136,7 @@ export const AbstractTodoEditor: React.FC<{
         if (!id) return;
 
 
-        if (editable) {
+        try {
             const res = await callFunction(Functions.updateTodo, {
                 name: name, description: description === "" ? undefined : description, status: status,
                 dueDate: (!(dateChanged || timeChanged)) ? undefined : date.toISOString(),
@@ -146,6 +152,12 @@ export const AbstractTodoEditor: React.FC<{
                     text1: name + t(`todo:was_edited_toast`),
                     text2: t(`todo:funny_phrase_on_edit`)
                 });
+            } else if (res.error === "duplicate_todo") {
+                Toast.show({
+                    type: 'info',
+                    text1: t(`todo:already_existing_todo_toast_title`),
+                    text2: t(`todo:already_existing_todo_toast_funny`)
+                });
             } else {
                 Toast.show({
                     type: 'error',
@@ -153,7 +165,7 @@ export const AbstractTodoEditor: React.FC<{
                     text2: t(`todo:couldnot_edit_toast`)
                 });
             }
-        } else {
+        } catch (error) {
             Toast.show({
                 type: 'error',
                 text1: t(`todo:error_toast_title`),

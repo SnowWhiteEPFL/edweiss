@@ -33,6 +33,13 @@ export const createTodo = onAuthentifiedCall(Functions.createTodo, async (userId
 
     const todoCollection = CollectionOf<Todo>(`users/${userId}/todos`);
 
+    const existingTodos = await todoCollection.where('name', '==', name).get();
+
+    if (!existingTodos.empty) {
+        return fail("duplicate_todo");
+    }
+
+
     const todoToInsert: Todo = {
         name: name,
         status: status,

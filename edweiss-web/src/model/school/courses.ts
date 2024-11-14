@@ -8,15 +8,6 @@ export type CourseID = string & {};
 export type Credits = number & {};
 
 export type Section = "IN" | "COM" | "PH" | "MT";
-export const courseColors = {
-	lecture: 'blue',
-	exercises: 'pink',
-	lab: 'green',
-	project: 'teal',
-};
-
-export const SUBMISSION_TYPE = 'submission';
-export const QUIZ_TYPE = 'quiz';
 
 export interface CourseTimePeriod extends CyclicTimePeriod {
 	type: CourseTimePeriodType;
