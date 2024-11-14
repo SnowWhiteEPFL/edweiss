@@ -25,7 +25,7 @@ export type ContainerProps = & LightDarkProps & BoxModelProps & {
 
 export type ContainerStyle = StyleProp<ViewStyle>;
 
-export function computeContainerStyle(props: ContainerProps, backgroundColor: string | undefined, borderColor: string | undefined): ContainerStyle {
+export function computeContainerStyle(props: ContainerProps, backgroundColor: string | undefined, borderColor: string | undefined): ViewStyle {
 	return {
 		backgroundColor,
 		flex: props.flex,
