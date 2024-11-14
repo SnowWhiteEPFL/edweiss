@@ -53,14 +53,10 @@ const CardListScreen: ApplicationRoute = () => {
 	const deleteSelectedCards = async () => {
 		if (selectedCards.length === 0) return;
 
+		const selectedCardIndices = selectedCards.map(card => cards.indexOf(card));
+
 		try {
-			await Promise.all(selectedCards.map(card => {
-				callFunction(Memento.Functions.deleteCard, {
-					deckId: id,
-					cardIndex: cards.indexOf(card)
-				});
-			}
-			));
+			await callFunction(Memento.Functions.deleteCards, { deckId: id, cardIndices: selectedCardIndices });
 			setSelectedCards([]); // Clear selection after deletion
 			setSelectionMode(false); // Exit selection mode
 		} catch (error) {
@@ -87,20 +83,6 @@ const CardListScreen: ApplicationRoute = () => {
 	}
 
 	const toggleDropDown = () => { setShowDropdown(prev => !prev); }; // Open/close dropdown
-
-	/*const handleCardPress_old = (index: number) => {
-		if (!selectionMode) {
-			// Open the modal with the selected card
-			if (selectedCardIndex === index) {
-				// If the card is already selected, close the modal
-				modalRef.current?.dismiss(); // You may need to implement dismiss if not provided by BottomSheetModal
-				setSelectedCardIndex(null);
-			} else {
-				setSelectedCardIndex(index); // Set the new selected card index
-				modalRef.current?.present(); // Show the modal
-			}
-		}
-	};*/
 
 	return (
 		<>
@@ -151,7 +133,6 @@ const CardListScreen: ApplicationRoute = () => {
 							toggleSelection={toggleCardSelection}
 							onLongPress={enterSelectionMode}
 							selectionMode={selectionMode}
-							//goToPath={() => handleCardPress_old(index)}
 							goToPath={() => handleCardPress(index, selectionMode, selectedCardIndex, setSelectedCardIndex, modalRef)}
 						/>
 					)}
@@ -193,7 +174,6 @@ const DisplayCard: ReactComponent<{ card: Memento.Card, isSelected: boolean, tog
 				onLongPress();
 				toggleSelection(card);
 			}}
-			//onPress={handlePress_old}
 			onPress={() => handlePress(card, selectionMode, goToPath, toggleSelection)}
 			m='md' mt={'sm'} mb={'sm'} p='lg'
 			backgroundColor={isSelected ? 'rosewater' : 'base'}
