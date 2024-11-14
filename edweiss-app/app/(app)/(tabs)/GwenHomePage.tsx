@@ -16,12 +16,17 @@ import React from 'react';
 
 const HomeTab = () => {
 	const auth = useAuth();
+
+	if (!auth?.authUser) {
+		return <TText>Loading...</TText>; // Affiche un message de chargement si authUser est non disponible
+	}
+
 	const courses = useDynamicDocs(CollectionOf<Course>("courses"))?.map(doc => ({
 		id: doc.id,
 		data: doc.data
 	})) ?? [];
 	const my_courses = useDynamicDocs(
-		CollectionOf<Course>("users/" + (auth.authUser?.uid ?? 'default-uid') + "/courses")
+		CollectionOf<Course>("users/" + (auth?.authUser?.uid ?? 'default-uid') + "/courses")
 	)?.map(doc => ({
 		id: doc.id,
 		data: doc.data
