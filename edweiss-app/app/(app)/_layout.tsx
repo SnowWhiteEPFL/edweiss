@@ -1,19 +1,18 @@
 import { ApplicationLayout } from '@/constants/Component';
 
-import TText from '@/components/core/TText';
-import TView from '@/components/core/containers/TView';
 import { useAuth } from '@/contexts/auth';
 import { CoursesProvider } from '@/contexts/courses';
 import { useUser } from '@/contexts/user';
 import { Redirect, Stack } from 'expo-router';
 import React from 'react';
+import { LoadingPageCompoment } from '../login';
 
 const AppLayout: ApplicationLayout = () => {
 	const { isUserLoggedIn: userLoggedIn, isLoading } = useAuth();
 	const { user, loaded } = useUser();
 
 	if (isLoading || !loaded) {
-		return <TView><TText>Loading authentification {JSON.stringify({ userLoggedIn, isLoading, user, loaded })}</TText></TView>;
+		return <LoadingPageCompoment />;
 	}
 
 	if (!userLoggedIn) {

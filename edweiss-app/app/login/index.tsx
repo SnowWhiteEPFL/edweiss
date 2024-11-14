@@ -1,56 +1,145 @@
-import { ApplicationRoute } from '@/constants/Component';
+/**
+ * @file index.tsx
+ * @description The main login screen for the EdWeiss app, 
+ * 				with it loading screen component.
+ * @author Adamm Alaoui & Youssef Laraki
+ */
 
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
+import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
+import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
-import { callFunction, signInWithGoogle } from '@/config/firebase';
+import { callFunction, signInAnonymously, signInWithGoogle } from '@/config/firebase';
+import t from '@/config/i18config';
+import { ApplicationRoute } from '@/constants/Component';
 import { useAuth } from '@/contexts/auth';
 import { Auth } from '@/model/users';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
+import { Image, useWindowDimensions } from 'react-native';
+
+
+// ------------------------------------------------------------
+// --------------------  Main Login Screen    -----------------
+// ------------------------------------------------------------
 
 const Login: ApplicationRoute = () => {
 	const auth = useAuth();
 
-	const [loading, setLoading] = useState(false);
+	// Use states
+	const { width, height } = useWindowDimensions();
+	const [loadingGoogle, setLoadingGoogle] = useState(false);
+	const [loadingAnon, setLoadingAnon] = useState(false);
+	const [quoteN, setQuoteN] = useState(1);
 
-	async function signIn() {
+	// Generic SignIn method
+	async function signInGeneric(setLoading: React.Dispatch<React.SetStateAction<boolean>>, signInMethod: () => Promise<any>) {
 		setLoading(true);
 
-		const res = await signInWithGoogle();
+		const res = await signInMethod();
 
-		if (res != undefined) {
+		if (res) {
 			const accountRes = await callFunction(Auth.Functions.createAccount, { name: res.user.displayName });
 
 			if (accountRes.status == 1) {
 				router.replace("/");
 			} else {
-				console.log(accountRes.error);
 				setLoading(false);
 			}
 		}
 	}
 
+	// Get the color depending on the active state
+	function getColor(quoteNumber: number) {
+		return quoteN === quoteNumber ? 'sky' : 'surface0';
+	}
+
+	// Generate the quotes name
+	function generateQuotes() {
+		return `login:quotes_${quoteN}`
+	}
+
 	return (
 		<>
-			<RouteHeader title='Login' />
 
-			<TView pl={'lg'} pr={'lg'}>
-				<TText mb={'md'}>
-					I need to login to access the (app) group !
-				</TText>
+			<RouteHeader disabled title='Login' />
 
-				<FancyButton onPress={signIn} loading={loading} mb={'md'}>
-					Continue with Google
+
+			<TView style={{ flex: 1, backgroundColor: 'white' }} pl={'lg'} pr={'lg'}>
+
+				<TView flex={1} justifyContent='flex-start' alignItems='center'>
+					<Image
+						source={require('../../assets/images/mountain_logo.png')}
+						style={{ width: width * 0.8, height: height * 0.45, resizeMode: 'contain' }}
+						testID='mountain_logo_png'
+					/>
+					<TText mb={25} bold size={50}>{t(`login:welcome_title`)}</TText>
+					<TText align='center' size={18} color='darkNight' testID='quote-text-output'>{t(generateQuotes() as any)}</TText>
+
+					<TView flexDirection='row' justifyContent='space-between' style={{ width: '75%' }} mr={20} ml={20} mt={30}>
+						<TTouchableOpacity borderColor='subtext0' b={1} backgroundColor={getColor(1)} radius={'md'} onPress={() => setQuoteN(1)} testID='quote-but-1'>
+							<TText>            </TText>
+						</TTouchableOpacity>
+						<TTouchableOpacity borderColor='subtext0' b={1} backgroundColor={getColor(2)} radius={'md'} onPress={() => setQuoteN(2)} testID='quote-but-2'>
+							<TText>            </TText>
+						</TTouchableOpacity>
+						<TTouchableOpacity borderColor='subtext0' b={1} backgroundColor={getColor(3)} radius={'md'} onPress={() => setQuoteN(3)} testID='quote-but-3'>
+							<TText>            </TText>
+						</TTouchableOpacity>
+					</TView>
+				</TView>
+
+				<FancyButton onPress={() => signInGeneric(setLoadingGoogle, signInWithGoogle)} loading={loadingGoogle} icon='logo-google' mb={'md'} testID='google-but'>
+					{t(`login:continue_with_google`)}
 				</FancyButton>
 
-				<TText>
-					{JSON.stringify(auth)}
-				</TText>
+				<FancyButton onPress={() => signInGeneric(setLoadingAnon, signInAnonymously)} loading={loadingAnon} icon='shield-half-outline' mb={'lg'} outlined testID='anon-but'>
+					{t(`login:continue_annymous`)}
+				</FancyButton>
+
+
+
 			</TView>
 		</>
 	);
 };
 
 export default Login;
+
+
+
+
+
+// ------------------------------------------------------------
+// -----------------  The Loading Component    ----------------
+// ------------------------------------------------------------
+
+export const LoadingPageCompoment: React.FC = () => {
+
+	// Use the window informations
+	const { width, height } = useWindowDimensions();
+
+	return (
+		<>
+			<TView style={{ flex: 1, backgroundColor: 'white' }} pl={'lg'} pr={'lg'}>
+				<TView flex={1} justifyContent='flex-start' alignItems='center' mt={90} mb={20}>
+					<Image
+						source={require('../../assets/images/flower_logo.png')}
+						style={{ width: width * 0.8, height: height * 0.45, resizeMode: 'contain' }}
+						testID='flower_logo_png'
+					/>
+
+					<TActivityIndicator mt={100} mb={70} testID='load-indicator' />
+
+					<TText mt={80} size={20}>{t(`login:by_snowwhite_team`)}</TText>
+				</TView>
+			</TView>
+		</>
+	);
+};
