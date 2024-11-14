@@ -38,29 +38,11 @@ const Login: ApplicationRoute = () => {
 	const [loadingAnon, setLoadingAnon] = useState(false);
 	const [quoteN, setQuoteN] = useState(1);
 
-	// Signin with google function
-	async function signInGoogle() {
-		setLoadingGoogle(true);
+	// Generic SignIn method
+	async function signInGeneric(setLoading: React.Dispatch<React.SetStateAction<boolean>>, signInMethod: () => Promise<any>) {
+		setLoading(true);
 
-		const res = await signInWithGoogle();
-
-		if (res) {
-			const accountRes = await callFunction(Auth.Functions.createAccount, { name: res.user.displayName });
-
-			if (accountRes.status == 1) {
-				router.replace("/");
-			} else {
-				console.log(accountRes.error);
-				setLoadingGoogle(false);
-			}
-		}
-	}
-
-	// Log the app Anonymously
-	async function signInAnonymous() {
-		setLoadingAnon(true);
-
-		const res = await signInAnonymously();
+		const res = await signInMethod();
 
 		if (res) {
 			const accountRes = await callFunction(Auth.Functions.createAccount, { name: res.user.displayName });
@@ -68,8 +50,7 @@ const Login: ApplicationRoute = () => {
 			if (accountRes.status == 1) {
 				router.replace("/");
 			} else {
-				console.log(accountRes.error);
-				setLoadingAnon(false);
+				setLoading(false);
 			}
 		}
 	}
@@ -114,11 +95,11 @@ const Login: ApplicationRoute = () => {
 					</TView>
 				</TView>
 
-				<FancyButton onPress={signInGoogle} loading={loadingGoogle} icon='logo-google' mb={'md'} testID='google-but'>
+				<FancyButton onPress={() => signInGeneric(setLoadingGoogle, signInWithGoogle)} loading={loadingGoogle} icon='logo-google' mb={'md'} testID='google-but'>
 					{t(`login:continue_with_google`)}
 				</FancyButton>
 
-				<FancyButton onPress={signInAnonymous} loading={loadingAnon} icon='shield-half-outline' mb={'lg'} outlined testID='anon-but'>
+				<FancyButton onPress={() => signInGeneric(setLoadingAnon, signInAnonymously)} loading={loadingAnon} icon='shield-half-outline' mb={'lg'} outlined testID='anon-but'>
 					{t(`login:continue_annymous`)}
 				</FancyButton>
 
