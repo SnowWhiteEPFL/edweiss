@@ -1,21 +1,23 @@
 import Quizzes from 'model/quizzes';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { CustomPredicateQuiz } from 'utils/custom-sanitizer/quiz';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, Collections, getDocument } from 'utils/firestore';
+import { Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 
-export const createQuiz = onAuthentifiedCall(Quizzes.Functions.createQuiz, async (userId, args) => {
-    if (args.quiz.exercises.length == 0)
-        return fail("empty_quiz");
-    if (args.quiz.name.length == 0)
-        return fail("invalid_name");
+export const createQuiz = onSanitizedCall(Quizzes.Functions.createQuiz, {
+	courseId: Predicate.isNonEmptyString,
+	quiz: CustomPredicateQuiz.isValidQuiz
+}, async (userId, args) => {
+	const thisUser = await getDocument(Collections.users, userId);
 
-    const thisUser = await getDocument(Collections.users, userId);
-    if (thisUser?.type != "professor") {
-        return fail("not_authorized");
-    }
-    const quizCollection = CollectionOf<Quizzes.Quiz>("courses/" + args.courseId + "/quizzes");
+	if (thisUser?.type != "professor") {
+		return fail("not_authorized");
+	}
 
-    const res = await quizCollection.add(args.quiz);
+	const quizCollection = CollectionOf<Quizzes.Quiz>("courses/" + args.courseId + "/quizzes");
 
-    return ok({ id: res.id });
+	const res = await quizCollection.add(args.quiz);
+
+	return ok({ id: res.id });
 });
