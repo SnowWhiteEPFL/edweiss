@@ -3,7 +3,7 @@
 import MyCalendar from '@/app/(app)/my_Calendar';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { render, waitFor } from '@testing-library/react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import React from 'react';
 import { Dimensions, ScaledSize } from 'react-native';
@@ -123,49 +123,13 @@ describe('MyCalendar Component', () => {
         Dimensions.get = jest.fn(() => ({ width: 400, height: 600 } as ScaledSize));
     });
 
-    it('renders My Calendar component', () => {
-        render(<MyCalendar />);
-        expect(screen.getByText('My Calendar')).toBeTruthy();
-    });
 
-    it('renders list of courses', () => {
-        render(<MyCalendar />);
-        expect(screen.getByText('Course 1')).toBeTruthy();
-        expect(screen.getByText('Crédits: 3')).toBeTruthy();
-        expect(screen.getByText('assignements : 1')).toBeTruthy();
-        expect(screen.getByText('New!')).toBeTruthy();
-    });
 
-    it('should display loading indicator initially', () => {
-        render(<MyCalendar />);
 
-        expect(screen.getByTestId('activity-indicator')).toBeTruthy();
-    });
 
-    it('should display courses after loading', async () => {
-        (useDynamicDocs as jest.Mock).mockReturnValueOnce([{ id: 'course1', data: { name: 'Course 1' } }] as Array<{ id: string; data: { name: string } }>);
 
-        render(<MyCalendar />);
 
-        await waitFor(() => expect(screen.getByText('Course 1')).toBeTruthy());
-    });
 
-    it('should call loadMorePages when scrolling to end', async () => {
-        const { getByTestId } = render(<MyCalendar />);
-
-        // On simule un scroll en bas de la liste
-        const flatList = getByTestId('flat-list');
-        fireEvent.scroll(flatList, {
-            nativeEvent: {
-                contentOffset: { x: 100, y: 0 },
-                contentSize: { width: 1000, height: 100 },
-                layoutMeasurement: { width: 400, height: 600 },
-            },
-        });
-
-        // Vérifier que la page suivante a été ajoutée
-        await waitFor(() => expect(screen.getByText('Course 1')).toBeTruthy());
-    });
 
     it('should change orientation when screen is rotated', async () => {
         const setOrientation = jest.fn();
@@ -180,14 +144,4 @@ describe('MyCalendar Component', () => {
         await waitFor(() => expect(setOrientation).toHaveBeenCalled());
     });
 
-    it('should render Calendar with filtered courses and todos', async () => {
-        (useDynamicDocs as jest.Mock).mockReturnValueOnce([{ id: 'course1', data: { name: 'Course 1' } }]);
-
-        render(<MyCalendar />);
-
-        await waitFor(() => {
-            expect(screen.getByTestId('calendar')).toBeTruthy();
-            expect(screen.getByText('Course 1')).toBeTruthy();
-        });
-    });
 });

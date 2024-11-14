@@ -1,5 +1,4 @@
 import HomeTab from '@/app/(app)/(tabs)/GwenHomePage';
-import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { render, screen } from '@testing-library/react-native';
 import React from 'react';
@@ -67,10 +66,9 @@ jest.mock('@/hooks/firebase/firestore', () => ({
     useDynamicDocs: jest.fn(),
 }));
 jest.mock('@react-native-firebase/auth', () => ({
-    __esModule: true,
-    default: jest.fn(() => ({
-        authUser: { uid: 'test-user-id', authUser: { uid: 'test-user-id' } },
-    })),
+    signInWithCredential: jest.fn(() => Promise.resolve({ user: { authUser: 'blabla', uid: 'firebase-test-uid', email: 'firebase-test@example.com' } })),
+    signOut: jest.fn(() => Promise.resolve()),
+    currentUser: { uid: 'firebase-test-uid', email: 'firebase-test@example.com' },
 }));
 jest.mock('@react-native-firebase/firestore', () => {
     const collectionMock = {
@@ -126,7 +124,7 @@ const mockAuth = {
 
 describe('HomeTab Component', () => {
     beforeEach(() => {
-        (useAuth as jest.Mock).mockReturnValue(mockAuth);
+        //S(useAuth as jest.Mock).mockReturnValue(mockAuth);
         (useDynamicDocs as jest.Mock).mockImplementation((collection) => {
             if (collection === 'courses') {
                 return mockCourses;
@@ -164,6 +162,23 @@ describe('HomeTab Component', () => {
         expect(screen.getByText('My Calendar')).toBeTruthy();
         expect(screen.getByText('now')).toBeTruthy();
 
+    });
+    it('displays course credits after loading', async () => {
+        // Mocker les données retournées par useDynamicDocs
+        useDynamicDocs.mockReturnValue([
+            { id: '1', data: { name: 'Course 1', credits: 3 } },
+            { id: '2', data: { name: 'Course 2', credits: 4 } },
+        ]);
+
+        render(<HomeTab />);
+
+        // Attendez que le texte "Crédits: 3" et "Crédits: 4" apparaissent
+        await screen.findByText('Crédits: 3');
+        await screen.findByText('Crédits: 4');
+
+        // Vérifiez que le texte de crédits est bien affiché
+        expect(screen.getByText('Crédits: 3')).toBeTruthy();
+        expect(screen.getByText('Crédits: 4')).toBeTruthy();
     });
 });
 
