@@ -5,6 +5,9 @@ export const FAILED = fail('failed');
 
 export const NOT_AUTHENTIFIED = fail('not_authentified');
 export const INTERNAL_ERROR = fail('internal_error');
+export const INVALID_ARGUMENT = fail('invalid_argument');
+
+export const INVALID_COURSE_ID = fail('invalid_course_id');
 
 export function ok<R>(data: R): SuccessfulCallResult<R> {
 	return { status: 1, data };

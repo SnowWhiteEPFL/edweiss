@@ -1,12 +1,16 @@
 import { QuizzesAttempts } from 'model/quizzes';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { CustomPredicateQuiz } from 'utils/custom-sanitizer/quiz';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocumentRef } from 'utils/firestore';
+import { Predicate } from 'utils/sanitizer';
 import { ok } from 'utils/status';
 
-export const createQuizAttempt = onAuthentifiedCall(QuizzesAttempts.Functions.createQuizAttempt, async (userId, args) => {
-	// if (userId == undefined)
-	// 	return fail("empty_quiz");
-
+export const createQuizAttempt = onSanitizedCall(QuizzesAttempts.Functions.createQuizAttempt, {
+	courseId: Predicate.isNonEmptyString,
+	path: Predicate.isNonEmptyString,
+	quizId: Predicate.isNonEmptyString,
+	quizAttempt: CustomPredicateQuiz.isValidQuizAttempt
+}, async (userId, args) => {
 	const ref = getDocumentRef(CollectionOf<QuizzesAttempts.QuizAttempt>(args.path), userId);
 
 	await ref.set(args.quizAttempt);
