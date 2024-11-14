@@ -15,6 +15,7 @@ import ReactComponent from '@/constants/Component';
 import { callFunction, Collections } from '@/config/firebase';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import Memento from '@/model/memento';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Button, StyleSheet } from 'react-native';
@@ -26,7 +27,7 @@ import TText from '../core/TText';
 import FancyButton from '../input/FancyButton';
 
 // ------------------------------------------------------------
-// ---------------- CardScreenComponent Component ---------------
+// ---------------- CardScreenComponent Component -----------
 // ------------------------------------------------------------
 
 /**
@@ -38,7 +39,7 @@ import FancyButton from '../input/FancyButton';
  * @param {boolean} isModal - boolean to check if the screen is a modal then change the style
  * @returns {ReactComponent} Screen to see a card
  */
-const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; isModal?: boolean; }> = ({ deckId, cardIndex, isModal }) => {
+const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; isModal?: boolean; modalRef: React.RefObject<BottomSheetModal> }> = ({ deckId, cardIndex, isModal, modalRef }) => {
 
     const [showDropdown, setShowDropdown] = useState(false); // State for dropdown visibility
     const [isFlipped, setIsFlipped] = useState(false);
@@ -65,7 +66,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
         const lengthFactor = text.length; // Length factor to reduce font size
 
         // Calculate font size
-        const fontSize = Math.max(minSize, baseSize - (lengthFactor / 10)); // Decrease size as text gets longer
+        const fontSize = Math.max(minSize, baseSize - (lengthFactor / 18)); // Decrease size as text gets longer
         return fontSize;
     };
 
@@ -102,7 +103,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
         const res = await callFunction(Memento.Functions.deleteCards, { deckId: deckId, cardIndices: [cardIndex] });
         if (res.status == 1) {
             console.log(`Card deleted with id ${res.data.id}`);
-            router.back();
+            isModal ? modalRef.current?.dismiss() : router.back();
         }
 
     }
@@ -135,7 +136,11 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
                     <FancyButton testID='deleteCardButton' onPress={deleteCard} backgroundColor='transparent' textColor='red' mt={'md'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
                         Delete Card
                     </FancyButton>
-                    <FancyButton testID='editCardButton' onPress={() => router.push({ pathname: `/deck/${deckId}/card/edition` as any, params: { deckId: deckId, prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex } })}
+                    <FancyButton testID='editCardButton' onPress={() => {
+                        if (isModal) { modalRef.current?.dismiss(); }
+                        router.push({ pathname: `/deck/${deckId}/card/edition` as any, params: { deckId: deckId, prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex } })
+                    }
+                    }
                         backgroundColor='transparent' textColor='teal' mb={'sm'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
                         Edit Card
                     </FancyButton>
@@ -170,8 +175,9 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
                 </Animated.View>
             </TapGestureHandler>
 
+
             {/* Buttons container */}
-            <TView style={[styles.buttonContainer]}>
+            <TView style={styles.buttonContainer}>
                 <TView style={styles.buttonHalf}>
                     <FancyButton
                         testID='notYetButton'
@@ -194,6 +200,8 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
                         Got it!
                     </FancyButton>
                 </TView>
+                {isModal && <FancyButton icon='settings-sharp' backgroundColor='transparent' style={{ alignSelf: 'flex-end' }} onPress={toggleDropDown} />}
+
             </TView>
 
         </TView >
@@ -242,7 +250,7 @@ export const styles = StyleSheet.create({
     },
     buttonContainer: {
         position: 'absolute',
-        bottom: '0%', // Place the row near the bottom
+        bottom: '-10%', // Place the row near the bottom
         width: '60%', // Keep the row aligned with the card width
         flexDirection: 'row', // Create a horizontal row
         justifyContent: 'space-between',
@@ -255,7 +263,6 @@ export const styles = StyleSheet.create({
         flex: 1, // Take up half the width for each button
         justifyContent: 'center',
         alignItems: 'center',
-        borderRightWidth: 5, // Add a border between the two buttons (optional)
         borderColor: 'gray',
         height: 50, // Set height of the button row
     },

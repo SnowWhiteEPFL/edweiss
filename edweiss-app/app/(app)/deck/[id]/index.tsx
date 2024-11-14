@@ -144,7 +144,6 @@ const CardListScreen: ApplicationRoute = () => {
 
 			< TScrollView >
 
-				{/*goToPath={() => router.push({ pathname: `deck/${id}/card` as any, params: { deckId: id, cardIndex: cards.indexOf(card) } })}*/}
 				<For each={sortedCards}>
 					{(card, index) => (
 						<DisplayCard
@@ -162,9 +161,9 @@ const CardListScreen: ApplicationRoute = () => {
 			</TScrollView >
 
 			{/* Modal to display the CardScreenComponent */}
-			<ModalContainer modalRef={modalRef} snapPoints={['50%', '90%']}>
+			<ModalContainer modalRef={modalRef} snapPoints={['60%', '90%']}>
 				{selectedCardIndex !== null &&
-					<CardScreenComponent deckId={id} cardIndex={cards.indexOf(sortedCards[selectedCardIndex])} isModal={true} />
+					<CardScreenComponent deckId={id} cardIndex={cards.indexOf(sortedCards[selectedCardIndex])} isModal={true} modalRef={modalRef} />
 				}
 
 			</ModalContainer >
