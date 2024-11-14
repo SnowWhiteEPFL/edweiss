@@ -1,7 +1,5 @@
-import { ExpoConfig } from 'expo/config';
-import 'ts-node/register'; // Add this to import TypeScript files
 
-const config: ExpoConfig = {
+const config = {
 	"name": "EdWeiss",
 	"slug": "edweiss",
 	"version": "1.0.0",
@@ -28,7 +26,7 @@ const config: ExpoConfig = {
 			"backgroundColor": "#ffffff"
 		},
 		"package": "com.edweiss",
-		"googleServicesFile": process.env.GOOGLE_SERVICES_ANDROID, // "./google-services.json",
+		"googleServicesFile": process.env.GOOGLE_SERVICES_ANDROID,
 		"permissions": [
 			"android.permission.ACCESS_COARSE_LOCATION",
 			"android.permission.ACCESS_FINE_LOCATION",

@@ -51,13 +51,6 @@ const mockExercise: Quizzes.TF = {
 	answer: false
 };
 const mockStudentAnswer = false;
-// const screen = render(
-// 	<TFResultDisplay
-// 		exercise={mockExercise}
-// 		selected={mockStudentAnswer}
-// 		result={mockExercise.answer}
-// 	/>
-// );
 
 describe('TFResultDisplay', () => {
 
@@ -101,12 +94,6 @@ describe('TFResultDisplay', () => {
 		const falseButton = screen.getByTestId('false');
 		expect(trueButton).toBeTruthy();
 		expect(falseButton).toBeTruthy();
-
-		// console.log("props of true button : " + trueButton.props.style.backgroundColor);
-
-		// expect(trueButton.props.backgroundColor).toBe('surface0');
-		// expect(falseButton.props.backgroundColor).toBe('green');
-
 
 	});
 });

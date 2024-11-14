@@ -1,0 +1,13 @@
+{
+    "dateFormat": "fr-FR",
+    "upcoming_assignment_title": "Devoirs à venir",
+    "previous_assignment_title": "Devoirs précédents",
+    "no_assignment_due": "Aucun devoir à rendre pour le moment",
+    "add_to_todo": "Ajouter à la liste des tâches",
+    "this_week": "Cette semaine",
+    "toast_added_to_todo_text1": "Devoir ajouté à la liste des tâches",
+    "toast_added_to_todo_text2": "Maintenant, tu as une nouvelle raison de procrastiner ! 🎉",
+
+    "archived_assignments": "Devoirs archivés",
+    "no_past_assignment": "Aucun devoir passé pour le moment"
+}

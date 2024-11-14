@@ -1,4 +1,5 @@
 {
+    "notifications": "Notifications",
     "no_notifs_yet": "No notifications, yet!",
     "no_notifs_text": "It looks like the notification bell is taking a nap. Let’s not disturb it! We’ll wake it up when there’s something worth knowing.",
     "today": "Today",
