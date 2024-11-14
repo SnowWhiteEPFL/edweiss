@@ -39,10 +39,9 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
         const lengthFactor = text.length; // Length factor to reduce font size
 
         // Calculate font size
-        const fontSize = Math.max(minSize, baseSize - (lengthFactor / 10)); // Decrease size as text gets longer
+        const fontSize = Math.max(minSize, baseSize - (lengthFactor / 18)); // Decrease size as text gets longer
         return fontSize;
     };
-
 
 
     const toggleFlip = () => {
@@ -101,6 +100,8 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
                     <Button testID='toggleButton' onPress={toggleDropDown} title='⋮' />
                 }
             />}
+
+            {isModal && <FancyButton icon='settings-sharp' backgroundColor='transparent' style={{ alignSelf: 'flex-end' }}></FancyButton>}
 
             {showDropdown && (
                 <TView testID='2ButtonsDropDown' borderColor='blue' style={{ position: 'absolute', top: -16, right: 0, padding: 0, zIndex: 1000 }} >
@@ -201,7 +202,7 @@ export const styles = StyleSheet.create({
         height: '75%',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'white',
+        backgroundColor: 'black',
         borderRadius: 20,
         borderColor: 'crust',
         backfaceVisibility: 'hidden',
