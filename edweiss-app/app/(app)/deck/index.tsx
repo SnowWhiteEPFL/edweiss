@@ -1,3 +1,15 @@
+/**
+ * Memento App
+ * 
+ * @file index.tsx
+ * @description Implementation of the DeckScreen component, which allows users to create, view, and delete decks of flashcards.
+ * @author Tuan Dang Nguyen
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import For from '@/components/core/For';
 import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
@@ -14,6 +26,10 @@ import Memento from '@/model/memento';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 
+// ------------------------------------------------------------
+// ---------------------  DeckScreen Component -----------------
+// ------------------------------------------------------------
+
 const DeckScreen: ApplicationRoute = () => {
     const [deckName, setDeckName] = useState("");
     const [existedDeckName, setExistedDeckName] = useState(false);
@@ -22,6 +38,7 @@ const DeckScreen: ApplicationRoute = () => {
 
     const decks = useDynamicDocs(Collections.deck);
 
+    // Create a new deck
     async function call() {
         const trimmedDeckName = deckName.trim();
 
@@ -52,6 +69,7 @@ const DeckScreen: ApplicationRoute = () => {
         }
     }
 
+    // Toggle deck selection
     const toggleDeckSelection = (deck: Memento.Deck) => {
         const index = selectedDecks.findIndex(selected => selected.name === deck.name); // Find index of the selected deck
 
@@ -67,15 +85,15 @@ const DeckScreen: ApplicationRoute = () => {
         }
     };
 
+    // Delete selected decks
     const deleteSelectedDecks = async () => {
         if (selectedDecks.length === 0) return;
 
-        // Logic to delete the selected decks
-        await Promise.all(selectedDecks.map(deck =>
-            callFunction(Memento.Functions.deleteDeck, {
-                deckId: decks?.filter(d => d.data.name === deck.name)[0].id
-            })
-        ));
+        const deckIds = selectedDecks.map(deck => decks?.filter(d => d.data.name === deck.name)[0].id);
+
+        await callFunction(Memento.Functions.deleteDecks, {
+            deckIds: deckIds
+        });
         setSelectedDecks([]); // Clear selection after deletion
         setSelectionMode(false); // Exit selection mode
     };
@@ -152,6 +170,10 @@ const DeckScreen: ApplicationRoute = () => {
 };
 
 export default DeckScreen;
+
+// ------------------------------------------------------------
+// ---------------------  DeckDisplay Component -----------------
+// ------------------------------------------------------------
 
 export const DeckDisplay: ReactComponent<{ deck: Memento.Deck, id: string; isSelected: boolean; toggleSelection: (deck: Memento.Deck) => void; onLongPress: () => void; selectionMode: boolean; }> = ({ deck, id, isSelected, toggleSelection, onLongPress, selectionMode }) => {
     const handlePress = () => {

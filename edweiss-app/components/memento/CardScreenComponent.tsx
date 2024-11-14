@@ -72,7 +72,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
 
     async function deleteCard() {
 
-        const res = await callFunction(Memento.Functions.deleteCard, { deckId: deckId, cardIndex: cardIndex });
+        const res = await callFunction(Memento.Functions.deleteCards, { deckId: deckId, cardIndices: [cardIndex] });
         if (res.status == 1) {
             console.log(`Card deleted with id ${res.data.id}`);
             router.back();

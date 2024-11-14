@@ -78,7 +78,7 @@ const CardListScreen: ApplicationRoute = () => {
 
 	async function deleteDeck() {
 
-		await callFunction(Memento.Functions.deleteDeck, { deckId: id });
+		await callFunction(Memento.Functions.deleteDecks, { deckIds: [id] });
 		router.back();
 	}
 

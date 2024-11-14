@@ -1,8 +1,23 @@
+/**
+ * @file editCard.test.tsx
+ * @description Unit tests for the EditCardScreen component
+ * @author Tuan Dang Nguyen
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import EditCardScreen from '@/app/(app)/deck/[id]/card/edition';
 import { callFunction } from '@/config/firebase';
 import Memento from '@/model/memento';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
+// ------------------------------------------------------------
+// ---------------------  Mock Data & Setup  ------------------
+// ------------------------------------------------------------
+
+// Mock card data
 const card1: Memento.Card = {
     question: 'Question 0',
     answer: 'Answer 0',
@@ -32,6 +47,11 @@ jest.mock('expo-router', () => ({
     useLocalSearchParams: jest.fn(() => ({ deckId: '0', prev_question: 'Question 0', prev_answer: 'Answer 0', cardIndex: '0' })),
 }));
 
+// ------------------------------------------------------------
+// ------------------------ Unit Tests ------------------------
+// ------------------------------------------------------------
+
+// Test suite for the EditCardScreen component
 describe('EditCardScreen', () => {
 
     beforeEach(() => {
