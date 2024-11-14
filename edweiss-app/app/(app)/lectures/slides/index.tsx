@@ -109,20 +109,15 @@ const LectureScreen: ApplicationRoute = () => {
         const bool = ((orientation == ScreenOrientation.Orientation.LANDSCAPE_LEFT || orientation == ScreenOrientation.Orientation.LANDSCAPE_RIGHT))
         setIsLandscape(bool);
         if (isFullscreen) {
-            console.log("aa")
             setWidthPercent(["100%", "0%"]);
             setHeightPercent(["100%", "0%"]);
         } else if (bool) {
-            console.log("bb")
             setHeightPercent(["100%", "100%"]);
             setWidthPercent(["60%", "40%"]);
         } else {
-            console.log("cc")
             setHeightPercent(["40%", "60%"]);
             setWidthPercent(["100%", "100%"]);
         }
-        console.log(heightPercent)
-        console.log(widthPercent)
     }
 
     // Landscape display for the screen
