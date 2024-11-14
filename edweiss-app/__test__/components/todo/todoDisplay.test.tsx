@@ -1,36 +1,59 @@
-import { TodoDisplay } from '@/components/todo/todoDisplay';
+/**
+ * @file todoDisplay.test.tsx
+ * @description Test suite for todoDisplay and it sub modals 
+ *              that are being used in the TodoListScreen
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
+import { StatusChanger, TodoDisplay, TodoStatusDisplay } from '@/components/todo/todoDisplay';
+import t from '@/config/i18config';
 import { default as Todolist } from '@/model/todo';
+import { Time } from '@/utils/time';
+import { statusNextAction, toogleArchivityOfTodo } from '@/utils/todo/utilsFunctions';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { fireEvent, render } from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
 import React from 'react';
+import { Animated } from 'react-native';
+import { State } from 'react-native-gesture-handler';
 
-// Mocks
+
+// ------------------------------------------------------------
+// -----------------  Mocking dependencies    -----------------
+// ------------------------------------------------------------
+
+// Custum time utils function to return default values
 jest.mock('@/utils/time', () => ({
     Time: {
         toDate: jest.fn(() => new Date('2021-10-29T12:00:00Z')),
-        isToday: jest.fn(() => true),
+        isToday: jest.fn(() => false),
         wasYesterday: jest.fn(() => false),
         isTomorrow: jest.fn(() => false),
     },
 }));
 
+// `t` to return the key as the translation
 jest.mock('@/config/i18config', () => ({
     __esModule: true,
     default: jest.fn((key: string) => key),
 }));
 
-
+// Simple router mock
 jest.mock('expo-router', () => ({
     useRouter: jest.fn(() => ({ push: jest.fn() })),
 }));
 
+// Minimalist BottomSheet mocks for modal appearance
 jest.mock('@gorhom/bottom-sheet', () => ({
     BottomSheetModal: jest.fn(),
     BottomSheetView: jest.fn(({ children }) => <div>{children}</div>),
 }));
 
-// Mock the utility functions
+// Utils function for todo handling
 jest.mock('../../../utils/todo/utilsFunctions', () => ({
     toogleArchivityOfTodo: jest.fn(),
     statusNextAction: jest.fn(),
@@ -49,24 +72,38 @@ jest.mock('../../../utils/todo/utilsFunctions', () => ({
     statusNextMap: {
         yet: 'in_progress',
         in_progress: 'done',
-        done: 'archived',
+        done: 'yet',
         archived: 'yet',
     },
 }));
 
+// Router.push mocked to check displacement to different screens
 const mockRouter = {
     push: jest.fn(),
 };
 
+// Global, the modalRef context for this test suite
 const modalRef = React.createRef<BottomSheetModalMethods>();
 
-describe('TodoDisplay', () => {
+
+// ------------------------------------------------------------
+// -----------     To do Display Screen  Test suite     -------
+// ------------------------------------------------------------
+
+describe('TodoDisplay Tests Suite', () => {
     const todo: Todolist.Todo = {
         name: 'Test Todo',
         status: 'yet',
         dueDate: undefined,
     };
 
+    const todoToday: Todolist.Todo = {
+        name: 'Test Todo Today',
+        status: 'yet',
+        dueDate: { seconds: 0, nanoseconds: 0 }
+    };
+
+    // Clean all mocks before any test start
     beforeEach(() => {
         (useRouter as jest.Mock).mockReturnValue(mockRouter);
     });
@@ -74,7 +111,7 @@ describe('TodoDisplay', () => {
     it('renders the TodoDisplay component correctly', () => {
         const { getByText } = render(
             <TodoDisplay
-                key="1" // Add key prop here
+                key="1"
                 id="1"
                 todo={todo}
                 setTodoToDisplay={jest.fn()}
@@ -91,7 +128,7 @@ describe('TodoDisplay', () => {
         const setTodoToDisplay = jest.fn();
         const { getByText } = render(
             <TodoDisplay
-                key="1" // Add key prop here
+                key="1"
                 id="1"
                 todo={todo}
                 setTodoToDisplay={setTodoToDisplay}
@@ -108,7 +145,7 @@ describe('TodoDisplay', () => {
     it('handles long press event to navigate to edit screen', () => {
         const { getByText } = render(
             <TodoDisplay
-                key="1" // Add key prop here
+                key="1"
                 id="1"
                 todo={todo}
                 setTodoToDisplay={jest.fn()}
@@ -140,332 +177,270 @@ describe('TodoDisplay', () => {
         );
 
         expect(getByText('Test Todo')).toBeTruthy();
-        // Assuming you have some element that shows the status, check it here.
         expect(getByText('todo:status.done')).toBeTruthy();
     });
 
+
+
+    it('displays "Today" status if dueDate is tomorrow', () => {
+        (Time.isToday as jest.Mock).mockImplementationOnce(() => true);
+        const { getByText } = render(
+            <TodoDisplay
+                key="1"
+                id="1"
+                todo={todoToday}
+                setTodoToDisplay={jest.fn()}
+                modalRef={modalRef}
+                light="light"
+                dark="dark"
+            />
+        );
+
+        expect(getByText(t('todo:today_status'))).toBeTruthy();
+    });
+
+
+    it('displays "Yesterday" status if dueDate is tomorrow', () => {
+        (Time.wasYesterday as jest.Mock).mockImplementationOnce(() => true);
+        const { getByText } = render(
+            <TodoDisplay
+                key="1"
+                id="1"
+                todo={todoToday}
+                setTodoToDisplay={jest.fn()}
+                modalRef={modalRef}
+                light="light"
+                dark="dark"
+            />
+        );
+
+        expect(getByText(t('todo:yesterday_status'))).toBeTruthy();
+    });
+
+
+    it('displays "Tomorrow" status if dueDate is tomorrow', () => {
+        (Time.isTomorrow as jest.Mock).mockImplementationOnce(() => true);
+        const { getByText } = render(
+            <TodoDisplay
+                key="1"
+                id="1"
+                todo={todoToday}
+                setTodoToDisplay={jest.fn()}
+                modalRef={modalRef}
+                light="light"
+                dark="dark"
+            />
+        );
+
+        expect(getByText(t('todo:tomorrow_status'))).toBeTruthy();
+    });
+
+    it('displays stored date status if not today, tomorrow, yesterday', () => {
+        const { getByText } = render(
+            <TodoDisplay
+                key="1"
+                id="1"
+                todo={todoToday}
+                setTodoToDisplay={jest.fn()}
+                modalRef={modalRef}
+                light="light"
+                dark="dark"
+            />
+        );
+
+        expect(getByText('10/29/2021')).toBeTruthy();
+    });
 });
 
 
-// // import { Timestamp } from '@/model/time';
-// // import Todolist from '@/model/todo';
-// // import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-// // import { fireEvent, render } from '@testing-library/react-native';
-// // import { useRouter } from 'expo-router';
-// // import React from 'react';
-// // import { Animated } from 'react-native';
-// // import { TodoDisplay } from '../../components/todo/todoDisplay';
+
+// ------------------------------------------------------------
+// ---    To do Display Screen  Test suite for gestures     ---
+// ------------------------------------------------------------
+
+describe('TodoDisplay gesture handling', () => {
+    const todo: Todolist.Todo = {
+        name: 'Test Todo',
+        status: 'yet',
+        dueDate: undefined,
+    };
+    const setTodoToDisplay = jest.fn();
+
+    // Clean all mocks before any test start 
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('do not calls toogleArchivityOfTodo on swipe smaller threshold', () => {
+        const { getByTestId } = render(
+            <TodoDisplay
+                key="1"
+                id="1"
+                todo={todo}
+                setTodoToDisplay={setTodoToDisplay}
+                modalRef={modalRef}
+                light="light"
+                dark="dark"
+            />
+        );
+
+        const swipeArea = getByTestId('todo-swipe-area');
+
+        // Simulate swipe past the threshold
+        fireEvent(swipeArea, 'onGestureEvent', { nativeEvent: { translationX: 100 } });
+        fireEvent(swipeArea, 'onHandlerStateChange', { nativeEvent: { state: State.END, translationX: 100 } });
+
+        // Confirm toggle archive was not called
+        expect(toogleArchivityOfTodo).not.toHaveBeenCalledWith(
+            "1",
+            expect.objectContaining({
+                name: 'Test Todo',
+                status: 'yet',
+                dueDate: undefined,
+            })
+        );
+
+    });
+
+    it('snaps back to original position on swipe below threshold', () => {
+        const { getByTestId } = render(
+            <TodoDisplay
+                key="1"
+                id="1"
+                todo={todo}
+                setTodoToDisplay={setTodoToDisplay}
+                modalRef={modalRef}
+                light="light"
+                dark="dark"
+            />
+        );
+
+        const swipeArea = getByTestId('todo-swipe-area');
+        const animatedTimingSpy = jest.spyOn(Animated, 'timing');
+        const animatedSpringSpy = jest.spyOn(Animated, 'spring');
+
+        // Simulate a small swipe (below threshold)
+        fireEvent(swipeArea, 'onGestureEvent', { nativeEvent: { translationX: 100 } });
+        fireEvent(swipeArea, 'onHandlerStateChange', { nativeEvent: { state: State.END, translationX: 100 } });
+
+        // Confirm snap-back animation (spring) is triggered instead of timing
+        expect(animatedSpringSpy).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({ toValue: 0 }));
+        expect(animatedTimingSpy).not.toHaveBeenCalled();
+    });
+
+    it('records starting position when gesture begins', () => {
+        const { getByTestId } = render(
+            <TodoDisplay
+                key="1"
+                id="1"
+                todo={todo}
+                setTodoToDisplay={setTodoToDisplay}
+                modalRef={modalRef}
+                light="light"
+                dark="dark"
+            />
+        );
+
+        const swipeArea = getByTestId('todo-swipe-area');
+
+        // Simulate gesture start
+        fireEvent(swipeArea, 'onHandlerStateChange', {
+            nativeEvent: {
+                state: State.BEGAN,
+                x: 50,
+                y: 100,
+            },
+        });
+
+    });
+
+    it('updates translateX for horizontal swipes in edge swipe zone', () => {
+        const { getByTestId } = render(
+            <TodoDisplay
+                key="1"
+                id="1"
+                todo={todo}
+                setTodoToDisplay={setTodoToDisplay}
+                modalRef={modalRef}
+                light="light"
+                dark="dark"
+            />
+        );
+
+        const swipeArea = getByTestId('todo-swipe-area');
+        const setValueSpy = jest.spyOn(Animated.Value.prototype, 'setValue');
+
+        // Simulate gesture in active state with more horizontal movement
+        fireEvent(swipeArea, 'onHandlerStateChange', { nativeEvent: { state: State.BEGAN, x: 20 } });
+        fireEvent(swipeArea, 'onHandlerStateChange', { nativeEvent: { state: State.ACTIVE, translationX: 50, translationY: 10 } });
+
+        // Check that translateX was updated since swipe is horizontal and within edge zone
+        expect(setValueSpy).toHaveBeenCalledWith(50);
+    });
+
+    it('does not update translateX for vertical swipes', () => {
+        const { getByTestId } = render(
+            <TodoDisplay
+                key="1"
+                id="1"
+                todo={todo}
+                setTodoToDisplay={setTodoToDisplay}
+                modalRef={modalRef}
+                light="light"
+                dark="dark"
+            />
+        );
+
+        const swipeArea = getByTestId('todo-swipe-area');
+        const setValueSpy = jest.spyOn(Animated.Value.prototype, 'setValue');
+
+        // Simulate vertical gesture that shouldn't trigger horizontal movement
+        fireEvent(swipeArea, 'onHandlerStateChange', { nativeEvent: { state: State.BEGAN, x: 20 } });
+        fireEvent(swipeArea, 'onHandlerStateChange', { nativeEvent: { state: State.ACTIVE, translationX: 10, translationY: 50 } });
+
+        // Expect no translateX update
+        expect(setValueSpy).not.toHaveBeenCalled();
+    });
+});
+
+
+// ------------------------------------------------------------
+// ---  To do Status Display Modal Test suite for gestures  ---
+// ------------------------------------------------------------
+
+describe('TodoStatusDisplay Modal Tests Suites', () => {
+    const id = '1';
+    const todo: Todolist.Todo = { name: 'Test Todo', status: 'yet' };
+
+    it('calls statusNextAction on press', () => {
+        const { getByTestId } = render(
+            <TodoStatusDisplay id={id} todo={todo} status="yet" />
+        );
+
+        const touchable = getByTestId('status-touchable');
+        fireEvent.press(touchable);
+
+        expect(statusNextAction).toHaveBeenCalledWith(id, todo);
+    });
+});
 
 
 
-// // // Mock Firebase functions and firestore
-// // jest.mock('@/config/firebase', () => ({
-// //     callFunction: jest.fn(),
-// //     Collections: { deck: 'decks' }
-// // }));
+// ------------------------------------------------------------
+// ------   Status Changer Modal Test suite for gestures  -----
+// ------------------------------------------------------------
 
-// // jest.mock('@/hooks/firebase/firestore', () => ({
-// //     useDynamicDocs: jest.fn(() => [
-// //         { id: '1', data: { name: 'Deck 1', cards: [] } }
-// //     ])
-// // }));
+describe('StatusChanger', () => {
+    const setStatusMock = jest.fn();
 
-// // // // Mock expo-router Stack and Screen
-// // // jest.mock('expo-router', () => ({
-// // //     router: { push: jest.fn() },
-// // //     Stack: {
-// // //         Screen: jest.fn(({ options }) => (
-// // //             <>{options.title}</> // Simulate rendering the title for the test
-// // //         )),
-// // //     },
-// // // }));
+    it('calls setStatus with next status on press', () => {
+        const { getByTestId } = render(
+            <StatusChanger status="yet" setStatus={setStatusMock} />
+        );
 
-// // jest.mock('expo-router', () => ({
-// //     useRouter: jest.fn(), // Mock useRouter
-// // }));
+        const button = getByTestId('fancy-button-status-changer');
+        fireEvent.press(button);
 
-// // jest.mock('@/hooks/theme/useThemeColor', () => jest.fn(() => 'backgroundColorMock'));
-
-// // jest.mock('@/utils/time', () => ({
-// //     Time: {
-// //         toDate: jest.fn(),
-// //         isToday: jest.fn(),
-// //         wasYesterday: jest.fn(),
-// //         isTomorrow: jest.fn(),
-// //     },
-// // }));
-
-// // jest.mock('@/config/i18config', () => ({
-// //     t: jest.fn((key: string) => key),
-// // }));
-
-// // jest.mock('@/components/core/Icon', () => 'Icon');
-// // jest.mock('@/components/core/TText', () => 'TText');
-// // jest.mock('@/components/core/containers/TTouchableOpacity', () => 'TTouchableOpacity');
-// // jest.mock('@/components/core/containers/TView', () => 'TView');
-
-// // describe('TodoDisplay', () => {
-// //     const mockTodoId: string = '123';
-// //     const mockTodo: Todolist.Todo = {
-// //         name: 'Test Todo',
-// //         description: 'This is a test todo description.',
-// //         dueDate: 0 as Timestamp,
-// //         status: 'yet',
-// //     };
-
-// //     const mockSetTodoToDisplay = jest.fn();
-// //     const mockModalRef = React.createRef<BottomSheetModalMethods>();
-// //     const mockRouterPush = jest.fn();
-
-// //     // beforeEach(() => {
-// //     //     (useRouter as jest.Mock).mockReturnValue({
-// //     //         push: mockRouterPush,
-// //     //     });
-// //     //     jest.clearAllMocks();
-// //     // });
-
-// //     // it('should render todo name and status', () => {
-// //     //     const { getByText } = render(
-// //     //         <TodoDisplay
-// //     //             key={mockTodoId}
-// //     //             id={mockTodoId}
-// //     //             todo={mockTodo}
-// //     //             setTodoToDisplay={mockSetTodoToDisplay}
-// //     //             modalRef={mockModalRef}
-// //     //             light="light"
-// //     //             dark="dark"
-// //     //         />
-// //     //     );
-
-// //     //     expect(getByText('Test Todo')).toBeTruthy();
-// //     beforeEach(() => {
-// //         // Mock useRouter to return an object with the push method
-// //         (useRouter as jest.Mock).mockReturnValue({
-// //             push: mockRouterPush,
-// //         });
-
-// //         // Clear any previous mocks
-// //         jest.clearAllMocks();
-// //     });
-
-// //     it('should render todo name and status', () => {
-// //         // Your test here
-// //         const { getByText } = render(
-// //             <TodoDisplay
-// //                 key={mockTodoId}
-// //                 id={mockTodoId}
-// //                 todo={mockTodo}
-// //                 setTodoToDisplay={mockSetTodoToDisplay}
-// //                 modalRef={mockModalRef}
-// //                 light="light"
-// //                 dark="dark"
-// //             />);
-
-// //         expect(getByText('Test Todo')).toBeTruthy();
-// //         expect(getByText('todo:status.yet')).toBeTruthy();
-// //     });
-
-// //     it('should open modal when todo is pressed', () => {
-// //         const { getByText } = render(
-// //             <TodoDisplay
-// //                 key={mockTodoId}
-// //                 id={mockTodoId}
-// //                 todo={mockTodo}
-// //                 setTodoToDisplay={mockSetTodoToDisplay}
-// //                 modalRef={mockModalRef}
-// //                 light="light"
-// //                 dark="dark"
-// //             />
-// //         );
-
-// //         fireEvent.press(getByText('Test Todo'));
-// //         expect(mockSetTodoToDisplay).toHaveBeenCalledWith(mockTodo);
-// //         expect(mockModalRef.current?.present).toBeTruthy();
-// //     });
-
-// //     it('should navigate to edit screen on long press', () => {
-// //         const { getByText } = render(
-// //             <TodoDisplay
-// //                 key={mockTodoId}
-// //                 id={mockTodoId}
-// //                 todo={mockTodo}
-// //                 setTodoToDisplay={mockSetTodoToDisplay}
-// //                 modalRef={mockModalRef}
-// //                 light="light"
-// //                 dark="dark"
-// //             />
-// //         );
-
-// //         fireEvent(getByText('Test Todo'), 'onLongPress');
-// //         expect(mockRouterPush).toHaveBeenCalledWith({
-// //             pathname: '/(app)/todo/edit',
-// //             params: { idString: mockTodoId, todoJSON: JSON.stringify(mockTodo) },
-// //         });
-// //     });
-
-// //     it('should trigger swipe gesture and archive todo', () => {
-// //         const { getByText, getByTestId } = render(
-// //             <TodoDisplay
-// //                 key={mockTodoId}
-// //                 id={mockTodoId}
-// //                 todo={mockTodo}
-// //                 setTodoToDisplay={mockSetTodoToDisplay}
-// //                 modalRef={mockModalRef}
-// //                 light="light"
-// //                 dark="dark"
-// //             />
-// //         );
-
-// //         const todoElement = getByTestId('todo-card');
-// //         fireEvent(todoElement, 'onGestureEvent', { nativeEvent: { translationX: 300 } });
-
-// //         expect(Animated.spring).toHaveBeenCalled();
-// //     });
-// // });
-
-
-
-
-// import { TodoDisplay } from '@/components/todo/todoDisplay';
-// import Todolist from '@/model/todo';
-// import { act, fireEvent, render } from '@testing-library/react-native';
-// import jest from 'jest';
-// import React from 'react';
-
-// // Mock necessary functions and libraries
-// jest.mock('@/hooks/theme/useThemeColor', () => jest.fn().mockReturnValue('lightThemeColor'));
-// jest.mock('expo-router', () => ({
-//     useRouter: jest.fn(() => ({ push: jest.fn() }))
-// }));
-// jest.mock('../../utils/todo/utilsFunctions', () => ({
-//     toogleArchivityOfTodo: jest.fn(),
-//     statusIconMap: { yet: 'icon-yet', in_progress: 'icon-in-progress', done: 'icon-done', archived: 'icon-archived' },
-//     statusColorMap: { yet: 'red', in_progress: 'yellow', done: 'green', archived: 'grey' },
-//     statusNextAction: jest.fn(),
-//     statusNextMap: { yet: 'in_progress', in_progress: 'done', done: 'archived', archived: 'yet' },
-// }));
-// jest.mock('@/utils/time', () => ({
-//     toDate: jest.fn((timestamp) => new Date(timestamp)),
-//     isToday: jest.fn((date) => date.toDateString() === new Date().toDateString()),
-//     wasYesterday: jest.fn((date) => date.toDateString() === new Date(Date.now() - 86400000).toDateString()),
-//     isTomorrow: jest.fn((date) => date.toDateString() === new Date(Date.now() + 86400000).toDateString()),
-// }));
-// jest.mock('@/config/i18config', () => ({
-//     t: jest.fn((key) => key),
-// }));
-
-// const mockTodo: Todolist.Todo = {
-//     name: 'Test Todo',
-//     description: 'A sample todo item',
-//     status: 'yet',
-//     dueDate: 1627880400000, // Example timestamp
-// };
-
-// import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-
-// const modalRef: React.RefObject<BottomSheetModalMethods> = {
-//     current: {
-//         present: jest.fn(),
-//         dismiss: jest.fn(),
-//         snapToIndex: jest.fn(),
-//         snapToPosition: jest.fn(),
-//         expand: jest.fn(),
-//         // Add other properties from BottomSheetModalMethods as needed
-//     } as BottomSheetModalMethods,
-// };
-
-// describe('TodoDisplay Component', () => {
-//     it('renders the todo item correctly', () => {
-//         const { getByText } = render(
-//             <TodoDisplay
-//                 key="1"
-//                 id="1"
-//                 todo={mockTodo}
-//                 setTodoToDisplay={jest.fn()}
-//                 modalRef={modalRef}
-//             />
-//         );
-
-//         // Check if todo name is rendered
-//         expect(getByText('Test Todo')).toBeTruthy();
-
-//         // Check if the due date is displayed
-//         expect(getByText('todo:today_status')).toBeTruthy(); // Adjust according to the mock date
-//     });
-
-//     it('handles swipe gestures to archive todo', async () => {
-//         const { getByTestId } = render(
-//             <TodoDisplay
-//                 key="1"
-//                 id="1"
-//                 todo={mockTodo}
-//                 setTodoToDisplay={jest.fn()}
-//                 modalRef={{ current: { present: jest.fn() } }}
-//             />
-//         );
-
-//         const animatedView = getByTestId('todo-card');
-
-//         // Simulate swipe gesture
-//         await act(async () => {
-//             fireEvent(animatedView, 'onGestureEvent', {
-//                 nativeEvent: { translationX: 300 }, // Exceed the threshold
-//             });
-//             fireEvent(animatedView, 'onHandlerStateChange', {
-//                 nativeEvent: { state: 'END', translationX: 300 }, // Complete the swipe
-//             });
-//         });
-
-//         // Ensure the archiving action is triggered
-//         expect(require('../../utils/todo/utilsFunctions').toogleArchivityOfTodo).toHaveBeenCalledWith('1', mockTodo);
-//     });
-
-//     it('navigates to edit screen on long press', async () => {
-//         const mockPush = jest.fn();
-//         require('expo-router').useRouter.mockReturnValueOnce({ push: mockPush });
-
-//         const { getByText } = render(
-//             <TodoDisplay
-//                 key="1"
-//                 id="1"
-//                 todo={mockTodo}
-//                 setTodoToDisplay={jest.fn()}
-//                 modalRef={{ current: { present: jest.fn() } }}
-//             />
-//         );
-
-//         const todoItem = getByText('Test Todo');
-
-//         // Simulate long press
-//         await act(async () => {
-//             fireEvent(todoItem, 'onLongPress');
-//         });
-
-//         // Verify the push to edit screen with the correct parameters
-//         expect(mockPush).toHaveBeenCalledWith({
-//             pathname: '/(app)/todo/edit',
-//             params: { idString: '1', todoJSON: JSON.stringify(mockTodo) }
-//         });
-//     });
-
-//     it('opens the modal on short press', () => {
-//         const mockPresent = jest.fn();
-//         const { getByText } = render(
-//             <TodoDisplay
-//                 key="1"
-//                 id="1"
-//                 todo={mockTodo}
-//                 setTodoToDisplay={jest.fn()}
-//                 modalRef={{ current: { present: mockPresent } }}
-//             />
-//         );
-
-//         const todoItem = getByText('Test Todo');
-
-//         // Simulate short press
-//         fireEvent.press(todoItem);
-
-//         // Verify that modal is presented
-//         expect(mockPresent).toHaveBeenCalled();
-//     });
-// });
+        expect(setStatusMock).toHaveBeenCalledWith('in_progress');
+    });
+});

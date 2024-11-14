@@ -1,3 +1,4 @@
+import { ViewStyle } from 'react-native';
 
 export type PredefinedSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -31,8 +32,6 @@ export interface BorderProps {
 	bb?: Size,
 	bl?: Size,
 	br?: Size,
-	bx?: Size,
-	by?: Size;
 }
 
 export type BoxModelProps = PaddingProps & MarginProps & BorderProps;
@@ -113,45 +112,37 @@ export function computeSizeOpt(size: Size | undefined, sizes: PredefinedSizes): 
 	return computeSize(size, sizes);
 }
 
-export function computePaddings(paddings: PaddingProps) {
-	const p = computeSizeOpt(paddings.p, paddingSizes);
-	const px = computeSizeOpt(paddings.px, paddingSizes);
-	const py = computeSizeOpt(paddings.py, paddingSizes);
-
+export function computePaddings(paddings: PaddingProps): ViewStyle {
 	return {
-		padding: p,
-		paddingTop: paddings.pt == undefined ? (py ?? p) : computeSizeOpt(paddings.pt, paddingSizes),
-		paddingBottom: paddings.pb == undefined ? (py ?? p) : computeSizeOpt(paddings.pb, paddingSizes),
-		paddingLeft: paddings.pl == undefined ? (px ?? p) : computeSizeOpt(paddings.pl, paddingSizes),
-		paddingRight: paddings.pr == undefined ? (px ?? p) : computeSizeOpt(paddings.pr, paddingSizes),
+		padding: computeSizeOpt(paddings.p, paddingSizes),
+		paddingTop: computeSizeOpt(paddings.pt, paddingSizes),
+		paddingBottom: computeSizeOpt(paddings.pb, paddingSizes),
+		paddingLeft: computeSizeOpt(paddings.pl, paddingSizes),
+		paddingRight: computeSizeOpt(paddings.pr, paddingSizes),
+		paddingHorizontal: computeSizeOpt(paddings.px, paddingSizes),
+		paddingVertical: computeSizeOpt(paddings.py, paddingSizes)
 	};
 }
 
-export function computeMargins(margins: MarginProps) {
-	const m = computeSizeOpt(margins.m, marginSizes);
-	const mx = computeSizeOpt(margins.mx, marginSizes);
-	const my = computeSizeOpt(margins.my, marginSizes);
-
+export function computeMargins(margins: MarginProps): ViewStyle {
 	return {
-		margin: m,
-		marginTop: margins.mt == undefined ? (my ?? m) : computeSizeOpt(margins.mt, marginSizes),
-		marginBottom: margins.mb == undefined ? (my ?? m) : computeSizeOpt(margins.mb, marginSizes),
-		marginLeft: margins.ml == undefined ? (mx ?? m) : computeSizeOpt(margins.ml, marginSizes),
-		marginRight: margins.mr == undefined ? (mx ?? m) : computeSizeOpt(margins.mr, marginSizes),
+		margin: computeSizeOpt(margins.m, marginSizes),
+		marginTop: computeSizeOpt(margins.mt, marginSizes),
+		marginBottom: computeSizeOpt(margins.mb, marginSizes),
+		marginLeft: computeSizeOpt(margins.ml, marginSizes),
+		marginRight: computeSizeOpt(margins.mr, marginSizes),
+		marginHorizontal: computeSizeOpt(margins.mx, marginSizes),
+		marginVertical: computeSizeOpt(margins.my, marginSizes)
 	};
 }
 
-export function computeBorders(borders: BorderProps) {
-	const b = computeSizeOpt(borders.b, borderSizes);
-	const bx = computeSizeOpt(borders.bx, borderSizes);
-	const by = computeSizeOpt(borders.by, borderSizes);
-
+export function computeBorders(borders: BorderProps): ViewStyle {
 	return {
-		borderWidth: b,
-		borderTopWidth: borders.bt == undefined ? (by ?? b) : computeSizeOpt(borders.bt, borderSizes),
-		borderBottomWidth: borders.bb == undefined ? (by ?? b) : computeSizeOpt(borders.bb, borderSizes),
-		borderLeftWidth: borders.bl == undefined ? (bx ?? b) : computeSizeOpt(borders.bl, borderSizes),
-		borderRightWidth: borders.br == undefined ? (bx ?? b) : computeSizeOpt(borders.br, borderSizes),
+		borderWidth: computeSizeOpt(borders.b, borderSizes),
+		borderTopWidth: computeSizeOpt(borders.bt, borderSizes),
+		borderBottomWidth: computeSizeOpt(borders.bb, borderSizes),
+		borderLeftWidth: computeSizeOpt(borders.bl, borderSizes),
+		borderRightWidth: computeSizeOpt(borders.br, borderSizes),
 	};
 }
 
