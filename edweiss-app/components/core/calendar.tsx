@@ -61,17 +61,6 @@ export const Calendar = ({ courses, assignments, todos, type, date }: {
         scrollViewRef.current?.scrollTo({ y: (currentMinutes / 60 - 1) * HOUR_BLOCK_HEIGHT, animated: true });
     }, [currentMinutes]);
 
-    const getWeekDates = () => {
-        const startOfWeek = new Date(date);
-        startOfWeek.setDate(date.getDate() - date.getDay() + 1);
-
-        return Array.from({ length: 7 }, (_, i) => {
-            const weekDate = new Date(startOfWeek);
-            weekDate.setDate(startOfWeek.getDate() + i);
-            return weekDate;
-        });
-    };
-
     const renderDay = (dayDate: Date) => {
         const dayIndex = dayDate.getDay();
         const dailyAssignments = assignments.filter(assignment => {
@@ -161,7 +150,7 @@ export const Calendar = ({ courses, assignments, todos, type, date }: {
                     {format === "day" && renderDay(date)}
                     {format === "week" && (
                         <TView flexDirection="row" style={{ flex: 1 }}>
-                            {getWeekDates().map((weekDate) => (
+                            {getWeekDates(date).map((weekDate) => (
                                 <TView key={weekDate.toISOString()} style={{ width: '14.28%' }}>
                                     {renderDay(weekDate)}
                                 </TView>
