@@ -37,7 +37,7 @@ const HomeTab = () => {
 				onPress={() => router.push("/(app)/my_Calendar")}>
 				<TText align='center'>My Calendar</TText>
 			</TTouchableOpacity>
-			<Calendar courses={filteredCourses} type={'day'} date={new Date()} />
+			<Calendar courses={filteredCourses} type={'day'} date={new Date()} assignments={[]} todos={[]} />
 			<TScrollView flex={1} horizontal={false} showsVerticalScrollIndicator={true}>
 				<TText align='center'>List of courses</TText>
 				<For each={filteredCourses} key="id">
