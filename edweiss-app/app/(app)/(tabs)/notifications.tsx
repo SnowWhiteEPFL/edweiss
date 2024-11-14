@@ -64,7 +64,7 @@ type Notif = NotifList.Notif;
  * 
  * @returns JSX.Element - The rendered component for the notifications screen.
  */
-const NotificationsTab: ApplicationRoute = () => {
+const NotificationsPage: ApplicationRoute = () => {
 
     const { width, height } = useWindowDimensions();
     const auth = useAuth();
@@ -110,7 +110,7 @@ const NotificationsTab: ApplicationRoute = () => {
     const sortByDateDesc = (a: { data: Notif }, b: { data: Notif }) => b.data.date.seconds - a.data.date.seconds;
 
     // Sort each array by date in descending order (most recent first)
-    [notifsDay, notifsWeek, notifsMonth, notifsYear, otherNotifs].forEach(notifArray => notifArray.sort(sortByDateDesc));
+    [notifsDay, notifsWeek, notifsMonth, notifsYear, otherNotifs].forEach(notifArray => notifArray.toSorted(sortByDateDesc));
 
     return (
         <TView>
@@ -183,4 +183,4 @@ const NotificationsTab: ApplicationRoute = () => {
     );
 };
 
-export default NotificationsTab;
+export default NotificationsPage;

@@ -139,7 +139,7 @@ const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSect
     return (
         <Swipeable
             testID={testIDs.swipeableComponent}
-            key={key ? key : id}
+            key={key}
             ref={(ref) => { swipeableRefs.current[index] = ref; }}
             renderLeftActions={renderLeftActions}  // Render actions on swipe
             renderRightActions={renderRightActions}  // Render actions on swipe

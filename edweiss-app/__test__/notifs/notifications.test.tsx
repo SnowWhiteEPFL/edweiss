@@ -4,10 +4,11 @@
  * @author Florian Dinant
  */
 
-import NotificationsTab from '@/app/(app)/(tabs)/notifications';
+import NotificationsPage from '@/app/(app)/(tabs)/notifications';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { fireEvent, render } from '@testing-library/react-native';
+import React from 'react';
 import { TextProps, TouchableOpacityProps, useWindowDimensions, ViewProps } from 'react-native';
 
 
@@ -255,7 +256,7 @@ describe('NotificationsPage', () => {
 
     test('should render notifs', () => {
 
-        const screen = render(<NotificationsTab />);
+        const screen = render(<NotificationsPage />);
 
         // Checks
         expect(screen.getByText('Notifications')).toBeTruthy();
@@ -340,7 +341,7 @@ describe('NotificationsPage - No Notifications', () => {
         // Crée un mock pour console.log
         const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 
-        const screen = render(<NotificationsTab />);
+        const screen = render(<NotificationsPage />);
 
         // Checks
 
