@@ -44,7 +44,7 @@ const Login: ApplicationRoute = () => {
 
 		const res = await signInWithGoogle();
 
-		if (res != undefined) {
+		if (res) {
 			const accountRes = await callFunction(Auth.Functions.createAccount, { name: res.user.displayName });
 
 			if (accountRes.status == 1) {
@@ -62,7 +62,7 @@ const Login: ApplicationRoute = () => {
 
 		const res = await signInAnonymously();
 
-		if (res != undefined) {
+		if (res) {
 			const accountRes = await callFunction(Auth.Functions.createAccount, { name: res.user.displayName });
 
 			if (accountRes.status == 1) {
