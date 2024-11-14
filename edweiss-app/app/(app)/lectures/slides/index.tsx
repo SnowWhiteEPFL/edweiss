@@ -103,7 +103,6 @@ const LectureScreen: ApplicationRoute = () => {
             console.error('PDF URI not found!');
             return;
         }
-
         try {
             const url = await getDownloadURL(currentLecture.pdfUri);
             setUri(url);

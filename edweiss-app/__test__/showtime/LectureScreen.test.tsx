@@ -216,11 +216,6 @@ describe('LectureScreen Component', () => {
         expect(screen.getByText('showtime:lecturer_transcript_deftxt')).toBeTruthy();
     });
 
-    // it('renders the initial question list from firestore', () => {
-    //     render(<LectureScreen />);
-    //     expect(screen.getByText('Test Question')).toBeTruthy();
-    // });
-
     it('allows navigation to the next PDF page', async () => {
         render(<LectureScreen />);
         const nextPageButton = screen.getByLabelText('arrow-forward-circle-outline');
