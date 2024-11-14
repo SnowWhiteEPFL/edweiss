@@ -4,8 +4,8 @@ import { CollectionOf } from 'utils/firestore';
 import { Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 
-export const deleteCard = onSanitizedCall(Memento.Functions.deleteCard, {
-	cardIndex: Predicate.isPositive,
+export const deleteCards = onSanitizedCall(Memento.Functions.deleteCards, {
+	cardIndices: Predicate.isNonEmptyArray,
 	deckId: Predicate.isNonEmptyString
 }, async (userId, args) => {
 	const deckCollection = CollectionOf<Memento.Deck>("decks");
@@ -13,8 +13,8 @@ export const deleteCard = onSanitizedCall(Memento.Functions.deleteCard, {
 	const deckData = deckDoc.data();
 
 	if (deckData?.cards) {
-		// Filter out the card to be deleted using the cardIndex
-		const updatedCards = deckData.cards.filter((_, index) => index !== args.cardIndex);
+		// Filter out the cards to be deleted using the cardIndices
+		const updatedCards = deckData.cards.filter((_, index) => !args.cardIndices.includes(index));
 
 		// Update the deck with the new array of cards
 		await deckCollection.doc(args.deckId).update({ cards: updatedCards });

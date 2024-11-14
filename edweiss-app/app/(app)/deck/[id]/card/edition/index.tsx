@@ -1,3 +1,16 @@
+/**
+ * Edit card screen
+ * User can edit a card with a question and an answer
+ * 
+ * @file index.tsx
+ * @description Screen to edit a card with a question and an answer
+ * @author Tuan Dang Nguyen
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import RouteHeader from '@/components/core/header/RouteHeader';
 import { ApplicationRoute } from '@/constants/Component';
 
@@ -11,6 +24,16 @@ import Memento from '@/model/memento';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 
+// ------------------------------------------------------------
+// ----------------- EditCardScreen Component -----------------
+// ------------------------------------------------------------
+
+/**
+ * Edit card screen
+ * User can edit a card with a question and an answer
+ * 
+ * @returns {ApplicationRoute} Screen to edit a card
+ */
 const EditCardScreen: ApplicationRoute = () => {
     const { deckId, prev_question, prev_answer, cardIndex } = useLocalSearchParams();
     const [question, setQuestion] = useState(prev_question as string);
@@ -22,6 +45,7 @@ const EditCardScreen: ApplicationRoute = () => {
 
     const card = deck?.data.cards[cardIndexInt];
 
+    // Update a card with a new question and answer
     async function updateCard() {
 
         const res = await callFunction(Memento.Functions.updateCard, { deckId: deckId as any, newCard: card, cardIndex: cardIndexInt });

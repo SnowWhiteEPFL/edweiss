@@ -1,3 +1,13 @@
+/**
+ * @file deck.test.tsx
+ * @description Unit tests for the DeckScreen and DeckDisplay components in the Memento module
+ * @author Tuan Dang Nguyen
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import { callFunction } from '@/config/firebase';
 import Memento from '@/model/memento';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
@@ -5,6 +15,10 @@ import { router } from 'expo-router';
 import React from 'react';
 import 'react-native';
 import DeckScreen, { DeckDisplay } from '../../app/(app)/deck/index';
+
+// ------------------------------------------------------------
+// ---------------------  Mocks & Setups  ---------------------
+// ------------------------------------------------------------
 
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -35,14 +49,11 @@ jest.mock('expo-router', () => ({
     },
 }));
 
-// Define the props interface
-interface DeckDisplayProps {
-    deck: Memento.Deck;
-    isSelected: boolean;
-    toggleSelection: (deck: Memento.Deck) => void;
-    onLongPress: () => void;
-}
+// ------------------------------------------------------------
+// ------------------------  Tests  ---------------------------
+// ------------------------------------------------------------
 
+// Test cases for the DeckScreen component
 describe('DeckScreen', () => {
     beforeEach(() => {
         jest.clearAllMocks(); // Clear previous mocks before each test
@@ -82,7 +93,28 @@ describe('DeckScreen', () => {
 
         // Click delete button
         fireEvent.press(getByText('Delete Selected Deck'));
-        expect(callFunction).toHaveBeenCalledWith(Memento.Functions.deleteDeck, { deckId: '1' });
+        expect(callFunction).toHaveBeenCalledWith(Memento.Functions.deleteDecks, { deckIds: ['1'] });
+    });
+
+    it('allows cancelling selection mode', () => {
+        const { getByText } = render(<DeckScreen />);
+
+        // Long press to select Deck 1
+        fireEvent(getByText('Deck 1'), 'longPress');
+
+        // Click cancel button
+        fireEvent.press(getByText('Cancel'));
+        expect(callFunction).not.toHaveBeenCalled(); // Ensure delete function was not called
+    });
+
+    it('allows cancelling selection mode when no decks are selected', () => {
+        const { getByText } = render(<DeckScreen />);
+
+        // Long press to select Deck 1
+        fireEvent(getByText('Deck 1'), 'longPress');
+        fireEvent.press(getByText('Deck 1')); // Deselect Deck 1
+
+        expect(callFunction).not.toHaveBeenCalled(); // Ensure delete function was not called
     });
 
     it('does not create a deck if the name is empty', async () => {
@@ -148,6 +180,7 @@ describe('DeckScreen', () => {
     });
 });
 
+// Test cases for the DeckDisplay component
 describe('DeckDisplay', () => {
     const mockDeck: Memento.Deck = {
         name: 'Test Deck',
