@@ -3,7 +3,7 @@ appId: com.edweiss
 - launchApp:
     clearState: true
 
-Go to todos
+# Go to todos
 - assertVisible: 
     id: "anon-but"
 - tapOn:
