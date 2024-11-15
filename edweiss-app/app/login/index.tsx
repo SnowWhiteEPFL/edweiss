@@ -45,12 +45,13 @@ const Login: ApplicationRoute = () => {
 		const res = await signInMethod();
 
 		if (res) {
-			const accountRes = await callFunction(Auth.Functions.createAccount, { name: res.user.displayName });
+			const accountRes = await callFunction(Auth.Functions.createAccount, { name: (res.user.displayName) ? res.user.displayName : "Anonymous" });
 
 			if (accountRes.status == 1) {
 				router.replace("/");
 			} else {
-				setLoading(false);
+				setLoadingGoogle(false);
+				setLoadingAnon(false);
 			}
 		}
 	}

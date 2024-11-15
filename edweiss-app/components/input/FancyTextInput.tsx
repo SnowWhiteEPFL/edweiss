@@ -78,6 +78,7 @@ const FancyTextInput: ReactComponent<FancyTextInputProps> = ({ backgroundColor =
 						numberOfLines={props.numberOfLines}
 						readOnly={props.readOnly}
 						textAlignVertical={multiline ? 'top' : 'center'}
+						testID={props.testID}
 					/>
 				</TView>
 			</TView>
