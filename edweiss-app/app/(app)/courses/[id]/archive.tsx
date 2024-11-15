@@ -41,18 +41,18 @@ export const testIDs = {
  * This component is responsible for displaying the previous assignments of a course.
  * It fetches the assignments data from the URL and displays them in a scrollable list.
  * 
- * @param extraInfo - The extra information passed in the URL.
+ * @param rawAssignments - The extra information passed in the URL.
  * 
  * @returns JSX.Element - The rendered component for the previous assignments page.
  */
 const ArchiveScreen: ApplicationRoute = () => {
-    const { extraInfo } = useLocalSearchParams();
+    const { rawAssignments } = useLocalSearchParams();
 
     let assignments: AssignmentWithColor[] = [];
 
-    if (typeof extraInfo === 'string') {
+    if (typeof rawAssignments === 'string') {
         try {
-            assignments = JSON.parse(extraInfo);
+            assignments = JSON.parse(rawAssignments);
             assignments.forEach((assignment: AssignmentWithColor) => {
                 assignment.dueDate = {
                     seconds: assignment.dueDate.seconds,
@@ -60,11 +60,11 @@ const ArchiveScreen: ApplicationRoute = () => {
                 };
             });
         } catch (error) {
-            console.error('Failed to parse extraInfo: ', error);
+            console.error('Failed to parse rawAssignments: ', error);
             assignments = [];
         }
     } else {
-        console.error('Invalid extraInfo (not a string): ', extraInfo);
+        console.error('Invalid rawAssignments (not a string): ', rawAssignments);
         assignments = [];
     }
 
