@@ -98,10 +98,19 @@ const LectureScreen: ApplicationRoute = () => {
     }
 
     // Funtion to set Uri to the desired one from firebase storage
-    async function getUri() {
-        const url = await getDownloadURL(currentLecture.pdfUri);
-        setUri(url);
-    }
+    const getUri = async () => {
+        if (!currentLecture.pdfUri) {
+            console.error('PDF URI not found!');
+            return;
+        }
+        try {
+            const url = await getDownloadURL(currentLecture.pdfUri);
+            setUri(url);
+        } catch (error) {
+            console.error('Error loading PDF URL:', error);
+        }
+    };
+
 
     // Function for updating the UI display values when switching through orientations an fullscreen modes
     function updateUI(orientation: ScreenOrientation.Orientation) {
