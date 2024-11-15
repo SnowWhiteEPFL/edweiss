@@ -94,23 +94,37 @@ const NotificationsPage: ApplicationRoute = () => {
     yearStart.setDate(1);
 
     // Function to categorize notifications by date
-    const categorizeNotif = (notif: { id: string, data: Notif }) => {
-        const notifDate = new Date(notif.data.date.seconds * timeInMS.SECOND);
-        if (notifDate >= midnight) return notifsDay.push(notif);
-        if (notifDate >= mondayMidnight) return notifsWeek.push(notif);
-        if (notifDate >= monthStart) return notifsMonth.push(notif);
-        if (notifDate >= yearStart) return notifsYear.push(notif);
-        return otherNotifs.push(notif);
-    };
+    notifs.forEach((notif) => {
+        const notifDate = new Date(notif.data.date.seconds * timeInMS.SECOND); // Date de la notif
 
-    // Categorize each notification
-    notifs.forEach(categorizeNotif);
-
-    // Function to sort notifications by date in descending order
-    const sortByDateDesc = (a: { data: Notif }, b: { data: Notif }) => b.data.date.seconds - a.data.date.seconds;
+        // Vérifier si la notification est du jour actuel
+        if (notifDate >= midnight) {
+            notifsDay.push(notif);
+        }
+        // Vérifier si la notification est de cette semaine
+        else if (notifDate >= mondayMidnight) {
+            notifsWeek.push(notif);
+        }
+        // Vérifier si la notification est de ce mois-ci
+        else if (notifDate >= monthStart) {
+            notifsMonth.push(notif);
+        }
+        // Vérifier si la notification est de cette année
+        else if (notifDate >= yearStart) {
+            notifsYear.push(notif);
+        }
+        // Si c'est plus ancien, la mettre dans les autres notifications
+        else {
+            otherNotifs.push(notif);
+        }
+    });
 
     // Sort each array by date in descending order (most recent first)
-    [notifsDay, notifsWeek, notifsMonth, notifsYear, otherNotifs].forEach(notifArray => notifArray.toSorted(sortByDateDesc));
+    notifsDay.sort((a, b) => b.data.date.seconds - a.data.date.seconds);
+    notifsWeek.sort((a, b) => b.data.date.seconds - a.data.date.seconds);
+    notifsMonth.sort((a, b) => b.data.date.seconds - a.data.date.seconds);
+    notifsYear.sort((a, b) => b.data.date.seconds - a.data.date.seconds);
+    otherNotifs.sort((a, b) => b.data.date.seconds - a.data.date.seconds);
 
     return (
         <TView>
