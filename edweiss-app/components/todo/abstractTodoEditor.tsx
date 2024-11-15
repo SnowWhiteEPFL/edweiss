@@ -210,6 +210,7 @@ export const AbstractTodoEditor: React.FC<{
                         placeholder={t(`todo:name_placeholder`)}
                         icon='people'
                         label={t(`todo:name_label`)}
+                        testID='name-input'
                     />
                     <FancyTextInput
                         value={description}
@@ -221,6 +222,7 @@ export const AbstractTodoEditor: React.FC<{
                         numberOfLines={4}
                         mt={'md'}
                         mb={'sm'}
+                        testID='description-input'
                     />
                 </TView>
 
