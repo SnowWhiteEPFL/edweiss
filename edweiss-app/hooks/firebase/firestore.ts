@@ -1,6 +1,7 @@
-import { Collection, Document, DocumentData, DocumentOf, Query, getDocument, getDocuments } from '@/config/firebase';
+import { Collection, Collections, Document, DocumentData, DocumentOf, Query, callFunction, getDocument, getDocuments } from '@/config/firebase';
+import Memento from '@/model/memento';
 import { doc, onSnapshot } from '@react-native-firebase/firestore';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStoredState } from '../storage';
 
 export function useDoc<Type extends DocumentData>(collection: Collection<Type>, id: string): Document<Type> | undefined {
@@ -131,4 +132,81 @@ export function useCachedDocs<Type extends DocumentData>(key: string, query: Que
 	}, deps || []);
 
 	return documents;
+}
+
+export interface RepositoryHandler<T extends DocumentData> {
+	deleteDocument: (id: string) => void,
+	changeDocument: (id: string, newData: Partial<T>) => void,
+	addDocument: (t: T) => void
+}
+
+// export type RepositoryActions<T extends DocumentData> = {
+// 	[x in string]: RepositoryAction<T>
+// }
+
+// type RepositoryAction<T extends DocumentData> = (handler: RepositoryHandler<T>, ...args: any[]) => void;
+
+export interface RepositoryDocument<Type> extends Document<Type> {
+	synced: boolean
+}
+
+export function useRepository<Type extends DocumentData>(query: Query<Type>, deps?: React.DependencyList): [Document<Type>[] | undefined, RepositoryHandler<Type>] {
+	const [documents, setDocuments] = useState<Document<Type>[]>();
+
+	useEffect(() => {
+		getDocuments(query).then(docs => setDocuments(docs));
+
+		let firstTime = true;
+		const unsubscribe = query.onSnapshot(querySnapshot => {
+			if (firstTime == true) {
+				firstTime = false;
+				return;
+			}
+
+			setDocuments(querySnapshot.docs.map(DocumentOf<Type>));
+		}, error => {
+			console.log(`Snapshot Error: ${error}`)
+		})
+		return unsubscribe
+	}, deps || []);
+
+	const handler: RepositoryHandler<Type> = useMemo(() => ({
+		addDocument(data) {
+			setDocuments(documents => {
+				const toAdd: RepositoryDocument<Type> = {
+					id: generateUID(8),
+					data,
+					synced: false
+				};
+
+				if (documents == undefined) {
+					return [toAdd];
+				} else {
+					return [...documents, toAdd];
+				}
+			});
+		},
+		changeDocument(id, newData) {
+
+		},
+		deleteDocument(id) {
+
+		},
+	}), deps || []);
+
+	return [documents, handler];
+}
+
+function generateUID(len: number): string {
+	return "";
+}
+
+const [documents, handler] = useRepository(Collections.deck);
+
+const addDeck = async (deck: Memento.Deck) => {
+	handler.addDocument(deck);
+	const res = await callFunction(Memento.Functions.createDeck, { deck });
+	if (res.status == 0) {
+
+	}
 }
