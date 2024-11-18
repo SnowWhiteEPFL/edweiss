@@ -15,7 +15,7 @@ import { ActivityIndicator, Animated, Dimensions, FlatList, View } from 'react-n
 
 const { width } = Dimensions.get('window');
 
-const InfinitePaginatedCounterScreen = () => {
+export const InfinitePaginatedCounterScreen = () => {
 
   const auth = useAuth();
   const [loading, setLoading] = useState(true);
