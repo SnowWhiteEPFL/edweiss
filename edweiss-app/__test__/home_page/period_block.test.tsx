@@ -1,18 +1,15 @@
 import { PeriodBlock } from '@/components/core/PeriodBlock';
-import { Section } from '@/model/school/courses';
-import { CourseTimePeriodType } from '@/model/school/schedule';
 // Adjust the import path as necessary
 import { render, screen } from '@testing-library/react-native';
-
 import React from 'react';
 
 jest.mock('@/components/core/formatTime', () => jest.fn((time) => `${Math.floor(time / 60)}:${time % 60 < 10 ? '0' : ''}${time % 60}`));
 
 const mockPeriod = {
     id: 'period1',
-    start: 0,
-    end: 1440, // Add the end time here
-    type: 'lecture' as CourseTimePeriodType,
+    start: 480,
+    end: 540, // Add the end time here
+    type: "lecture", // Adjust the enum value as necessary
     activityId: 'activity1',
     dayIndex: 1,
     rooms: [{ id: 'room1', name: 'Room 101', geoloc: { latitude: 0, longitude: 0 } }],
@@ -29,7 +26,7 @@ const mockCourse = {
         periods: [mockPeriod],
         credits: 3,
         department: 'Department 1',
-        section: 'IN' as Section, // Adjust this to match the correct enum value
+        section: "IN", // Adjust this to match the correct enum value
         newAssignments: true,
         assignments: [],
     },
@@ -61,8 +58,9 @@ describe('PeriodBlock Component', () => {
         );
 
         expect(screen.getByText('Lecture')).toBeTruthy();
+        expect(screen.getByText('Join Course')).toBeTruthy();
         expect(screen.getByText('Course 1')).toBeTruthy();
-        expect(screen.getByText('0:00 - 24:00')).toBeTruthy();
+        expect(screen.getByText('8:00 - 9:00')).toBeTruthy();
     });
 
     it('renders "Join Course" for students', () => {
@@ -87,6 +85,7 @@ describe('PeriodBlock Component', () => {
                 user={mockUserProfessor}
                 period={mockPeriod}
                 course={notStartedCourse}
+                user={mockUserProfessor}
                 format="day"
             />
         );
