@@ -18,9 +18,8 @@ export const createAccount = onSanitizedCall(Auth.Functions.createAccount, {
 		createdAt: Time.now(),
 		name: args.name,
 
-		courses: [],
+		courses: ["edweiss-demo"],
 		fcmTokens: []
-
 	});
 
 	return OK;
