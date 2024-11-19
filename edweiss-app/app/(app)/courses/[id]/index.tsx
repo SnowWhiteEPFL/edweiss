@@ -98,11 +98,6 @@ const CoursePage: ApplicationRoute = () => {
 		CollectionOf<Assignment>(`courses/${isValidId ? id : ''}/assignments`)
 	) || [];
 
-	if (!isValidId) { return <Redirect href={'/'} />; }
-
-	// Afficher un indicateur de chargement si les données ne sont pas encore prêtes
-	if (course == undefined || firebase_data == undefined) { return <TActivityIndicator size={40} />; }
-
 	// Sort assignments by due date and add color based on time difference
 	const assignments: AssignmentWithColor[] = firebase_data
 		.sort((a, b) => a.data.dueDate.seconds - b.data.dueDate.seconds) // Seconds comparison
@@ -142,6 +137,9 @@ const CoursePage: ApplicationRoute = () => {
 		return filteredAssignments.length > 0 ? filteredAssignments : undefined;
 	}, [assignments, timeInMS.SECOND]);
 
+	//Checks
+	if (!isValidId) { return <Redirect href={'/'} />; }
+	if (course == undefined || firebase_data == undefined) { return <TActivityIndicator size={40} />; }
 
 	return (
 		<>
