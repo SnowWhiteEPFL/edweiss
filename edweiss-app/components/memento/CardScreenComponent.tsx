@@ -27,7 +27,7 @@ import TText from '../core/TText';
 import FancyButton from '../input/FancyButton';
 
 // ------------------------------------------------------------
-// ---------------- CardScreenComponent Component -----------
+// ---------------- CardScreenComponent Component -------------
 // ------------------------------------------------------------
 
 /**
@@ -37,6 +37,8 @@ import FancyButton from '../input/FancyButton';
  * @param {string} deckId - Deck id
  * @param {number} cardIndex - Card index
  * @param {boolean} isModal - boolean to check if the screen is a modal then change the style
+ * @param {React.RefObject<BottomSheetModal>} modalRef - Reference to the modal
+ * 
  * @returns {ReactComponent} Screen to see a card
  */
 const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; isModal?: boolean; modalRef: React.RefObject<BottomSheetModal> }> = ({ deckId, cardIndex, isModal, modalRef }) => {
@@ -120,7 +122,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
                 console.log(`OKAY, card updated with index ${cardIndex}`);
             }
         } catch (error) {
-            console.error("Error deleting card:", error);
+            console.log("Error deleting card:", error);
         }
 
     }
@@ -130,7 +132,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
             {!isModal && <RouteHeader
                 title='Test Your Might!'
                 right={
-                    <Button testID='toggleButton' onPress={toggleDropDown} title='⋮' />
+                    <Button color={'black'} testID='toggleButton' onPress={toggleDropDown} title='⋮' />
                 }
             />}
 
