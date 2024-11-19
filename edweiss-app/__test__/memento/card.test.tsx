@@ -12,10 +12,11 @@ import CardListScreen from '@/app/(app)/deck/[id]';
 import CreateCardScreen from '@/app/(app)/deck/[id]/card/creation';
 import TestYourMightScreen from '@/app/(app)/deck/[id]/playingCards';
 import RouteHeader from '@/components/core/header/RouteHeader';
+import { CardListDisplay } from '@/components/memento/CardListDisplayComponent';
 import CardScreenComponent, { styles } from '@/components/memento/CardScreenComponent';
 import { callFunction } from '@/config/firebase';
 import Memento from '@/model/memento';
-import { handleCardPress, handlePress, sortingCards } from '@/utils/memento/utilsFunctions';
+import { sortingCards } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { router } from 'expo-router';
@@ -37,6 +38,12 @@ const card1: Memento.Card = {
 const card2: Memento.Card = {
     question: 'Question 2',
     answer: 'Answer 2',
+    learning_status: 'Not yet',
+};
+
+const card3: Memento.Card = {
+    question: 'Question 3',
+    answer: 'Answer 3',
     learning_status: 'Not yet',
 };
 
@@ -194,49 +201,19 @@ describe('CardListScreen', () => {
     });
 
     it('cards are sorted according to learning status', () => {
-        const sortedCards = sortingCards([card1, card2]);
+        const sortedCards = sortingCards([card1, card2, card3]);
         expect(sortedCards[0].question).toBe('Question 2');
-        expect(sortedCards[1].question).toBe('Question 1');
+        expect(sortedCards[1].question).toBe('Question 3');
+        expect(sortedCards[2].question).toBe('Question 1');
     });
+
 
 });
 
-// Test suite for the utility functions
-describe('handlePress', () => {
-    const mockCard: Memento.Card = {
-        question: 'Test Question',
-        answer: 'Test Answer',
-        learning_status: 'Got it',
-    };
-
-    const mockGoToPath = jest.fn();
-    const mockToggleSelection = jest.fn();
-
-    beforeEach(() => {
-        jest.clearAllMocks(); // Clear previous mocks before each test
-    });
-
-    it('calls goToPath when not in selection mode', () => {
-        handlePress(mockCard, false, mockGoToPath, mockToggleSelection);
-
-        expect(mockGoToPath).toHaveBeenCalled();
-        expect(mockToggleSelection).not.toHaveBeenCalled(); // Ensure toggleSelection is not called
-    });
-
-    it('calls toggleSelection when in selection mode', () => {
-        handlePress(mockCard, true, mockGoToPath, mockToggleSelection);
-
-        expect(mockToggleSelection).toHaveBeenCalledWith(mockCard);
-        expect(mockGoToPath).not.toHaveBeenCalled(); // Ensure goToPath is not called
-    });
-
-    // Add additional tests for edge cases if necessary
-});
-
-
-describe('handleCardPress', () => {
+// Test suite for the display of card modal
+describe('Modal Display', () => {
     let modalRef: React.RefObject<BottomSheetModal>;
-    let setSelectedCardIndex: jest.Mock;
+    const mockToggleSelection = jest.fn();
 
     beforeEach(() => {
         // Create a mock for modalRef
@@ -253,29 +230,46 @@ describe('handleCardPress', () => {
             },
         };
 
-        setSelectedCardIndex = jest.fn();
     });
 
-    it('opens modal when a card is pressed and no card is selected', () => {
-        // Call handleCardPress with the appropriate arguments
-        handleCardPress(0, false, null, setSelectedCardIndex, modalRef);
+    it('can open modal to display card details', () => {
 
-        expect(setSelectedCardIndex).toHaveBeenCalledWith(0);
+        const { getByText } = render(<CardListDisplay card={card1} isSelected={false} toggleSelection={mockToggleSelection} onLongPress={jest.fn()} selectionMode={false} setCardToDisplay={jest.fn()} modalRef={modalRef} />);
+        const question1 = getByText('Question 1');
+
+        expect(question1).toBeTruthy();
+
+        // Simulate a press on the card
+        fireEvent(question1, 'onPress');
+
         expect(modalRef.current?.present).toHaveBeenCalled();
     });
 
-    it('closes modal when the same card is pressed', () => {
-        // Call handleCardPress to select a card
-        handleCardPress(0, false, 0, setSelectedCardIndex, modalRef);
+    it('can toggle card selection', () => {
+        const { getByText } = render(<CardListDisplay card={card1} isSelected={false} toggleSelection={mockToggleSelection} onLongPress={jest.fn()} selectionMode={true} setCardToDisplay={jest.fn()} modalRef={modalRef} />);
+        const question1 = getByText('Question 1');
 
-        expect(modalRef.current?.dismiss).toHaveBeenCalled();
-        expect(setSelectedCardIndex).toHaveBeenCalledWith(null);
+        // Simulate a long press on the card
+        fireEvent(question1, 'onLongPress');
+
+        expect(mockToggleSelection).toHaveBeenCalledWith(card1);
     });
 
-    // Additional test cases can be added here to cover more scenarios
+    it('can displays 2 cards by nesting render', () => {
+        const { getByText } = render(
+            <CardListDisplay card={card1} isSelected={false} toggleSelection={mockToggleSelection} onLongPress={jest.fn()} selectionMode={true} setCardToDisplay={jest.fn()} modalRef={modalRef} />
+        );
+
+        const question1 = getByText('Question 1');
+        expect(question1).toBeTruthy();
+
+        fireEvent(question1, 'onPress');
+
+        expect(mockToggleSelection).toHaveBeenCalled(); // Ensure toggleSelection is not called
+    });
 });
 
-
+// Test suite for the RouteHeader component
 describe('RouteHeader', () => {
     it('renders the right and left prop button', () => {
         const { getByTestId } = render(
