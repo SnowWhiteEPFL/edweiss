@@ -39,19 +39,28 @@ const CreateCardScreen: ApplicationRoute = () => {
     const [question, setQuestion] = useState("");
     const [answer, setAnswer] = useState("");
     const [existedQuestion, setExistedQuestion] = useState(false);
+    const [emptyField, setEmptyField] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const deck = useDoc(Collections.deck, deckId as string);
 
     // Create a new card
     async function createCard() {
 
-        if (question.length == 0 || answer.length == 0 || existedQuestion)
-            return;
-
         const isDuplicate = deck?.data.cards.some(card => card.question === question);
+        const isEmpty = question.length == 0 || answer.length == 0;
         if (isDuplicate) {
             setExistedQuestion(true);
+            setIsLoading(false);
+            if (isEmpty) setEmptyField(true);
+
             return;  // Prevent creation if a duplicate is found
+        }
+
+        if (isEmpty) {
+            setEmptyField(true);
+            setIsLoading(false);
+            return;
         }
 
         const res = await callFunction(Memento.Functions.createCard, {
@@ -66,6 +75,7 @@ const CreateCardScreen: ApplicationRoute = () => {
 
         if (res.status == 1) {
             console.log(`OKAY, card created with id ${res.data.id}`);
+            setIsLoading(false);
             router.back();
         }
 
@@ -85,11 +95,12 @@ const CreateCardScreen: ApplicationRoute = () => {
                         onChangeText={n => {
                             setQuestion(n);
                             setExistedQuestion(false);
+                            setEmptyField(false);
                         }}
                         placeholder='My amazing question'
                         icon='help-sharp'
                         label='Question'
-                        error={existedQuestion ? 'Question already exists' : undefined}
+                        error={existedQuestion ? 'Question already exists' : emptyField ? 'Please fill in all fields' : undefined}
                         multiline
                         numberOfLines={3}
                     />
@@ -98,16 +109,30 @@ const CreateCardScreen: ApplicationRoute = () => {
                 <TView m='md' mt={2} borderColor='crust' radius='lg'>
                     <FancyTextInput
                         value={answer}
-                        onChangeText={n => setAnswer(n)}
+                        onChangeText={n => {
+                            setAnswer(n)
+                            setEmptyField(false)
+                        }}
                         placeholder='My amazing answer'
                         icon='bulb-outline'
                         label='Answer'
+                        error={emptyField ? 'Please fill in all fields' : undefined}
                         multiline
                         numberOfLines={3}
                     />
                 </TView>
 
-                <FancyButton testID='createCardButton' backgroundColor='blue' mt={'md'} mb={'sm'} icon='logo-firebase' onPress={createCard}>
+                <FancyButton
+                    testID='createCardButton'
+                    backgroundColor='blue'
+                    mt={'md'} mb={'sm'}
+                    icon='logo-firebase'
+                    onPress={() => {
+                        setIsLoading(true);
+                        createCard();
+                    }}
+                    loading={isLoading}>
+
                     Create Card
                 </FancyButton>
 
