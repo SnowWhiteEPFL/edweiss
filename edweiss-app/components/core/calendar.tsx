@@ -25,11 +25,10 @@ export const Calendar = ({ courses, assignments, todos, type, date }: {
     const [currentMinutes, setCurrentMinutes] = useState(getCurrentTimeInMinutes());
     const scrollViewRef = useRef<ScrollView>(null); // Reference to scroll to the current time
     const [user, setUser] = useState<any>(null);
-    const [loading, setLoading] = useState(false);
     const userId = useAuth().uid;
-    const arrayOfDay = Array.from({ length: TOTAL_HOURS })
+
     const [format, setFormat] = useState(type); // Set the calendar format (day or week view)
-    const weekDates = getWeekDates(date)
+
     useEffect(() => {
         // Default to 'day' view if type is undefined
         if (type === undefined) setFormat("day");
@@ -38,7 +37,7 @@ export const Calendar = ({ courses, assignments, todos, type, date }: {
     useEffect(() => {
         // Handle screen orientation changes and switch between day and week view
         const onOrientationChange = (currentOrientation: ScreenOrientation.OrientationChangeEvent) => {
-            setLoading(true)
+
             const orientationValue = currentOrientation.orientationInfo.orientation;
             if (type === undefined) {
                 setFormat(orientationValue === 1 || orientationValue === 2 ? "day" : "week");
@@ -84,7 +83,7 @@ export const Calendar = ({ courses, assignments, todos, type, date }: {
         return (
             <TView key={dayIndex} flex={1}>
                 {/* Render each hour block */}
-                {arrayOfDay.map((_, hour) => {
+                {Array.from({ length: TOTAL_HOURS }).map((_, hour) => {
                     const hourTodos = dailyTodos?.filter(todo => todo.data.dueDate && new Date(Time.toDate(todo.data.dueDate)).getHours() === hour);
                     const hourAssignments = dailyAssignments?.filter(assignment => new Date(Time.toDate(assignment.data.dueDate)).getHours() === hour);
                     const filteredPeriods = courses.flatMap(course => course.data.periods.filter(period => period.dayIndex === dayIndex && period.start >= hour * 60 && period.start < (hour + 1) * 60));
@@ -138,7 +137,7 @@ export const Calendar = ({ courses, assignments, todos, type, date }: {
             {format === "week" && (
                 <TView pt={35} flexDirection={'row'}>
                     <TView style={{ width: '5%' }} />
-                    {weekDates.map((weekDate, index) => (
+                    {getWeekDates(date).map((weekDate, index) => (
                         <TText key={index} align='center' style={{ width: '13.3%' }}>
                             {weekDate.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })}
                         </TText>
@@ -150,7 +149,7 @@ export const Calendar = ({ courses, assignments, todos, type, date }: {
                 <TView flexDirection="row">
                     {/* Render time labels */}
                     <TView style={(format === 'week' ? { width: '5%' } : { width: '14%' })}>
-                        {arrayOfDay.map((_, hour) => (
+                        {Array.from({ length: TOTAL_HOURS }).map((_, hour) => (
                             <TView key={`hour-${date.getTime()}-${hour}`} alignItems='center' justifyContent='center' bt={1} bb={1} borderColor='overlay0' backgroundColor='constantBlack' style={{ height: HOUR_BLOCK_HEIGHT }}>
                                 <TText color='text' size={12}>{`${hour}:00`}</TText>
                             </TView>
@@ -161,7 +160,7 @@ export const Calendar = ({ courses, assignments, todos, type, date }: {
                     {format === "day" && renderDay(date)}
                     {format === "week" && (
                         <TView flexDirection="row" style={{ flex: 1 }}>
-                            {weekDates.map((weekDate) => (
+                            {getWeekDates(date).map((weekDate) => (
                                 <TView key={weekDate.toISOString()} style={{ width: '14.28%' }}>
                                     {renderDay(weekDate)}
                                 </TView>
@@ -173,5 +172,7 @@ export const Calendar = ({ courses, assignments, todos, type, date }: {
         </TView>
     );
 };
-
+function setLoading(arg0: boolean) {
+    throw new Error('Function not implemented.');
+}
 
