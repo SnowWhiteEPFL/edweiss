@@ -24,6 +24,12 @@ const card1: Memento.Card = {
     learning_status: 'Got it',
 };
 
+const card2: Memento.Card = {
+    question: 'Question 5',
+    answer: 'Answer 5',
+    learning_status: 'Not yet',
+};
+
 // Mock Firebase functions and firestore
 jest.mock('@/config/firebase', () => ({
     callFunction: jest.fn(),
@@ -32,7 +38,7 @@ jest.mock('@/config/firebase', () => ({
 
 jest.mock('@/hooks/firebase/firestore', () => ({
     useDynamicDocs: jest.fn(() => [
-        { id: '0', data: { name: 'Deck 0', cards: [card1] } }
+        { id: '0', data: { name: 'Deck 0', cards: [card1, card2] } }
     ]),
 }));
 
@@ -95,6 +101,42 @@ describe('EditCardScreen', () => {
                 },
                 cardIndex: 0
             });
+        });
+    });
+
+    it('should not update a card when the fields are empty', async () => {
+
+        const { getByTestId, getByDisplayValue } = render(<EditCardScreen />);
+        const updateButton = getByTestId('updateCardButton');
+
+        // Mock successful response for creating a card
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: 1 });
+
+        fireEvent.changeText(getByDisplayValue('Question 0'), '');
+        fireEvent.changeText(getByDisplayValue('Answer 0'), '');
+
+        fireEvent.press(updateButton);
+
+        await waitFor(() => {
+            expect(callFunction).not.toHaveBeenCalled();
+        });
+    });
+
+    it('should not update a card when the question is duplicated', async () => {
+
+        const { getByTestId, getByDisplayValue } = render(<EditCardScreen />);
+        const updateButton = getByTestId('updateCardButton');
+
+        // Mock successful response for creating a card
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: 1 });
+
+        fireEvent.changeText(getByDisplayValue('Question 0'), 'Question 5');
+        fireEvent.changeText(getByDisplayValue('Answer 0'), 'Test Answer');
+
+        fireEvent.press(updateButton);
+
+        await waitFor(() => {
+            expect(callFunction).not.toHaveBeenCalled();
         });
     });
 });
