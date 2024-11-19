@@ -16,11 +16,9 @@ const InfinitePaginatedCounterScreen = () => {
 
   // Écouteur global pour les changements de dimensions
   useEffect(() => {
-    const handleResize = ({ window }: { window: { width: number; height: number; scale: number; fontScale: number } }) => { setLoading(true); setDimensions(window); };
+    const handleResize = ({ window }: { window: { width: number; height: number; scale: number; fontScale: number } }) => setDimensions(window);
     const subscription = Dimensions.addEventListener('change', handleResize);
-
     return () => subscription?.remove();
-
   }, []);
 
   // Chargement des cours et des tâches
