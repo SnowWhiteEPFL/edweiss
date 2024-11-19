@@ -38,20 +38,41 @@ const EditCardScreen: ApplicationRoute = () => {
     const { deckId, prev_question, prev_answer, cardIndex } = useLocalSearchParams();
     const [question, setQuestion] = useState(prev_question as string);
     const [answer, setAnswer] = useState(prev_answer as string);
+    const [existedQuestion, setExistedQuestion] = useState(false);
+    const [emptyField, setEmptyField] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const decks = useDynamicDocs(Collections.deck);
+
     const deck = decks?.find(d => d.id == deckId);
     const cardIndexInt = cardIndex ? parseInt(cardIndex.toString()) : 0;
 
     const card = deck?.data.cards[cardIndexInt];
 
     // Update a card with a new question and answer
-    async function updateCard() {
+    async function updateCard(new_Question: string, new_Answer: string) {
 
-        const res = await callFunction(Memento.Functions.updateCard, { deckId: deckId as any, newCard: card, cardIndex: cardIndexInt });
+        const isDuplicate = deck?.data.cards.some(card => card.question === new_Question) && new_Question != prev_question;
+        const isEmpty = new_Question.length == 0 || new_Answer.length == 0;
+
+        if (isDuplicate) {
+            setExistedQuestion(true);
+            setIsLoading(false);
+            if (isEmpty) setEmptyField(true);
+            return;  // Prevent creation if a duplicate is found
+        }
+
+        if (isEmpty) {
+            setEmptyField(true);
+            setIsLoading(false);
+            return;
+        }
+
+        const res = await callFunction(Memento.Functions.updateCard, { deckId: deckId as any, newCard: { ...card, question: new_Question, answer: new_Answer }, cardIndex: cardIndexInt });
 
         if (res.status == 1) {
             console.log(`OKAY, card updated with index ${cardIndexInt}`);
+            setIsLoading(false);
             router.back();
         }
 
@@ -68,11 +89,15 @@ const EditCardScreen: ApplicationRoute = () => {
                 <TView testID='questionInput' m='md' borderColor='crust' radius='lg'>
                     <FancyTextInput
                         value={question}
-                        onChangeText={n => setQuestion(n)}
+                        onChangeText={n => {
+                            setQuestion(n)
+                            setExistedQuestion(false)
+                            setEmptyField(false)
+                        }}
                         placeholder='My amazing question'
                         icon='help-sharp'
                         label='Question'
-                        //error='Invalid deck name'
+                        error={existedQuestion ? 'Question already exists' : emptyField ? 'Please fill in all fields' : undefined}
                         multiline
                         numberOfLines={3}
                     />
@@ -81,17 +106,29 @@ const EditCardScreen: ApplicationRoute = () => {
                 <TView m='md' mt={2} borderColor='crust' radius='lg'>
                     <FancyTextInput
                         value={answer}
-                        onChangeText={n => setAnswer(n)}
+                        onChangeText={n => {
+                            setAnswer(n)
+                            setEmptyField(false)
+                        }}
                         placeholder='My amazing answer'
                         icon='bulb-outline'
                         label='Answer'
-                        //error='Invalid deck name'
+                        error={emptyField ? 'Please fill in all fields' : undefined}
                         multiline
                         numberOfLines={3}
                     />
                 </TView>
 
-                <FancyButton testID='updateCardButton' onPress={() => updateQuestionAnswerCard(deckId as any, cardIndexInt, updateCard, question, answer, card)} backgroundColor='blue' mt={'md'} mb={'sm'} icon='logo-firebase' mx={300} >
+                <FancyButton
+                    testID='updateCardButton'
+                    loading={isLoading}
+                    onPress={() => {
+                        setIsLoading(true);
+                        updateCard(question, answer)
+                    }
+                    }
+                    backgroundColor='blue' mt={'md'} mb={'sm'} icon='logo-firebase' mx={300}
+                >
                     Done!
                 </FancyButton>
 
@@ -101,11 +138,3 @@ const EditCardScreen: ApplicationRoute = () => {
 };
 
 export default EditCardScreen;
-
-function updateQuestionAnswerCard(deckId: string, cardIndex: number, onPress: (deckId: any, newCard: Memento.Card, cardIndex: number) => void, newQuestion: string, newAnswer: string, card?: Memento.Card) {
-    if (card) {
-        card.answer = newAnswer;
-        card.question = newQuestion;
-        onPress(deckId, card, cardIndex);
-    }
-}
