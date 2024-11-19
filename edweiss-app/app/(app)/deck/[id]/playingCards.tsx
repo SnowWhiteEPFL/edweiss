@@ -81,7 +81,7 @@ const TestYourMightScreen: ApplicationRoute = () => {
         <>
             {cards && cards.length > 0 && (
                 <>
-                    <TView style={{ position: 'absolute', top: '5%', left: '50%' }}>
+                    <TView style={{ position: 'absolute', top: '5%', left: '48%' }}>
                         <TText color='blue' size={20}>
                             {currentCardIndex + 1}/{cards.length}
                         </TText>
