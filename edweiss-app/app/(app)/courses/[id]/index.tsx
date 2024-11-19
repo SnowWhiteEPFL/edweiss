@@ -14,6 +14,7 @@
  * The component uses various custom components like TActivityIndicator, TText, TTouchableOpacity, and TView for rendering UI elements.
  * 
  */
+import For from '@/components/core/For';
 import Icon from '@/components/core/Icon';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
@@ -30,7 +31,7 @@ import { timeInMS } from '@/constants/Time';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { Assignment, Course } from '@/model/school/courses';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 
 // Constants
@@ -102,10 +103,8 @@ const CoursePage: ApplicationRoute = () => {
 	// Afficher un indicateur de chargement si les données ne sont pas encore prêtes
 	if (course == undefined || firebase_data == undefined) { return <TActivityIndicator size={40} />; }
 
-	const assignmentsArray = firebase_data.map(doc => ({ id: doc.id, data: doc.data }));
-
 	// Sort assignments by due date and add color based on time difference
-	const assignments: AssignmentWithColor[] = assignmentsArray
+	const assignments: AssignmentWithColor[] = firebase_data
 		.sort((a, b) => a.data.dueDate.seconds - b.data.dueDate.seconds) // Seconds comparison
 		.map((assignment) => {
 			const currentTime = new Date().getTime(); // Actual time in millisecondes
@@ -125,31 +124,43 @@ const CoursePage: ApplicationRoute = () => {
 		});
 
 	// Filter previous assignments
-	const previousAssignments = assignments.filter((assignment) => assignment.dueDate.seconds * timeInMS.SECOND <= new Date().getTime()).reverse();
+	const previousAssignments = useMemo(() => {
+		return assignments
+			.filter(
+				(assignment) =>
+					assignment.dueDate.seconds * timeInMS.SECOND <= new Date().getTime()
+			)
+			.reverse();
+	}, [assignments, timeInMS.SECOND]);
 
 	// Filter upcoming assignments
-	const upcomingAssignments = assignments.filter((assignment) => assignment.dueDate.seconds * timeInMS.SECOND > new Date().getTime());
+	const upcomingAssignments = useMemo(() => {
+		const filteredAssignments = assignments.filter(
+			(assignment) =>
+				assignment.dueDate.seconds * timeInMS.SECOND > new Date().getTime()
+		);
+		return filteredAssignments.length > 0 ? filteredAssignments : undefined;
+	}, [assignments, timeInMS.SECOND]);
+
 
 	return (
 		<>
 			{/* Utilisation du RouteHeader pour afficher le titre du cours */}
-			<RouteHeader title={course.data.name} align="center" isBold={true} />
+			<RouteHeader title={course.data.name} align="center" isBold />
 
 			{/* ScrollView pour permettre le défilement */}
 			<TScrollView testID={testIDs.scrollView} p={16} backgroundColor="mantle" >
 
 				{/* Section des Pending Assignments */}
-				<TText mb={10} size={18} color='darkBlue' bold={true} testID={testIDs.upcomingAssignments} >{t(`course:upcoming_assignment_title`)}</TText>
+				<TText mb={10} size={18} color='darkBlue' bold testID={testIDs.upcomingAssignments} >{t(`course:upcoming_assignment_title`)}</TText>
 
-				{/* Liste des assignments avec map */}
-				{upcomingAssignments.length > 0
-					?
-					upcomingAssignments.map((assignment) => (
-						<AssignmentDisplay item={assignment} index={upcomingAssignments.indexOf(assignment)} isSwipeable={true} key={assignment.name} />
-					))
-					:
-					<TText size={16} testID={testIDs.noAssignmentDue} >{t('course:no_assignment_due')}</TText>
-				}
+				<For
+					each={upcomingAssignments}
+					fallback={<TText size={16} testID={testIDs.noAssignmentDue}>{t('course:no_assignment_due')}</TText>}
+				>{(assignment, index) => (
+					<AssignmentDisplay item={assignment} index={index} isSwipeable key={assignment.name} />
+				)}
+				</For>
 
 				{/* Bouton vers les Passed Assignments */}
 				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} onPress={() => router.push({ pathname: `/courses/[id]/archive`, params: { id: course.id, extraInfo: JSON.stringify(previousAssignments) } })}>
@@ -157,7 +168,7 @@ const CoursePage: ApplicationRoute = () => {
 				</TTouchableOpacity>
 
 				{/* This Week Section */}
-				<TText mb={10} size={18} color='darkBlue' bold={true} testID={testIDs.thisWeekTitle} >{t(`course:this_week`)}</TText>
+				<TText mb={10} size={18} color='darkBlue' bold testID={testIDs.thisWeekTitle} >{t(`course:this_week`)}</TText>
 				<TText align='justify' size={15} color='darkNight' py={16} textBreakStrategy='highQuality' lineHeight={50} testID={testIDs.thisWeekText} >
 					Lorem ipsum dolor sit amet consectetur. Ipsum aliquam ut in dignissim nisl. Donec egestas sed amet dictumst odio magna at. Integer risus pellentesque velit sed sit bibendum. Elementum consectetur cras viverra nunc dictum et lacus varius semper. Purus viverra molestie ornare tortor purus sed. Ut nisl non risus nunc facilisi odio purus. Ullamcorper nibh elementum ultricies pulvinar integer libero. Sagittis pretium nunc quam vitae et diam condimentum diam nunc. Quis amet tellus pellentesque amet hac.
 					Lorem ipsum dolor sit amet consectetur. Ipsum aliquam ut in dignissim nisl. Donec egestas sed amet dictumst odio magna at. Integer risus pellentesque velit sed sit bibendum. Elementum consectetur cras viverra nunc dictum et lacus varius semper. Purus viverra molestie ornare tortor purus sed. Ut nisl non risus nunc facilisi odio purus. Ullamcorper nibh elementum ultricies pulvinar integer libero. Sagittis pretium nunc quam vitae et diam condimentum diam nunc. Quis amet tellus pellentesque amet hac.

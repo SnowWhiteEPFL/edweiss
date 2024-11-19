@@ -19,7 +19,7 @@ import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { iconSizes } from '@/constants/Sizes';
 import { useLocalSearchParams } from 'expo-router';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 
 // Tests Tags
@@ -48,29 +48,33 @@ export const testIDs = {
 const ArchiveScreen: ApplicationRoute = () => {
     const { rawAssignments } = useLocalSearchParams();
 
-    let assignments: AssignmentWithColor[] = [];
+    const assignments = useMemo<AssignmentWithColor[]>(() => {
+        if (typeof rawAssignments === 'string') {
+            try {
+                const parsedAssignments: AssignmentWithColor[] = JSON.parse(rawAssignments);
 
-    if (typeof rawAssignments === 'string') {
-        try {
-            assignments = JSON.parse(rawAssignments);
-            assignments.forEach((assignment: AssignmentWithColor) => {
-                assignment.dueDate = {
-                    seconds: assignment.dueDate.seconds,
-                    nanoseconds: assignment.dueDate.nanoseconds,
-                };
-            });
-        } catch (error) {
-            console.error('Failed to parse rawAssignments: ', error);
-            assignments = [];
+                // Mutate each assignment's dueDate property
+                parsedAssignments.forEach((assignment) => {
+                    assignment.dueDate = {
+                        seconds: assignment.dueDate.seconds,
+                        nanoseconds: assignment.dueDate.nanoseconds,
+                    };
+                });
+
+                return parsedAssignments; // Return the modified array
+            } catch (error) {
+                console.error('Failed to parse rawAssignments: ', error);
+                return [];
+            }
+        } else {
+            console.error('Invalid rawAssignments (not a string): ', rawAssignments);
+            return [];
         }
-    } else {
-        console.error('Invalid rawAssignments (not a string): ', rawAssignments);
-        assignments = [];
-    }
+    }, [rawAssignments]);
 
     return (
         <>
-            <RouteHeader title={t(`course:previous_assignment_title`)} align="center" isBold={false} />
+            <RouteHeader title={t(`course:previous_assignment_title`)} align="center" />
 
             <TScrollView testID={testIDs.archiveScrollView} backgroundColor='mantle' flex={1} p={16}>
 
@@ -78,7 +82,7 @@ const ArchiveScreen: ApplicationRoute = () => {
                     {/* // Icon */}
                     <Icon testID={testIDs.archiveIcon} name='archive' size={iconSizes.xl} color='darkBlue' />
                     {/* // Assignment name */}
-                    <TText testID={testIDs.archiveTitle} size={18} bold={true} color='darkBlue' ml='sm'>{t(`course:archived_assignments`)}</TText>
+                    <TText testID={testIDs.archiveTitle} size={18} bold color='darkBlue' ml='sm'>{t(`course:archived_assignments`)}</TText>
                 </TTouchableOpacity>
 
                 {/* Liste des assignments avec map */}
