@@ -3,7 +3,7 @@
  * @param date - The reference date to get the week's dates.
  * @returns An array of dates representing each day of the week.
  */
-const getWeekDates = (date: Date) => {
+export const getWeekDates = (date: Date) => {
     // Create a new date to avoid modifying the original date
     const startOfWeek = new Date(date);
 

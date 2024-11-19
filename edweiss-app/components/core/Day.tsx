@@ -1,4 +1,5 @@
 // Import necessary components, types, and utilities
+import { Color } from '@/constants/Colors';
 import { AssignmentBase, Course, CourseTimePeriod } from '@/model/school/courses';
 import Todolist from '@/model/todo';
 import { router } from 'expo-router';
@@ -11,6 +12,19 @@ import TText from './TText';
 
 // Define the height of each hour block in the day view
 const HOUR_BLOCK_HEIGHT = 80;
+
+
+
+const getBackgroundColor = (type: string): Color => {
+    const colorMap: Record<string, Color> = {
+        lecture: 'blue',
+        lab: 'yellow',
+        exercises: 'green',
+    };
+
+    return colorMap[type] || 'overlay2'; // Couleur par défaut
+};
+
 
 // Component for displaying a day with course periods, assignments, and to-dos
 export const Day = ({
@@ -61,7 +75,7 @@ export const Day = ({
                                 borderColor="overlay2"
                                 radius={10}
                                 b={2}
-                                backgroundColor='cherry'
+                                backgroundColor={getBackgroundColor(period.type)}
                                 onPress={() => {
                                     router.push({
                                         pathname: pathname,
