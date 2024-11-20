@@ -161,7 +161,7 @@ const CoursePage: ApplicationRoute = () => {
 				</For>
 
 				{/* Bouton vers les Passed Assignments */}
-				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} onPress={() => router.push({ pathname: `/courses/[id]/archive`, params: { id: course.id, extraInfo: JSON.stringify(previousAssignments) } })}>
+				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} onPress={() => router.push({ pathname: `/courses/[id]/archive`, params: { id: course.id, rawAssignments: JSON.stringify(previousAssignments) } })}>
 					<TText my={20} align='center' color='cherry' testID={testIDs.previousAssignments} >{t(`course:previous_assignment_title`)}</TText>
 				</TTouchableOpacity>
 
