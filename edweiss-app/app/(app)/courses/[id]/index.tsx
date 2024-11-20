@@ -39,6 +39,7 @@ import React, { useMemo, useState } from 'react';
 // Tests Tags
 export const testIDs = {
 	scrollView: 'scroll-view',
+	courseDescription: 'course-description',
 	upcomingAssignments: 'upcoming-assignments',
 	assignemtView: 'assignment-view',
 	noAssignmentDue: 'no-assignment-due',
@@ -171,6 +172,8 @@ const CoursePage: ApplicationRoute = () => {
 
 			{/* ScrollView pour permettre le défilement */}
 			<TScrollView testID={testIDs.scrollView} p={16} backgroundColor="mantle" >
+
+				<TText testID={testIDs.courseDescription} size={16} color='text' mb={10} >{course.data.description}</TText>
 
 				{/* Section des Pending Assignments */}
 				<TText mb={10} size={18} color='darkBlue' bold testID={testIDs.upcomingAssignments} >{t(`course:upcoming_assignment_title`)}</TText>

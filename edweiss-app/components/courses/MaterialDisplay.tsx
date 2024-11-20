@@ -64,9 +64,9 @@ const MaterialDisplay: ReactComponent<{ item: Material; }> = ({ item }) => {
 
     return (
         <TView mt={10} mb={10}>
-            <TText mb={10} size={18} color='darkBlue' bold testID={testIDs.materialTitle} >{item.title}</TText>
-            <TText mb={4} size={14} color='darkBlue' bold testID={testIDs.materialTitle} >{formatDateRange(item.from.seconds, item.to.seconds)}</TText>
-            <TText align='auto' size={15} color='darkNight' py={12} textBreakStrategy='highQuality' lineHeight={50} testID={testIDs.materialDescription}>{item.description}</TText>
+            <TText testID={testIDs.materialTitle} mb={10} size={18} color='darkBlue' bold>{item.title}</TText>
+            <TText testID={testIDs.materialTitle} mb={4} size={14} color='darkBlue' bold>{formatDateRange(item.from.seconds, item.to.seconds)}</TText>
+            <TText testID={testIDs.materialDescription} lineHeight='md' align='auto' size={15} color='darkNight' py={12} textBreakStrategy='highQuality'>{item.description}</TText>
 
             {sortedDocs.map((doc, index) => {
                 return (

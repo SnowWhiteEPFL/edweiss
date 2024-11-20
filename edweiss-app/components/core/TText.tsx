@@ -23,11 +23,11 @@ const TText: ReactComponent<TTextProps> = ({ style, light, dark, size = 'md', bo
 				{
 					color: computedColor,
 					fontSize: computeSize(size, textSizes),
-					lineHeight: computeSize(size, lineHeightSizes),
+					lineHeight: computeSize(lineHeight, lineHeightSizes),
 					fontWeight: bold ? 'bold' : 'normal',
 					textDecorationLine: underlined ? 'underline' : 'none',
 					textAlign: align,
-					fontFamily: "Inter"
+					fontFamily: "Inter",
 				},
 				computeBoxModelSize(props),
 				style
