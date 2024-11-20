@@ -22,14 +22,16 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import ModalContainer from '@/components/core/modal/ModalContainer';
 import FancyButton from '@/components/input/FancyButton';
 import CardScreenComponent from '@/components/memento/CardScreenComponent';
-import { callFunction, Collections } from '@/config/firebase';
-import { useDynamicDocs } from '@/hooks/firebase/firestore';
+import { callFunction } from '@/config/firebase';
+import { useRepositoryDocument } from '@/hooks/repository';
+import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
 import { getStatusColor, handleCardPress, handlePress, sortingCards } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Redirect, router, useLocalSearchParams } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { Button } from 'react-native';
+import { DecksRepository } from '../_layout';
 
 /**
  * CardListScreen
@@ -38,21 +40,30 @@ import { Button } from 'react-native';
  * @returns {ApplicationRoute} Screen to display a list of cards in a deck
  */
 const CardListScreen: ApplicationRoute = () => {
-	const { id } = useLocalSearchParams();
+	const { id } = useStringParameters();
 	const [showDropdown, setShowDropdown] = useState(false); // State for dropdown visibility
 	const [selectedCards, setSelectedCards] = useState<Memento.Card[]>([]);
 	const [selectionMode, setSelectionMode] = useState(false); // Track selection mode
 	const [selectedCardIndex, setSelectedCardIndex] = useState<number | null>(null); // State to hold selected card index
 	const modalRef = useRef<BottomSheetModal>(null); // Reference for the modal
-	const decks = useDynamicDocs(Collections.deck);
 
 	if (typeof id != 'string')
 		return <Redirect href={'/'} />;
 
-	const deck = decks?.find(d => d.id == id);
-	const cards = deck?.data.cards || []; // Ensure cards is an array or empty
+	const [deck, handler] = useRepositoryDocument(id, DecksRepository);
+
+	if (deck == undefined)
+		return <Redirect href={'/'} />;
+
+	// const decks = useDynamicDocs(Collections.deck);
+
+	// const deck = decks?.find(d => d.id == id);
+
+	const cards = deck.data.cards; // Ensure cards is an array or empty
 
 	const sortedCards = sortingCards(cards);
+
+	console.log(deck.data);
 
 	// Toggle card selection
 	const toggleCardSelection = (card: Memento.Card) => {
@@ -77,7 +88,9 @@ const CardListScreen: ApplicationRoute = () => {
 		const selectedCardIndices = selectedCards.map(card => cards.indexOf(card));
 
 		try {
-			await callFunction(Memento.Functions.deleteCards, { deckId: id, cardIndices: selectedCardIndices });
+			handler.modifyDocument(id, { cards: cards.filter((_, i) => !selectedCardIndices.includes(i)) }, (id) => {
+				callFunction(Memento.Functions.deleteCards, { deckId: id, cardIndices: selectedCardIndices });
+			});
 			setSelectedCards([]); // Clear selection after deletion
 			setSelectionMode(false); // Exit selection mode
 		} catch (error) {
@@ -98,9 +111,11 @@ const CardListScreen: ApplicationRoute = () => {
 
 	// Delete deck
 	async function deleteDeck() {
-
-		await callFunction(Memento.Functions.deleteDecks, { deckIds: [id] });
-		router.back();
+		handler.deleteDocument(id, async (id) => {
+			const res = await callFunction(Memento.Functions.deleteDecks, { deckIds: [id] });
+			console.log(`Delete res : ${JSON.stringify(res)}`);
+			router.back();
+		});
 	}
 
 	const toggleDropDown = () => { setShowDropdown(prev => !prev); }; // Open/close dropdown
