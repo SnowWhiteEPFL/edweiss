@@ -1,7 +1,9 @@
-import { Collection, Collections, Document, DocumentData, DocumentOf, Query, callFunction, getDocument, getDocuments } from '@/config/firebase';
-import Memento from '@/model/memento';
+import SyncStorage from '@/config/SyncStorage';
+import { Collection, Document, DocumentData, DocumentOf, Query, getDocument, getDocuments } from '@/config/firebase';
+import { CallResult } from '@/model/functions';
+import generateUID from '@/utils/uid';
 import { doc, onSnapshot } from '@react-native-firebase/firestore';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStoredState } from '../storage';
 
 export function useDoc<Type extends DocumentData>(collection: Collection<Type>, id: string): Document<Type> | undefined {
@@ -134,79 +136,233 @@ export function useCachedDocs<Type extends DocumentData>(key: string, query: Que
 	return documents;
 }
 
+type SyncCallback = (id: string) => void;
+
 export interface RepositoryHandler<T extends DocumentData> {
-	deleteDocument: (id: string) => void,
-	changeDocument: (id: string, newData: Partial<T>) => void,
-	addDocument: (t: T) => void
+	readonly addDocument: (data: T, idSupplier: Promise<CallResult<{ id: string }, unknown>> | undefined) => void,
+	readonly modifyDocument: (id: string, data: Partial<T>, syncCallback: SyncCallback | undefined) => void,
+	readonly deleteDocument: (id: string, syncCallback: SyncCallback | undefined) => void
 }
 
-// export type RepositoryActions<T extends DocumentData> = {
-// 	[x in string]: RepositoryAction<T>
-// }
-
-// type RepositoryAction<T extends DocumentData> = (handler: RepositoryHandler<T>, ...args: any[]) => void;
+export interface RepositoryDocumentHandler<T extends DocumentData> {
+	readonly modify: (id: string, data: Partial<T>, syncCallback: SyncCallback | undefined) => void,
+	readonly delete: (id: string, syncCallback: SyncCallback | undefined) => void
+}
 
 export interface RepositoryDocument<Type> extends Document<Type> {
-	synced: boolean
+	syncedId: boolean
 }
 
-export function useRepository<Type extends DocumentData>(query: Query<Type>, deps?: React.DependencyList): [Document<Type>[] | undefined, RepositoryHandler<Type>] {
-	const [documents, setDocuments] = useState<Document<Type>[]>();
+export interface YetToSyncEvent {
+	fakeId: string,
+	callback: SyncCallback
+}
+
+const FakeIdLength = 16;
+
+type RepositoryKey = string;
+
+export function useRepository<Type extends DocumentData>(repositoryKey: RepositoryKey, query: Query<Type>): [RepositoryDocument<Type>[] | undefined, RepositoryHandler<Type>] {
+	const [documents, setDocuments, refreshRepository] = useStoredState<RepositoryDocument<Type>[] | undefined>(`repo:${repositoryKey}`, undefined);
+	const yetToSyncEvents = useRef<YetToSyncEvent[]>([]);
 
 	useEffect(() => {
-		getDocuments(query).then(docs => setDocuments(docs));
+		(async () => {
+			const fetchedDocuments = await getDocuments(query);
+			setDocuments(fetchedDocuments.map(doc => ({ ...doc, syncedId: true })));
+		})();
+	}, []);
 
-		let firstTime = true;
-		const unsubscribe = query.onSnapshot(querySnapshot => {
-			if (firstTime == true) {
-				firstTime = false;
-				return;
+	useEffect(() => {
+		const unsubscribe = SyncStorage.addListener<RepositoryDocument<Type>[] | undefined>(`repo:${repositoryKey}`, (value) => {
+			value?.forEach(doc => {
+				if (doc.syncedId) {
+					yetToSyncEvents.current.filter(event => event.fakeId == doc.id).forEach(event => event.callback(doc.id));
+					yetToSyncEvents.current = yetToSyncEvents.current.filter(event => event.fakeId != doc.id);
+				}
+			})
+			refreshRepository();
+		});
+		return unsubscribe;
+	}, []);
+
+	const addDocument = useCallback((data: Type, idSupplier: Promise<CallResult<{ id: string }, unknown>> | undefined) => {
+		const fakeId = generateUID(FakeIdLength);
+
+		setDocuments(documents => {
+			const toAdd: RepositoryDocument<Type> = {
+				id: fakeId,
+				data,
+				syncedId: false
+			};
+
+			return documents ? [...documents, toAdd] : [toAdd];
+		});
+
+		if (idSupplier) {
+			idSupplier.then(res => {
+				if (res.status == 1) {
+					setDocuments(documents => {
+						const newDocuments = documents ? [...documents] : [];
+						const doc = newDocuments.find(doc => doc.id == fakeId);
+
+						if (doc) {
+							doc.id = res.data.id;
+							doc.syncedId = true;
+						} else {
+							newDocuments.push({
+								id: res.data.id,
+								data,
+								syncedId: true
+							});
+						}
+
+						yetToSyncEvents.current.filter(event => event.fakeId == fakeId).forEach(event => {
+							event.callback(res.data.id);
+						});
+						yetToSyncEvents.current = yetToSyncEvents.current.filter(event => event.fakeId != fakeId);
+
+						return newDocuments;
+					});
+				} else {
+					deleteDocument(fakeId, undefined);
+				}
+			});
+		}
+	}, []);
+
+	const modifyDocument = useCallback((id: string, newData: Partial<Type>, syncCallback: SyncCallback | undefined) => {
+		setDocuments(documents => {
+			if (documents) {
+				const newDocuments = [...documents];
+				const doc = newDocuments.find(doc => doc.id == id);
+				if (doc) {
+					doc.data = { ...doc.data, newData };
+					if (syncCallback) {
+						if (doc.syncedId) {
+							syncCallback(doc.id);
+						} else {
+							yetToSyncEvents.current.push({
+								fakeId: doc.id,
+								callback: syncCallback
+							});
+						}
+					}
+				}
+				return newDocuments;
 			}
+		});
 
-			setDocuments(querySnapshot.docs.map(DocumentOf<Type>));
-		}, error => {
-			console.log(`Snapshot Error: ${error}`)
-		})
-		return unsubscribe
-	}, deps || []);
+	}, []);
+
+	const deleteDocument = useCallback((id: string, syncCallback: SyncCallback | undefined) => {
+		setDocuments(documents => {
+			if (documents) {
+				const newDocuments = [...documents];
+				const doc = newDocuments.find(doc => doc.id == id);
+
+				if (doc) {
+					newDocuments.splice(newDocuments.indexOf(doc), 1);
+
+					if (syncCallback) {
+						if (doc.syncedId) {
+							syncCallback(doc.id);
+						} else {
+							yetToSyncEvents.current.push({
+								fakeId: doc.id,
+								callback: syncCallback
+							});
+						}
+					}
+				}
+
+				return newDocuments;
+			}
+		});
+	}, []);
 
 	const handler: RepositoryHandler<Type> = useMemo(() => ({
-		addDocument(data) {
-			setDocuments(documents => {
-				const toAdd: RepositoryDocument<Type> = {
-					id: generateUID(8),
-					data,
-					synced: false
-				};
+		addDocument,
+		modifyDocument,
+		deleteDocument
+	}), []);
 
-				if (documents == undefined) {
-					return [toAdd];
-				} else {
-					return [...documents, toAdd];
+	return [documents, handler] as const;
+}
+
+export function useRepositoryDocument<Type extends DocumentData>(repositoryKey: RepositoryKey, collection: Collection<Type>, id: string): [RepositoryDocument<Type> | undefined, RepositoryDocumentHandler<Type>] {
+	const [repository, setRepository, refreshRepository] = useStoredState<RepositoryDocument<Type>[] | undefined>(`repo:${repositoryKey}`, undefined);
+	const yetToSyncEvents = useRef<YetToSyncEvent[]>([]);
+
+	const document = useMemo(() => {
+		return repository?.find(repo => repo.id == id);
+	}, [repository]);
+
+	useEffect(() => {
+		if (repository == undefined)
+			console.log("You might have got the `repositoryKey` wrong. Check it again.");
+
+		const unsubscribe = SyncStorage.addListener<RepositoryDocument<Type>[] | undefined>(`repo:${repositoryKey}`, (value) => {
+			value?.forEach(doc => {
+				if (doc.syncedId) {
+					yetToSyncEvents.current.filter(event => event.fakeId == doc.id).forEach(event => event.callback(doc.id));
+					yetToSyncEvents.current = yetToSyncEvents.current.filter(event => event.fakeId != doc.id);
+				}
+			})
+			refreshRepository();
+		});
+		return unsubscribe;
+	}, []);
+
+	const handler: RepositoryDocumentHandler<Type> = useMemo(() => ({
+		modify(id, newData, syncCallback) {
+			setRepository(documents => {
+				if (documents) {
+					const newDocuments = [...documents];
+					const doc = newDocuments.find(doc => doc.id == id);
+					if (doc) {
+						doc.data = { ...doc.data, newData };
+						if (syncCallback) {
+							if (doc.syncedId) {
+								syncCallback(doc.id);
+							} else {
+								yetToSyncEvents.current.push({
+									fakeId: doc.id,
+									callback: syncCallback
+								});
+							}
+						}
+					}
+					return newDocuments;
 				}
 			});
 		},
-		changeDocument(id, newData) {
+		delete(id, syncCallback) {
+			setRepository(documents => {
+				if (documents) {
+					const newDocuments = [...documents];
+					const doc = newDocuments.find(doc => doc.id == id);
 
+					if (doc) {
+						newDocuments.splice(newDocuments.indexOf(doc), 1);
+
+						if (syncCallback) {
+							if (doc.syncedId) {
+								syncCallback(doc.id);
+							} else {
+								yetToSyncEvents.current.push({
+									fakeId: doc.id,
+									callback: syncCallback
+								});
+							}
+						}
+					}
+
+					return newDocuments;
+				}
+			});
 		},
-		deleteDocument(id) {
+	}), []);
 
-		},
-	}), deps || []);
-
-	return [documents, handler];
-}
-
-function generateUID(len: number): string {
-	return "";
-}
-
-const [documents, handler] = useRepository(Collections.deck);
-
-const addDeck = async (deck: Memento.Deck) => {
-	handler.addDocument(deck);
-	const res = await callFunction(Memento.Functions.createDeck, { deck });
-	if (res.status == 0) {
-
-	}
+	return [document, handler] as const;
 }
