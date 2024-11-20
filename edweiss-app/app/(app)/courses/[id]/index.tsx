@@ -19,6 +19,7 @@ import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
+import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import AssignmentDisplay, { testIDs as assignmentTestIDs } from '@/components/courses/AssignmentDisplay';
 import MaterialDisplay from '@/components/courses/MaterialDisplay';
@@ -30,7 +31,7 @@ import { timeInMS } from '@/constants/Time';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { Assignment, Course, Material } from '@/model/school/courses';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 
 // Tests Tags
@@ -103,6 +104,31 @@ const CoursePage: ApplicationRoute = () => {
 			};
 		});
 
+	const currentMaterials = useMemo(() => {
+		return materialCollection.filter((material) => {
+			const currentTime = new Date().getTime();
+			const fromTime = material.data.from.seconds * timeInMS.SECOND;
+			const toTime = material.data.to.seconds * timeInMS.SECOND;
+			return fromTime <= currentTime && currentTime <= toTime;
+		});
+	}, [materialCollection, timeInMS.SECOND]);
+
+	const passedMaterials = useMemo(() => {
+		return materialCollection.filter((material) => {
+			const currentTime = new Date().getTime();
+			const toTime = material.data.to.seconds * timeInMS.SECOND;
+			return currentTime > toTime;
+		});
+	}, [materialCollection, timeInMS.SECOND]);
+
+	const futureMaterials = useMemo(() => {
+		return materialCollection.filter((material) => {
+			const currentTime = new Date().getTime();
+			const fromTime = material.data.from.seconds * timeInMS.SECOND;
+			return currentTime < fromTime;
+		});
+	}, [materialCollection, timeInMS.SECOND]);
+
 	// Filter previous assignments
 	const previousAssignments = useMemo(() => {
 		return assignments
@@ -119,8 +145,14 @@ const CoursePage: ApplicationRoute = () => {
 			(assignment) =>
 				assignment.dueDate.seconds * timeInMS.SECOND > new Date().getTime()
 		);
-		return filteredAssignments.length > 0 ? filteredAssignments : undefined;
+		return filteredAssignments;
 	}, [assignments, timeInMS.SECOND]);
+
+	const [showFutureMaterials, setShowFutureMaterials] = useState(false);
+
+	const toggleFutureMaterials = () => {
+		setShowFutureMaterials(!showFutureMaterials);
+	};
 
 	//Checks
 	if (!isValidId) { return <Redirect href={'/'} />; }
@@ -138,7 +170,7 @@ const CoursePage: ApplicationRoute = () => {
 				<TText mb={10} size={18} color='darkBlue' bold testID={testIDs.upcomingAssignments} >{t(`course:upcoming_assignment_title`)}</TText>
 
 				<For
-					each={upcomingAssignments}
+					each={upcomingAssignments.length > 0 ? upcomingAssignments : undefined}
 					fallback={<TText size={16} testID={testIDs.noAssignmentDue}>{t('course:no_assignment_due')}</TText>}
 				>{(assignment, index) => (
 					<AssignmentDisplay item={assignment} index={index} isSwipeable key={assignment.name} />
@@ -146,33 +178,27 @@ const CoursePage: ApplicationRoute = () => {
 				</For>
 
 				{/* Bouton vers les Passed Assignments */}
-				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} onPress={() => router.push({ pathname: `/courses/[id]/archive`, params: { id: course.id, extraInfo: JSON.stringify(previousAssignments) } })}>
+				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} onPress={() => router.push({ pathname: `/courses/[id]/archive`, params: { id: course.id, rawAssignments: JSON.stringify(previousAssignments) } })}>
 					<TText my={20} align='center' color='cherry' testID={testIDs.previousAssignments} >{t(`course:previous_assignment_title`)}</TText>
 				</TTouchableOpacity>
 
-				{materialCollection.map((material, index) => (
-					<MaterialDisplay item={material.data} key={index} />
-				))}
-
-
-				{/* <TText mb={10} size={18} color='darkBlue' bold testID={testIDs.thisWeekTitle} >{t(`course:this_week`)}</TText>
-				<TText align='justify' size={15} color='darkNight' py={16} textBreakStrategy='highQuality' lineHeight={50} testID={testIDs.thisWeekText} >
-					Lorem ipsum dolor sit amet consectetur. Ipsum aliquam ut in dignissim nisl. Donec egestas sed amet dictumst odio magna at. Integer risus pellentesque velit sed sit bibendum. Elementum consectetur cras viverra nunc dictum et lacus varius semper. Purus viverra molestie ornare tortor purus sed. Ut nisl non risus nunc facilisi odio purus. Ullamcorper nibh elementum ultricies pulvinar integer libero. Sagittis pretium nunc quam vitae et diam condimentum diam nunc. Quis amet tellus pellentesque amet hac.
-					Lorem ipsum dolor sit amet consectetur. Ipsum aliquam ut in dignissim nisl. Donec egestas sed amet dictumst odio magna at. Integer risus pellentesque velit sed sit bibendum. Elementum consectetur cras viverra nunc dictum et lacus varius semper. Purus viverra molestie ornare tortor purus sed. Ut nisl non risus nunc facilisi odio purus. Ullamcorper nibh elementum ultricies pulvinar integer libero. Sagittis pretium nunc quam vitae et diam condimentum diam nunc. Quis amet tellus pellentesque amet hac.
-				</TText>
-
-				<TTouchableOpacity testID={testIDs.slidesTouchable} flexDirection='row' alignItems='center' py={10} mb={10} bb={1} borderColor='crust' onPress={() => console.log('Go to Slides')}>
-					<Icon name={slidesIcon} size={iconSizes.md} testID={testIDs.slidesIcon} />
-					<TText size={16} ml={10} testID={testIDs.slidesText} >Slides</TText>
+				{/* Bouton pour afficher/masquer les "futureMaterials" */}
+				<TTouchableOpacity onPress={toggleFutureMaterials}>
+					<TText color="blue" align="center" testID="toggleFutureMaterials">
+						{showFutureMaterials ? t('course:hide_future_materials') : t('course:show_future_materials')}
+					</TText>
 				</TTouchableOpacity>
-				<TTouchableOpacity testID={testIDs.exercisesTouchable} flexDirection='row' alignItems='center' py={10} mb={10} bb={1} borderColor='crust' onPress={() => console.log('Go to Exercises')}>
-					<Icon name={exerciseIcon} size={iconSizes.md} testID={testIDs.exercisesIcon} />
-					<TText size={16} ml={10} testID={testIDs.exercisesText} >Exercises</TText>
-				</TTouchableOpacity>
-				<TTouchableOpacity testID={testIDs.feedbacksTouchable} flexDirection='row' alignItems='center' py={10} mb={30} bb={1} borderColor='crust' onPress={() => console.log('Go to Feedbacks')}>
-					<Icon name={feedbackIcon} size={iconSizes.md} testID={testIDs.feedbacksIcon} />
-					<TText size={16} ml={10} testID={testIDs.feedbacksText} >Feedbacks</TText>
-				</TTouchableOpacity> */}
+
+				{showFutureMaterials && (futureMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={index} />)))}
+
+				{currentMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={index} />))}
+
+				{/*<TView bb={1} my={10} borderColor='crust' />}*/}
+
+				{passedMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={index} />))}
+
+				<TView mb={30} />
+
 			</TScrollView>
 		</>
 	);

@@ -42,7 +42,7 @@ export const testIDs = {
  * 
  * @returns JSX.Element - The rendered component for the assignment display.
  */
-const MaterialDisplay: ReactComponent<{ item: Material, key: React.Key | null | undefined; }> = ({ item, key }) => {
+const MaterialDisplay: ReactComponent<{ item: Material; }> = ({ item }) => {
 
     const formatDateRange = (fromSeconds: number, toSeconds: number) => {
         const fromDate = new Date(fromSeconds * 1000);
@@ -63,10 +63,10 @@ const MaterialDisplay: ReactComponent<{ item: Material, key: React.Key | null | 
     });
 
     return (
-        <TView key={key}>
+        <TView mt={10} mb={10}>
             <TText mb={10} size={18} color='darkBlue' bold testID={testIDs.materialTitle} >{item.title}</TText>
-            <TText mb={10} size={14} color='darkBlue' bold testID={testIDs.materialTitle} >{formatDateRange(item.from.seconds, item.to.seconds)}</TText>
-            <TText align='justify' size={15} color='darkNight' py={16} textBreakStrategy='highQuality' lineHeight={50} testID={testIDs.materialDescription}>{item.description}</TText>
+            <TText mb={4} size={14} color='darkBlue' bold testID={testIDs.materialTitle} >{formatDateRange(item.from.seconds, item.to.seconds)}</TText>
+            <TText align='auto' size={15} color='darkNight' py={12} textBreakStrategy='highQuality' lineHeight={50} testID={testIDs.materialDescription}>{item.description}</TText>
 
             {sortedDocs.map((doc, index) => {
                 return (
