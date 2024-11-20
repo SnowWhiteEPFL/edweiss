@@ -5,51 +5,100 @@ import { Stack } from 'expo-router';
 import React, { ReactNode, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { useStoredState } from './storage';
 
-// export type Repository<Type> = Document<Type>[];
-
-export interface RepositorySignature<T extends DocumentData> {
+/**
+ * Encapsulates everything that is necessary to use a repository.
+ */
+export interface Repository<T extends DocumentData> {
+	/**
+	 * Unique key that is used when writing locally.
+	 */
 	readonly key: string,
-	readonly context: React.Context<Repository<T>>
+
+	/**
+	 * React context that is used when propagating the repository.
+	 */
+	readonly context: React.Context<RepositoryInstance<T>>
 }
 
 export interface RepositoryDocument<Type> extends Document<Type> {
+	/**
+	 * `true` if the `id` field of this object is the Firebase one.
+	 */
 	syncedId: boolean,
+
+	/**
+	 * Temporary id used when adding a document.
+	 */
 	readonly fakeId?: string
 }
-
-export interface RepositoryHandler<T extends DocumentData> {
-	readonly addDocument: (data: T, idSupplier: Promise<CallResult<{ id: string }, unknown>>) => void,
-	readonly modifyDocument: (id: string, data: Partial<T>, syncCallback: MonoSyncCallback | undefined) => void,
-	readonly deleteDocument: (id: string, syncCallback: MonoSyncCallback | undefined) => void,
-	readonly deleteDocuments: (ids: string[], syncCallback: ((ids: string[]) => void) | undefined) => void,
-}
-
-export type Repository<Type extends DocumentData> = [RepositoryDocument<Type>[] | undefined, RepositoryHandler<Type>]
 
 type MonoSyncCallback = (id: string) => void;
 type MultiSyncCallback = (id: string[]) => void;
 
-export interface MonoYetToSyncEvent {
+/**
+ * Used to manipulate and modify the local {@link Repository} and enforce synchronicity with the cloud.
+ */
+export interface RepositoryHandler<T extends DocumentData> {
+	/**
+	 * Adds a document to the local {@link Repository} then syncs it with the cloud using `idSupplier`.
+	 * @param data The data of the document to be added optimistically.
+	 * @param idSupplier Typically a `callFunction` with an `{ id: string }` as a success return value.
+	 */
+	readonly addDocument: (data: T, idSupplier: Promise<CallResult<{ id: string }, unknown>>) => void,
+
+	/**
+	 * Modifies the document in the local {@link Repository} then syncs it with the cloud using `syncCallback`.
+	 * @param id The `id` of the document to modify.
+	 * @param data The fields with values to modify.
+	 * @param syncCallback The Firebase callback with the real `id` used to enforce synchonicity.
+	 */
+	readonly modifyDocument: (id: string, data: Partial<T>, syncCallback: MonoSyncCallback | undefined) => void,
+
+	/**
+	 * Removes the document in the local {@link Repository} then syncs it with the cloud using `syncCallback`.
+	 * @param id The `id` of the document to remove.
+	 * @param syncCallback The Firebase callback with the real `id` used to enforce synchonicity.
+	 */
+	readonly deleteDocument: (id: string, syncCallback: MonoSyncCallback | undefined) => void,
+
+	/**
+	 * Removes the documents in the local {@link Repository} then syncs it with the cloud using `syncCallback`.
+	 * @param ids The `ids` of the documents to remove.
+	 * @param syncCallback The Firebase callback with the real `ids` used to enforce synchonicity.
+	 */
+	readonly deleteDocuments: (ids: string[], syncCallback: MultiSyncCallback | undefined) => void,
+}
+
+type RepositoryInstance<Type extends DocumentData> = [RepositoryDocument<Type>[] | undefined, RepositoryHandler<Type>]
+
+interface MonoYetToSyncEvent {
 	type: "mono",
 	fakeId: string,
 	callback: MonoSyncCallback
 }
 
-export interface MultiYetToSyncEvent {
+interface MultiYetToSyncEvent {
 	type: "multi",
 	fakeIds: string[],
 	callback: MultiSyncCallback
 }
 
-export type YetToSyncEvent = MonoYetToSyncEvent | MultiYetToSyncEvent;
+type YetToSyncEvent = MonoYetToSyncEvent | MultiYetToSyncEvent;
 
-export function createRepository<T extends DocumentData>(key: string): RepositorySignature<T> {
+/**
+ * Creates a {@link Repository} signature to use with {@link useInitialRepository} and {@link RepositoryLayout}. Check the guide.
+ * @param key Unique key of the {@link Repository} used to store it locally.
+ * @returns The {@link Repository} signature.
+ */
+export function createRepository<T extends DocumentData>(key: string): Repository<T> {
+	const defaultFn = () => console.error("No repository found, did you use `RepositoryLayout`? Check the guide on GitHub.");
+
 	return {
-		key, context: React.createContext<Repository<T>>([undefined, {
-			addDocument: () => console.log("No repository found. Check the guide on GitHub."),
-			modifyDocument: () => console.log("No repository found. Check the guide on GitHub."),
-			deleteDocument: () => console.log("No repository found. Check the guide on GitHub."),
-			deleteDocuments: () => console.log("No repository found. Check the guide on GitHub."),
+		key, context: React.createContext<RepositoryInstance<T>>([undefined, {
+			addDocument: defaultFn,
+			modifyDocument: defaultFn,
+			deleteDocument: defaultFn,
+			deleteDocuments: defaultFn,
 		}])
 	};
 }
@@ -73,8 +122,14 @@ function collectTrueIds<T>(newDocuments: RepositoryDocument<T>[], fakeIds: strin
 
 const FakeIdLength = 16;
 
-export function useInitialRepository<Type extends DocumentData>(signature: RepositorySignature<Type>, query: Query<Type>): Repository<Type> {
-	const [documents, setDocuments] = useStoredState<RepositoryDocument<Type>[] | undefined>(signature.key, undefined);
+/**
+ * Initializes the local documents and fetches them both in disk and in the cloud, alongside the {@link RepositoryHandler}.
+ * @param repository The {@link Repository} where to store locally all the documents.
+ * @param query The cloud collection/query from which to perform the initial fetch.
+ * @returns `[documents, handler]`
+ */
+export function useInitialRepository<Type extends DocumentData>(repository: Repository<Type>, query: Query<Type>): RepositoryInstance<Type> {
+	const [documents, setDocuments] = useStoredState<RepositoryDocument<Type>[] | undefined>(repository.key, undefined);
 	const yetToSyncEvents = useRef<YetToSyncEvent[]>([]);
 
 	useEffect(() => {
@@ -242,33 +297,51 @@ export function useInitialRepository<Type extends DocumentData>(signature: Repos
 	return [documents, handler] as const;
 }
 
-export function useRepository<T extends DocumentData>({ context }: RepositorySignature<T>) {
+/**
+ * Uses the given {@link Repository} context and retrieves the documents and {@link RepositoryHandler}.
+ * @returns `[documents, handler]`
+ */
+export function useRepository<T extends DocumentData>({ context }: Repository<T>) {
 	return useContext(context);
 }
 
-export function useRepositoryDocument<T extends DocumentData>(id: string, signature: RepositorySignature<T>) {
-	const [repository, handler] = useRepository(signature);
-	if (repository == undefined)
+/**
+ * Uses the given {@link Repository} context and retrieves the asked document and {@link RepositoryHandler}.
+ * @param id The `id` of the document to fetch locally.
+ * @returns `[documents, handler]`
+ */
+export function useRepositoryDocument<T extends DocumentData>(id: string, repository: Repository<T>) {
+	const [documents, handler] = useRepository(repository);
+	if (documents == undefined)
 		return [undefined, handler] as const;
-	return [repository.find(repo => repo.id == id || repo.fakeId == id), handler] as const;
+	return [documents.find(repo => repo.id == id || repo.fakeId == id), handler] as const;
 }
 
-export function RepositoryLayout<T extends DocumentData>(props: { signature: RepositorySignature<T>, collection: Query<T> }) {
-	const repository = useInitialRepository(props.signature, props.collection);
-	const Context = props.signature.context;
+/**
+ * Used to propagate the repository inside the whole folder. To only use inside `_layout.tsx` files.
+ * @param repository The signature {@link Repository} created with {@link createRepository}.
+ * @param collection The Firebase collection for the initial fetch.
+ */
+export function RepositoryLayout<T extends DocumentData>(props: { repository: Repository<T>, collection: Query<T> }) {
+	const instance = useInitialRepository(props.repository, props.collection);
 
 	return (
-		<Context.Provider value={repository}>
+		<RepositoryProvider repository={props.repository} instance={instance}>
 			<Stack />
-		</Context.Provider>
+		</RepositoryProvider>
 	)
 }
 
-export function RepositoryProvider<T extends DocumentData>(props: { children?: ReactNode, signature: RepositorySignature<T>, repository: Repository<T> }) {
-	const Context = props.signature.context;
+/**
+ * Used to propagate the repository to the children.
+ * @param repository The signature `Repository` created with {@link createRepository}.
+ * @param instance The instance of the repository created with {@link useInitialRepository}. 
+ */
+export function RepositoryProvider<T extends DocumentData>(props: { children?: ReactNode, repository: Repository<T>, instance: RepositoryInstance<T> }) {
+	const Context = props.repository.context;
 
 	return (
-		<Context.Provider value={props.repository}>
+		<Context.Provider value={props.instance}>
 			{props.children}
 		</Context.Provider>
 	)
