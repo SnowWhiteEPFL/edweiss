@@ -36,6 +36,21 @@ export interface AssignmentBase {
 
 export type Assignment = AssignmentBase;
 
+export type MaterialType = "slides" | "exercises" | "feedbacks" | "other";
+
+export interface MaterialDocument {
+	url: string;
+	title: string;
+	type: MaterialType;
+}
+
+export interface Material {
+	from: Timestamp;
+	to: Timestamp;
+	docs: MaterialDocument[]; // References pointing to MaterialDocument
+	description: string;
+}
+
 export function isProfessorOf(professor: ProfessorID, course: Course) {
 	return course.professors.includes(professor);
 }
