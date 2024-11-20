@@ -1,4 +1,4 @@
-import { Collections } from '@/config/firebase';
+import { CollectionOf } from '@/config/firebase';
 import { ApplicationLayout } from '@/constants/Component';
 import { RepositoryLayout, createRepository } from '@/hooks/repository';
 import Memento from '@/model/memento';
@@ -6,7 +6,8 @@ import Memento from '@/model/memento';
 export const DecksRepository = createRepository<Memento.Deck>("my-decks");
 
 const MementoLayout: ApplicationLayout = () => {
-	return <RepositoryLayout signature={DecksRepository} collection={Collections.deck} />;
+	const collection = CollectionOf<Memento.Deck>("decks");
+	return <RepositoryLayout repository={DecksRepository} collection={collection} />;
 };
 
 export default MementoLayout;
