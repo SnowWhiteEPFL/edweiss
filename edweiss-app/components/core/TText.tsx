@@ -9,11 +9,12 @@ export type TTextProps = TextProps & LightDarkProps & BoxModelProps & {
 	color?: Color,
 	size?: Size,
 	bold?: boolean,
+	underlined?: boolean,
 	lineHeight?: Size,
 	align?: "auto" | "left" | "right" | "center" | "justify";
 };
 
-const TText: ReactComponent<TTextProps> = ({ style, light, dark, size = 'md', bold = false, lineHeight = 'md', color = 'text', align, ...props }) => {
+const TText: ReactComponent<TTextProps> = ({ style, light, dark, size = 'md', bold = false, underlined = false, lineHeight = 'md', color = 'text', align, ...props }) => {
 	const computedColor = useThemeColor({ light, dark }, color);
 
 	return (
@@ -24,6 +25,7 @@ const TText: ReactComponent<TTextProps> = ({ style, light, dark, size = 'md', bo
 					fontSize: computeSize(size, textSizes),
 					lineHeight: computeSize(size, lineHeightSizes),
 					fontWeight: bold ? 'bold' : 'normal',
+					textDecorationLine: underlined ? 'underline' : 'none',
 					textAlign: align,
 					fontFamily: "Inter"
 				},

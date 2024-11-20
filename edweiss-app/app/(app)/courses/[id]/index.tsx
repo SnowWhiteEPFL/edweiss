@@ -15,18 +15,20 @@
  * 
  */
 import For from '@/components/core/For';
+import Icon from '@/components/core/Icon';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
-import AssignmentDisplay, { testIDs as assignmentTestIDs } from '@/components/courses/AssignmentDisplay';
+import AssignmentDisplay from '@/components/courses/AssignmentDisplay';
 import MaterialDisplay from '@/components/courses/MaterialDisplay';
 import { CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import { Color } from '@/constants/Colors';
 import { ApplicationRoute } from '@/constants/Component';
+import { iconSizes } from '@/constants/Sizes';
 import { timeInMS } from '@/constants/Time';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { Assignment, Course, Material } from '@/model/school/courses';
@@ -36,13 +38,17 @@ import React, { useMemo, useState } from 'react';
 
 // Tests Tags
 export const testIDs = {
-	...assignmentTestIDs,
 	scrollView: 'scroll-view',
 	upcomingAssignments: 'upcoming-assignments',
 	assignemtView: 'assignment-view',
 	noAssignmentDue: 'no-assignment-due',
 	previousAssignmentTouchable: 'navigate-to-archive-button',
-	previousAssignments: 'previous-assignments',
+	previousAssignmentsIcon: 'previous-assignments-icon',
+	previousAssignmentsText: 'previous-assignments-text',
+	materialsTitle: 'materials-title',
+	toggleFutureMaterialsTouchable: 'future-materials-display-touchable',
+	toggleFutureMaterialsIcon: 'toggle-future-materials-icon',
+	toggleFutureMaterialsText: 'toggle-future-materials-text',
 };
 
 type AssignmentWithColor = Assignment & { color: Color; };
@@ -178,18 +184,44 @@ const CoursePage: ApplicationRoute = () => {
 				</For>
 
 				{/* Bouton vers les Passed Assignments */}
-				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} onPress={() => router.push({ pathname: `/courses/[id]/archive`, params: { id: course.id, rawAssignments: JSON.stringify(previousAssignments) } })}>
-					<TText my={20} align='center' color='cherry' testID={testIDs.previousAssignments} >{t(`course:previous_assignment_title`)}</TText>
+				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} alignItems='center' onPress={() => router.push({ pathname: `/courses/[id]/archive`, params: { id: course.id, rawAssignments: JSON.stringify(previousAssignments) } })}>
+					<TView flexDirection='row' mt={8} mb={16} >
+						<Icon
+							testID={testIDs.previousAssignmentsIcon}
+							name={'chevron-forward-circle'}
+							size={iconSizes.md}
+							color='cherry'
+							mr={8}
+						/>
+						<TText color='cherry' testID={testIDs.previousAssignmentsText} >{t(`course:previous_assignment_title`)}</TText>
+					</TView>
 				</TTouchableOpacity>
+
+				<TText testID={testIDs.materialsTitle} mb={10} size={18} color='darkBlue' bold >{t(`course:materials_title`)}</TText>
 
 				{/* Bouton pour afficher/masquer les "futureMaterials" */}
-				<TTouchableOpacity onPress={toggleFutureMaterials}>
-					<TText color="blue" align="center" testID="toggleFutureMaterials">
-						{showFutureMaterials ? t('course:hide_future_materials') : t('course:show_future_materials')}
-					</TText>
+				<TTouchableOpacity testID={testIDs.toggleFutureMaterialsTouchable} alignItems='flex-start' onPress={toggleFutureMaterials}>
+					<TView flexDirection='row' mt={8} mb={8} >
+						<Icon
+							testID={testIDs.toggleFutureMaterialsIcon}
+							name={showFutureMaterials ? 'chevron-down' : 'chevron-forward'}
+							size={iconSizes.sm}
+							color='blue'
+							mr={8}
+						/>
+						<TText testID={testIDs.toggleFutureMaterialsTouchable} color='blue' align="center">
+							{showFutureMaterials ? t('course:hide_future_materials') : t('course:show_future_materials')}
+						</TText>
+					</TView>
+
 				</TTouchableOpacity>
 
-				{showFutureMaterials && (futureMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={index} />)))}
+				{showFutureMaterials && (futureMaterials.map((material, index) => (
+					<React.Fragment key={index}>
+						<MaterialDisplay item={material.data} />
+						<TView bb={1} mx={20} mb={12} borderColor='overlay0' />
+					</React.Fragment>
+				)))}
 
 				{currentMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={index} />))}
 
