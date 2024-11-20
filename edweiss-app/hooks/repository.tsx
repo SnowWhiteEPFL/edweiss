@@ -78,10 +78,12 @@ export function useInitialRepository<Type extends DocumentData>(signature: Repos
 	const yetToSyncEvents = useRef<YetToSyncEvent[]>([]);
 
 	useEffect(() => {
-		(async () => {
+		const timeout = setTimeout(async () => {
 			const fetchedDocuments = await getDocuments(query);
 			setDocuments(fetchedDocuments.map(doc => ({ ...doc, syncedId: true })));
-		})();
+		}, documents == undefined ? 0 : 5000); // this is too take into account for quick back and fourth between screens
+
+		return () => clearTimeout(timeout);
 	}, []);
 
 	const addDocument = useCallback((data: Type, idSupplier: Promise<CallResult<{ id: string }, unknown>>) => {
