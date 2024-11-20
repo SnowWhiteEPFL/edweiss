@@ -13,6 +13,7 @@ export class SyncStorageSingleton {
 	loading: boolean = true;
 	// listeners: Map<string, (data: unknown) => void> = new Map();
 	listeners: { key: string, callback: (data: any) => void }[] = [];
+	oneTapListeners: { key: string, callback: (data: any) => void }[] = []
 
 	init() {
 		if (this.loading == false)
@@ -42,6 +43,15 @@ export class SyncStorageSingleton {
 
 	removeListener<T>(listener: { key: string, callback: (data: T) => void }) {
 		this.listeners = this.listeners.filter(l => l != listener);
+	}
+
+	pushOneTapListener<T>(key: string, callback: (data: T | undefined) => void) {
+		const listener = {
+			key,
+			callback
+		};
+
+		this.oneTapListeners.push(listener);
 	}
 
 	get(key: string): any {
@@ -106,7 +116,9 @@ export class SyncStorageSingleton {
 	}
 
 	triggerListeners(key: string, data: any) {
-		this.listeners.filter(l => l.key === key).forEach(l => l.callback(data))
+		this.listeners.filter(l => l.key === key).forEach(l => l.callback(data));
+		this.oneTapListeners.filter(l => l.key === key).forEach(l => l.callback(data));
+		this.oneTapListeners = this.oneTapListeners.filter(l => l.key !== key);
 	}
 
 	getAllKeys(): string[] {
