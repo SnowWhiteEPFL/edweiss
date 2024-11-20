@@ -10,8 +10,9 @@ function isTemporary(key: string) {
  */
 export class SyncStorageSingleton {
 	data: Map<string, any> = new Map();
-
 	loading: boolean = true;
+	// listeners: Map<string, (data: unknown) => void> = new Map();
+	listeners: { key: string, callback: (data: any) => void }[] = [];
 
 	init() {
 		if (this.loading == false)
@@ -27,6 +28,20 @@ export class SyncStorageSingleton {
 				this.loading = false;
 			});
 		});
+	}
+
+	addListener<T>(key: string, callback: (data: T | undefined) => void): () => void {
+		const listener = {
+			key,
+			callback
+		};
+
+		this.listeners.push(listener);
+		return () => this.removeListener(listener);
+	}
+
+	removeListener<T>(listener: { key: string, callback: (data: T) => void }) {
+		this.listeners = this.listeners.filter(l => l != listener);
 	}
 
 	get(key: string): any {
@@ -56,6 +71,7 @@ export class SyncStorageSingleton {
 			return this.remove(key);
 
 		this.data.set(key, value);
+		this.triggerListeners(key, value);
 
 		if (isTemporary(key))
 			return;
@@ -65,6 +81,7 @@ export class SyncStorageSingleton {
 
 	remove(key: string) {
 		this.data.delete(key);
+		this.triggerListeners(key, undefined);
 
 		if (isTemporary(key))
 			return;
@@ -86,6 +103,10 @@ export class SyncStorageSingleton {
 		}
 
 		this.data.set(item[0], value);
+	}
+
+	triggerListeners(key: string, data: any) {
+		this.listeners.filter(l => l.key === key).forEach(l => l.callback(data))
 	}
 
 	getAllKeys(): string[] {
