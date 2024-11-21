@@ -109,23 +109,30 @@ describe('ArchiveScreen', () => {
     test("renders archived assignments", async () => {
 
         // Mock assignments
-        const assignments: AssignmentWithColor[] = [
+        const assignments = [
             {
-                name: "Assignment 1",
-                type: "quiz",
-                dueDate: { seconds: 2000, nanoseconds: 0 },
-                color: "red"
+                id: "1",
+                data: {
+                    name: "Assignment 1",
+                    type: "quiz",
+                    dueDate: { seconds: 2000, nanoseconds: 0 },
+                    color: "red"
+                }
             },
             {
-                name: "Assignment 2",
-                type: "quiz",
-                dueDate: { seconds: 86400 + 2000, nanoseconds: 0 }, // Adding 86400 seconds (1 day) to the timestamp
-                color: "blue"
+                id: "2",
+                data: {
+                    name: "Assignment 2",
+                    type: "quiz",
+                    dueDate: { seconds: 86400 + 2000, nanoseconds: 0 }, // Adding 86400 seconds (1 day) to the timestamp
+                    color: "blue"
+                }
             }
         ];
 
         // Mock useLocalSearchParams to return the assignments
         (useLocalSearchParams as jest.Mock).mockReturnValue({
+            id: "default-course-id",
             rawAssignments: JSON.stringify(assignments)  // Simule la chaîne JSON des assignments
         });
 

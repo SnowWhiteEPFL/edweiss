@@ -70,7 +70,7 @@ const MaterialDisplay: ReactComponent<{ item: Material; }> = ({ item }) => {
 
             {sortedDocs.map((doc, index) => {
                 return (
-                    <TTouchableOpacity key={index} testID={doc.type === 'slides' ? testIDs.slidesTouchable : doc.type === 'exercises' ? testIDs.exercisesTouchable : doc.type === 'other' ? testIDs.otherTouchable : testIDs.feedbacksTouchable} flexDirection='row' alignItems='center' py={10} mb={10} bb={1} borderColor='crust' onPress={() => console.log(`Clic on ${item.title}`)}>
+                    <TTouchableOpacity key={index} testID={doc.type === 'slides' ? testIDs.slidesTouchable : doc.type === 'exercises' ? testIDs.exercisesTouchable : doc.type === 'feedbacks' ? testIDs.feedbacksTouchable : testIDs.otherTouchable} flexDirection='row' alignItems='center' py={10} mb={10} bb={1} borderColor='crust' onPress={() => console.log(`Clic on ${item.title}`)}>
                         <Icon
                             testID={doc.type === 'slides' ? testIDs.slidesIcon : doc.type === 'exercises' ? testIDs.exercisesIcon : doc.type === 'other' ? testIDs.otherIcon : testIDs.feedbacksIcon}
                             name={doc.type === 'slides' ? slidesIcon : doc.type === 'exercises' ? exerciseIcon : doc.type === 'other' ? otherIcon : feedbackIcon}

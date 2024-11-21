@@ -24,14 +24,14 @@ import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import AssignmentDisplay from '@/components/courses/AssignmentDisplay';
 import MaterialDisplay from '@/components/courses/MaterialDisplay';
-import { callFunction, CollectionOf } from '@/config/firebase';
+import { CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import { Color } from '@/constants/Colors';
 import { ApplicationRoute } from '@/constants/Component';
 import { iconSizes } from '@/constants/Sizes';
 import { timeInMS } from '@/constants/Time';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
-import { Assignment, Course, Course_functions, Material } from '@/model/school/courses';
+import { Assignment, Course, Material } from '@/model/school/courses';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 
@@ -50,6 +50,7 @@ export const testIDs = {
 	toggleFutureMaterialsTouchable: 'future-materials-display-touchable',
 	toggleFutureMaterialsIcon: 'toggle-future-materials-icon',
 	toggleFutureMaterialsText: 'toggle-future-materials-text',
+	futureMaterialView: 'future-material-view',
 };
 
 type AssignmentWithColor = Assignment & { color: Color; };
@@ -89,8 +90,6 @@ const CoursePage: ApplicationRoute = () => {
 	const materialCollection = useDynamicDocs(
 		CollectionOf<Material>(`courses/${isValidId ? id : ''}/materials`)
 	) || [];
-
-
 
 	// Sort assignments by due date and add color based on time difference
 	const assignments = assignmentsCollection
@@ -165,8 +164,6 @@ const CoursePage: ApplicationRoute = () => {
 		setShowFutureMaterials(!showFutureMaterials);
 	};
 
-	callFunction(Course_functions.Functions.updateName, { courseID: id, name: 'new name' });
-
 	//Checks
 	if (!isValidId) { return <Redirect href={'/'} />; }
 	if (course == undefined || assignmentsCollection == undefined || materialCollection == undefined) { return <TActivityIndicator size={40} />; }
@@ -218,7 +215,7 @@ const CoursePage: ApplicationRoute = () => {
 							color='blue'
 							mr={8}
 						/>
-						<TText testID={testIDs.toggleFutureMaterialsTouchable} color='blue' align="center">
+						<TText testID={testIDs.toggleFutureMaterialsText} color='blue' align="center">
 							{showFutureMaterials ? t('course:hide_future_materials') : t('course:show_future_materials')}
 						</TText>
 					</TView>
@@ -226,10 +223,10 @@ const CoursePage: ApplicationRoute = () => {
 				</TTouchableOpacity>
 
 				{showFutureMaterials && (futureMaterials.map((material, index) => (
-					<React.Fragment key={index}>
+					<TView testID={testIDs.futureMaterialView} key={index}>
 						<MaterialDisplay item={material.data} />
 						<TView bb={1} mx={20} mb={12} borderColor='overlay0' />
-					</React.Fragment>
+					</TView>
 				)))}
 
 				{currentMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={index} />))}
