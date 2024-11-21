@@ -8,6 +8,7 @@ import { iconSizes } from '@/constants/Sizes';
 import { dateFormats, timeInMS } from '@/constants/Time';
 import { Assignment } from '@/model/school/courses';
 import { saveTodo } from '@/utils/courses/saveToDo';
+import { router } from 'expo-router';
 import { useCallback, useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
@@ -48,7 +49,7 @@ export type AssignmentWithColor = Assignment & { color: Color; };
  * 
  * @returns JSX.Element - The rendered component for the assignment display.
  */
-const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, index: number, isSwipeable: boolean; }> = ({ item, index, isSwipeable }) => {
+const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, id: string, courseID: string, index: number, isSwipeable: boolean; }> = ({ item, id, courseID, index, isSwipeable }) => {
 
     // Define swipeableRefs
     const swipeableRefs = useRef<(Swipeable | null)[]>([]);
@@ -63,7 +64,7 @@ const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, index: numb
     const assignmentView = () => (
         <TView testID={testIDs.assignmentView} flexDirection='row' alignItems="center" justifyContent='space-between'>
             {/* TODO: Handle onPress event qui envoie vers le quiz ou la soumission. ATTENTION SI LE QUIZ OU SUBMIT EST DEJA FINI */}
-            <TTouchableOpacity testID={testIDs.assignmentTouchable} backgroundColor='mantle' flexDirection='row' alignItems='center' py={12} bb={1} borderColor='crust' flex={1}>
+            <TTouchableOpacity testID={testIDs.assignmentTouchable} onPress={item.type === 'quiz' ? () => router.push({ pathname: `/(app)/quiz/temporaryQuizStudentView`, params: { quizId: id, courseId: courseID } }) : undefined} backgroundColor='mantle' flexDirection='row' alignItems='center' py={12} bb={1} borderColor='crust' flex={1}>
                 {/* // Icon */}
                 <Icon testID={testIDs.assignmentIcon} name={item.type as string === 'submission' ? submissionIcon : quizIcon} size={iconSizes.lg} color={item.color} />
                 {/* // Assignment name */}

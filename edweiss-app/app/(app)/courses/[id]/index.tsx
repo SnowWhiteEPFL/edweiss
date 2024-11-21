@@ -24,14 +24,14 @@ import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import AssignmentDisplay from '@/components/courses/AssignmentDisplay';
 import MaterialDisplay from '@/components/courses/MaterialDisplay';
-import { CollectionOf } from '@/config/firebase';
+import { callFunction, CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import { Color } from '@/constants/Colors';
 import { ApplicationRoute } from '@/constants/Component';
 import { iconSizes } from '@/constants/Sizes';
 import { timeInMS } from '@/constants/Time';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
-import { Assignment, Course, Material } from '@/model/school/courses';
+import { Assignment, Course, Course_functions, Material } from '@/model/school/courses';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 
@@ -71,10 +71,9 @@ const CoursePage: ApplicationRoute = () => {
 	const { id } = useLocalSearchParams();
 	// if (typeof id !== 'string') return <Redirect href={'/'} />;
 
-	// Redirection si l'ID n'est pas valide
 	const isValidId = typeof id === 'string';
 
-	// Récupérer les données du cours et des assignments depuis Firestore
+	// Retrieve course data from Firestore
 	const result = usePrefetchedDynamicDoc(
 		CollectionOf<Course>('courses'),
 		isValidId ? id : '',
@@ -91,12 +90,14 @@ const CoursePage: ApplicationRoute = () => {
 		CollectionOf<Material>(`courses/${isValidId ? id : ''}/materials`)
 	) || [];
 
+
+
 	// Sort assignments by due date and add color based on time difference
-	const assignments: AssignmentWithColor[] = assignmentsCollection
+	const assignments = assignmentsCollection
 		.sort((a, b) => a.data.dueDate.seconds - b.data.dueDate.seconds) // Seconds comparison
 		.map((assignment) => {
-			const currentTime = new Date().getTime(); // Actual time in millisecondes
-			const assignmentDueTime = assignment.data.dueDate.seconds * timeInMS.SECOND; // Convert dueDate in millisecondes
+			const currentTime = new Date().getTime(); // Actual time in milliseconds
+			const assignmentDueTime = assignment.data.dueDate.seconds * timeInMS.SECOND; // Convert dueDate to milliseconds
 			const timeDifference = assignmentDueTime - currentTime; // Difference between current time and due time
 
 			// Define color based on time difference
@@ -106,8 +107,11 @@ const CoursePage: ApplicationRoute = () => {
 					: 'darkNight'; // Default color
 
 			return {
-				...assignment.data,
-				color, // add color to assignment
+				id: assignment.id,
+				data: {
+					...assignment.data,
+					color, // add color to assignment
+				},
 			};
 		});
 
@@ -141,7 +145,7 @@ const CoursePage: ApplicationRoute = () => {
 		return assignments
 			.filter(
 				(assignment) =>
-					assignment.dueDate.seconds * timeInMS.SECOND <= new Date().getTime()
+					assignment.data.dueDate.seconds * timeInMS.SECOND <= new Date().getTime()
 			)
 			.reverse();
 	}, [assignments, timeInMS.SECOND]);
@@ -150,7 +154,7 @@ const CoursePage: ApplicationRoute = () => {
 	const upcomingAssignments = useMemo(() => {
 		const filteredAssignments = assignments.filter(
 			(assignment) =>
-				assignment.dueDate.seconds * timeInMS.SECOND > new Date().getTime()
+				assignment.data.dueDate.seconds * timeInMS.SECOND > new Date().getTime()
 		);
 		return filteredAssignments;
 	}, [assignments, timeInMS.SECOND]);
@@ -160,6 +164,8 @@ const CoursePage: ApplicationRoute = () => {
 	const toggleFutureMaterials = () => {
 		setShowFutureMaterials(!showFutureMaterials);
 	};
+
+	callFunction(Course_functions.Functions.updateName, { courseID: id, name: 'new name' });
 
 	//Checks
 	if (!isValidId) { return <Redirect href={'/'} />; }
@@ -182,7 +188,7 @@ const CoursePage: ApplicationRoute = () => {
 					each={upcomingAssignments.length > 0 ? upcomingAssignments : undefined}
 					fallback={<TText size={16} testID={testIDs.noAssignmentDue}>{t('course:no_assignment_due')}</TText>}
 				>{(assignment, index) => (
-					<AssignmentDisplay item={assignment} index={index} isSwipeable key={assignment.name} />
+					<AssignmentDisplay item={assignment.data as AssignmentWithColor} id={assignment.id} courseID={id} index={index} isSwipeable key={assignment.data.name} />
 				)}
 				</For>
 
