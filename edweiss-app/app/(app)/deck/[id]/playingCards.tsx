@@ -18,7 +18,7 @@ import TText from '@/components/core/TText';
 import CardScreenComponent from '@/components/memento/CardScreenComponent';
 import { Collections } from '@/config/firebase';
 import { ApplicationRoute } from '@/constants/Component';
-import { useDoc } from '@/hooks/firebase/firestore';
+import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useLocalSearchParams } from 'expo-router';
 import React, { forwardRef, useRef, useState } from 'react';
@@ -43,7 +43,8 @@ const TestYourMightScreen: ApplicationRoute = () => {
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
     const modalRef = useRef<BottomSheetModal>(null); // Reference for the modal
 
-    const deck = useDoc(Collections.deck, id as string);
+    const decks = useDynamicDocs(Collections.deck);
+    const deck = decks?.find((d) => d.id == id);
     const cards = deck?.data.cards;
 
     // Handle next card
