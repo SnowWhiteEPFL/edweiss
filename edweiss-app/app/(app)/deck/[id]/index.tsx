@@ -13,12 +13,12 @@
 
 import { ApplicationRoute } from '@/constants/Component';
 
-import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
 import { CardListDisplay } from '@/components/memento/CardListDisplayComponent';
+import { DeleteOptionModalDisplay } from '@/components/memento/DeleteDeckModalAction';
 import { CardModalDisplay } from '@/components/memento/ModalDisplay';
 import { callFunction, Collections } from '@/config/firebase';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
@@ -42,7 +42,8 @@ const CardListScreen: ApplicationRoute = () => {
 	const [selectionMode, setSelectionMode] = useState(false); // Track selection mode
 	const [cardToDisplay, setCardToDisplay] = useState<Memento.Card | undefined>(undefined); // State to hold card to display
 	const [isLoading, setIsLoading] = useState(false); // State to track loading status
-	const modalRef = useRef<BottomSheetModal>(null); // Reference for the modal
+	const modalRef_Card_Info = useRef<BottomSheetModal>(null); // Reference for the modal
+	const modalRef_Operation = useRef<BottomSheetModal>(null); // Reference for the modal
 	const decks = useDynamicDocs(Collections.deck);
 
 	if (typeof id != 'string') return <Redirect href={'/'} />;
@@ -97,29 +98,22 @@ const CardListScreen: ApplicationRoute = () => {
 	};
 
 	// Delete deck
-	async function deleteDeck() {
+	const deleteDeck = async () => {
 
 		await callFunction(Memento.Functions.deleteDecks, { deckIds: [id] });
 		router.back();
 	}
-
-	const toggleDropDown = () => { setShowDropdown(prev => !prev); }; // Open/close dropdown
 
 	return (
 		<>
 			<RouteHeader
 				title={deck?.data.name}
 				right={
-					<Button color={'black'} testID='toggleButton' onPress={toggleDropDown} title='⋮' />
+					<Button color={'black'} testID='toggleButton' onPress={() => { setShowDropdown(true); modalRef_Operation.current?.present() }} title='⋮' />
 				}
 			/>
-			{showDropdown && (
-				<TView testID='dropDownContent' style={{ position: 'absolute', top: -16, right: 0, padding: 0, zIndex: 1000 }}>
-					<FancyButton testID='deleteDeckButton' outlined onPress={deleteDeck} mt={'md'} mb={'sm'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10, backgroundColor: '#ed6d64', borderRadius: 30 }} >
-						<TText color='subtext1'> Delete deck </TText>
-					</FancyButton>
-				</TView>
-			)}
+
+			<DeleteOptionModalDisplay modalRef={modalRef_Operation} toggleDropDown={showDropdown} deleteDeck={deleteDeck} />
 
 			{selectedCards.length > 0 && (
 				<TView mt={'md'} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -160,23 +154,30 @@ const CardListScreen: ApplicationRoute = () => {
 						onLongPress={enterSelectionMode}
 						selectionMode={selectionMode}
 						setCardToDisplay={setCardToDisplay}
-						modalRef={modalRef}
+						modalRef={modalRef_Card_Info}
 					/>))}
 
 			</TScrollView >
 
-			<CardModalDisplay cards={cards} id={id} modalRef={modalRef} card={cardToDisplay} isSelectionMode={selectionMode} />
+			<CardModalDisplay cards={cards} id={id} modalRef={modalRef_Card_Info} card={cardToDisplay} isSelectionMode={selectionMode} />
 
 			{/* Buttons for navigation */}
 			< TView >
-				<FancyButton testID='playButton' icon='play' onPress={() => router.push({ pathname: `deck/${id}/playingCards` as any })}>
+				<FancyButton testID='playButton' icon='play' onPress={() => {
+					setShowDropdown(false);
+					router.push({ pathname: `deck/${id}/playingCards` as any })
+				}}
+				>
 					{selectedCards.length == 0 ? "Play all cards" : "Play selected cards"}
 				</FancyButton>
 
 				<FancyButton
 					mt={'md'} mb={'sm'} ml={'md'} mr={'md'}
 					textColor='crust'
-					onPress={() => router.push({ pathname: `/deck/${id}/card/creation` as any, params: { deckId: id } })}
+					onPress={() => {
+						setShowDropdown(false);
+						router.push({ pathname: `/deck/${id}/card/creation` as any, params: { deckId: id } })
+					}}
 					icon='create-outline'
 				>
 					Create Card
