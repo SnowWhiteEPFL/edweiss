@@ -172,7 +172,7 @@ describe('CardListScreen', () => {
     });
 
     it('can delete a deck', () => {
-        const { getByTestId, queryByTestId } = render(<CardListScreen />);
+        const { getByText, getByTestId, queryByTestId } = render(<CardListScreen />);
         // Initially, the dropdown should not be visible
         expect(queryByTestId('dropDownContent')).toBeNull();
 
@@ -180,19 +180,9 @@ describe('CardListScreen', () => {
         const toggleButton = getByTestId('toggleButton');
         fireEvent.press(toggleButton);
 
-        // Now, the dropdown should be visible
-        expect(getByTestId('dropDownContent')).toBeTruthy();
+        const deleteDeckButton = getByText('Delete this deck entirely!');
 
-        // Press the button again to hide the dropdown
-        fireEvent.press(toggleButton);
-
-        // The dropdown should be hidden again
-        expect(queryByTestId('dropDownContent')).toBeNull();
-
-        // Press the button again to show the dropdown
-        fireEvent.press(toggleButton);
-
-        const deleteDeckButton = getByTestId('deleteDeckButton');
+        // Now, the modal should be visible
         expect(deleteDeckButton).toBeTruthy();
 
         // Press the delete deck button
@@ -206,7 +196,6 @@ describe('CardListScreen', () => {
         expect(sortedCards[1].question).toBe('Question 3');
         expect(sortedCards[2].question).toBe('Question 1');
     });
-
 
 });
 
@@ -465,14 +454,15 @@ describe('CardScreen', () => {
     });
 
     it('should delete a card', async () => {
-        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} modalRef={modalRef} />);
+        const { getByText, getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} modalRef={modalRef} />);
 
         (callFunction as jest.Mock).mockResolvedValueOnce({ status: 1, data: { id: '1' } });
 
         const dropDown = getByTestId('toggleButton')
         fireEvent.press(dropDown);
 
-        const deleteButton = getByTestId('deleteCardButton');
+        const deleteButton = getByText("Delete this card!");
+        expect(deleteButton).toBeTruthy();
         fireEvent.press(deleteButton);
 
         await waitFor(() => {
@@ -481,13 +471,13 @@ describe('CardScreen', () => {
     });
 
     it('should catch an error when deleting a card', async () => {
-        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} modalRef={modalRef} />);
+        const { getByText, getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} modalRef={modalRef} />);
 
         (callFunction as jest.Mock).mockRejectedValueOnce('Error deleting card');
         const dropDown = getByTestId('toggleButton')
         fireEvent.press(dropDown);
 
-        const deleteButton = getByTestId('deleteCardButton');
+        const deleteButton = getByText('Delete this card!');
         fireEvent.press(deleteButton);
 
         await waitFor(() => {
@@ -532,11 +522,11 @@ describe('CardScreen', () => {
     });
 
     it('should go to edit card screen when click on button to edit card', () => {
-        const { getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} modalRef={modalRef} />);
+        const { getByText, getByTestId } = render(<CardScreenComponent deckId="1" cardIndex={0} modalRef={modalRef} />);
         const dropDownButton = getByTestId('toggleButton');
         fireEvent.press(dropDownButton);
 
-        const editButton = getByTestId('editCardButton');
+        const editButton = getByText("Edit this card!");
 
         fireEvent.press(editButton);
         expect(router.push).toHaveBeenCalledWith({ pathname: "/deck/1/card/edition", params: { deckId: '1', prev_question: 'Question 1', prev_answer: 'Answer 1', cardIndex: 0 } });
