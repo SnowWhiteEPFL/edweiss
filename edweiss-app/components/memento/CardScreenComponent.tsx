@@ -17,7 +17,7 @@ import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import Memento from '@/model/memento';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, StyleSheet } from 'react-native';
 import { State, TapGestureHandler } from 'react-native-gesture-handler';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -25,6 +25,7 @@ import TView from '../core/containers/TView';
 import RouteHeader from '../core/header/RouteHeader';
 import TText from '../core/TText';
 import FancyButton from '../input/FancyButton';
+import { OptionCardModalDisplay } from './OptionCardModalAction';
 
 // ------------------------------------------------------------
 // ---------------- CardScreenComponent Component -------------
@@ -46,6 +47,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
     const [showDropdown, setShowDropdown] = useState(false); // State for dropdown visibility
     const [isFlipped, setIsFlipped] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const modalRef_Operation = useRef<BottomSheetModal>(null); // Reference for the modal
 
     const decks = useDynamicDocs(Collections.deck);
 
@@ -102,15 +104,18 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
     });
 
     // Delete card
-    async function deleteCard() {
+    const deleteCard = async () => {
 
         const res = await callFunction(Memento.Functions.deleteCards, { deckId: deckId, cardIndices: [cardIndex] });
         if (res.status == 1) {
             console.log(`Card deleted with id ${res.data.id}`);
-            isModal ? modalRef.current?.dismiss() : router.back();
+            //isModal ? modalRef.current?.dismiss() : router.back();
+            modalRef_Operation.current?.dismiss();
         }
 
     }
+
+    const editCard = () => { router.push({ pathname: `/deck/${deckId}/card/edition` as any, params: { deckId: deckId, prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex } }) }
 
     // Update card
     async function updateCard(new_learning_status: Memento.LearningStatus) {
@@ -132,11 +137,11 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
             {!isModal && <RouteHeader
                 title='Test Your Might!'
                 right={
-                    <Button color={'black'} testID='toggleButton' onPress={toggleDropDown} title='⋮' />
+                    <Button color={'black'} testID='toggleButton' onPress={() => { setShowDropdown(true); modalRef_Operation.current?.present() }} title='⋮' />
                 }
             />}
 
-            {showDropdown && (
+            {/*showDropdown && (
                 <TView testID='2ButtonsDropDown' borderColor='blue' style={{ position: 'absolute', top: -16, right: 0, padding: 0, zIndex: 1000 }} >
                     <FancyButton testID='deleteCardButton' onPress={deleteCard} backgroundColor='transparent' textColor='red' mt={'md'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
                         Delete Card
@@ -144,13 +149,15 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
                     <FancyButton testID='editCardButton' onPress={() => {
                         if (isModal) { modalRef.current?.dismiss(); }
                         router.push({ pathname: `/deck/${deckId}/card/edition` as any, params: { deckId: deckId, prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex } })
-                    }
-                    }
+                    }}
                         backgroundColor='transparent' textColor='teal' mb={'sm'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
                         Edit Card
                     </FancyButton>
                 </TView>
-            )}
+            )*/}
+
+            <OptionCardModalDisplay modalRef={modalRef_Operation} toggleDropDown={showDropdown} deleteCard={deleteCard} editCard={editCard} />
+
 
             <TapGestureHandler
                 testID='flipCardToSeeAnswer'
