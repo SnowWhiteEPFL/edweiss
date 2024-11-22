@@ -63,8 +63,6 @@ const CardListScreen: ApplicationRoute = () => {
 
 	const sortedCards = sortingCards(cards);
 
-	console.log(deck.data);
-
 	// Toggle card selection
 	const toggleCardSelection = (card: Memento.Card) => {
 		const index = selectedCards.findIndex(selected => selected.question === card.question);

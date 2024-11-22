@@ -12,6 +12,7 @@ import EditCardScreen from '@/app/(app)/deck/[id]/card/edition';
 import { callFunction } from '@/config/firebase';
 import Memento from '@/model/memento';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import { useLocalSearchParams } from 'expo-router';
 import { RepositoryMock } from '../__mocks__/repository';
 
 // ------------------------------------------------------------
@@ -25,12 +26,12 @@ const card1: Memento.Card = {
 	learning_status: 'Got it',
 };
 
-// jest.mock('@react-native-async-storage/async-storage', () => ({
-// 	setItem: jest.fn(),
-// 	getItem: jest.fn(),
-// 	removeItem: jest.fn(),
-// 	getAllKeys: jest.fn()
-// }));
+const card2: Memento.Card = {
+	question: 'Question 1',
+	answer: 'Answer 1',
+	learning_status: 'Got it',
+};
+
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
 	setItem: jest.fn(),
@@ -42,32 +43,6 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 	multiRemove: jest.fn(() => Promise.resolve()),
 }));
 
-RepositoryMock.mockRepository<Memento.Deck>([{
-	name: 'Deck 1', cards: [{
-		answer: "Answer",
-		question: "Question",
-		learning_status: "Got it",
-	}]
-}]);
-
-RepositoryMock.mockRepository<Memento.Deck>([{
-	name: 'Deck 0', cards: [card1]
-}]);
-
-// CommonMock.mockAsyncStorage();
-
-// Mock Firebase functions and firestore
-jest.mock('@/config/firebase', () => ({
-	callFunction: jest.fn(),
-	Collections: { deck: 'decks' }
-}));
-
-jest.mock('@/hooks/firebase/firestore', () => ({
-	useDynamicDocs: jest.fn(() => [
-		{ id: '1', data: { name: 'Deck 0', cards: [card1] } }
-	]),
-}));
-
 // Mock expo-router Stack and Screen
 jest.mock('expo-router', () => ({
 	router: { push: jest.fn(), back: jest.fn() },
@@ -77,6 +52,31 @@ jest.mock('expo-router', () => ({
 		)),
 	},
 	useLocalSearchParams: jest.fn(() => ({ deckId: '1', prev_question: 'Question 0', prev_answer: 'Answer 0', cardIndex: '0' })),
+}));
+
+// Mock Firebase functions and firestore
+jest.mock('@/config/firebase', () => ({
+	callFunction: jest.fn(),
+	Collections: { deck: 'decks' }
+}));
+
+jest.mock('@/hooks/firebase/firestore', () => ({
+	useDynamicDocs: jest.fn(() => [
+		{ id: '1', data: { name: 'Deck 0', cards: [card1, card2] } }
+	]),
+}));
+
+RepositoryMock.mockRepository<Memento.Deck>([{
+	name: 'Deck 0', cards: [card1, card2]
+}]);
+
+const mockModifyDocument = jest.fn((deckId, update, callback) => {
+	if (callback) callback(deckId); // Execute callback if provided
+});
+
+jest.mock('@/hooks/repository', () => ({
+	...jest.requireActual('@/hooks/repository'),
+	useRepositoryDocument: jest.fn(() => [{ data: { cards: [card1, card2] } }, { modifyDocument: mockModifyDocument }]),
 }));
 
 // ------------------------------------------------------------
@@ -104,29 +104,83 @@ describe('EditCardScreen', () => {
 	});
 
 	it('should update a card when the fields are filled', async () => {
-		const { getByTestId, getByDisplayValue } = render(<EditCardScreen />);
+
+		// Mock callFunction
+		(callFunction as jest.Mock).mockResolvedValueOnce({ status: 1 });
+
+		const { getByTestId, getByDisplayValue, debug } = render(<EditCardScreen />);
+
 		const updateButton = getByTestId('updateCardButton');
 
+		// Act: Simulate user input and press update button
 		fireEvent.changeText(getByDisplayValue('Question 0'), 'Test Question');
 		fireEvent.changeText(getByDisplayValue('Answer 0'), 'Test Answer');
 
 		expect(getByDisplayValue('Test Question')).toBeTruthy();
+		expect(getByDisplayValue('Test Answer')).toBeTruthy();
 
-		// Mock successful response for creating a card
-		(callFunction as jest.Mock).mockResolvedValueOnce({ status: 1 });
+		fireEvent.press(updateButton);
+
+		// Assert: Verify modifyDocument and callFunction are called
+
+		await waitFor(() => {
+			expect(mockModifyDocument).toHaveBeenCalledWith(
+				'1', // deckId
+				{ cards: [{ question: 'Test Question', answer: 'Test Answer', learning_status: 'Got it' }, card2] },
+				expect.any(Function)
+			);
+
+			expect(callFunction).toHaveBeenCalledWith(Memento.Functions.updateCard, {
+				deckId: '1',
+				newCard: { question: 'Test Question', answer: 'Test Answer', learning_status: 'Got it' },
+				cardIndex: 0,
+			});
+		});
+	});
+
+	it('should not update a card when the fields are empty', async () => {
+
+		const { getByTestId, getByDisplayValue } = render(<EditCardScreen />);
+		const updateButton = getByTestId('updateCardButton');
+
+		fireEvent.changeText(getByDisplayValue('Question 0'), '');
+		fireEvent.changeText(getByDisplayValue('Answer 0'), '');
 
 		fireEvent.press(updateButton);
 
 		await waitFor(() => {
-			expect(callFunction).toHaveBeenCalledWith(Memento.Functions.updateCard, {
-				deckId: '0',
-				newCard: {
-					question: 'Test Question',
-					answer: 'Test Answer',
-					learning_status: 'Got it',
-				},
-				cardIndex: 0
-			});
+			expect(mockModifyDocument).not.toHaveBeenCalled();
 		});
 	});
+
+	it('should not update a card when the question is duplicated', async () => {
+
+		const { getByTestId, getByDisplayValue } = render(<EditCardScreen />);
+		const updateButton = getByTestId('updateCardButton');
+
+		fireEvent.changeText(getByDisplayValue('Question 0'), 'Question 1');
+		fireEvent.changeText(getByDisplayValue('Answer 0'), 'Test Answer');
+
+		fireEvent.press(updateButton);
+
+		await waitFor(() => {
+			expect(mockModifyDocument).not.toHaveBeenCalled();
+		});
+	});
+
+	it('should not update a card when the card is undefined', async () => {
+		(useLocalSearchParams as jest.Mock).mockReturnValueOnce({ deckId: '1', prev_question: 'Question 0', prev_answer: 'Answer 0', cardIndex: '2' });
+		const { getByTestId } = render(<EditCardScreen />);
+
+		const updateButton = getByTestId('updateCardButton');
+
+		fireEvent.press(updateButton);
+
+		// Assert: Verify modifyDocument and callFunction are not called
+		await waitFor(() => {
+			expect(mockModifyDocument).not.toHaveBeenCalled();
+		})
+	});
+
+
 });

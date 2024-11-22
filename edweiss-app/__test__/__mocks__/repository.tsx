@@ -13,19 +13,20 @@ export namespace RepositoryMock {
 			...jest.requireActual('@/hooks/repository'),
 			useRepository: jest.fn(() => [
 				docs, {
-					addDocument: () => jest.fn(),
-					modifyDocument: () => jest.fn(),
-					deleteDocument: () => jest.fn(),
-					deleteDocuments: () => jest.fn(),
-				}]),
-			useRepositoryDocument: jest.fn(() => [
-				docs[0], {
-					addDocument: () => jest.fn(),
-					modifyDocument: () => jest.fn(),
-					deleteDocument: () => jest.fn(),
-					deleteDocuments: () => jest.fn(),
-				}]),
+					addDocument: jest.fn(),
+					modifyDocument: jest.fn(),
+					deleteDocument: jest.fn(),
+					deleteDocuments: jest.fn(),
+				}
+			]),
+			useRepositoryDocument: jest.fn((id: string) => [
+				docs.find(doc => doc.id === id) || null, {
+					addDocument: jest.fn(),
+					modifyDocument: jest.fn(),
+					deleteDocument: jest.fn(),
+					deleteDocuments: jest.fn(),
+				}
+			]),
 		}));
 	}
-
 }
