@@ -66,29 +66,6 @@ jest.mock('@/hooks/firebase/firestore', () => ({
 	useDoc: jest.fn(() => ({ data: { cards: [card1, card2] } })),
 }));
 
-// jest.mock('@/hooks/repository', () => ({
-// 	useRepository: jest.fn(() => [
-// 		[{ id: '1', data: { name: 'Deck 1', cards: [card1, card2] } }]
-// 		, {
-// 			addDocument: () => jest.fn(),
-// 			modifyDocument: () => jest.fn(),
-// 			deleteDocument: () => jest.fn(),
-// 			deleteDocuments: () => jest.fn(),
-// 		}]),
-// 	useRepositoryDocument: jest.fn(() => [
-// 		{ id: '1', data: { name: 'Deck 1', cards: [card1, card2] } }
-// 		, {
-// 			addDocument: () => jest.fn(),
-// 			modifyDocument: () => jest.fn(),
-// 			deleteDocument: () => jest.fn(),
-// 			deleteDocuments: () => jest.fn(),
-// 		}]),
-// }));
-// CommonMock.mockAsyncStorage();
-RepositoryMock.mockRepository<Memento.Deck>([{ name: 'Deck 1', cards: [card1, card2] }]);
-// CoreMock.mockRouteHeader();
-// CommonMock.mockExpoRouter({ params: { id: '1' } });
-
 // Mock expo-router Stack and Screen
 jest.mock('expo-router', () => ({
 	router: { push: jest.fn(), back: jest.fn() },
@@ -119,11 +96,27 @@ jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock
 // Mock toggleFlip function
 const toggleFlip = jest.fn(); // This function is not exported, so we mock it here. UNTIL WE EXPORT IT
 
+RepositoryMock.mockRepository<Memento.Deck>([{ name: 'Deck 1', cards: [card1, card2] }]);
+
+const mockModifyDocument = jest.fn((deckId, update, callback) => {
+	if (callback) callback(deckId); // Execute callback if provided
+});
+
+const mockDeleteDocument = jest.fn((deckId, callback) => {
+	if (callback) callback(deckId); // Execute callback if provided
+});
+
+jest.mock('@/hooks/repository', () => ({
+	...jest.requireActual('@/hooks/repository'),
+	useRepositoryDocument: jest.fn(() => [{ data: { cards: [card1, card2] } }, { modifyDocument: mockModifyDocument, deleteDocument: mockDeleteDocument }]),
+}));
+
 // ------------------------------------------------------------
 // ------------------------  Test Suite -----------------------
 // ------------------------------------------------------------
 
 // Test suite for the CardListScreen component
+
 describe('CardListScreen', () => {
 	beforeEach(() => {
 		jest.clearAllMocks(); // Clear previous mocks before each test
@@ -193,7 +186,7 @@ describe('CardListScreen', () => {
 		expect(router.push).toHaveBeenCalledWith({ pathname: "/deck/1/card/creation", params: { deckId: '1' } });
 	});
 
-	it('can delete a deck', () => {
+	it('can delete a deck', async () => {
 		const { getByTestId, queryByTestId } = render(<CardListScreen />);
 		// Initially, the dropdown should not be visible
 		expect(queryByTestId('dropDownContent')).toBeNull();
@@ -219,6 +212,10 @@ describe('CardListScreen', () => {
 
 		// Press the delete deck button
 		fireEvent.press(deleteDeckButton);
+
+		await waitFor(() => {
+			expect(mockDeleteDocument).toHaveBeenCalledWith('1', expect.any(Function));
+		});
 
 	});
 
@@ -261,7 +258,6 @@ describe('handlePress', () => {
 
 	// Add additional tests for edge cases if necessary
 });
-
 
 describe('handleCardPress', () => {
 	let modalRef: React.RefObject<BottomSheetModal>;

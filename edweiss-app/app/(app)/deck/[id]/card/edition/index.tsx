@@ -22,7 +22,7 @@ import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
-import { Redirect, router } from 'expo-router';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { DecksRepository } from '../../../_layout';
 
@@ -38,37 +38,47 @@ import { DecksRepository } from '../../../_layout';
  */
 const EditCardScreen: ApplicationRoute = () => {
 	const { deckId, prev_question, prev_answer, cardIndex } = useStringParameters();
-	const [question, setQuestion] = useState(prev_question as string);
-	const [answer, setAnswer] = useState(prev_answer as string);
+	const [question, setQuestion] = useState(prev_question);
+	const [answer, setAnswer] = useState(prev_answer);
+	const [existedQuestion, setExistedQuestion] = useState(false);
+	const [emptyField, setEmptyField] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
-	// const decks = useDynamicDocs(Collections.deck);
-	// const deck = decks?.find(d => d.id == deckId);
 	const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
-	if (deck == undefined)
-		return <Redirect href={'/'} />;
 
 	const cardIndexInt = cardIndex ? parseInt(cardIndex.toString()) : 0;
 
-	const card = deck.data.cards[cardIndexInt];
+	const card = deck?.data.cards[cardIndexInt];
 
 	// Update a card with a new question and answer
-	async function updateCard() {
-		if (deck == undefined)
+	async function updateCard(new_Question: string, new_Answer: string) {
+		if (deck == undefined || card == undefined)
 			return;
 
+		const isDuplicate = deck.data.cards.some(card => card.question === new_Question) && new_Question != prev_question;
+		const isEmpty = new_Question.length == 0 || new_Answer.length == 0;
+
+		if (isDuplicate) {
+			setExistedQuestion(true);
+			setIsLoading(false);
+			if (isEmpty) setEmptyField(true);
+			return;  // Prevent creation if a duplicate is found
+		}
+
+		if (isEmpty) {
+			setEmptyField(true);
+			setIsLoading(false);
+			return;
+		}
+
 		const newCards = deck.data.cards;
-		newCards[cardIndexInt] = card;
+		newCards[cardIndexInt] = { ...card, question: new_Question, answer: new_Answer };
 
 		handler.modifyDocument(deckId, {
 			cards: newCards
 		}, (deckId) => {
-			callFunction(Memento.Functions.updateCard, { deckId, newCard: card, cardIndex: cardIndexInt });
+			callFunction(Memento.Functions.updateCard, { deckId, newCard: { ...card, question: new_Question, answer: new_Answer }, cardIndex: cardIndexInt });
 		});
-
-
-		// console.log(`OKAY, card updated with index ${cardIndexInt}`);
-		// if (res.status == 1) {
-		// }
 
 		router.back();
 
@@ -79,17 +89,19 @@ const EditCardScreen: ApplicationRoute = () => {
 			<RouteHeader title='Edit card' />
 
 			<TScrollView>
-				{/* <TextInput value={deckName} onChangeText={n => setDeckName(n)} placeholder='Deck name' placeholderTextColor={'#555'} style={{ backgroundColor: Colors.dark.crust, borderColor: Colors.dark.blue, borderWidth: 1, padding: 8, paddingHorizontal: 16, margin: 16, marginBottom: 0, color: 'white', borderRadius: 14, fontFamily: "Inter" }}>
 
-				</TextInput> */}
 				<TView testID='questionInput' m='md' borderColor='crust' radius='lg'>
 					<FancyTextInput
 						value={question}
-						onChangeText={n => setQuestion(n)}
+						onChangeText={n => {
+							setQuestion(n)
+							setExistedQuestion(false)
+							setEmptyField(false)
+						}}
 						placeholder='My amazing question'
 						icon='help-sharp'
 						label='Question'
-						//error='Invalid deck name'
+						error={existedQuestion ? 'Question already exists' : emptyField ? 'Please fill in all fields' : undefined}
 						multiline
 						numberOfLines={3}
 					/>
@@ -98,17 +110,29 @@ const EditCardScreen: ApplicationRoute = () => {
 				<TView m='md' mt={2} borderColor='crust' radius='lg'>
 					<FancyTextInput
 						value={answer}
-						onChangeText={n => setAnswer(n)}
+						onChangeText={n => {
+							setAnswer(n)
+							setEmptyField(false)
+						}}
 						placeholder='My amazing answer'
 						icon='bulb-outline'
 						label='Answer'
-						//error='Invalid deck name'
+						error={emptyField ? 'Please fill in all fields' : undefined}
 						multiline
 						numberOfLines={3}
 					/>
 				</TView>
 
-				<FancyButton testID='updateCardButton' onPress={() => updateQuestionAnswerCard(deckId as any, cardIndexInt, updateCard, question, answer, card)} backgroundColor='blue' mt={'md'} mb={'sm'} icon='logo-firebase' mx={300} >
+				<FancyButton
+					testID='updateCardButton'
+					loading={isLoading}
+					//onPress={() => updateQuestionAnswerCard(deckId as any, cardIndexInt, updateCard, question, answer, card)}
+					onPress={() => {
+						setIsLoading(true)
+						updateCard(question, answer)
+					}}
+					backgroundColor='blue' mt={'md'} mb={'sm'} icon='logo-firebase' mx={300}
+				>
 					Done!
 				</FancyButton>
 
@@ -118,11 +142,3 @@ const EditCardScreen: ApplicationRoute = () => {
 };
 
 export default EditCardScreen;
-
-function updateQuestionAnswerCard(deckId: string, cardIndex: number, onPress: (deckId: any, newCard: Memento.Card, cardIndex: number) => void, newQuestion: string, newAnswer: string, card?: Memento.Card) {
-	if (card) {
-		card.answer = newAnswer;
-		card.question = newQuestion;
-		onPress(deckId, card, cardIndex);
-	}
-}
