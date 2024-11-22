@@ -25,7 +25,7 @@ const AppLayout: ApplicationLayout = () => {
 
 	return (
 		<CoursesProvider>
-			<Stack>
+			<Stack screenOptions={{ headerShown: false }}>
 				<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 			</Stack>
 		</CoursesProvider>
