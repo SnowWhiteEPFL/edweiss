@@ -46,11 +46,7 @@ export const removeAssistant = onAuthentifiedCall(Functions.removeAssistant, asy
     try {
 
         if (course.assistants.includes(args.assistantID)) {
-            const res = await courseRef.update({ assistants: course.assistants.filter((id: StudentID) => id !== args.assistantID) });
-            if (!res.id) {
-                console.error("Failed to remove assistant to course");
-                return fail("firebase_error");
-            }
+            await courseRef.update({ assistants: course.assistants.filter((id: StudentID) => id !== args.assistantID) });
         }
 
         return ok({});

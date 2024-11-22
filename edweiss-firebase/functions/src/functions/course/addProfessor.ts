@@ -39,11 +39,7 @@ export const addProfessor = onAuthentifiedCall(Functions.addProfessor, async (us
 
     try {
         if (!course.professors.includes(args.professorID)) {
-            const res = await courseRef.update({ professors: [...course.professors, args.professorID] });
-            if (!res.id) {
-                console.error("Failed to add professor to course");
-                return fail("firebase_error");
-            }
+            await courseRef.update({ professors: [...course.professors, args.professorID] });
         }
 
         return ok({});

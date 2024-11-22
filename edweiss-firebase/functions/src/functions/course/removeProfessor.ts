@@ -40,11 +40,7 @@ export const removeProfessor = onAuthentifiedCall(Functions.removeProfessor, asy
     try {
 
         if (course.professors.includes(args.professorID)) {
-            const res = await courseRef.update({ professors: course.professors.filter((id: ProfessorID) => id !== args.professorID) });
-            if (!res.id) {
-                console.error("Failed to remove professor to course");
-                return fail("firebase_error");
-            }
+            await courseRef.update({ professors: course.professors.filter((id: ProfessorID) => id !== args.professorID) });
         }
 
         return ok({});

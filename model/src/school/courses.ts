@@ -69,8 +69,8 @@ export namespace Course_functions {
 		toogleCourse: FunctionOf<{ courseID: CourseID, course: Course; }, {}, 'cannot stop the course'>("toogleCourse"),
 		tooglePeriod: FunctionOf<{ lectureID: string, courseID: CourseID, course: Course; }, { available: boolean; }, 'cannot stop the course'>("tooglePeriod"),
 
-		updateName: FunctionOf<{ courseID: CourseID, name: string; }, {}, 'cannot update the course name'>("updateCourseName"),
-		updateDescription: FunctionOf<{ courseID: CourseID, description: string; }, {}, 'cannot update the course description'>("updateCourseDescription"),
+		updateName: FunctionOf<{ courseID: CourseID, name: string; }, {}, 'cannot update the course name'>("updateName"),
+		updateDescription: FunctionOf<{ courseID: CourseID, description: string; }, {}, 'cannot update the course description'>("updateDescription"),
 		updateCredits: FunctionOf<{ courseID: CourseID, credits: Credits; }, {}, 'cannot update the credits'>("updateCredits"),
 		updateSection: FunctionOf<{ courseID: CourseID, section: Section; }, {}, 'cannot update the section'>("updateSection"),
 

@@ -46,11 +46,7 @@ export const addAssistant = onAuthentifiedCall(Functions.addAssistant, async (us
     try {
 
         if (!course.assistants.includes(args.assistantID)) {
-            const res = await courseRef.update({ assistants: [...course.assistants, args.assistantID] });
-            if (!res.id) {
-                console.error("Failed to add assistant to course");
-                return fail("firebase_error");
-            }
+            await courseRef.update({ assistants: [...course.assistants, args.assistantID] });
         }
 
         return ok({});

@@ -45,11 +45,7 @@ export const removeAssignment = onAuthentifiedCall(Functions.removeAssignment, a
 
         if (!assignment) { return fail("firebase_error"); }
 
-        const res = await assignmentRef.delete();
-        if (!res.id) {
-            console.error("Error removing assignment");
-            return fail("firebase_error");
-        }
+        await assignmentRef.delete();
 
         return ok({});
     } catch (err) {
