@@ -29,7 +29,7 @@ export const PeriodBlock = ({
     const textSizeSecondary = format === 'week' ? 9 : 12;
 
     return (
-        <TView flexDirection="column">
+        <TView flexDirection="column" testID='period-block-view'>
             <TView justifyContent="space-between" flexDirection={direction}>
                 <TText color="constantBlack" numberOfLines={1} size={textSizePrimary} p={5}>
                     {`${period.type.charAt(0).toUpperCase() + period.type.slice(1)}`}
