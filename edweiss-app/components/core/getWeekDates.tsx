@@ -12,7 +12,7 @@ export const getWeekDates = (date: Date) => {
     if (date.getDay() === 0) startOfWeek.setDate(date.getDate() - 6);
     else startOfWeek.setDate(date.getDate() - date.getDay() + 1);
 
-    // Generate an array of 7 days, each based on the calculated start of the week
+    // Generate an array of 7 days, each based on the calculated start of the week 
     return Array.from({ length: 7 }, (_, i) => {
         // Create a new date for each day of the week by adding `i` days
         const weekDate = new Date(startOfWeek);
