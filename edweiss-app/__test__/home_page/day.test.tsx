@@ -9,7 +9,7 @@ jest.mock('expo-router', () => ({
     router: { push: jest.fn() }
 }));
 
-// Définition des données mockées en accord avec les types du modèle
+// Definition of mock data in accordance with the model types
 const mockCourses = [
     {
         id: 'course1',
@@ -32,7 +32,7 @@ const mockCourses = [
             description: 'Course description',
             professors: ['Professor 1'],
             assistants: ['Assistant 1'],
-            section: 'IN' as Section, // Section correcte avec le type
+            section: 'IN' as Section, // Correct section type
             started: true,
         },
     }
@@ -45,7 +45,7 @@ const mockFilteredPeriods = [
         end: 600,  // 10:00 AM
         type: 'lecture' as CourseTimePeriodType,
         activityId: 'view',
-        dayIndex: 1, // Correspond à lundi
+        dayIndex: 1, // Corresponds to Monday
         rooms: [{ name: 'Room 101', geoloc: { latitude: 0, longitude: 0 } }],
     }
 ];
@@ -84,7 +84,7 @@ describe('Day Component', () => {
             }
         };
 
-        // Simuler des périodes
+        // Simulate periods
         const filteredPeriods: CourseTimePeriod[] = [
             { start: 9, end: 10, type: 'lecture' as CourseTimePeriodType, activityId: 'activity1', dayIndex: 1, rooms: [{ name: 'Room 101', geoloc: { latitude: 0, longitude: 0 } }] },
             { start: 11, end: 12, type: 'lab' as CourseTimePeriodType, activityId: 'activity2', dayIndex: 1, rooms: [{ name: 'Room 102', geoloc: { latitude: 0, longitude: 0 } }] },
@@ -94,7 +94,7 @@ describe('Day Component', () => {
         const todos: { id: string; data: Todolist.Todo; }[] = [];
         const format = 'HH:mm';
 
-        // Rendre le composant avec les données de test
+        // Render the component with test data
         const { getByText, getAllByRole } = render(
             <Day
                 course={[courseItem]}
@@ -106,16 +106,15 @@ describe('Day Component', () => {
             />
         );
 
-
-        // Vérifier que la fonction getNavigationDetails est appelée avec les bonnes valeurs
+        // Verify that the getNavigationDetails function is called with the correct values
         filteredPeriods.forEach((period, index) => {
-            // Vérifier que le calcul de `periodHeight` est correct
+            // Check if the `periodHeight` calculation is correct
             const periodHeight = ((period.end ?? period.start) - period.start) / 60 * HOUR_BLOCK_HEIGHT || HOUR_BLOCK_HEIGHT;
             expect(periodHeight).toBeCloseTo(((period.end - period.start) / 60) * HOUR_BLOCK_HEIGHT, 0);
 
-            // Vérifier que getNavigationDetails est appelé
+            // Check if getNavigationDetails is called
             const { pathname, params } = getNavigationDetails(user, courseItem, period, index);
-            expect(pathname).toBe('/(app)/startCourseScreen');  // Cela dépend de votre logique
+            expect(pathname).toBe('/(app)/startCourseScreen');  // This depends on your logic
             expect(params).toEqual({
                 courseID: 'course1',
                 course: JSON.stringify(courseItem.data),
@@ -124,7 +123,6 @@ describe('Day Component', () => {
             });
         });
     });
-
 
     it('should render assignments if they are provided', () => {
         render(
@@ -138,7 +136,7 @@ describe('Day Component', () => {
             />
         );
 
-        // Vérifie que les assignations sont rendues
+        // Check that the assignments are rendered
         expect(screen.getByText('Assignments Due Today:')).toBeTruthy();
         expect(screen.getByText('Assignment 1')).toBeTruthy();
     });
@@ -155,13 +153,12 @@ describe('Day Component', () => {
             />
         );
 
-        // Vérifie que les tâches à faire sont rendues
+        // Check that the to-dos are rendered
         expect(screen.getByText('To-Dos:')).toBeTruthy();
         expect(screen.getByText('Todo 1')).toBeTruthy();
     });
 
 });
-
 
 describe('getBackgroundColor', () => {
     it('should return blue for lecture type', () => {
@@ -192,15 +189,15 @@ describe('getNavigationDetails', () => {
             id: 'course1',
             data: {
                 name: 'Course 1',
-                periods: [] as CourseTimePeriod[], // Propriété manquante
-                description: 'Course description', // Ajoutez des propriétés manquantes
+                periods: [] as CourseTimePeriod[], // Missing property
+                description: 'Course description', // Add missing properties
                 professors: [],
                 assistants: [],
                 section: 'IN' as Section,
-                credits: 3, // Propriété manquante
-                newAssignments: false, // Propriété manquante
-                assignments: [], // Propriété manquante
-                started: false, // Propriété manquante
+                credits: 3, // Missing property
+                newAssignments: false, // Missing property
+                assignments: [], // Missing property
+                started: false, // Missing property
             }
         };
         const period: CourseTimePeriod = {
@@ -208,8 +205,8 @@ describe('getNavigationDetails', () => {
             end: 10,
             type: 'lecture',
             activityId: 'activity1',
-            dayIndex: 1,     // Propriété manquante
-            rooms: [{ name: 'Room 101', geoloc: { latitude: 0, longitude: 0 } }],  // Propriété manquante
+            dayIndex: 1,     // Missing property
+            rooms: [{ name: 'Room 101', geoloc: { latitude: 0, longitude: 0 } }],  // Missing property
         };
         const index = 0;
 
@@ -225,20 +222,20 @@ describe('getNavigationDetails', () => {
     });
 
     it('should return correct pathname and params for a non-professor (e.g., student)', () => {
-        const user = { data: { type: 'student' } }; // Un utilisateur non-professeur
+        const user = { data: { type: 'student' } }; // A non-professor user
         const courseItem = {
             id: 'course1',
             data: {
                 name: 'Course 1',
-                periods: [] as CourseTimePeriod[], // Propriété manquante
-                description: 'Course description', // Ajoutez des propriétés manquantes
+                periods: [] as CourseTimePeriod[], // Missing property
+                description: 'Course description', // Add missing properties
                 professors: [],
                 assistants: [],
                 section: 'IN' as Section,
-                credits: 3, // Propriété manquante
-                newAssignments: false, // Propriété manquante
-                assignments: [], // Propriété manquante
-                started: false, // Propriété manquante
+                credits: 3, // Missing property
+                newAssignments: false, // Missing property
+                assignments: [], // Missing property
+                started: false, // Missing property
             }
         };
         const period: CourseTimePeriod = {
@@ -246,8 +243,8 @@ describe('getNavigationDetails', () => {
             end: 10,
             type: 'lecture',
             activityId: 'activity1',
-            dayIndex: 1,     // Propriété manquante
-            rooms: [{ name: 'Room 101', geoloc: { latitude: 0, longitude: 0 } }],  // Propriété manquante
+            dayIndex: 1,     // Missing property
+            rooms: [{ name: 'Room 101', geoloc: { latitude: 0, longitude: 0 } }],  // Missing property
         };
 
         const index = 0;
@@ -262,20 +259,20 @@ describe('getNavigationDetails', () => {
     });
 
     it('should handle undefined user type (fallback case)', () => {
-        const user = { data: { type: undefined } }; // Utilisateur sans type
+        const user = { data: { type: undefined } }; // User without type
         const courseItem = {
             id: 'course1',
             data: {
                 name: 'Course 1',
-                periods: [] as CourseTimePeriod[], // Propriété manquante
-                description: 'Course description', // Ajoutez des propriétés manquantes
+                periods: [] as CourseTimePeriod[], // Missing property
+                description: 'Course description', // Add missing properties
                 professors: [],
                 assistants: [],
                 section: 'IN' as Section,
-                credits: 3, // Propriété manquante
-                newAssignments: false, // Propriété manquante
-                assignments: [], // Propriété manquante
-                started: false, // Propriété manquante
+                credits: 3, // Missing property
+                newAssignments: false, // Missing property
+                assignments: [], // Missing property
+                started: false, // Missing property
             }
         };
         const period: CourseTimePeriod = {
@@ -283,14 +280,14 @@ describe('getNavigationDetails', () => {
             end: 10,
             type: 'lecture',
             activityId: 'activity1',
-            dayIndex: 1,     // Propriété manquante
-            rooms: [{ name: 'Room 101', geoloc: { latitude: 0, longitude: 0 } }],  // Propriété manquante
+            dayIndex: 1,     // Missing property
+            rooms: [{ name: 'Room 101', geoloc: { latitude: 0, longitude: 0 } }],  // Missing property
         };
         const index = 0;
 
         const { pathname, params } = getNavigationDetails(user, courseItem, period, index);
 
-        expect(pathname).toBe('/(app)/lectures/slides'); // Fallback au pathname étudiant
+        expect(pathname).toBe('/(app)/lectures/slides'); // Fallback to student pathname
         expect(params).toEqual({
             courseNameString: 'Course 1',
             lectureIdString: 'activity1',

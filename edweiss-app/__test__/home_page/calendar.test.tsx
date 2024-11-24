@@ -1,67 +1,59 @@
-import { act, render, screen } from '@testing-library/react-native';
-
 import { Calendar } from '@/components/core/calendar';
 import { getWeekDates } from '@/components/core/getWeekDates';
-import { AssignmentBase, Course, CourseTimePeriod, Section } from '@/model/school/courses';
+import { AssignmentType, CourseTimePeriod, Section } from '@/model/school/courses';
 import Todolist from '@/model/todo';
+import { act, render, screen } from '@testing-library/react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 
-import { AssignmentType } from '@/model/school/courses';
-import { CourseTimePeriodType } from '@/model/school/schedule';
-
-// Mock de Firebase Firestore avec Jest
+// Mocking Firebase Firestore Timestamp with Jest
 const Timestamp = {
-    // Simulation de la méthode `fromDate`
+    // Simulating the `fromDate` method
     fromDate: jest.fn((date) => {
-        const timestamp = new Date(date); // Créer un objet `Date` à partir du paramètre
+        const timestamp = new Date(date); // Create a `Date` object from the parameter
 
         return {
-            // Retourner un objet qui simule le `Timestamp` de Firebase
-            seconds: Math.floor(timestamp.getTime() / 1000), // Convertir le temps en secondes
-            nanoseconds: (timestamp.getTime() % 1000) * 1000000, // Extraire les nanosecondes
-            toDate: jest.fn(() => timestamp), // Ajouter `toDate` qui retourne le `Date` d'origine
+            // Returning an object that mimics Firebase's `Timestamp`
+            seconds: Math.floor(timestamp.getTime() / 1000), // Convert the time to seconds
+            nanoseconds: (timestamp.getTime() % 1000) * 1000000, // Extract nanoseconds
+            toDate: jest.fn(() => timestamp), // Adding `toDate` to return the original `Date`
         };
     }),
 
-    // Simuler des méthodes statiques qui pourraient être utilisées dans les tests
+    // Simulating static methods that might be used in tests
     seconds: 0,
     nanoseconds: 0,
 };
 
+// Mock Firestore module with the `Timestamp`
 module.exports = { firestore: { Timestamp } };
 
-
-module.exports = {
-    firestore: {
-        Timestamp,
-    },
-};
-
-
+// Mock data for Todos
 const mockTodos = [
-    { id: 'todo1', data: { dueDate: Timestamp.fromDate(new Date()), title: 'Test Todo', completed: false, name: 'Todo 1', status: 'incomplete' as Todolist.TodoStatus, } },
+    { id: 'todo1', data: { dueDate: Timestamp.fromDate(new Date()), title: 'Test Todo', completed: false, name: 'Todo 1', status: 'incomplete' as Todolist.TodoStatus } },
 ];
 
-
-
-// Conversion d'une chaîne de caractères en un objet Date
+// Convert a date string to a Date object
 const dateString = "2024-11-24T00:00:00";
 const date = new Date(dateString);
 
-
+// Mock Firebase Firestore module to simulate `Timestamp`
 jest.mock('firebase/firestore', () => {
     return {
         firestore: {
             Timestamp: {
-                fromDate: jest.fn(() => new Date()),
+                fromDate: jest.fn(() => new Date()), // Simulate returning the current Date
             },
         },
     };
 });
 
+// Mock data for assignments
 const mockAssignments = [{ id: 'assignment1', data: { title: 'Test Assignment', dueDate: Timestamp.fromDate(new Date()), type: 'homework' as AssignmentType, name: 'Assignment 1' } }];
 
+// Define a mock period for courses
 const mockPeriod = { id: 'period1', name: 'Period 1', type: 'lecture', dayIndex: 1, start: 540, end: 600, rooms: [] }; // Define mockPeriod
+
+// Mock data for courses
 const mockCourses = [{
     id: 'course1',
     data: {
@@ -78,22 +70,16 @@ const mockCourses = [{
         assignments: [],
     },
 }];
+
+// Mock Firebase Authentication to simulate the current user
 jest.mock('@react-native-firebase/auth', () => ({
     __esModule: true,
     default: jest.fn(() => ({
-        currentUser: { uid: 'test-user-id' },
+        currentUser: { uid: 'test-user-id' }, // Simulated user ID
     })),
 }));
-jest.mock('firebase/firestore', () => {
-    return {
-        firestore: {
-            Timestamp: {
-                fromDate: jest.fn(() => new Date()),
-            },
-        },
-    };
-});
 
+// Mock Firebase Firestore to simulate fetching course data from the database
 jest.mock('@react-native-firebase/firestore', () => {
     const collectionMock = {
         doc: jest.fn().mockReturnThis(),
@@ -121,12 +107,15 @@ jest.mock('@react-native-firebase/firestore', () => {
     };
 });
 
+// Mock Firebase Functions to simulate callable functions
 jest.mock('@react-native-firebase/functions', () => ({
     __esModule: true,
     default: jest.fn(() => ({
         httpsCallable: jest.fn(),
     })),
 }));
+
+// Mock Firebase Storage to simulate file storage operations
 jest.mock('@react-native-firebase/storage', () => ({
     __esModule: true,
     default: jest.fn(() => ({
@@ -134,6 +123,7 @@ jest.mock('@react-native-firebase/storage', () => ({
     })),
 }));
 
+// Mock Google SignIn SDK methods for testing purposes
 jest.mock('@react-native-google-signin/google-signin', () => ({
     __esModule: true,
     GoogleSignin: {
@@ -146,6 +136,7 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
     },
 }));
 
+// Mock the Expo Screen Orientation module to handle orientation changes in tests
 jest.mock('expo-screen-orientation', () => {
     const listeners: any[] = [];
     return {
@@ -165,43 +156,13 @@ jest.mock('expo-screen-orientation', () => {
     };
 });
 
-jest.mock('expo-router', () => ({
-    router: { push: jest.fn() },
-    Stack: {
-        Screen: jest.fn(({ options }) => (
-            <>{options.title}</> // Simulate rendering the title for the test
-        )),
-    },
+// Mock routing functionality for navigation during tests
+jest.mock('@react-navigation/native', () => ({
+    useNavigation: jest.fn(),
 }));
 
+// Test case to check the display of assignments and todos
 test('displays assignments and todos correctly', () => {
-    const mockCourses = [
-        {
-            id: '1',
-            data: {
-                name: 'Course 1',
-                started: true,
-                description: 'Course description',
-                professors: ['Professor 1'],
-                assistants: ['Assistant 1'],
-                periods: [{ type: 'lecture', dayIndex: 1, start: 540, end: 600, rooms: [] }] as CourseTimePeriod[],
-                credits: 3,
-                department: 'Department 1',
-                section: 'IN' as Section,
-                newAssignments: true,
-                assignments: [],
-            },
-        },
-    ];
-
-    const mockAssignments = [
-        { id: '1', data: { dueDate: Timestamp.fromDate(new Date('2024-11-24T00:00:00')), type: 'homework' as AssignmentType, name: 'Assignment 1' } },
-    ];
-
-    const mockTodos = [
-        { id: '1', data: { dueDate: Timestamp.fromDate(new Date('2024-11-24T00:00:00')), name: 'Todo 1', status: 'incomplete' as Todolist.TodoStatus } },
-    ];
-
     const mockDate = new Date('2024-11-24T00:00:00');
 
     render(
@@ -213,20 +174,20 @@ test('displays assignments and todos correctly', () => {
             date={mockDate}
         />
     );
+
     expect(screen.getByText('Todo 1')).toBeTruthy();
 });
 
+// Mocking the `getWeekDates` function to simulate fetching week dates
 jest.mock('@/components/core/getWeekDates', () => ({
     getWeekDates: jest.fn(),
 }));
 
+// Test case to check the week view rendering
 test('displays week view correctly', () => {
-    const mockCourses: { id: string; data: Course; }[] = [];
-    const mockAssignments: { id: string; data: AssignmentBase; }[] = [];
-    const mockTodos: { id: string; data: Todolist.Todo; }[] = [];
     const mockDate = new Date('2024-11-24T00:00:00');
 
-    // Mock des dates de la semaine
+    // Mocked week dates to simulate the output of `getWeekDates`
     const weekDates = [
         new Date('2024-11-24T00:00:00'),
         new Date('2024-11-25T00:00:00'),
@@ -244,32 +205,16 @@ test('displays week view correctly', () => {
         />
     );
 
-    // Vérifie que la date de chaque jour de la semaine est affichée
+    // Verify that each day of the week is displayed correctly
     expect(screen.getByText('dim. 24 nov.')).toBeTruthy();
     expect(screen.getByText('lun. 25 nov.')).toBeTruthy();
     expect(screen.getByText('mar. 26 nov.')).toBeTruthy();
 });
 
-jest.mock('@/utils/calendar/getCurrentTimeInMinutes', () => ({
-    getCurrentTimeInMinutes: jest.fn(),
-}));
-
-
-
-jest.mock('expo-screen-orientation', () => ({
-    addOrientationChangeListener: jest.fn(),
-    removeOrientationChangeListener: jest.fn(),
-}));
-
+// Test case to simulate screen orientation change and check layout updates
 test('changes layout when screen orientation changes', () => {
-    const mockCourses = [
-        { id: '1', data: { periods: [{ dayIndex: 1, start: 540, end: 600, type: 'lecture' as CourseTimePeriodType, rooms: [] }] as CourseTimePeriod[], name: 'Course 1', description: 'Course description', professors: ['Professor 1'], assistants: ['Assistant 1'], section: 'IN' as Section, credits: 3, department: 'Department 1', started: true, newAssignments: false, assignments: [] } },
-    ];
-    const mockAssignments: { id: string; data: AssignmentBase; }[] = [];
-    const mockTodos: { id: string; data: Todolist.Todo; }[] = [];
     const mockDate = new Date('2024-11-24T00:00:00');
-    const mockPeriod = { id: 'period1', name: 'Period 1' }; // Define mockPeriod
-    // Mock de l'orientation
+
     const onOrientationChange = jest.fn();
     (ScreenOrientation.addOrientationChangeListener as jest.Mock).mockImplementation((callback: ((...args: any) => any) | undefined) => {
         onOrientationChange.mockImplementation(callback);
@@ -285,32 +230,45 @@ test('changes layout when screen orientation changes', () => {
         />
     );
 
-    // Change l'orientation
+    // Simulate an orientation change (e.g., landscape mode)
     act(() => {
         onOrientationChange({ orientationInfo: { orientation: 1 } });
     });
 
-    // Vérifie que la vue a été mise à jour
+    // Verify that the layout has been updated (check for UI elements related to the orientation change)
     expect(screen.getByText('lun. 25 nov.')).toBeTruthy();
 });
 
-jest.mock('@react-navigation/native', () => ({
-    useNavigation: jest.fn(),
+// Mocking the Expo Router for navigation purposes in the tests
+jest.mock('expo-router', () => ({
+    router: { push: jest.fn() },
+    Stack: {
+        Screen: jest.fn(({ options }) => (
+            <>{options.title}</> // Simulate rendering the title for the test
+        )),
+    },
 }));
 
-// Mock des props
-const mockDate = new Date('2024-11-24T00:00:00');
-
+// Basic test to render the Calendar component with expected data
 test('renders Calendar component', () => {
-    render(<Calendar courses={mockCourses} assignments={mockAssignments} todos={mockTodos} type="day" date={mockDate} />);
+    const mockDate = new Date('2024-11-24T00:00:00'); // Test date
 
-    // Vérifie que la date du jour est affichée correctement
+    render(
+        <Calendar
+            courses={mockCourses}
+            assignments={mockAssignments}
+            todos={mockTodos}
+            type="day"
+            date={mockDate}
+        />
+    );
+
+    // Verify that the date is displayed correctly
     expect(screen.getByText('dimanche 24 novembre')).toBeTruthy();
 
-    // Vérifie que l'heure 9:00 AM est bien affichée dans la vue
+    // Check if the hour 9:00 AM is displayed
     expect(screen.getByText('9:00')).toBeTruthy();
 
-    // Vérifie qu'un devoir et une tâche sont bien affichés pour cette heure-là
     expect(screen.getByText('Assignment 1')).toBeTruthy();
     expect(screen.getByText('Assignments Due Today:')).toBeTruthy();
 });
