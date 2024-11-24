@@ -7,21 +7,22 @@ import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { Course } from '@/model/school/courses';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Dimensions, FlatList, View } from 'react-native';
+
 const InfinitePaginatedCounterScreen = () => {
   const auth = useAuth();
   const [loading, setLoading] = useState(true);
-  const [pages, setPages] = useState(Array.from({ length: 10 }, (_, index) => index - 3)); // De -7 à +7
+  const [pages, setPages] = useState(Array.from({ length: 10 }, (_, index) => index - 3)); // From -7 to +7
   const scrollRef = useRef<FlatList>(null);
   const [dimensions, setDimensions] = useState(Dimensions.get('window'));
 
-  // Écouteur global pour les changements de dimensions
+  // Global listener for dimension changes
   useEffect(() => {
     const handleResize = ({ window }: { window: { width: number; height: number; scale: number; fontScale: number } }) => setDimensions(window);
     const subscription = Dimensions.addEventListener('change', handleResize);
     return () => subscription?.remove();
   }, []);
 
-  // Chargement des cours et des tâches
+  // Loading courses and tasks
   const myCourses = useDynamicDocs(
     CollectionOf(`users/${auth.authUser?.uid ?? 'default-uid'}/courses`)
   )?.map(doc => ({ id: doc.id, data: doc.data })) ?? [];
@@ -34,7 +35,7 @@ const InfinitePaginatedCounterScreen = () => {
   const [assignmentsByCourse, setAssignmentsByCourse] = useState<{ [key: string]: any[] }>({});
   const [todoByCourse, setTodoByCourse] = useState<{ [key: string]: any[] }>({});
 
-  // Récupération des affectations et des tâches
+  // Fetch assignments and todos
   useEffect(() => {
     const fetchData = async () => {
       const assignmentsData: { [key: string]: any[] } = {};
@@ -66,19 +67,19 @@ const InfinitePaginatedCounterScreen = () => {
   const myCourseIds = myCourses.map(course => course.id);
   const filteredCourses = courses.filter(course => myCourseIds.includes(course.id));
 
-  // Ajouter des pages supplémentaires pour le défilement infini
+  // Add more pages for infinite scrolling
   const loadMorePages = () => {
     setPages(prevPages => [...prevPages, prevPages[prevPages.length - 1] + 1]);
   };
 
-  // Calculer la date en fonction de l'offset
+  // Calculate the date based on the offset
   const getDateWithOffset = (offset: number): Date => {
     const date = new Date();
     date.setDate(date.getDate() + offset);
     return date;
   };
 
-  // Mémoïsation du rendu de chaque élément
+  // Memoize rendering of each item
   const renderItem = ({ item }: { item: number }) => {
     const { width, height } = dimensions;
     const adjustedItem = width > height ? item * 7 : item;
