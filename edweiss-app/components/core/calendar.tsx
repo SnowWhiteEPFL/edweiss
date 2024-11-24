@@ -153,6 +153,7 @@ export const Calendar = ({
                 {/* Red line for current time */}
                 {dayDate.getDate() === date.getDate() && (
                     <TView
+                        testID='current-time-line'
                         backgroundColor="red"
                         style={{
                             position: 'absolute',

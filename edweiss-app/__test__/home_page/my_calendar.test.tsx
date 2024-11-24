@@ -302,7 +302,4 @@ describe('InfinitePaginatedCounterScreen Component', () => {
 });
 
 
-function tsx(arg0: jest.Mock<any, any, any>) {
-    throw new Error('Function not implemented.');
-}
 
