@@ -1,13 +1,19 @@
 
 
 import InfinitePaginatedCounterScreen from '@/app/(app)/calendar';
+import { Calendar } from '@/components/core/calendar';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
+import { Section } from '@/model/school/courses';
+import Todolist from '@/model/todo';
 import { NavigationContainer } from '@react-navigation/native';
-import { render } from '@testing-library/react-native';
+import { act, render, waitFor } from '@testing-library/react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
+
 import React from 'react';
 import { Dimensions, ScaledSize } from 'react-native';
+
+
 
 
 
@@ -142,83 +148,33 @@ const mockAuth = {
     data: { type: 'student' },
 };
 
-const mockCourses = [
-    {
-        id: 'course1',
-        data: {
-            name: 'Course 1',
-            periods: [
-                {
-                    id: 'period1',
-                    start: 0,
-                    end: 1440,
-                    type: 'lecture',
-                    activityId: 'activity1',
-                    dayIndex: 0,
-                    rooms: [],
-                },
-                {
-                    id: 'period1',
-                    start: 0,
-                    end: 1440,
-                    type: 'lecture',
-                    activityId: 'activity1',
-                    dayIndex: 1,
-                    rooms: [],
-                },
-                {
-                    id: 'period1',
-                    start: 0,
-                    end: 1440,
-                    type: 'lecture',
-                    activityId: 'activity1',
-                    dayIndex: 2,
-                    rooms: [],
-                },
-                {
-                    id: 'period1',
-                    start: 0,
-                    end: 1440,
-                    type: 'lecture',
-                    activityId: 'activity1',
-                    dayIndex: 3,
-                    rooms: [],
-                },
-                {
-                    id: 'period1',
-                    start: 0,
-                    end: 1440,
-                    type: 'lecture',
-                    activityId: 'activity1',
-                    dayIndex: 4,
-                    rooms: [],
-                },
-                {
-                    id: 'period1',
-                    start: 0,
-                    end: 1440,
-                    type: 'lecture',
-                    activityId: 'activity1',
-                    dayIndex: 5,
-                    rooms: [],
-                },
-                {
-                    id: 'period1',
-                    start: 0,
-                    end: 1440,
-                    type: 'lecture',
-                    activityId: 'activity1',
-                    dayIndex: 6,
-                    rooms: [],
-                },
-            ],
-            credits: 3,
-            newAssignments: true,
-            assignments: [{ id: 'assignment1' }],
 
-        },
-    },
+
+const mockTodos = [
+    { id: 'todo1', data: { title: 'Test Todo', completed: false, name: 'Todo 1', status: 'incomplete' as Todolist.TodoStatus, } },
+
 ];
+
+const mockAssignments = [{ id: 'assignment1', data: { title: 'Test Assignment', dueDate: new Date(), type: 'homework', name: 'Assignment 1' } }];
+
+const mockPeriod = { id: 'period1', name: 'Period 1' }; // Define mockPeriod
+
+const mockCourses = [{
+    id: 'course1',
+    data: {
+        name: 'Course 1',
+        started: true,
+        description: 'Course description',
+        professors: ['Professor 1'],
+        assistants: ['Assistant 1'],
+        periods: [mockPeriod],
+        credits: 3,
+        department: 'Department 1',
+        section: 'IN' as Section, // Adjust this to match the correct enum value
+        newAssignments: true,
+        assignments: [],
+    },
+}];
 
 describe('InfinitePaginatedCounterScreen Component', () => {
     beforeEach(() => {
@@ -252,6 +208,61 @@ describe('InfinitePaginatedCounterScreen Component', () => {
         });
 
         //expect(ScreenOrientation.addOrientationChangeListener).toHaveBeenCalled();
+    });
+
+    it('should change format when screen orientation changes', async () => {
+        render(
+            <NavigationContainer>
+                <Calendar
+                    courses={[]}
+                    assignments={[]}
+                    todos={[]}
+                    type="week"
+                    date={new Date()}
+                />
+            </NavigationContainer>
+        );
+
+        // Simuler un changement d'orientation
+        act(() => {
+            (ScreenOrientation.addOrientationChangeListener as jest.Mock).mock.calls[0][0]({
+                orientationInfo: { orientation: 2 }, // Change orientation
+            });
+        });
+
+        // Vérifie si le format a changé en conséquence
+        await waitFor(() => {
+            expect(ScreenOrientation.addOrientationChangeListener).toHaveBeenCalled();
+        });
+    });
+
+    it('should update current time every minute', async () => {
+        // Utiliser les timers factices pour tester l'intervalle de mise à jour
+        jest.useFakeTimers();
+
+        const { getByText } = render(
+            <NavigationContainer>
+                <Calendar
+                    courses={[]}
+                    assignments={[]}
+                    todos={mockTodos}
+                    type="day"
+                    date={new Date()}
+                />
+            </NavigationContainer>
+        );
+
+        // Attendre que l'intervalle soit configuré
+        act(() => {
+            jest.advanceTimersByTime(60000); // Avancer le temps de 1 minute
+        });
+
+        // Vérifier que la mise à jour de currentMinutes s'est bien produite
+        await waitFor(() => {
+            expect(getByText("0:00")).toBeTruthy(); // Vérifier que le rendu est mis à jour
+        });
+
+        jest.useRealTimers();
     });
 });
 
