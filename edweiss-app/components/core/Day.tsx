@@ -13,11 +13,11 @@ import TText from './TText';
 const HOUR_BLOCK_HEIGHT = 80;
 
 // Function to determine background color based on type
-const getBackgroundColor = (type: string): Color =>
+export const getBackgroundColor = (type: string): Color =>
     ({ lecture: 'blue', lab: 'yellow', exercises: 'green' }[type] as Color || 'overlay2');
 
 // Function to compute navigation details based on user type
-const getNavigationDetails = (user: any, courseItem: { id: string; data: Course }, period: CourseTimePeriod, index: number) => {
+export const getNavigationDetails = (user: any, courseItem: { id: string; data: Course }, period: CourseTimePeriod, index: number) => {
     const isProfessor = user?.data.type === 'professor';
     return {
         pathname: isProfessor ? '/(app)/startCourseScreen' : '/(app)/lectures/slides',
@@ -80,8 +80,9 @@ export const Day = ({
                                 radius={10}
                                 b={2}
                                 backgroundColor={getBackgroundColor(period.type)}
-                                onPress={() => router.push({ pathname: pathname as any, params })}
+                                onPress={() => router.push({ pathname, params })}
                                 style={{ height: periodHeight }}
+
                             >
                                 <PeriodBlock period={period} format={format} course={courseItem} user={user} />
                             </TTouchableOpacity>
