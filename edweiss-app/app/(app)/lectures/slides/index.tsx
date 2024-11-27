@@ -15,8 +15,8 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import Icon from '@/components/core/Icon';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
-import FancyTextInput from '@/components/input/FancyTextInput';
-import { callFunction, CollectionOf, getDownloadURL } from '@/config/firebase';
+import StudentQuestion from '@/components/lectures/slides/StudentQuestion';
+import { CollectionOf, getDownloadURL } from '@/config/firebase';
 import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
@@ -57,7 +57,6 @@ const LectureScreen: ApplicationRoute = () => {
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);    // FullScreen display of pdf toggle
     const [widthPercent, setWidthPercent] = useState<string[]>([]);
     const [heightPercent, setHeightPercent] = useState<string[]>([]);
-    const [question, setQuestion] = useState<string>('');
 
     const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
     const questionsDoc = useDynamicDocs(CollectionOf<Question>(`courses/${courseName}/lectures/${lectureId}/questions`));
@@ -111,7 +110,6 @@ const LectureScreen: ApplicationRoute = () => {
         }
     };
 
-
     // Function for updating the UI display values when switching through orientations an fullscreen modes
     function updateUI(orientation: ScreenOrientation.Orientation) {
         const bool = ((orientation == ScreenOrientation.Orientation.LANDSCAPE_LEFT || orientation == ScreenOrientation.Orientation.LANDSCAPE_RIGHT))
@@ -134,30 +132,6 @@ const LectureScreen: ApplicationRoute = () => {
         updateUI(ScreenOrientation.Orientation.LANDSCAPE_LEFT);
     };
 
-    // Display each question given as parameters as a component 
-    const renderQuestion = (question: string, key: React.Key) => (
-        <TView key={key} mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
-            <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`showtime:peer_question`)}</TText>
-            <TView pr={'sm'} pl={'md'} pb={'sm'} flexDirection='row' justifyContent='flex-start' alignItems='center'>
-                <TText ml={10} color='overlay0'>{question}</TText>
-            </TView>
-        </TView>
-    );
-
-    // Function for adding new question into the firebase storage
-    async function addQuestion(question: string) {
-        try {
-            await callFunction(LectureDisplay.Functions.createQuestion, {
-                courseId: courseName,
-                lectureId: lectureId,
-                question: question
-            });
-        } catch (error) {
-            console.error("Error creating question:", error);
-        }
-        setQuestion('');
-    }
-
     return (
         //Screen Display on landscape mode
         <>
@@ -166,7 +140,7 @@ const LectureScreen: ApplicationRoute = () => {
 
             <TView flexDirection={isLandscape ? 'row' : 'column'} flex={1} style={{ width: "100%" }}>
 
-                <TView mr={'lg'} flexDirection='column' style={{ width: widthPercent[0] as DimensionValue, height: heightPercent[0] as DimensionValue }}>
+                <TView mr={'lg'} flexDirection='column' style={{ width: widthPercent[0] as DimensionValue, height: heightPercent[0] as DimensionValue, position: 'relative' }} >
                     <Pdf
                         trustAllCerts={false}
                         source={{ uri: uri }}
@@ -180,7 +154,7 @@ const LectureScreen: ApplicationRoute = () => {
                         horizontal
                         style={{ flex: 1, width: (isFullscreen || !isLandscape) ? Dimensions.get('window').width : Dimensions.get('window').width * 0.6, height: isLandscape ? Dimensions.get('window').height : Dimensions.get('window').height * 0.6 }} />
 
-                    <TView flexDirection='row' justifyContent='space-between'>
+                    <TView alignItems='center' flexDirection='row' justifyContent='space-between' style={{ position: 'absolute', bottom: 0, left: 0, width: widthPercent[0] as DimensionValue }} backgroundColor='overlay0'>
                         {/* Buttons for page change and fullScreen toggle */}
 
                         <TView flexDirection='row' justifyContent='space-between' pr={'sm'} pl={'sm'}>
@@ -218,16 +192,7 @@ const LectureScreen: ApplicationRoute = () => {
                             </TScrollView>
 
                             <TScrollView flex={0.5} mt={15} mr={'md'} ml={'md'} mb={15}>
-                                {/* Questions Display */}
-                                {questionsDoc?.map((question, index) => renderQuestion(question?.data.text, index))}
-
-                                {/* Enter Your Question */}
-                                <TView flexDirection='row'>
-                                    <FancyTextInput value={question} onChangeText={n => { setQuestion(n) }} mb={'sm'} multiline label='Ask your questions' icon='chatbubbles-outline' placeholder='Got something on your mind? Type away!' />
-                                    <TTouchableOpacity backgroundColor='transparent' onPress={() => addQuestion(question)} pl={'md'}>
-                                        <Icon size={'xl'} name='send-outline' color='text'></Icon>
-                                    </TTouchableOpacity>
-                                </TView>
+                                <StudentQuestion courseName={courseName} lectureId={lectureId} questionsDoc={questionsDoc} />
                             </TScrollView>
                         </>}
                 </TView>
@@ -237,3 +202,4 @@ const LectureScreen: ApplicationRoute = () => {
 };
 
 export default LectureScreen;
+
