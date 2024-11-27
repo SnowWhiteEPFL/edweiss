@@ -50,13 +50,13 @@ const LectureScreen: ApplicationRoute = () => {
 
     // Hooks
     const [numPages, setNumPages] = useState<number>(0);        // Total number of pages in the PDF
-    const [page, setPage] = useState<number>(0);                // Current page, starting from 1
+    const [page, setPage] = useState<number>(1);                // Current page, starting from 1
     const [uri, setUri] = useState<string>('');                 // Url state
     // UI display setting's hooks
-    const [isLandscape, setIsLandscape] = useState<boolean>(false);       // Landscape display boolean for different UI
+    const [isLandscape, setIsLandscape] = useState<boolean>(true);       // Landscape display boolean for different UI
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);    // FullScreen display of pdf toggle
-    const [widthPercent, setWidthPercent] = useState<string[]>([]);
-    const [heightPercent, setHeightPercent] = useState<string[]>([]);
+    const [isRemoteMessage, setIsRemoteMessage] = useState<boolean>(false);    // Verification of remote control command received
+
 
     const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
     const questionsDoc = useDynamicDocs(CollectionOf<Question>(`courses/${courseName}/lectures/${lectureId}/questions`));
@@ -70,10 +70,9 @@ const LectureScreen: ApplicationRoute = () => {
 
     useEffect(() => {
         ScreenOrientation.unlockAsync();
-        updateUI(ScreenOrientation.Orientation.PORTRAIT_UP);
         const onOrientationChange = (currentOrientation: ScreenOrientation.OrientationChangeEvent) => {
             const orientationValue = currentOrientation.orientationInfo.orientation;
-            updateUI(orientationValue);
+            setIsLandscape(orientationValue == ScreenOrientation.Orientation.LANDSCAPE_LEFT || orientationValue == ScreenOrientation.Orientation.LANDSCAPE_RIGHT);
         };
 
         const screenOrientationListener =
@@ -110,27 +109,77 @@ const LectureScreen: ApplicationRoute = () => {
         }
     };
 
-    // Function for updating the UI display values when switching through orientations an fullscreen modes
-    function updateUI(orientation: ScreenOrientation.Orientation) {
-        const bool = ((orientation == ScreenOrientation.Orientation.LANDSCAPE_LEFT || orientation == ScreenOrientation.Orientation.LANDSCAPE_RIGHT))
-        setIsLandscape(bool);
-        if (isFullscreen) {
-            setWidthPercent(["100%", "0%"]);
-            setHeightPercent(["100%", "0%"]);
-        } else if (bool) {
-            setHeightPercent(["100%", "100%"]);
-            setWidthPercent(["60%", "40%"]);
-        } else {
-            setHeightPercent(["40%", "60%"]);
-            setWidthPercent(["100%", "100%"]);
-        }
-    }
-
     // Landscape display for the screen
     const setLandscape = async () => {
         await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-        updateUI(ScreenOrientation.Orientation.LANDSCAPE_LEFT);
     };
+
+    const PDFViewer = (uri: string, widthPorp: number, heightProp: number) => (
+        <Pdf
+            trustAllCerts={false}
+            source={{ uri }}
+            renderActivityIndicator={() => <ActivityIndicator size="large" />}
+            enablePaging
+            onLoadComplete={(totalPages) => setNumPages(totalPages)}
+            onPageChanged={(currentPage) => {
+                setTimeout(() => {
+                    setPage(currentPage)
+                }, 500);
+            }}
+            onError={(error) => console.log(error)}
+            page={page}
+            horizontal
+            style={{
+                flex: 1,
+                width: Dimensions.get('window').width * widthPorp,
+                height: Dimensions.get('window').height * heightProp,
+            }}
+        />
+    );
+
+    const ControlButtons = () => (
+        <TView alignItems='center' flexDirection='row' justifyContent='space-between' style={{ position: 'absolute', bottom: 0, left: 0, width: '100%' }} backgroundColor='overlay0'>
+            {/* Buttons for page change and fullScreen toggle */}
+
+            <TView flexDirection='row' justifyContent='space-between' pr={'sm'} pl={'sm'}>
+                <TTouchableOpacity backgroundColor='transparent' onPress={pageBack} pr={'md'}>
+                    <Icon size={'xl'} name='arrow-back-circle-outline' color='text'></Icon>
+                </TTouchableOpacity>
+
+                <TTouchableOpacity backgroundColor='transparent' onPress={pageForward} pl={'md'}>
+                    <Icon size={'xl'} name='arrow-forward-circle-outline' color='text'></Icon>
+                </TTouchableOpacity>
+            </TView>
+
+            <TText>{page}/{numPages}</TText>
+
+            <TTouchableOpacity backgroundColor='transparent' onPress={() => {
+                !isLandscape && setLandscape();
+                isLandscape && ScreenOrientation.unlockAsync();
+                setIsFullscreen(!isFullscreen);
+            }}>
+                <Icon size={'xl'} name={isFullscreen ? 'contract-outline' : 'expand-outline'} dark='text'></Icon>
+            </TTouchableOpacity>
+        </TView >
+    );
+
+    const ContentView = (widthPercent: string, heightPercent: string) => (
+        <TView flexDirection='column' mr={'xl'} style={{ width: widthPercent as DimensionValue, height: heightPercent as DimensionValue }}>
+            <TScrollView b={'sm'} mt={25} mr={'md'} ml={'md'} radius={'lg'} flex={1}>
+                {currentLecture.audioTranscript?.[page] ? (
+                    <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[page]}</TText>
+                ) : (
+                    <TText pt={'sm'} pl={'sm'} pr={'sm'} color='overlay0'>
+                        {t(`showtime:lecturer_transcript_deftxt`)}
+                    </TText>
+                )}
+            </TScrollView>
+
+            <TScrollView flex={0.5} mt={15} mr={'md'} ml={'md'} mb={15}>
+                <StudentQuestion courseName={courseName} lectureId={lectureId} questionsDoc={questionsDoc} />
+            </TScrollView>
+        </TView>
+    );
 
     return (
         //Screen Display on landscape mode
@@ -138,68 +187,31 @@ const LectureScreen: ApplicationRoute = () => {
 
             <RouteHeader disabled title={"Lecture's Slides"} />
 
-            <TView flexDirection={isLandscape ? 'row' : 'column'} flex={1} style={{ width: "100%" }}>
-
-                <TView mr={'lg'} flexDirection='column' style={{ width: widthPercent[0] as DimensionValue, height: heightPercent[0] as DimensionValue, position: 'relative' }} >
-                    <Pdf
-                        trustAllCerts={false}
-                        source={{ uri: uri }}
-                        renderActivityIndicator={() =>
-                            <ActivityIndicator size={'large'} />
-                        }
-                        enablePaging={true}
-                        onLoadComplete={(totalPages) => setNumPages(totalPages)}
-                        onError={(error) => console.log(error)}
-                        page={page}
-                        horizontal
-                        style={{ flex: 1, width: (isFullscreen || !isLandscape) ? Dimensions.get('window').width : Dimensions.get('window').width * 0.6, height: isLandscape ? Dimensions.get('window').height : Dimensions.get('window').height * 0.6 }} />
-
-                    <TView alignItems='center' flexDirection='row' justifyContent='space-between' style={{ position: 'absolute', bottom: 0, left: 0, width: widthPercent[0] as DimensionValue }} backgroundColor='overlay0'>
-                        {/* Buttons for page change and fullScreen toggle */}
-
-                        <TView flexDirection='row' justifyContent='space-between' pr={'sm'} pl={'sm'}>
-                            <TTouchableOpacity backgroundColor='transparent' onPress={pageBack} pr={'md'}>
-                                <Icon size={'xl'} name='arrow-back-circle-outline' color='text'></Icon>
-                            </TTouchableOpacity>
-
-                            <TTouchableOpacity backgroundColor='transparent' onPress={pageForward} pl={'md'}>
-                                <Icon size={'xl'} name='arrow-forward-circle-outline' color='text'></Icon>
-                            </TTouchableOpacity>
+            {isFullscreen ?
+                <TView mr={'lg'} flexDirection='column' style={{ width: '100%', height: '100%', position: 'relative' }} >
+                    {PDFViewer(uri, 1, 1)}
+                    {ControlButtons()}
+                </TView>
+                : isLandscape ?
+                    <TView flexDirection={'row'} flex={1} style={{ width: '100%' }}>
+                        <TView flexDirection='column' style={{ width: '60%', height: '100%', position: 'relative' }} >
+                            {PDFViewer(uri, 0.6, 1)}
+                            {ControlButtons()}
                         </TView>
-
-                        <TTouchableOpacity backgroundColor='transparent' onPress={() => {
-                            !isLandscape && setLandscape();
-                            isLandscape && ScreenOrientation.unlockAsync();
-                            setIsFullscreen(!isFullscreen);
-                        }}>
-                            <Icon size={'xl'} name={isFullscreen ? 'contract-outline' : 'expand-outline'} dark='text'></Icon>
-                        </TTouchableOpacity>
+                        {ContentView('40%', '100%')}
                     </TView>
-                </TView>
+                    :
+                    <TView flexDirection={'column'} flex={1} style={{ width: '100%' }}>
+                        <TView flexDirection='column' style={{ width: '100%', height: '40%', position: 'relative' }} >
+                            {PDFViewer(uri, 1, 0.6)}
+                            {ControlButtons()}
+                        </TView>
+                        {ContentView('100%', '60%')}
+                    </TView>
+            }
 
-                <TView flexDirection='column' style={{ width: widthPercent[1] as DimensionValue, height: heightPercent[1] as DimensionValue }}>
-                    {isFullscreen ?
-                        <TView></TView> : // Speech to Text transcript display and question forum display
-                        <>
-                            <TScrollView b={'sm'} mt={25} mr={'md'} ml={'md'} radius={'lg'} flex={1}>
-                                {currentLecture.audioTranscript?.[page] ? (
-                                    <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[page]}</TText>
-                                ) : (
-                                    <TText pt={'sm'} pl={'sm'} pr={'sm'} color='overlay0'>
-                                        {t(`showtime:lecturer_transcript_deftxt`)}
-                                    </TText>
-                                )}
-                            </TScrollView>
-
-                            <TScrollView flex={0.5} mt={15} mr={'md'} ml={'md'} mb={15}>
-                                <StudentQuestion courseName={courseName} lectureId={lectureId} questionsDoc={questionsDoc} />
-                            </TScrollView>
-                        </>}
-                </TView>
-            </TView>
         </>
     );
 };
 
 export default LectureScreen;
-
