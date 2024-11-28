@@ -1,36 +1,42 @@
-import Colors, { Color } from '@/constants/Colors';
+import { Color } from '@/constants/Colors';
 import ReactComponent from '@/constants/Component';
 import { MarginProps, PaddingProps, PredefinedSizes, Size, computeMargins, computeSize, computeSizeOpt, paddingSizes } from '@/constants/Sizes';
-import useTheme from '@/hooks/theme/useTheme';
-import { useOptionalColor } from '@/hooks/theme/useThemeColor';
+import { useColor, useOptionalColor } from '@/hooks/theme/useThemeColor';
 import React, { useMemo } from 'react';
-import { ViewStyle } from 'react-native';
-import MathJax from 'react-native-mathjax';
 import sanitizeHtml from 'sanitize-html';
+import WebViewMathJaxWrapper from './WebViewMathJaxWrapper';
 
 type RichTextProps = PaddingProps & MarginProps & {
+	children: string,
 	backgroundColor?: Color,
 	color?: Color,
-	children: string,
 	size?: Size,
 	font?: "Inter" | "Times New Roman"
 }
 
 const headerSizes = [
-	32,
-	28,
-	24,
-	20,
-	18,
-	16
+	32, // #
+	28, // ##
+	24, // ###
+	20, // ####
+	18, // #####
+	16, // ######
 ]
 
+// const richTextSizes: PredefinedSizes = {
+// 	xs: 0.8,
+// 	sm: 0.9,
+// 	md: 1.0,
+// 	lg: 1.2,
+// 	xl: 1.4
+// }
+
 const richTextSizes: PredefinedSizes = {
-	xs: 0.8,
-	sm: 0.9,
-	md: 1.0,
-	lg: 1.2,
-	xl: 1.4
+	xs: 12,
+	sm: 14,
+	md: 16,
+	lg: 18,
+	xl: 20
 }
 
 function headerLevel(line: string, level: number) {
@@ -57,7 +63,7 @@ export function richTextToHTML(rawText: string): string {
 			}
 		}
 
-		res += `${line}<br/>`;
+		res += line + (lineIndex != lines.length - 1 ? '<br/>' : '');
 	}
 
 	console.log(res);
@@ -68,17 +74,16 @@ export function richTextToHTML(rawText: string): string {
 const RichText: ReactComponent<RichTextProps> = ({ size = "md", ...props }) => {
 	const text = useMemo(() => richTextToHTML(props.children), [props.children]);
 
-	const theme = useTheme();
 	const computedBackgroundColor = useOptionalColor(props.backgroundColor);
-	const computedColor = useOptionalColor(props.color);
+	const computedColor = useColor(props.color ?? "text");
+
+	const mightHaveMathExpressions = useMemo(() => /\$/.test(text), [text]);
 
 	return (
-		<MathJax
-			style={{
-				backgroundColor: computedBackgroundColor ?? 'transparent',
-				...computeMargins(props)
-			} satisfies ViewStyle}
-			html={`
+		<WebViewMathJaxWrapper
+			style={computeMargins(props)}
+			disableMathJax={!mightHaveMathExpressions}
+			source={`
 				<style>
 					@font-face {
 						font-family: Inter;
@@ -96,8 +101,8 @@ const RichText: ReactComponent<RichTextProps> = ({ size = "md", ...props }) => {
 						padding-right: ${computeSizeOpt(props.pr, paddingSizes) ?? computeSizeOpt(props.px, paddingSizes) ?? 0} !important;
 						
 						font-family: ${props.font ?? "Inter"};
-						color: ${computedColor ?? Colors[theme].text};
-						font-size: ${16 * computeSize(size, richTextSizes)}px;
+						color: ${computedColor};
+						font-size: ${computeSize(size, richTextSizes)}px;
 						line-height: 1.6;
 					}
 				</style>
@@ -105,13 +110,30 @@ const RichText: ReactComponent<RichTextProps> = ({ size = "md", ...props }) => {
 					${text}
 				</body>
 			`}
-			scrollEnabled={false}
-			allowBounce={false}
-			alwaysBounceHorizontal={false}
-			alwaysBounceVertical={false}
-			bounces={false}
+			webview={{
+				scrollEnabled: false,
+				bounces: false,
+				showsHorizontalScrollIndicator: false,
+				showsVerticalScrollIndicator: false,
+				style: {
+					backgroundColor: computedBackgroundColor ?? 'transparent'
+				}
+			}}
 		/>
 	);
 };
 
 export default RichText;
+
+
+// const hasRichTextFeatures = useMemo(() => {
+// 	// return /\$|\n|#/.test(text);
+// 	return /<|>|\$/.test(text);
+// }, [text]);
+
+// console.log(`Math Expr: ${hasMathExpression}, Rich Text: ${hasRichTextFeatures}`);
+// console.log(text);
+
+// if (!hasRichTextFeatures) {
+// 	return <TText size={size} {...props} />;
+// }
