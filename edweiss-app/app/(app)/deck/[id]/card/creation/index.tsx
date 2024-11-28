@@ -18,11 +18,13 @@ import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
 import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
-import { callFunction, Collections } from '@/config/firebase';
-import { useDoc } from '@/hooks/firebase/firestore';
+import { callFunction } from '@/config/firebase';
+import { useRepositoryDocument } from '@/hooks/repository';
+import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
+import { DecksRepository } from '../../../_layout';
 
 // ------------------------------------------------------------
 // ----------------- CreateCardScreen Component ----------------
@@ -35,85 +37,95 @@ import React, { useState } from 'react';
  * @returns {ApplicationRoute} Screen to create a card
  */
 const CreateCardScreen: ApplicationRoute = () => {
-    const { deckId } = useLocalSearchParams();
-    const [question, setQuestion] = useState("");
-    const [answer, setAnswer] = useState("");
-    const [existedQuestion, setExistedQuestion] = useState(false);
+	const { deckId } = useStringParameters();
+	const [question, setQuestion] = useState("");
+	const [answer, setAnswer] = useState("");
+	const [existedQuestion, setExistedQuestion] = useState(false);
 
-    const deck = useDoc(Collections.deck, deckId as string);
+	// const deck = useDoc(Collections.deck, deckId);
 
-    // Create a new card
-    async function createCard() {
+	const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
 
-        if (question.length == 0 || answer.length == 0 || existedQuestion)
-            return;
+	// if (!deck)
+	// 	return <Redirect href={'/'} />;
 
-        const isDuplicate = deck?.data.cards.some(card => card.question === question);
-        if (isDuplicate) {
-            setExistedQuestion(true);
-            return;  // Prevent creation if a duplicate is found
-        }
+	// Create a new card
+	async function createCard() {
 
-        const res = await callFunction(Memento.Functions.createCard, {
-            deckId: deckId,
-            card: {
-                question: question,
-                answer: answer,
-                learning_status: "Not yet",
-            }
+		if (question.length == 0 || answer.length == 0 || existedQuestion)
+			return;
 
-        });
+		const isDuplicate = deck?.data.cards.some(card => card.question === question);
+		if (isDuplicate) {
+			setExistedQuestion(true);
+			return;  // Prevent creation if a duplicate is found
+		}
 
-        if (res.status == 1) {
-            console.log(`OKAY, card created with id ${res.data.id}`);
-            router.back();
-        }
+		const card: Memento.Card = {
+			question: question,
+			answer: answer,
+			learning_status: "Not yet",
+		};
 
-    }
+		const previousCards = deck?.data.cards ?? [];
 
-    return (
-        <>
-            <RouteHeader title='Create a card' />
+		handler.modifyDocument(deckId, { cards: [...previousCards, card] }, () => {
+			callFunction(Memento.Functions.createCard, {
+				deckId: deckId,
+				card
+			});
+		});
 
-            <TScrollView>
-                {/* <TextInput value={deckName} onChangeText={n => setDeckName(n)} placeholder='Deck name' placeholderTextColor={'#555'} style={{ backgroundColor: Colors.dark.crust, borderColor: Colors.dark.blue, borderWidth: 1, padding: 8, paddingHorizontal: 16, margin: 16, marginBottom: 0, color: 'white', borderRadius: 14, fontFamily: "Inter" }}>
+		// if (res.status == 1) {
+		// 	console.log(`OKAY, card created with id ${res.data.id}`);
+		// }
+
+		router.back();
+	}
+
+	return (
+		<>
+			<RouteHeader title='Create a card' />
+
+			<TScrollView>
+				{/* <TextInput value={deckName} onChangeText={n => setDeckName(n)} placeholder='Deck name' placeholderTextColor={'#555'} style={{ backgroundColor: Colors.dark.crust, borderColor: Colors.dark.blue, borderWidth: 1, padding: 8, paddingHorizontal: 16, margin: 16, marginBottom: 0, color: 'white', borderRadius: 14, fontFamily: "Inter" }}>
 
 				</TextInput> */}
-                <TView m='md' borderColor='crust' radius='lg'>
-                    <FancyTextInput
-                        value={question}
-                        onChangeText={n => {
-                            setQuestion(n);
-                            setExistedQuestion(false);
-                        }}
-                        placeholder='My amazing question'
-                        icon='help-sharp'
-                        label='Question'
-                        error={existedQuestion ? 'Question already exists' : undefined}
-                        multiline
-                        numberOfLines={3}
-                    />
-                </TView>
+				<TView m='md' borderColor='crust' radius='lg'>
+					<FancyTextInput
+						value={question}
+						onChangeText={n => {
+							setQuestion(n);
+							setExistedQuestion(false);
+						}}
+						placeholder='My amazing question'
+						icon='help-sharp'
+						label='Question'
+						error={existedQuestion ? 'Question already exists' : undefined}
+						multiline
+						numberOfLines={3}
+					/>
+				</TView>
 
-                <TView m='md' mt={2} borderColor='crust' radius='lg'>
-                    <FancyTextInput
-                        value={answer}
-                        onChangeText={n => setAnswer(n)}
-                        placeholder='My amazing answer'
-                        icon='bulb-outline'
-                        label='Answer'
-                        multiline
-                        numberOfLines={3}
-                    />
-                </TView>
+				<TView m='md' mt={2} borderColor='crust' radius='lg'>
+					<FancyTextInput
+						value={answer}
+						onChangeText={n => setAnswer(n)}
+						placeholder='My amazing answer'
+						icon='bulb-outline'
+						label='Answer'
+						multiline
+						numberOfLines={3}
+					/>
+				</TView>
 
-                <FancyButton testID='createCardButton' backgroundColor='blue' mt={'md'} mb={'sm'} icon='logo-firebase' onPress={createCard}>
-                    Create Card
-                </FancyButton>
+				<FancyButton testID='createCardButton' backgroundColor='blue' mt={'md'} mb={'sm'} icon='logo-firebase' onPress={createCard}>
+					Create Card
+				</FancyButton>
 
-            </TScrollView >
-        </>
-    );
+			</TScrollView >
+		</>
+	);
 };
 
 export default CreateCardScreen;

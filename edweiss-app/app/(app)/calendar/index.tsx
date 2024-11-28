@@ -1,31 +1,148 @@
+import { Calendar } from '@/components/core/calendar';
+import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
-import { ApplicationRoute } from '@/constants/Component';
+import { CollectionOf } from '@/config/firebase';
+import { useAuth } from '@/contexts/auth';
+import { useDynamicDocs } from '@/hooks/firebase/firestore';
+import { Course } from '@/model/school/courses';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, Dimensions, FlatList, View } from 'react-native';
 
-import CalendarDisplay from '@/components/calendar/CalendarDisplay';
-import { useState } from 'react';
+const InfinitePaginatedCounterScreen = () => {
+  const auth = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [pages, setPages] = useState(Array.from({ length: 10 }, (_, index) => index - 3)); // From -7 to +7
+  const scrollRef = useRef<FlatList>(null);
+  const [dimensions, setDimensions] = useState(Dimensions.get('window'));
 
-const Route: ApplicationRoute = () => {
+  // Global listener for dimension changes
+  useEffect(() => {
+    const handleResize = ({ window }: { window: { width: number; height: number; scale: number; fontScale: number } }) => setDimensions(window);
+    const subscription = Dimensions.addEventListener('change', handleResize);
+    return () => subscription?.remove();
+  }, []);
 
-	const [selectedDate, setSelectedDate] = useState(new Date());
+  // Loading courses and tasks
+  const myCourses = useDynamicDocs(
+    CollectionOf(`users/${auth.authUser?.uid ?? 'default-uid'}/courses`)
+  )?.map(doc => ({ id: doc.id, data: doc.data })) ?? [];
 
-	return (
-		<>
-			<RouteHeader title='My calendar' />
+  const courses = useDynamicDocs(CollectionOf('courses'))?.map(doc => ({
+    id: doc.id,
+    data: doc.data as unknown as Course
+  })) ?? [];
 
-			{
-				/**
-				 * 
-				 * We should implement some sort of smooth Swipe mechanic on this page
-				 * to call the `setSelectedDate`.
-				 * 
-				 */
-			}
+  const [assignmentsByCourse, setAssignmentsByCourse] = useState<{ [key: string]: any[] }>({});
+  const [todoByCourse, setTodoByCourse] = useState<{ [key: string]: any[] }>({});
 
-			{/* <Swipeable renderRightActions={() => <TText>HELLO</TText>} containerStyle={{ flex: 1 }} childrenContainerStyle={{ flex: 1 }}> */}
-			<CalendarDisplay courses={[]} date={selectedDate} />
-			{/* </Swipeable> */}
-		</>
-	);
+  // Fetch assignments and todos
+  useEffect(() => {
+    const fetchData = async () => {
+      const assignmentsData: { [key: string]: any[] } = {};
+      const todoData: { [key: string]: any[] } = {};
+
+      for (const course of courses) {
+        const assignmentsRef = CollectionOf(`courses/${course.id}/assignments`);
+        const todoRef = CollectionOf(`users/${auth.authUser?.uid ?? 'default-uid'}/todos`);
+
+        const [assignmentsSnapshot, todoSnapshot] = await Promise.all([
+          assignmentsRef.get(),
+          todoRef.get(),
+        ]);
+
+        assignmentsData[course.id] = assignmentsSnapshot.docs.map(doc => doc.data());
+        todoData[course.id] = todoSnapshot.docs.map(doc => doc.data());
+      }
+
+      setAssignmentsByCourse(assignmentsData);
+      setTodoByCourse(todoData);
+      setLoading(false);
+    };
+
+    if (courses.length > 0) {
+      fetchData();
+    }
+  }, [courses]);
+
+  const myCourseIds = myCourses.map(course => course.id);
+  const filteredCourses = courses.filter(course => myCourseIds.includes(course.id));
+
+  // Add more pages for infinite scrolling
+  const loadMorePages = () => {
+    setPages(prevPages => [...prevPages, prevPages[prevPages.length - 1] + 1]);
+  };
+
+  // Calculate the date based on the offset
+  const getDateWithOffset = (offset: number): Date => {
+    const date = new Date();
+    date.setDate(date.getDate() + offset);
+    return date;
+  };
+
+  // Memoize rendering of each item
+  const renderItem = ({ item }: { item: number }) => {
+    const { width, height } = dimensions;
+    const adjustedItem = width > height ? item * 7 : item;
+    const currentDate = getDateWithOffset(adjustedItem);
+
+    return (
+      <View style={{ width, height }}>
+        {loading ? (
+          <View style={{ justifyContent: 'center', alignItems: 'center', height }}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+        ) : (
+          <Animated.View style={{ height }}>
+            <Calendar
+              courses={filteredCourses}
+              assignments={filteredCourses.flatMap(course =>
+                (assignmentsByCourse[course.id] || []).map(assignment => ({
+                  id: course.id,
+                  data: assignment,
+                }))
+              )}
+              todos={filteredCourses.flatMap(course =>
+                (todoByCourse[course.id] || []).map(todo => ({
+                  id: course.id,
+                  data: todo,
+                }))
+              )}
+              type={undefined}
+              date={currentDate}
+            />
+          </Animated.View>
+        )}
+      </View>
+    );
+  };
+
+  return (
+    <TView>
+      <RouteHeader
+        disabled={true}
+        title="Calendar"
+      />
+      <TView>
+        <FlatList
+          initialScrollIndex={3}
+          ref={scrollRef}
+          data={pages}
+          horizontal
+          pagingEnabled
+          keyExtractor={item => item.toString()}
+          onEndReached={loadMorePages}
+          onEndReachedThreshold={0.1}
+          showsHorizontalScrollIndicator={false}
+          renderItem={renderItem}
+          getItemLayout={(_, index) => ({
+            length: dimensions.width,
+            offset: dimensions.width * index,
+            index,
+          })}
+        />
+      </TView>
+    </TView>
+  );
 };
 
-export default Route;
+export default InfinitePaginatedCounterScreen;

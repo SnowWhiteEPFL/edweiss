@@ -138,8 +138,8 @@ const CourseDisplay: ReactComponent<{ course: Document<Course> }> = ({ course })
 
 const AssignmentDisplay: ReactComponent<{ assignment: Document<Assignment> }> = ({ assignment }) => {
 	return (
-		<TView flexDirection='row' justifyContent='space-between'>
-			<TText>
+		<TView flexColumnGap={'md'} flexDirection='row' justifyContent='space-between'>
+			<TText numberOfLines={1} style={{ flex: 1 }}>
 				{assignment.data.name}
 			</TText>
 			<TText color='subtext0'>
