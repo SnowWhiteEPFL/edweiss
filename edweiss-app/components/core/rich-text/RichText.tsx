@@ -48,10 +48,6 @@ export function richTextToHTML(rawText: string): string {
 
 	main:
 	for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-		if (lineIndex != 0) {
-			res += '<br/>';
-		}
-
 		const line = lines[lineIndex].trim();
 
 		for (let headerCheckIndex = 0; headerCheckIndex < 6; headerCheckIndex++) {
@@ -61,8 +57,10 @@ export function richTextToHTML(rawText: string): string {
 			}
 		}
 
-		res += line;
+		res += `${line}<br/>`;
 	}
+
+	console.log(res);
 
 	return res;
 }
