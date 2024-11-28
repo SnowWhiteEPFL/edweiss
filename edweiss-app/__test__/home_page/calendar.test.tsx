@@ -27,28 +27,18 @@ const Timestamp = {
 // Mock Firestore module with the `Timestamp`
 module.exports = { firestore: { Timestamp } };
 
-// Mock data for Todos
-const mockTodos = [
-    { id: 'todo1', data: { dueDate: Timestamp.fromDate(new Date()), title: 'Test Todo', completed: false, name: 'Todo 1', status: 'incomplete' as Todolist.TodoStatus } },
-];
-
 // Convert a date string to a Date object
 const dateString = "2024-11-24T00:00:00";
 const date = new Date(dateString);
 
-// Mock Firebase Firestore module to simulate `Timestamp`
-jest.mock('firebase/firestore', () => {
-    return {
-        firestore: {
-            Timestamp: {
-                fromDate: jest.fn(() => new Date()), // Simulate returning the current Date
-            },
-        },
-    };
-});
+// Mock data for Todos
+const mockTodos = [
+    { id: 'todo1', data: { dueDate: Timestamp.fromDate(date), title: 'Test Todo', completed: false, name: 'Todo 1', status: 'incomplete' as Todolist.TodoStatus } },
+];
+
 
 // Mock data for assignments
-const mockAssignments = [{ id: 'assignment1', data: { title: 'Test Assignment', dueDate: Timestamp.fromDate(new Date()), type: 'homework' as AssignmentType, name: 'Assignment 1' } }];
+const mockAssignments = [{ id: 'assignment1', data: { title: 'Test Assignment', dueDate: Timestamp.fromDate(date), type: 'homework' as AssignmentType, name: 'Assignment 1' } }];
 
 // Define a mock period for courses
 const mockPeriod = { id: 'period1', name: 'Period 1', type: 'lecture', dayIndex: 1, start: 540, end: 600, rooms: [] }; // Define mockPeriod
@@ -163,7 +153,7 @@ jest.mock('@react-navigation/native', () => ({
 
 // Test case to check the display of assignments and todos
 test('displays assignments and todos correctly', () => {
-    const mockDate = new Date('2024-11-24T00:00:00');
+
 
     render(
         <Calendar
@@ -171,7 +161,7 @@ test('displays assignments and todos correctly', () => {
             assignments={mockAssignments}
             todos={mockTodos}
             type="day"
-            date={mockDate}
+            date={date}
         />
     );
 
@@ -185,10 +175,11 @@ jest.mock('@/components/core/getWeekDates', () => ({
 
 // Test case to check the week view rendering
 test('displays week view correctly', () => {
-    const mockDate = new Date('2024-11-24T00:00:00');
+
 
     // Mocked week dates to simulate the output of `getWeekDates`
     const weekDates = [
+        new Date('2024-11-23T00:00:00'),
         new Date('2024-11-24T00:00:00'),
         new Date('2024-11-25T00:00:00'),
         new Date('2024-11-26T00:00:00'),
@@ -201,7 +192,8 @@ test('displays week view correctly', () => {
             assignments={mockAssignments}
             todos={mockTodos}
             type="week"
-            date={mockDate}
+            date={date}
+
         />
     );
 
@@ -213,7 +205,7 @@ test('displays week view correctly', () => {
 
 // Test case to simulate screen orientation change and check layout updates
 test('changes layout when screen orientation changes', () => {
-    const mockDate = new Date('2024-11-24T00:00:00');
+
 
     const onOrientationChange = jest.fn();
     (ScreenOrientation.addOrientationChangeListener as jest.Mock).mockImplementation((callback: ((...args: any) => any) | undefined) => {
@@ -226,7 +218,7 @@ test('changes layout when screen orientation changes', () => {
             assignments={mockAssignments}
             todos={mockTodos}
             type="week"
-            date={mockDate}
+            date={date}
         />
     );
 
@@ -251,7 +243,6 @@ jest.mock('expo-router', () => ({
 
 // Basic test to render the Calendar component with expected data
 test('renders Calendar component', () => {
-    const mockDate = new Date('2024-11-24T00:00:00'); // Test date
 
     render(
         <Calendar
@@ -259,7 +250,7 @@ test('renders Calendar component', () => {
             assignments={mockAssignments}
             todos={mockTodos}
             type="day"
-            date={mockDate}
+            date={date}
         />
     );
 
@@ -268,7 +259,7 @@ test('renders Calendar component', () => {
 
     // Check if the hour 9:00 AM is displayed
     expect(screen.getByText('9:00')).toBeTruthy();
-
+    expect(screen.findByTestId('testID="current-time-line')).toBeTruthy();
     expect(screen.getByText('Assignment 1')).toBeTruthy();
     expect(screen.getByText('Assignments Due Today:')).toBeTruthy();
 });
