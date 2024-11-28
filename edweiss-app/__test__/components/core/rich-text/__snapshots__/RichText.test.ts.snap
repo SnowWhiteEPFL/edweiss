@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RichText should parse code and comments correctly 1`] = `
+"
+			<div style="
+				padding: 10px;
+				padding-top: 10px;
+				margin: 10px;
+				border-radius: 8px;
+				position: relative;
+				font-family: Fira Code;
+				background-color: #dce0e8;
+				"><div style="position: absolute; right: 8px; top: 4px; font-size: 14px; color: #9ca0b0">typescript</div>
+	<div style="display: flex">
+		<div style="color: #bcc0cc; margin-right: 16px">
+			<div style="text-align: end">1</div><div style="text-align: end">2</div><div style="text-align: end">3</div><div style="text-align: end">4</div><div style="text-align: end">5</div><div style="text-align: end">6</div><div style="text-align: end">7</div><div style="text-align: end">8</div>
+		</div>
+		<div style="white-space: pre; overflow: scroll"><span style="color: #9ca0b0">// the comment is well rendered</span><br/><span style="color: #9ca0b0">/*<br/>multiline comments<br/>*/</span><br/><span style="color: #8839ef">let</span> <span style="color: #d20f39">a</span> = <span style="color: #fe640b">15</span>;<br/><span style="color: #8839ef">class</span> <span style="color: #d20f39">Important</span> {<br/>  <span style="color: #d20f39">export</span> <span style="color: #8839ef">const</span> <span style="color: #d20f39">msg</span> = <span style="color: #40a02b">"hi mom"</span>;<br/>}</div>
+	</div>
+	</div>
+			
+			<div style="
+				padding: 10px;
+				padding-top: 10px;
+				margin: 10px;
+				border-radius: 8px;
+				position: relative;
+				font-family: Fira Code;
+				background-color: #dce0e8;
+				"><div style="position: absolute; right: 8px; top: 4px; font-size: 14px; color: #9ca0b0">rust</div>
+	<div style="display: flex">
+		<div style="color: #bcc0cc; margin-right: 16px">
+			<div style="text-align: end">1</div><div style="text-align: end">2</div><div style="text-align: end">3</div>
+		</div>
+		<div style="white-space: pre; overflow: scroll"><span style="color: #8839ef">fn</span> <span style="color: #1e66f5">why_love_rust</span>() {<br/>  <span style="color: #1e66f5">println!</span>(<span style="color: #40a02b">"Because Rust is best"</span>);<br/>}</div>
+	</div>
+	</div>
+			"
+`;
+
+exports[`RichText should parse code correctly 1`] = `
+"
+			<div style="
+				padding: 10px;
+				padding-top: 10px;
+				margin: 10px;
+				border-radius: 8px;
+				position: relative;
+				font-family: Fira Code;
+				background-color: #dce0e8;
+				"><div style="position: absolute; right: 8px; top: 4px; font-size: 14px; color: #9ca0b0">typescript</div>
+	<div style="display: flex">
+		<div style="color: #bcc0cc; margin-right: 16px">
+			<div style="text-align: end">1</div>
+		</div>
+		<div style="white-space: pre; overflow: scroll">      <span style="color: #8839ef">let</span> <span style="color: #d20f39">a</span> = <span style="color: #fe640b">15</span>;</div>
+	</div>
+	</div>
+			"
+`;
+
+exports[`RichText should parse correctly 2 1`] = `"<div style="font-family: Times New Roman; background-color: #00000033">let a = 15;<br/></div>"`;
