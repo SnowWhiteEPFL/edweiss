@@ -40,14 +40,16 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
             console.error("Error creating question:", error);
         }
         setQuestion('');
+        setIsLoading(false);
     }
 
     return (
         <>
             {/* Display existing questions */}
-            {questionsDoc?.map((qDoc, index) =>
+            {questionsDoc ? questionsDoc.map((qDoc, index) =>
                 renderQuestion(qDoc?.data.text, index)
-            )}
+            ) :
+                <TText>No questions available</TText>}
 
             {/* Input for new question */}
             <TView>
@@ -67,7 +69,6 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                         if (!isLoading) {
                             addQuestion(question);
                             setIsLoading(true);
-                            setTimeout(() => setIsLoading(false), 1000);
                         }
                     }}
                     pl="md"

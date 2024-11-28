@@ -64,12 +64,19 @@ const LectureScreen: ApplicationRoute = () => {
 
     // Load images when the component mounts
     useEffect(() => {
-        if (lectureDoc) {
+        if (lectureDoc?.data.pdfUri) {
             getUri();
         }
     }, [lectureDoc]);
 
+
+    // Landscape display for the screen
+    const setLandscape = async () => {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+    };
+
     useEffect(() => {
+        setLandscape();
         ScreenOrientation.unlockAsync();
         const onOrientationChange = (currentOrientation: ScreenOrientation.OrientationChangeEvent) => {
             const orientationValue = currentOrientation.orientationInfo.orientation;
@@ -84,29 +91,21 @@ const LectureScreen: ApplicationRoute = () => {
         };
     }, []);
 
-    // Sync current page after swipe
-    useEffect(() => {
-        if (currentPage !== page) {
-            const timer = setTimeout(() => setPage(currentPage), 300); // Delay update to avoid glitching
-            return () => clearTimeout(timer);
-        }
-    }, [currentPage]);
-
-    if (!lectureDoc) return <TActivityIndicator size={40} />;
+    if (!lectureDoc) return <TActivityIndicator size={40} testID='activity-indicator' />;
     const currentLecture = lectureDoc.data;
 
     // Function to go to the next page
     function pageForward() {
-        if (page < numPages) {
-            setPage(page + 1);
-            setCurrentPage(page + 1);
+        if (currentPage < numPages) {
+            setPage(currentPage + 1);
+            setCurrentPage(currentPage + 1);
         }
     }
     // Function to go to the previous page
     const pageBack = () => {
-        if (page > 1) {
-            setPage(page - 1);
-            setCurrentPage(page - 1);
+        if (currentPage > 1) {
+            setPage(currentPage - 1);
+            setCurrentPage(currentPage - 1);
         }
     };
 
@@ -122,11 +121,6 @@ const LectureScreen: ApplicationRoute = () => {
         } catch (error) {
             console.error('Error loading PDF URL:', error);
         }
-    };
-
-    // Landscape display for the screen
-    const setLandscape = async () => {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     };
 
     const PDFViewer = (uri: string, widthPorp: number, heightProp: number) => (
@@ -157,19 +151,19 @@ const LectureScreen: ApplicationRoute = () => {
                     <Icon size={'xl'} name='arrow-back-circle-outline' color='text'></Icon>
                 </TTouchableOpacity>
 
+                <TText>{currentPage}/{numPages}</TText>
+
                 <TTouchableOpacity backgroundColor='transparent' onPress={pageForward} pl={'md'}>
                     <Icon size={'xl'} name='arrow-forward-circle-outline' color='text'></Icon>
                 </TTouchableOpacity>
             </TView>
-
-            <TText>{currentPage}/{numPages}</TText>
 
             <TTouchableOpacity backgroundColor='transparent' onPress={() => {
                 !isLandscape && setLandscape();
                 isLandscape && ScreenOrientation.unlockAsync();
                 setIsFullscreen(!isFullscreen);
             }}>
-                <Icon size={'xl'} name={isFullscreen ? 'contract-outline' : 'expand-outline'} dark='text'></Icon>
+                <Icon size={'xl'} name={isFullscreen ? 'contract-outline' : 'expand-outline'} dark='text' testID='fullscreen-toggle'></Icon>
             </TTouchableOpacity>
         </TView >
     );
@@ -177,8 +171,8 @@ const LectureScreen: ApplicationRoute = () => {
     const ContentView = (widthPercent: string, heightPercent: string) => (
         <TView flexDirection='column' mr={'xl'} style={{ width: widthPercent as DimensionValue, height: heightPercent as DimensionValue }}>
             <TScrollView b={'sm'} mt={25} mr={'md'} ml={'md'} radius={'lg'} flex={1}>
-                {currentLecture.audioTranscript?.[page] ? (
-                    <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[page]}</TText>
+                {currentLecture.audioTranscript?.[currentPage] ? (
+                    <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[currentPage]}</TText>
                 ) : (
                     <TText pt={'sm'} pl={'sm'} pr={'sm'} color='overlay0'>
                         {t(`showtime:lecturer_transcript_deftxt`)}
