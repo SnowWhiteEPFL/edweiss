@@ -18,7 +18,7 @@ import AssignmentDisplay, { AssignmentWithColor } from '@/components/courses/Ass
 import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { iconSizes } from '@/constants/Sizes';
-import { useLocalSearchParams } from 'expo-router';
+import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
 import React from 'react';
 
 
@@ -31,9 +31,12 @@ export const testIDs = {
     noArchive: 'no-archive',
 };
 
-// ------------------------------------------------------------
-// -------------------  The Archive screen   ------------------
-// ------------------------------------------------------------
+export const ArchiveRouteSignature: ApplicationRouteSignature<{
+    id: string,
+    assignments: AssignmentWithColor[]
+}> = {
+    path: `/courses/[id]/archive`
+}
 
 /**
  * ArchiveScreen Component
@@ -46,31 +49,12 @@ export const testIDs = {
  * @returns JSX.Element - The rendered component for the previous assignments page.
  */
 const ArchiveScreen: ApplicationRoute = () => {
-    const { rawAssignments } = useLocalSearchParams();
 
-    let assignments: AssignmentWithColor[] = [];
-
-    if (typeof rawAssignments === 'string') {
-        try {
-            assignments = JSON.parse(rawAssignments);
-            assignments.forEach((assignment: AssignmentWithColor) => {
-                assignment.dueDate = {
-                    seconds: assignment.dueDate.seconds,
-                    nanoseconds: assignment.dueDate.nanoseconds,
-                };
-            });
-        } catch (error) {
-            console.error('Failed to parse rawAssignments: ', error);
-            assignments = [];
-        }
-    } else {
-        console.error('Invalid rawAssignments (not a string): ', rawAssignments);
-        assignments = [];
-    }
+    const { assignments } = useRouteParameters(ArchiveRouteSignature);
 
     return (
         <>
-            <RouteHeader title={t(`course:previous_assignment_title`)} align="center" isBold={false} />
+            <RouteHeader title={t(`course:previous_assignment_title`)} align="center" />
 
             <TScrollView testID={testIDs.archiveScrollView} backgroundColor='mantle' flex={1} p={16}>
 
@@ -78,7 +62,7 @@ const ArchiveScreen: ApplicationRoute = () => {
                     {/* // Icon */}
                     <Icon testID={testIDs.archiveIcon} name='archive' size={iconSizes.xl} color='darkBlue' />
                     {/* // Assignment name */}
-                    <TText testID={testIDs.archiveTitle} size={18} bold={true} color='darkBlue' ml='sm'>{t(`course:archived_assignments`)}</TText>
+                    <TText testID={testIDs.archiveTitle} size={18} bold color='darkBlue' ml='sm'>{t(`course:archived_assignments`)}</TText>
                 </TTouchableOpacity>
 
                 {/* Liste des assignments avec map */}
