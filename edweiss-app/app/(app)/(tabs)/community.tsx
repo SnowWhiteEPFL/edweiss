@@ -2,12 +2,8 @@ import TText from '@/components/core/TText';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
-import { callFunction } from '@/config/firebase';
 import { ApplicationRoute } from '@/constants/Component';
-import Experiments from '@/model/experiments';
 import { router } from 'expo-router';
-import { useState } from 'react';
-
 
 const CommunityTab: ApplicationRoute = () => {
 	return (
@@ -20,11 +16,11 @@ const CommunityTab: ApplicationRoute = () => {
 				</TText>
 			</TView>
 
-			<FancyButton mt={10} mb={10} onPress={() => router.push("deck" as any)} backgroundColor='pink'>
+			<FancyButton mt={10} mb={10} onPress={() => router.push("/deck")} backgroundColor='pink'>
 				Memento App
-			</FancyButton >
+			</FancyButton>
 
-			<FancyButton mt={'md'} mb={'md'} onPress={() => router.push(`/(app)/todo` as any)}>
+			<FancyButton mt={'md'} mb={'md'} onPress={() => router.push(`/(app)/todo`)}>
 				My Todos
 			</FancyButton>
 		</>

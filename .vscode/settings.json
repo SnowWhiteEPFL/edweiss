@@ -19,4 +19,9 @@
 	"javascript.preferences.quoteStyle": "single",
 	// "javascript.format.semicolons": "insert",
 	"javascript.format.insertSpaceAfterSemicolonInForStatements": true,
+	"files.watcherExclude": {
+		"**/target": true
+	},
+	
+	"editor.detectIndentation": true
 }

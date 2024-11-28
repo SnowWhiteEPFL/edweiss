@@ -1,8 +1,8 @@
 import LectureScreen from '@/app/(app)/lectures/slides/index';
 import TView from '@/components/core/containers/TView';
-import { callFunction } from '@/config/firebase';
+import { callFunction, getDownloadURL } from '@/config/firebase';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import React from 'react';
 import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
@@ -25,6 +25,8 @@ jest.mock('@/config/i18config', () => ({
     __esModule: true,
     default: jest.fn((key) => key),
 }));
+
+jest.mock('@/hooks/useListenToMessages', () => jest.fn());
 
 // Expo router
 jest.mock('expo-router', () => ({
@@ -76,6 +78,7 @@ jest.mock('@react-native-firebase/storage', () => ({
 jest.mock('@/config/firebase', () => ({
     callFunction: jest.fn(),
     CollectionOf: jest.fn((path: string) => `MockedCollection(${path})`), // Mocking CollectionOf to return a simple string or mock object
+    getDownloadURL: jest.fn(),
 }));
 
 jest.mock('@/hooks/firebase/firestore', () => ({
@@ -209,12 +212,57 @@ describe('LectureScreen Component', () => {
         (useDynamicDocs as jest.Mock).mockReturnValue(mockQuestionData); // Mocking `useDynamicDocs` with minimal question data
     });
 
+    it('updates UI when new questions are added dynamically', () => {
+        // Verifies that the component re-renders when new question data is added dynamically
+        const { rerender } = render(<LectureScreen />);
+        (useDynamicDocs as jest.Mock).mockReturnValueOnce([...mockQuestionData, { id: '2', data: { text: 'New Question' } }]);
+        rerender(<LectureScreen />);
+        expect(screen.getByText('New Question')).toBeTruthy();
+    });
+
+    it('calls setLandscape on mount', async () => {
+        // Ensures that the screen is locked in landscape mode when the component mounts
+        const mockLockAsync = jest.spyOn(ScreenOrientation, 'lockAsync');
+        render(<LectureScreen />);
+        expect(mockLockAsync).toHaveBeenCalledWith(ScreenOrientation.OrientationLock.LANDSCAPE);
+    });
+
+    it('adds and removes the orientation change listener', () => {
+        // Checks that orientation change listeners are added on mount and removed on unmount
+        const mockAddListener = jest.spyOn(ScreenOrientation, 'addOrientationChangeListener');
+        const mockRemoveListener = jest.spyOn(ScreenOrientation, 'removeOrientationChangeListener');
+
+        const { unmount } = render(<LectureScreen />);
+        expect(mockAddListener).toHaveBeenCalled();
+
+        unmount();
+        expect(mockRemoveListener).toHaveBeenCalled();
+    });
+
+    it('displays loader if lectureDoc is not loaded', () => {
+        // Verifies that a loader is displayed when the lecture document data is unavailable
+        (usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([null]);
+        render(<LectureScreen />);
+        expect(screen.getByTestId('activity-indicator')).toBeTruthy();
+    });
+
+    it('handles errors in getUri gracefully', async () => {
+        // Ensures that the component logs an error gracefully when fetching the PDF URI fails
+        console.error = jest.fn();
+        (getDownloadURL as jest.Mock).mockRejectedValue(new Error('Error loading PDF URL'));
+
+        render(<LectureScreen />);
+        await waitFor(() => expect(console.error).toHaveBeenCalledWith('Error loading PDF URL:', expect.any(Error)));
+    });
+
     it('displays default transcript text if audio transcript is missing', () => {
+        // Checks that the default transcript text is displayed when no transcript data is available
         render(<LectureScreen />);
         expect(screen.getByText('showtime:lecturer_transcript_deftxt')).toBeTruthy();
     });
 
     it('allows navigation to the next PDF page', async () => {
+        // Ensures the "next page" navigation button for the PDF works correctly
         render(<LectureScreen />);
         const nextPageButton = screen.getByLabelText('arrow-forward-circle-outline');
         fireEvent.press(nextPageButton);
@@ -222,6 +270,7 @@ describe('LectureScreen Component', () => {
     });
 
     it('allows navigation to the previous PDF page', async () => {
+        // Ensures the "previous page" navigation button for the PDF works correctly
         render(<LectureScreen />);
         const prevPageButton = screen.getByLabelText('arrow-back-circle-outline');
         fireEvent.press(prevPageButton);
@@ -229,11 +278,13 @@ describe('LectureScreen Component', () => {
     });
 
     it('displays an input field for adding new questions', () => {
+        // Verifies the presence of an input field for submitting questions
         render(<LectureScreen />);
         expect(screen.getByPlaceholderText('Got something on your mind? Type away!')).toBeTruthy();
     });
 
     it('calls add question function with correct parameters on question submission', async () => {
+        // Ensures the correct function is called with expected parameters when submitting a new question
         render(<LectureScreen />);
         const questionInput = screen.getByPlaceholderText('Got something on your mind? Type away!');
         const sendButton = screen.getByLabelText('send-outline');
@@ -241,7 +292,6 @@ describe('LectureScreen Component', () => {
         fireEvent.changeText(questionInput, 'New Question');
         fireEvent.press(sendButton);
 
-        // Adjusting the expected call to match the actual structure of the function call
         expect(callFunction).toHaveBeenCalledWith(
             {
                 exportedName: 'lectures_createQuestion',
@@ -250,24 +300,27 @@ describe('LectureScreen Component', () => {
             },
             {
                 courseId: 'testCourse',
-                lectureId: 'testLectureId',  // Ensure this is correct
+                lectureId: 'testLectureId',
                 question: 'New Question',
             }
         );
     });
 
     it('toggles fullscreen mode and orientation on expand/contract icon press', () => {
+        // Tests that the component toggles fullscreen mode and orientation when the expand/contract button is pressed
         render(<LectureScreen />);
-        const fullscreenToggleButton = screen.getByLabelText('expand-outline');
+        const fullscreenToggleButton1 = screen.getByLabelText('expand-outline');
 
-        fireEvent.press(fullscreenToggleButton);
+        fireEvent.press(fullscreenToggleButton1);
         expect(ScreenOrientation.lockAsync).toHaveBeenCalledWith(ScreenOrientation.OrientationLock.LANDSCAPE);
 
-        fireEvent.press(fullscreenToggleButton);
+        const fullscreenToggleButton2 = screen.getByLabelText('contract-outline');
+        fireEvent.press(fullscreenToggleButton2);
         expect(ScreenOrientation.unlockAsync).toHaveBeenCalled();
     });
 
     it('switches to landscape mode when setLandscape function is triggered', () => {
+        // Ensures the screen orientation switches to landscape mode when requested
         render(<LectureScreen />);
         const expandButton = screen.getByLabelText('expand-outline');
 
