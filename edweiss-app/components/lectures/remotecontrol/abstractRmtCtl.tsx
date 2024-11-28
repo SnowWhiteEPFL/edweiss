@@ -62,14 +62,14 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                             backgroundColor='crust'
                             borderColor='text' p={10} b={1} ml={'md'} radius={1000}
                             onPress={() => modalRefLangSelect.current?.present()}
-                            testID='strc-setting-button'>
+                            testID='strc-lang-button'>
                             <Icon size={40} name='language-outline' color='text'></Icon>
                         </TTouchableOpacity>
 
                         <TView flex={1}></TView>
 
-                        <TTouchableOpacity backgroundColor='mantle' borderColor='text' b={1} radius={'lg'} mr={'md'}>
-                            <TText size={50} p={'md'} pb={'sm'}>0:00:00</TText>
+                        <TTouchableOpacity backgroundColor='mantle' borderColor='text' b={1} radius={'lg'} mr={'md'} testID='timer-but'>
+                            <TText size={50} p={'md'} pb={'sm'} testID='timer-txt'>0:00:00</TText>
                         </TTouchableOpacity>
 
                     </TView>
@@ -111,7 +111,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                                 text1: 'The Go to Page',
                                 text2: 'Implementation comes soon'
                             })}
-                            testID='strc-setting-button'>
+                            testID='strc-go-to-button'>
                             <Icon size={40} name='rocket-outline' color='text'></Icon>
                         </TTouchableOpacity>
 
@@ -125,7 +125,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                                 text1: 'The Available activities',
                                 text2: 'Implementation comes soon'
                             })}
-                            testID='strc-chat-button'>
+                            testID='strc-activity-button'>
                             <Icon size={40} name='easel-outline' color='text'></Icon>
                         </TTouchableOpacity>
 
