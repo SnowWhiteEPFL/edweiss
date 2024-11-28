@@ -158,7 +158,7 @@ export const handleMic = function (
 // ------------------------------------------------------------
 
 export const langIconMap: Record<AvailableLangs, string> = {
-    "english": "🇺🇸",
+    "english": "🇬🇧",
     "french": "🇫🇷",
     "spanish": "🇪🇸",
     "italian": "🇮🇹",
