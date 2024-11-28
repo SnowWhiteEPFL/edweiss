@@ -42,6 +42,7 @@ export const updateSlideAudioRecording = function (
                 transcription: talked
             });
         } catch (error) {
+            console.log("MON ERROR")
             console.error("Error adding audio transcript:", error);
         }
 
@@ -181,4 +182,17 @@ export const langNameMap: Record<AvailableLangs, string> = {
     "chinese": "中文",
     "vietanames": "Tiếng Việt",
     "hindi": "हिन्दी"
+};
+
+export const langCodeMap: Record<AvailableLangs, string> = {
+    "english": "en-US",
+    "french": "fr-FR",
+    "spanish": "es-ES",
+    "italian": "it-IT",
+    "german": "de-DE",
+    "brazilian": "pt-BR",
+    "arabic": "ar-SA",
+    "chinese": "zh-CN",
+    "vietanames": "vi-VN",
+    "hindi": "hi-IN"
 };

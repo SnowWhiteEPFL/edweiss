@@ -19,12 +19,12 @@ import { LightDarkProps } from '@/constants/Colors';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { langIconMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import Toast from 'react-native-toast-message';
 import LangSelectModal from './modal';
 
 // types
-import AvailableLangs = LectureDisplay.AvailableLangs;
+type AvailableLangs = LectureDisplay.AvailableLangs;
 
 
 
@@ -37,11 +37,14 @@ interface AbstractRmtCrlProps {
     handleLeft: () => void;
     handleMic: () => void;
     isRecording: boolean;
+    lang: AvailableLangs;
+    setLang: (lang: AvailableLangs) => void;
+
 }
 
-export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, isRecording }) => {
+export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, isRecording, lang, setLang }) => {
 
-    const [lang, setLang] = useState<AvailableLangs>('english');
+
     const modalRefLangSelect = useRef<BottomSheetModal>(null);
 
     return (
