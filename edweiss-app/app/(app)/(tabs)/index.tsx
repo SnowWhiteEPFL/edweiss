@@ -109,12 +109,11 @@ const CourseDisplay: ReactComponent<{ course: Document<Course> }> = ({ course })
 			<TText>
 				{course.data.name}
 			</TText>
-			<For each={assignments}>
+			<For each={assignments?.length ?? 0 > 0 ? assignments : undefined}
+				fallback={<TText size={'sm'} color='overlay1'>{t("home:no_assignments")}</TText>}
+			>
 				{assignment => <AssignmentDisplay key={assignment.id} assignment={assignment} />}
 			</For>
-			<TText size={'sm'} color='overlay1'>
-				{t("home:no_assignments")}
-			</TText>
 		</TTouchableOpacity>
 		// <TTouchableOpacity onPress={() => router.push(`/courses/${course.id}`)} radius={'md'} flexDirection='row' p={5} borderColor='overlay2' backgroundColor='surface0' mb={8} >
 		// 	<TView flexDirection='column'>

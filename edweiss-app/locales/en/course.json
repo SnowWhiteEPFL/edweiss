@@ -12,5 +12,32 @@
     "show_future_materials": "Show future materials",
 
     "archived_assignments": "Archived Assignments",
-    "no_past_assignment": "No past assignments for the moment"
+    "no_past_assignment": "No past assignments for the moment",
+
+    "add_assignment": "Add Assignment",
+    "add_assignment_title": "Enter the details for the new assignment",
+    "name_label": "Name",
+    "name_placeholder": "Weekly Assignment",
+    "type_label": "Type",
+    "type_placeholder": "Quiz",
+    "due_date_label": "Due Date",
+    "due_time_label": "Due Time",
+    "upload_assignment": "Upload Assignment",
+
+    "add_material": "Add Material",
+    "add_material_title": "Enter the details for the new material",
+    "material_title_label": "Title",
+    "material_title_placeholder": "Week number",
+    "material_description_label": "Description",
+    "material_description_placeholder": "This week's slides",
+    "from_date_label": "From Date",
+    "from_time_label": "From Time",
+    "to_date_label": "To Date",
+    "to_time_label": "To Time",
+    "upload_material": "Upload Material",
+
+    "course_params": "Course Parameters",
+    "course_params_title": "Enter/Edit the details for the course",
+
+    "credits_label": "Credits"
 }

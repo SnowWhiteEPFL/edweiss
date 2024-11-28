@@ -1,7 +1,7 @@
 import ReactComponent from '@/constants/Component';
 
 import { Color } from '@/constants/Colors';
-import { MarginProps, computeMargins } from '@/constants/Sizes';
+import { MarginProps, Size, computeMargins } from '@/constants/Sizes';
 import { ContainerStyle, IconType } from '@/constants/Style';
 import { Testable } from '@/constants/Tests';
 import { ReactNode } from 'react';
@@ -16,6 +16,8 @@ type FancyButtonProps = MarginProps & Testable & {
 	style?: ContainerStyle,
 	icon?: IconType,
 	outlined?: boolean;
+	radius?: Size;
+	px?: Size;
 
 	onPress?(): void,
 	children?: ReactNode,
@@ -25,14 +27,14 @@ type FancyButtonProps = MarginProps & Testable & {
 
 };
 
-const FancyButton: ReactComponent<FancyButtonProps> = ({ backgroundColor = 'blue', textColor = 'crust', outlined, loading, ...props }) => {
+const FancyButton: ReactComponent<FancyButtonProps> = ({ backgroundColor = 'blue', textColor = 'crust', radius = 'xl', px = 20, outlined, loading, ...props }) => {
 	const computedBackgroundColor = outlined ? 'transparent' : backgroundColor;
 	const computedTextColor = outlined ? backgroundColor : textColor;
 	const computedBorderWidth = 1;
 
 	return (
 
-		<TTouchableOpacity onPress={props.onPress} disabled={loading || props.disabled} activeOpacity={props.activeOpacity} backgroundColor={computedBackgroundColor} borderColor={backgroundColor} flexDirection='row' justifyContent='center' flexColumnGap={'md'} alignItems='center' radius={'xl'} pt={12} pb={12} b={computedBorderWidth} style={[computeMargins({ mx: "md", ...props }), props.style]} testID={props.testID}>
+		<TTouchableOpacity onPress={props.onPress} disabled={loading || props.disabled} activeOpacity={props.activeOpacity} backgroundColor={computedBackgroundColor} borderColor={backgroundColor} flexDirection='row' justifyContent='center' flexColumnGap={'md'} alignItems='center' radius={radius} pt={12} pb={12} px={px} b={computedBorderWidth} style={[computeMargins({ mx: "md", ...props }), props.style]} testID={props.testID}>
 
 			{
 				loading ?
