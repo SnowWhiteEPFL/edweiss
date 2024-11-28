@@ -16,7 +16,7 @@ import FancyTextInput from '../input/FancyTextInput';
 
 
 // Icons
-const nameIcon = 'text';
+const nameIcon = 'text-outline';
 const descriptionIcon = 'create-outline';
 
 // Tests Tags
@@ -64,7 +64,6 @@ const CourseParameters: ReactComponent<SelectActionsAnimatedProps> = ({ course, 
         { section: "GC", color: "pink" },
         { section: "SIE", color: "mauve" }
     ];
-    // mr={'md'} ml={'md'} mt={'sm'} mb={'sm'}
 
     return (
         <TView flex={1} p={20} backgroundColor='mantle'>
