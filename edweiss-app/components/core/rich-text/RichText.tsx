@@ -4,7 +4,6 @@ import { MarginProps, PaddingProps, PredefinedSizes, Size, computeBoxModelSize, 
 import useTheme from '@/hooks/theme/useTheme';
 import { useColor, useOptionalColor } from '@/hooks/theme/useThemeColor';
 import React, { useMemo } from 'react';
-import sanitizeHtml from 'sanitize-html';
 import WebViewMathJaxWrapper from './WebViewMathJaxWrapper';
 
 interface RichTextOptions {
@@ -93,7 +92,10 @@ type LanguageSpecification = {
 	keywords: string[],
 	nextSpecialKeyword?: string[],
 	specialWords?: string[],
-	commentStyle: '/' | '#';
+	commentStyle: '/' | '#',
+	patternExtend?: {
+		identifierContinue?: string
+	}
 }
 
 const LanguagesSpecs: Record<string, LanguageSpecification | undefined> = {
@@ -165,6 +167,28 @@ const LanguagesSpecs: Record<string, LanguageSpecification | undefined> = {
 		nextSpecialKeyword: ["class"],
 		specialWords: ["String", "System", "Object"],
 		commentStyle: '/'
+	},
+	rust: {
+		keywords: [
+			"as", "break", "const", "continue", "crate",
+			"else", "enum", "extern", "false", "fn",
+			"for", "if", "impl", "in", "let", "loop",
+			"match", "mod", "move", "mut", "pub", "ref",
+			"return", "self", "Self", "static", "struct",
+			"super", "trait", "true", "type", "unsafe",
+			"use", "where", "while",
+
+			"bool", "char", "str",
+			"u8", "u16", "u32", "u64", "u128",
+			"i8", "i16", "i32", "i64", "i128",
+			"f32", "f64"
+		],
+		nextSpecialKeyword: ["struct", "trait", "type"],
+		specialWords: ["Option", "Either", "Result", "std", "String"],
+		commentStyle: '/',
+		patternExtend: {
+			identifierContinue: "!" // for macros
+		}
 	}
 }
 
@@ -176,8 +200,10 @@ namespace Patterns {
 	export const IdentifierContinue = IdentifierStart + Numbers;
 	export const StringStart = "\"'`";
 
-	export function is(char: string, pattern: string) {
-		return pattern.includes(char);
+	export function is(char: string, pattern: string, extension?: string | undefined) {
+		if (extension == undefined)
+			return pattern.includes(char);
+		return (pattern + extension).includes(char);
 	}
 }
 
@@ -236,7 +262,7 @@ function syntaxHighlight(language: string, code: string, theme: Theme): string {
 			let identifier = char;
 			for (charIndex++; charIndex < code.length; charIndex++) {
 				const identifierChar = code[charIndex];
-				if (!Patterns.is(identifierChar, Patterns.IdentifierContinue)) {
+				if (!Patterns.is(identifierChar, Patterns.IdentifierContinue, spec?.patternExtend?.identifierContinue)) {
 					charIndex--;
 					break;
 				}
@@ -361,9 +387,10 @@ function headerLevel(line: string, level: number) {
 }
 
 export function richTextToHTML(rawText: string, theme: Theme, options?: RichTextOptions): string {
-	const text = sanitizeHtml(rawText, {
-		allowedTags: [] // no tags allowed so no script injection attacks are permitted
-	}).trim();
+	// const text = sanitizeHtml(rawText, {
+	// 	allowVulnerableTags: false
+	// }).trim();
+	const text = rawText.trim();
 
 	const lines = text.split("\n");
 
