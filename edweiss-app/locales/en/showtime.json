@@ -3,6 +3,8 @@
     "recording_start" : "•  Recording ...",
     "showtime_title" : "The Showtime! Remote Control",
     "rmt_cntl_title" : "Remote Control",
+    "rmt_cntl_setting_title": "Remote Control Settings",
+    "rmt_cntl_lang_section": "Language Selection",
 
     "lecturer_transcript_deftxt" : "Lecturer’s transcript... currently in invisible ink!",
     

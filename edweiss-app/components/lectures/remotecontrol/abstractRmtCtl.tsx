@@ -16,7 +16,9 @@ import Icon from '@/components/core/Icon';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { LightDarkProps } from '@/constants/Colors';
+import { router } from 'expo-router';
 import React from 'react';
+import Toast from 'react-native-toast-message';
 
 
 
@@ -36,13 +38,17 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
             <RouteHeader disabled title={"Lecture's Slides"} />
 
             <TView borderColor='text' m={'md'} mt={'xl'} mb={'xl'} b={0.5} backgroundColor='base' radius={'lg'}>
-                <TView mt={20} mb={50} justifyContent='center' alignItems='center'>
+
+                {/* STRC text and timer */}
+                <TView mt={17} mb={50} justifyContent='center' alignItems='center'>
                     <TText size={18} mb={'md'}> {t(`showtime:showtime_title`)}</TText>
                     <TTouchableOpacity mt={20} backgroundColor='mantle' radius={'lg'}>
                         <TText size={50} p={'md'} pb={'sm'}>0:00:00</TText>
                     </TTouchableOpacity>
                 </TView>
 
+
+                {/* Prev / Next navigation buttons */}
                 <TView mr={20} ml={20} flexDirection='row' justifyContent='space-between'>
                     <TTouchableOpacity backgroundColor='surface0' borderColor='surface0' b={1} p={20} pt={60} pb={60} radius={'lg'} onPress={handleLeft} testID='prev-button'>
                         <Icon size={85} name='chevron-back-outline' color='text'></Icon>
@@ -52,7 +58,9 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                     </TTouchableOpacity>
                 </TView>
 
+
                 <TView mt={20} mb={10} justifyContent='center' alignItems='center'>
+                    {/* Recording button and text  */}
                     <TTouchableOpacity backgroundColor={isRecording ? 'red' : 'base'} borderColor={isRecording ? 'base' : 'red'} b={5} p={10} radius={1000} onPress={handleMic} testID='mic-button'>
                         <Icon size={55} name='mic-outline' color={isRecording ? 'base' : 'red'}></Icon>
                     </TTouchableOpacity>
@@ -63,12 +71,42 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                         <TText mt={25} size={15} color='green'> {t(`showtime:tap_to_start_recording`)} </TText>
                     )}
 
-                    <TView mt={10} flexDirection='row' justifyContent='space-between' >
-                        <TTouchableOpacity backgroundColor='crust' borderColor='base' p={7} mt={0} radius={1000} onPress={() => console.log('SETTING')} testID='strc-setting-button'>
+
+                    {/* End buttons for settigs, activities and audiance questions */}
+                    <TView mt={15} alignItems='center' flexDirection='row' justifyContent='space-between'>
+                        <TTouchableOpacity
+                            backgroundColor='crust'
+                            borderColor='base' p={7} ml={'md'} radius={1000}
+                            onPress={() => router.push('/(app)/lectures/remotecontrol/settings' as any)}
+                            testID='strc-setting-button'>
                             <Icon size={45} name='settings-outline' color='text'></Icon>
                         </TTouchableOpacity>
 
-                        <TTouchableOpacity backgroundColor='crust' borderColor='base' p={7} radius={1000} onPress={() => console.log('SETTING')} testID='strc-chat-button'>
+                        <TView flex={1}></TView>
+
+                        <TTouchableOpacity
+                            backgroundColor='crust'
+                            borderColor='base' p={7} mr={'md'} radius={1000}
+                            onPress={() => Toast.show({
+                                type: 'success',
+                                text1: 'The Available activities',
+                                text2: 'Implementation comes soon'
+                            })}
+                            testID='strc-chat-button'>
+                            <Icon size={45} name='easel-outline' color='text'></Icon>
+                        </TTouchableOpacity>
+
+                        <TView flex={1}></TView>
+
+                        <TTouchableOpacity
+                            backgroundColor='crust'
+                            borderColor='base' p={7} mr={'md'} radius={1000}
+                            onPress={() => Toast.show({
+                                type: 'success',
+                                text1: 'The Audiance  Questions',
+                                text2: 'Implementation comes soon'
+                            })}
+                            testID='strc-chat-button'>
                             <Icon size={45} name='chatbubbles-outline' color='text'></Icon>
                         </TTouchableOpacity>
 
