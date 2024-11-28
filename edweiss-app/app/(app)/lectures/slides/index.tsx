@@ -96,25 +96,15 @@ const LectureScreen: ApplicationRoute = () => {
 
     // Function to go to the next page
     function pageForward() {
-        if (currentPage < numPages) {
-            setPage(currentPage + 1);
-            setCurrentPage(currentPage + 1);
-        }
+        if (currentPage < numPages) { setPage(currentPage + 1); setCurrentPage(currentPage + 1); }
     }
     // Function to go to the previous page
     const pageBack = () => {
-        if (currentPage > 1) {
-            setPage(currentPage - 1);
-            setCurrentPage(currentPage - 1);
-        }
+        if (currentPage > 1) { setPage(currentPage - 1); setCurrentPage(currentPage - 1); }
     };
 
     // Funtion to set Uri to the desired one from firebase storage
     const getUri = async () => {
-        if (!currentLecture.pdfUri) {
-            console.error('PDF URI not found!');
-            return;
-        }
         try {
             const url = await getDownloadURL(currentLecture.pdfUri);
             setUri(url);
