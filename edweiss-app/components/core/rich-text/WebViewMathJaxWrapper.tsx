@@ -29,7 +29,14 @@ const WebViewMathJaxWrapper: ReactComponent<WebViewJaxWrapperProps> = (props) =>
 
 	const html = useMemo(() => `
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-		${props.disableMathJax ? props.source : `
+		${props.disableMathJax ? `
+			<script type="text/javascript">
+				setTimeout(() => {
+					window.ReactNativeWebView.postMessage(String(document.documentElement.scrollHeight));
+				}, 16);
+			</script>
+			<div id="jax-content">${props.source}</div>
+		` : `
 			<script type="text/x-mathjax-config">
 				MathJax.Hub.Config(${mathjaxConfigPayload});
 				MathJax.Hub.Queue(() => {
