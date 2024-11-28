@@ -4,6 +4,7 @@ import { MarginProps, PaddingProps, PredefinedSizes, Size, computeBoxModelSize, 
 import useTheme from '@/hooks/theme/useTheme';
 import { useColor, useOptionalColor } from '@/hooks/theme/useThemeColor';
 import React, { useMemo } from 'react';
+import sanitizeHtml from 'sanitize-html';
 import WebViewMathJaxWrapper from './WebViewMathJaxWrapper';
 
 interface RichTextOptions {
@@ -189,6 +190,20 @@ const LanguagesSpecs: Record<string, LanguageSpecification | undefined> = {
 		patternExtend: {
 			identifierContinue: "!" // for macros
 		}
+	},
+	fox: {
+		keywords: [
+			"echo", "let", "mut", "fn",
+			"if", "else", "for", "in", "while", "do", "switch", "case", "match",
+			"library", "import", "as",
+			"return", "break", "continue", "assert",
+			"true", "false",
+			"int", "float", "double", "char", "short", "byte", "long", "boolean", "string",
+			"pub", "object", "class", "enum", "trait", "extends", "this",
+			"nil"
+		],
+		nextSpecialKeyword: ["library", "class", "enum", "trait", "object"],
+		commentStyle: '/'
 	}
 }
 
@@ -444,6 +459,10 @@ export function richTextToHTML(rawText: string, theme: Theme, options?: RichText
 		result += line + (lineIndex != lines.length - 1 ? '<br/>' : '');
 	}
 
-	return result;
+	return result.includes("</script>") ? sanitizeHtml(result, {
+		allowedTags: ["div", "span", "p", "br"],
+		allowedAttributes: false,
+		allowVulnerableTags: true
+	}) : result;
 }
 

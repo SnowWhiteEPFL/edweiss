@@ -37,26 +37,3 @@ exports[`RichText should parse code and comments correctly 1`] = `
 	</div>
 			"
 `;
-
-exports[`RichText should parse code correctly 1`] = `
-"
-			<div style="
-				padding: 10px;
-				padding-top: 10px;
-				margin: 10px;
-				border-radius: 8px;
-				position: relative;
-				font-family: Fira Code;
-				background-color: #dce0e8;
-				"><div style="position: absolute; right: 8px; top: 4px; font-size: 14px; color: #9ca0b0">typescript</div>
-	<div style="display: flex">
-		<div style="color: #bcc0cc; margin-right: 16px">
-			<div style="text-align: end">1</div>
-		</div>
-		<div style="white-space: pre; overflow: scroll">      <span style="color: #8839ef">let</span> <span style="color: #d20f39">a</span> = <span style="color: #fe640b">15</span>;</div>
-	</div>
-	</div>
-			"
-`;
-
-exports[`RichText should parse correctly 2 1`] = `"<div style="font-family: Times New Roman; background-color: #00000033">let a = 15;<br/></div>"`;
