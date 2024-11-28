@@ -51,17 +51,17 @@ const ArchiveScreen: ApplicationRoute = () => {
     const assignments = useMemo<AssignmentWithColor[]>(() => {
         if (typeof rawAssignments === 'string') {
             try {
+                // Use routeParameters to parse and validate rawAssignments
                 const parsedAssignments: AssignmentWithColor[] = JSON.parse(rawAssignments);
 
-                // Mutate each assignment's dueDate property
+                // Sanitizes the structure of parsedAssignments
                 parsedAssignments.forEach((assignment) => {
-                    assignment.dueDate = {
-                        seconds: assignment.dueDate.seconds,
-                        nanoseconds: assignment.dueDate.nanoseconds,
-                    };
+                    if (!assignment.dueDate || typeof assignment.dueDate.seconds !== 'number' || typeof assignment.dueDate.nanoseconds !== 'number') {
+                        console.warn('Unexpected dueDate format:', assignment.dueDate);
+                    }
                 });
 
-                return parsedAssignments; // Return the modified array
+                return parsedAssignments;
             } catch (error) {
                 console.error('Failed to parse rawAssignments: ', error);
                 return [];

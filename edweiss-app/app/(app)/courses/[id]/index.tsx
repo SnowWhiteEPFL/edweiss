@@ -30,6 +30,7 @@ import { iconSizes } from '@/constants/Sizes';
 import { timeInMS } from '@/constants/Time';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { Assignment, Course } from '@/model/school/courses';
+import { Time } from '@/utils/time'; // Adjust the import path as necessary
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import React, { useMemo } from 'react';
 
@@ -120,20 +121,12 @@ const CoursePage: ApplicationRoute = () => {
 
 	// Filter previous assignments
 	const previousAssignments = useMemo(() => {
-		return assignments
-			.filter(
-				(assignment) =>
-					assignment.dueDate.seconds * timeInMS.SECOND <= new Date().getTime()
-			)
-			.reverse();
+		return assignments.filter((assignment) => Time.isBeforeNow(assignment.dueDate)).reverse();
 	}, [assignments, timeInMS.SECOND]);
 
 	// Filter upcoming assignments
 	const upcomingAssignments = useMemo(() => {
-		const filteredAssignments = assignments.filter(
-			(assignment) =>
-				assignment.dueDate.seconds * timeInMS.SECOND > new Date().getTime()
-		);
+		const filteredAssignments = assignments.filter((assignment) => Time.isAfterNow(assignment.dueDate));
 		return filteredAssignments.length > 0 ? filteredAssignments : undefined;
 	}, [assignments, timeInMS.SECOND]);
 

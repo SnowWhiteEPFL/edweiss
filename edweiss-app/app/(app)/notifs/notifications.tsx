@@ -16,10 +16,10 @@ import NotifDisplay from '@/components/notifs/NotifDisplay';
 import { CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import { iconSizes } from '@/constants/Sizes';
-import { timeInMS } from '@/constants/Time';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { default as NotifList } from '@/model/notifs';
+import { Time } from '@/utils/time';
 import React from 'react';
 import { Image, useWindowDimensions } from 'react-native';
 
@@ -95,7 +95,7 @@ const NotificationsPage: ApplicationRoute = () => {
 
     // Function to categorize notifications by date
     notifs.forEach((notif) => {
-        const notifDate = new Date(notif.data.date.seconds * timeInMS.SECOND); // Notif date
+        const notifDate = Time.toDate(notif.data.date);
 
         if (notifDate >= midnight) notifsDay.push(notif);
         else if (notifDate >= mondayMidnight) notifsWeek.push(notif);
