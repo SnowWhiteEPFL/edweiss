@@ -53,7 +53,7 @@ const LangSelectModal: ReactComponent<{
 
                 </TScrollView>
 
-                <FancyButton backgroundColor='subtext0' m='md' onPress={onClose} outlined>
+                <FancyButton backgroundColor='subtext0' m='md' onPress={onClose} outlined testID='lang-sel-close-button'>
                     {t('todo:close_btn')}
                 </FancyButton>
             </>

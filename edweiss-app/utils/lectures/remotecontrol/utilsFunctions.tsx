@@ -41,10 +41,7 @@ export const updateSlideAudioRecording = function (
                 pageNumber: pageToTranscribe,
                 transcription: talked
             });
-        } catch (error) {
-            console.log("MON ERROR")
-            console.error("Error adding audio transcript:", error);
-        }
+        } catch (error) { console.error("Error adding audio transcript:", error); }
 
         setPageToTranscribe(currentPage);
         setTalked('');
@@ -78,9 +75,7 @@ export const handleLeft = function (
         // Update the page
         try {
             callFunction(FCMCommunication.Functions.sendFCMPage, { page: currentPage - 1 });
-        } catch (error) {
-            console.error("Error sending FCM page:", error);
-        }
+        } catch (error) { console.error("Error sending FCM page:", error); }
 
         // Start new recording for previous slide
         if (wasRecording) setIsRecording(true);
