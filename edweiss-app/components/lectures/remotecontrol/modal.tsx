@@ -32,7 +32,7 @@ const LangSelectModal: ReactComponent<{
                 </TView>
 
                 <TScrollView>
-                    <TView justifyContent='center' alignItems='baseline' mb='md' ml='lg'>
+                    <TView justifyContent='center' alignItems='center'>
                         <TView>
                             {(['english', 'french', 'german', 'spanish', 'italian', 'brazilian', 'arabic', 'chinese', 'vietanames', 'hindi'] as AvailableLangs[]).map((language, index, array) => {
                                 if (index % 2 === 0 && index + 1 < array.length) {
@@ -53,7 +53,7 @@ const LangSelectModal: ReactComponent<{
 
                 </TScrollView>
 
-                <FancyButton backgroundColor='subtext0' mb='md' onPress={onClose} outlined>
+                <FancyButton backgroundColor='subtext0' m='md' onPress={onClose} outlined>
                     {t('todo:close_btn')}
                 </FancyButton>
             </>
@@ -97,6 +97,8 @@ const TwoLangsSelection: React.FC<TwoLangsSelectionProps> = ({ lang, setLang, la
                     </TView>
                 </TView>
             </TTouchableOpacity>
+
+            <TView flex={1} ml={'sm'} mr={'sm'}></TView>
 
             <TTouchableOpacity
                 mr={'sm'} radius={'lg'} b={2}

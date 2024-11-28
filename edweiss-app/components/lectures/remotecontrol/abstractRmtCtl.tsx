@@ -17,9 +17,11 @@ import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { LightDarkProps } from '@/constants/Colors';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
+import { langIconMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import React, { useRef, useState } from 'react';
 import Toast from 'react-native-toast-message';
+import LangSelectModal from './modal';
 
 // types
 import AvailableLangs = LectureDisplay.AvailableLangs;
@@ -39,8 +41,8 @@ interface AbstractRmtCrlProps {
 
 export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, isRecording }) => {
 
-    // The selected language, by default en-US
-    const [selectedLang, setSelectedLang] = useState<AvailableLangs>('english');
+    const [lang, setLang] = useState<AvailableLangs>('english');
+    const modalRefLangSelect = useRef<BottomSheetModal>(null);
 
     return (
         <>
@@ -50,13 +52,13 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
 
                 {/* STRC text, set language and timer */}
                 <TView mt={17} mb={50} justifyContent='center' alignItems='center'>
-                    <TText size={18} mb={'md'}> {t(`showtime:showtime_title`)}</TText>
+                    <TText size={18} mt={'sm'} mb={'sm'}> {t(`showtime:showtime_title`)}</TText>
 
                     <TView alignItems='center' flexDirection='row' justifyContent='space-between' mt={20}>
                         <TTouchableOpacity
                             backgroundColor='crust'
                             borderColor='text' p={10} b={1} ml={'md'} radius={1000}
-                            onPress={() => router.push('/(app)/lectures/remotecontrol/settings' as any)}
+                            onPress={() => modalRefLangSelect.current?.present()}
                             testID='strc-setting-button'>
                             <Icon size={40} name='language-outline' color='text'></Icon>
                         </TTouchableOpacity>
@@ -90,13 +92,13 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                     </TTouchableOpacity>
 
                     {isRecording ? (
-                        <TText mt={25} size={15} color='red'> {t(`showtime:recording_start`)} </TText>
+                        <TText mt={25} size={15} color='red'>{langIconMap[lang]} {t(`showtime:recording_start`)} </TText>
                     ) : (
                         <TText mt={25} size={15} color='green'> {t(`showtime:tap_to_start_recording`)} </TText>
                     )}
 
 
-                    {/* End buttons for settigs, activities and audiance questions */}
+                    {/* End buttons for settings, activities and audiance questions */}
                     <TView mt={15} alignItems='center' flexDirection='row' justifyContent='space-between'>
                         <TTouchableOpacity
                             backgroundColor='crust'
@@ -143,6 +145,9 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                 </TView>
 
             </TView>
+
+            {/* Modals */}
+            <LangSelectModal modalRef={modalRefLangSelect} lang={lang} setLang={setLang} onClose={() => modalRefLangSelect.current?.close()} />
         </>
     );
 };
