@@ -1,56 +1,68 @@
-import RouteHeader from '@/components/core/header/RouteHeader';
-
-import TText from '@/components/core/TText';
-import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
-import { ApplicationRoute } from '@/constants/Component';
-import LectureDisplay from '@/model/lectures/lectureDoc';
-import { langIconMap, langNameMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
-import { t } from 'i18next';
-import { useState } from 'react';
+import TText from '@/components/core/TText';
+import React from 'react';
 
-//type
+import TScrollView from '@/components/core/containers/TScrollView';
+import ModalContainer from '@/components/core/modal/ModalContainer';
+import FancyButton from '@/components/input/FancyButton';
+import ReactComponent from '@/constants/Component';
+import LectureDisplay from '@/model/lectures/lectureDoc';
+import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
+import { t } from 'i18next';
+import { langIconMap, langNameMap } from '../../../utils/lectures/remotecontrol/utilsFunctions';
+
 import AvailableLangs = LectureDisplay.AvailableLangs;
 
 
-const Route: ApplicationRoute = () => {
 
-    const [lang, setLang] = useState<AvailableLangs>('english');
+
+const LangSelectModal: ReactComponent<{
+    modalRef: React.RefObject<BottomSheetModalMethods>;
+    lang: AvailableLangs;
+    setLang: (lang: AvailableLangs) => void;
+    onClose: () => void;
+}> = ({ modalRef, lang, setLang, onClose }) => {
 
     return (
-        <>
-            <RouteHeader title={t(`showtime:rmt_cntl_setting_title`)} />
+        <ModalContainer modalRef={modalRef}>
+            <>
+                <TView justifyContent='center' alignItems='center' mb='sm'>
+                    <TText bold size='lg' mb='sm'>{t('showtime:rmt_cntl_lang_section')}</TText>
+                </TView>
 
-            <TScrollView>
-                <TText ml={'md'} size={'lg'} bold>{t(`showtime:rmt_cntl_lang_section`)}</TText>
+                <TScrollView>
+                    <TView justifyContent='center' alignItems='baseline' mb='md' ml='lg'>
+                        <TView>
+                            {(['english', 'french', 'german', 'spanish', 'italian', 'brazilian', 'arabic', 'chinese', 'vietanames', 'hindi'] as AvailableLangs[]).map((language, index, array) => {
+                                if (index % 2 === 0 && index + 1 < array.length) {
+                                    return (
+                                        <TwoLangsSelection
+                                            key={language}
+                                            lang={lang}
+                                            setLang={setLang}
+                                            lang1={language}
+                                            lang2={array[index + 1]}
+                                        />
+                                    );
+                                }
+                                return null;
+                            })}
+                        </TView>
+                    </TView>
 
+                </TScrollView>
 
-                {(['english', 'french', 'german', 'spanish', 'italian', 'brazilian', 'arabic', 'chinese', 'vietanames', 'hindi'] as AvailableLangs[]).map((language, index, array) => {
-                    if (index % 2 === 0 && index + 1 < array.length) {
-                        return (
-                            <TwoLangsSelection
-                                key={language}
-                                lang={lang}
-                                setLang={setLang}
-                                lang1={language}
-                                lang2={array[index + 1]}
-                            />
-                        );
-                    }
-                    return null;
-                })}
-
-                <TText ml={'md'} size={'lg'} bold>{t(`showtime:rmt_cntl_go_page`)}</TText>
-
-                <TText>{langNameMap[lang]}</TText>
-
-            </TScrollView>
-        </>
+                <FancyButton backgroundColor='subtext0' mb='md' onPress={onClose} outlined>
+                    {t('todo:close_btn')}
+                </FancyButton>
+            </>
+        </ModalContainer>
     );
 };
+export default LangSelectModal;
 
-export default Route;
+
 
 
 interface TwoLangsSelectionProps {
