@@ -8,6 +8,7 @@ import ReactComponent from '@/constants/Component';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { t } from 'i18next';
 import { useState } from 'react';
+import { ActivityIndicator } from 'react-native';
 
 interface CustomDocument<T> {
     data: T;
@@ -15,6 +16,7 @@ interface CustomDocument<T> {
 
 const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, questionsDoc: CustomDocument<LectureDisplay.Question>[] | undefined }> = ({ courseName, lectureId, questionsDoc }) => {
     const [question, setQuestion] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     // Display each question given as parameters as a component 
     const renderQuestion = (question: string, key: React.Key) => (
@@ -42,19 +44,45 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
 
     return (
         <>
-            {/* Questions Display */}
-            {questionsDoc?.map((question, index) => renderQuestion(question?.data.text, index))}
+            {/* Display existing questions */}
+            {questionsDoc?.map((qDoc, index) =>
+                renderQuestion(qDoc?.data.text, index)
+            )}
 
-            {/* Enter Your Question */}
+            {/* Input for new question */}
             <TView>
-                <FancyTextInput value={question} onChangeText={n => { setQuestion(n) }} mb={'sm'} multiline label='Ask your questions' icon='chatbubbles-outline' placeholder='Got something on your mind? Type away!' />
-                <TTouchableOpacity style={{ position: 'absolute', right: 20, bottom: 10 }} backgroundColor='transparent' onPress={() => addQuestion(question)} pl={'md'}>
-                    <Icon size={'xl'} name='send-outline' color='text'></Icon>
+                <FancyTextInput
+                    value={question}
+                    onChangeText={setQuestion}
+                    mb="sm"
+                    multiline
+                    label="Ask your questions"
+                    icon="chatbubbles-outline"
+                    placeholder="Got something on your mind? Type away!"
+                />
+                <TTouchableOpacity
+                    style={{ position: 'absolute', right: 20, bottom: 10, }}
+                    backgroundColor="transparent"
+                    onPress={() => {
+                        if (!isLoading) {
+                            addQuestion(question);
+                            setIsLoading(true);
+                            setTimeout(() => setIsLoading(false), 1000);
+                        }
+                    }}
+                    pl="md"
+                >
+                    {isLoading ? (
+                        <ActivityIndicator />
+                    ) : (
+                        <Icon size="xl" name="send-outline" color="text" />
+                    )}
                 </TTouchableOpacity>
             </TView>
-
-        </>)
+        </>
+    );
 };
+
 
 export default StudentQuestion;
 

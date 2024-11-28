@@ -45,17 +45,18 @@ const LectureScreen: ApplicationRoute = () => {
     useListenToMessages((msg) => {
         if (msg.type == "go_to_slide") {
             setPage(msg.slideIndex);
+            setCurrentPage(msg.slideIndex); // Sync current page number display 
         }
     });
 
     // Hooks
     const [numPages, setNumPages] = useState<number>(0);        // Total number of pages in the PDF
     const [page, setPage] = useState<number>(1);                // Current page, starting from 1
+    const [currentPage, setCurrentPage] = useState<number>(1);  // Track swiped or active page
     const [uri, setUri] = useState<string>('');                 // Url state
     // UI display setting's hooks
     const [isLandscape, setIsLandscape] = useState<boolean>(true);       // Landscape display boolean for different UI
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);    // FullScreen display of pdf toggle
-    const [isRemoteMessage, setIsRemoteMessage] = useState<boolean>(false);    // Verification of remote control command received
 
 
     const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
@@ -83,17 +84,31 @@ const LectureScreen: ApplicationRoute = () => {
         };
     }, []);
 
+    // Sync current page after swipe
+    useEffect(() => {
+        if (currentPage !== page) {
+            const timer = setTimeout(() => setPage(currentPage), 300); // Delay update to avoid glitching
+            return () => clearTimeout(timer);
+        }
+    }, [currentPage]);
+
     if (!lectureDoc) return <TActivityIndicator size={40} />;
     const currentLecture = lectureDoc.data;
 
     // Function to go to the next page
     function pageForward() {
-        if (page < numPages) setPage(page + 1);
+        if (page < numPages) {
+            setPage(page + 1);
+            setCurrentPage(page + 1);
+        }
     }
     // Function to go to the previous page
-    function pageBack() {
-        if (page > 1) setPage(page - 1);
-    }
+    const pageBack = () => {
+        if (page > 1) {
+            setPage(page - 1);
+            setCurrentPage(page - 1);
+        }
+    };
 
     // Funtion to set Uri to the desired one from firebase storage
     const getUri = async () => {
@@ -121,11 +136,7 @@ const LectureScreen: ApplicationRoute = () => {
             renderActivityIndicator={() => <ActivityIndicator size="large" />}
             enablePaging
             onLoadComplete={(totalPages) => setNumPages(totalPages)}
-            onPageChanged={(currentPage) => {
-                setTimeout(() => {
-                    setPage(currentPage)
-                }, 500);
-            }}
+            onPageChanged={(currentPage) => setCurrentPage(currentPage)}
             onError={(error) => console.log(error)}
             page={page}
             horizontal
@@ -151,7 +162,7 @@ const LectureScreen: ApplicationRoute = () => {
                 </TTouchableOpacity>
             </TView>
 
-            <TText>{page}/{numPages}</TText>
+            <TText>{currentPage}/{numPages}</TText>
 
             <TTouchableOpacity backgroundColor='transparent' onPress={() => {
                 !isLandscape && setLandscape();
