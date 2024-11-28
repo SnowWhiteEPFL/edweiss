@@ -3,6 +3,7 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
+import TView from '@/components/core/containers/TView';
 import { ApplicationRoute } from '@/constants/Component';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { langIconMap, langNameMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
@@ -36,22 +37,28 @@ const Route: ApplicationRoute = () => {
                 <TText ml={'md'} size={'lg'} bold>{t(`showtime:rmt_cntl_lang_section`)}</TText>
 
 
+                <TView alignItems='center' flexDirection='row' justifyContent='space-between' mt={20}>
 
-                <TTouchableOpacity
-                    mt={20} mr={'md'} ml={'md'} radius={'lg'} b={2}
-                    style={{ borderColor: (lang === 'english') ? selectedColorBord : unselectedColorBord, backgroundColor: (lang === 'english') ? selectedColorBack : unselectedColorBack }}
-                    onPress={() => setLang('english')}
-                >
-                    <TText size={'lg'} p={'md'}>{langIconMap["english"]}  {langNameMap["english"]}</TText>
-                </TTouchableOpacity>
+                    <TTouchableOpacity
+                        mr={'md'} ml={'md'} radius={'lg'} b={2}
+                        style={{ borderColor: (lang === 'english') ? selectedColorBord : unselectedColorBord, backgroundColor: (lang === 'english') ? selectedColorBack : unselectedColorBack }}
+                        onPress={() => setLang('english')}
+                        testID='lang-but-english'
+                    >
+                        <TText size={'lg'} p={'md'}>{langIconMap["english"]}  {langNameMap["english"]}</TText>
+                    </TTouchableOpacity>
 
-                <TTouchableOpacity
-                    mt={20} mr={'md'} ml={'md'} radius={'lg'} b={2}
-                    style={{ borderColor: (lang === 'french') ? selectedColorBord : unselectedColorBord, backgroundColor: (lang === 'french') ? selectedColorBack : unselectedColorBack }}
-                    onPress={() => setLang('french')}
-                >
-                    <TText size={'lg'} p={'md'}>{langIconMap["french"]}  {langNameMap["french"]}</TText>
-                </TTouchableOpacity>
+                    <TTouchableOpacity
+                        mr={'md'} ml={'md'} radius={'lg'} b={2}
+                        style={{ borderColor: (lang === 'french') ? selectedColorBord : unselectedColorBord, backgroundColor: (lang === 'french') ? selectedColorBack : unselectedColorBack }}
+                        onPress={() => setLang('french')}
+                        testID='lang-but-french'
+                    >
+                        <TText size={'lg'} p={'md'}>{langIconMap["french"]}  {langNameMap["french"]}</TText>
+                    </TTouchableOpacity>
+                </TView>
+
+
 
                 <TText ml={'md'} size={'lg'} bold>{t(`showtime:rmt_cntl_go_page`)}</TText>
 
