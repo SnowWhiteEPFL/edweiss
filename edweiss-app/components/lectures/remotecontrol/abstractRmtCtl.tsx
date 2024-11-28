@@ -36,14 +36,11 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
             <RouteHeader disabled title={"Lecture's Slides"} />
 
             <TView borderColor='text' m={'md'} mt={'xl'} mb={'xl'} b={0.5} backgroundColor='base' radius={'lg'}>
-                <TView mt={60} mb={70} justifyContent='center' alignItems='center'>
-                    <TText size={25} mb={'md'}> {t(`showtime:showtime_title`)}</TText>
-                    <TText size={35} >{t(`showtime:rmt_cntl_title`)}</TText>
-                    {isRecording ? (
-                        <TText mt={15} size={15} color='red'> {t(`showtime:recording_start`)} </TText>
-                    ) : (
-                        <TText mt={15} size={15} color='green'> {t(`showtime:tap_to_start_recording`)} </TText>
-                    )}
+                <TView mt={20} mb={50} justifyContent='center' alignItems='center'>
+                    <TText size={18} mb={'md'}> {t(`showtime:showtime_title`)}</TText>
+                    <TTouchableOpacity mt={20} backgroundColor='mantle' radius={'lg'}>
+                        <TText size={50} p={'md'} pb={'sm'}>0:00:00</TText>
+                    </TTouchableOpacity>
                 </TView>
 
                 <TView mr={20} ml={20} flexDirection='row' justifyContent='space-between'>
@@ -55,10 +52,28 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                     </TTouchableOpacity>
                 </TView>
 
-                <TView mt={60} mb={25} justifyContent='center' alignItems='center'>
+                <TView mt={20} mb={10} justifyContent='center' alignItems='center'>
                     <TTouchableOpacity backgroundColor={isRecording ? 'red' : 'base'} borderColor={isRecording ? 'base' : 'red'} b={5} p={10} radius={1000} onPress={handleMic} testID='mic-button'>
                         <Icon size={55} name='mic-outline' color={isRecording ? 'base' : 'red'}></Icon>
                     </TTouchableOpacity>
+
+                    {isRecording ? (
+                        <TText mt={25} size={15} color='red'> {t(`showtime:recording_start`)} </TText>
+                    ) : (
+                        <TText mt={25} size={15} color='green'> {t(`showtime:tap_to_start_recording`)} </TText>
+                    )}
+
+                    <TView mt={10} flexDirection='row' justifyContent='space-between' >
+                        <TTouchableOpacity backgroundColor='crust' borderColor='base' p={7} mt={0} radius={1000} onPress={() => console.log('SETTING')} testID='strc-setting-button'>
+                            <Icon size={45} name='settings-outline' color='text'></Icon>
+                        </TTouchableOpacity>
+
+                        <TTouchableOpacity backgroundColor='crust' borderColor='base' p={7} radius={1000} onPress={() => console.log('SETTING')} testID='strc-chat-button'>
+                            <Icon size={45} name='chatbubbles-outline' color='text'></Icon>
+                        </TTouchableOpacity>
+
+                    </TView>
+
                 </TView>
 
             </TView>
