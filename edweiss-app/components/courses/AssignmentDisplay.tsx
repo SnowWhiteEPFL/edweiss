@@ -8,7 +8,7 @@ import { iconSizes } from '@/constants/Sizes';
 import { dateFormats, timeInMS } from '@/constants/Time';
 import { Assignment } from '@/model/school/courses';
 import { saveTodo } from '@/utils/courses/saveToDo';
-import { useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
@@ -56,7 +56,7 @@ const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, index: numb
     // Render right actions on swipe
     const renderRightActions = () => (
         <TView testID={testIDs.swipeView} justifyContent='center' alignItems='flex-end' py={20} backgroundColor='green'>
-            <TText testID={testIDs.addToDoText} size={16} bold={true} color='constantWhite'>{t(`course:add_to_todo`)}</TText>
+            <TText testID={testIDs.addToDoText} size={16} bold color='constantWhite'>{t(`course:add_to_todo`)}</TText>
         </TView>
     );
 
@@ -76,23 +76,35 @@ const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, index: numb
         </TView>
     );
 
-    return (
-        isSwipeable ?
-            <Swipeable testID={testIDs.swipeableComponent}
-                ref={(ref) => { swipeableRefs.current[index] = ref; }}
-                renderRightActions={renderRightActions}
-                onSwipeableOpen={(direction) => {
-                    if (direction === 'right') {
-                        console.log(`Swipe detected on assignment: ${item.name}`);
-                        saveTodo(item.name, item.dueDate, item.type);
-                        swipeableRefs.current[index]?.close();
-                    }
+    // Extract the `onSwipeableOpen` handler
+    const handleSwipeableOpen = useCallback(
+        (direction: string) => {
+            if (direction === 'right') {
+                console.log(`Swipe detected on assignment: ${item.name}`);
+                saveTodo(item.name, item.dueDate, item.type);
+                swipeableRefs.current[index]?.close();
+            }
+        },
+        [item, saveTodo, swipeableRefs, index]
+    );
+
+    // Extract the swipeable rendering logic
+    const renderSwipeable = useCallback(() => {
+        return (
+            <Swipeable
+                testID={testIDs.swipeableComponent}
+                ref={(ref) => {
+                    swipeableRefs.current[index] = ref;
                 }}
+                renderRightActions={renderRightActions}
+                onSwipeableOpen={handleSwipeableOpen}
             >
                 {assignmentView()}
             </Swipeable>
-            : assignmentView()
-    );
+        );
+    }, [assignmentView, renderRightActions, handleSwipeableOpen, swipeableRefs, index]);
+
+    return isSwipeable ? renderSwipeable() : assignmentView();
 };
 
 export default AssignmentDisplay;
