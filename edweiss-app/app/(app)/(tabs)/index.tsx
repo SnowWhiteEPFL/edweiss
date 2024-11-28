@@ -6,7 +6,6 @@ import HeaderButton from '@/components/core/header/HeaderButton';
 import HeaderButtons from '@/components/core/header/HeaderButtons';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import Icon from '@/components/core/Icon';
-import RichText from '@/components/core/rich-text/RichText';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
 import { CollectionOf, Document } from '@/config/firebase';
@@ -49,11 +48,6 @@ const HomeTab: ApplicationRoute = () => {
 				<For each={courses}>
 					{course => <CourseDisplay key={course.id} course={course} />}
 				</For>
-
-				<RichText>
-					{"\\frac{1}{2}"}
-				</RichText>
-
 			</TScrollView>
 		</>
 	);
