@@ -11,20 +11,20 @@ import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { MCQResultDisplay, TFResultDisplay } from '@/components/quiz/QuizComponents';
-import { callFunction } from '@/config/firebase';
+import { callFunction, Collections, getDocument } from '@/config/firebase';
 import { useAuth } from '@/contexts/auth';
 import Quizzes, { QuizzesAttempts } from '@/model/quizzes';
 import { Time } from '@/utils/time';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { t } from 'i18next';
-import React, { RefObject, useRef, useState } from 'react';
+import React, { RefObject, useEffect, useRef, useState } from 'react';
 import Toast from 'react-native-toast-message';
 
 
-const Route: ApplicationRoute = () => {
+const CreateQuizPage: ApplicationRoute = () => {
 
 	const { courseId } = useLocalSearchParams()
 	const { uid } = useAuth()
@@ -36,9 +36,25 @@ const Route: ApplicationRoute = () => {
 
 
 	const addModalRef = useRef<BottomSheetModal>(null);
-	const editModalRef = useRef<BottomSheetModal>(null);
-	const secondModalRef = useRef<BottomSheetModal>(null);
+
 	const publishQuizModalRef = useRef<BottomSheetModal>(null);
+
+
+	useEffect(() => {
+
+		console.log(JSON.stringify(exercises))
+	}, [exercises]);
+
+	async function checkUserType() {
+		const thisUser = await getDocument(Collections.users, uid);
+
+		if (thisUser?.data.type != "professor") {
+			return <TText> You are not authorized to create a quiz. </TText>;
+		}
+	}
+	checkUserType()
+	console.log("course id : " + courseId)
+
 
 	const onChangeDate = (selectedDate: Date | undefined) => {
 		if (selectedDate) {
@@ -81,21 +97,30 @@ const Route: ApplicationRoute = () => {
 		);
 	}
 
-	function checkQuizParams() {
-		if (dueDate == undefined) {
+	function checkQuizParams(): boolean {
+		if (dueDate == undefined || Time.wasYesterday(dueDate)) {
 			Toast.show({
 				type: 'error',
 				text1: t(`quiz:date_invalid`),
 			});
-			return;
+			return false;
 		}
 		if (quizName == "") {
 			Toast.show({
 				type: 'error',
 				text1: t(`quiz:quiz_name_empty`),
 			});
-			return;
+			return false;
 		}
+		if (exercises.length <= 0) {
+			Toast.show({
+				type: 'error',
+				text1: t(`quiz:empty_quiz`),
+			});
+			return false;
+		}
+
+		return true
 
 	}
 
@@ -139,50 +164,6 @@ const Route: ApplicationRoute = () => {
 
 	if (exercises.length <= 0) {
 		return (
-			// <>
-			// 	<RouteHeader title='Create a new quiz' />
-			// 	<FancyTextInput mb='md' label='Quiz name' onChangeText={setQuizName}></FancyTextInput>
-			// 	<TText> Due date : {dueDate == undefined ? "undefined" : dateToStringWithTime(dueDate)} { }</TText>
-
-			// 	<FancyButton mb='md' onPress={() => setShowDate(true)}> Change due date </FancyButton>
-			// 	<FancyButton mb='md' onPress={() => setShowTime(true)}> Change time </FancyButton>
-
-
-			// 	{showDate && (
-			// 		<DateTimePicker
-			// 			testID="dateTimePicker1"
-			// 			value={dueDate == undefined ? timestampToDate(Date.now()) : dueDate}
-			// 			mode='date'
-			// 			is24Hour={true}
-			// 			display="default"
-			// 			onChange={(event, selectedDate) => {
-			// 				if (event.type === "dismissed") {
-			// 					setShowDate(false);
-			// 				} else {
-			// 					onChangeDate(selectedDate);
-
-			// 				}
-			// 			}
-			// 			}
-			// 		/>
-			// 	)}
-
-			// 	{showTime && (
-			// 		<DateTimePicker
-			// 			testID="dateTimePicker2"
-			// 			value={dueDate == undefined ? timestampToDate(Date.now()) : dueDate}
-			// 			mode='time'
-			// 			is24Hour={true}
-			// 			display="default"
-			// 			onChange={(event, selectedDate) => {
-			// 				if (event.type === "dismissed") {
-			// 					setShowTime(false);
-			// 				} else {
-			// 					onChangeTime(selectedDate);
-			// 				}
-			// 			}}
-			// 		/>
-			// 	)}
 			<>
 				<NameAndDateCustom dueDate={dueDate} onChangeDate={onChangeDate} onChangeTime={onChangeTime} setQuizName={setQuizName} setShowDate={setShowDate} setShowTime={setShowTime} showDate={showDate} showTime={showTime}></NameAndDateCustom>
 
@@ -205,9 +186,7 @@ const Route: ApplicationRoute = () => {
 				<For each={exercises}>{
 					(exercise, index) => {
 						return (<>
-							<PressableExercise modalRef={editModalRef} exercise={exercise} ></PressableExercise>
-							<EditExerciseModal exercise={exercise} removeExerciseFromList={removeExerciseFromList} index={index} modalRef={editModalRef} secondModalRef={secondModalRef}></EditExerciseModal>
-							<EditSecondModal modalRef={secondModalRef} editExercise={editExercise} exercise={exercise} index={index}></EditSecondModal>
+							<PressableExercise index={index} editExercise={editExercise} removeExerciseFromList={removeExerciseFromList} exercise={exercise} key={index}></PressableExercise>
 						</>)
 					}
 				}
@@ -215,15 +194,15 @@ const Route: ApplicationRoute = () => {
 
 			</TScrollView>
 			<FancyButton icon='add' backgroundColor='blue' onPress={() => addModalRef.current?.present()} ></FancyButton>
-			<FancyButton onPress={() => publishQuizModalRef.current?.present()}> Publish quiz </FancyButton>
+			<FancyButton onPress={() => { checkQuizParams() ? publishQuizModalRef.current?.present() : {} }}> Publish quiz </FancyButton>
 			<AddExerciseModal modalRef={addModalRef} updateExerciseList={addToExerciseList} />
-			<PublishQuizModal modalRef={publishQuizModalRef} quizName={quizName} dueDate={dueDate == undefined ? "undefined" : dueDate.toDateString()} numberOfExercises={exercises.length} />
+			<PublishQuizModal modalRef={publishQuizModalRef} quizName={quizName} dueDate={dueDate == undefined ? "undefined" : dueDate.toDateString()} numberOfExercises={exercises.length} publishQuiz={publishQuiz} />
 
 		</>
 
 	);
 };
-export default Route;
+export default CreateQuizPage;
 
 function timestampToDate(timestamp: number): Date {
 	if (typeof timestamp !== "number" || isNaN(timestamp)) {
@@ -307,16 +286,20 @@ function dateToStringWithTime(date: Date | undefined): string {
 }
 
 
-export const PressableExercise: ReactComponent<{ exercise: Quizzes.Exercise, modalRef: RefObject<BottomSheetModalMethods> }> = ({ exercise, modalRef, }) => {
+export const PressableExercise: ReactComponent<{ exercise: Quizzes.Exercise, editExercise: (exercise: Quizzes.Exercise, index: number) => void, removeExerciseFromList: (index: number) => void, index: number, }> = ({ exercise, editExercise, index, removeExerciseFromList }) => {
+	const editModalRef = useRef<BottomSheetModal>(null);
+	const secondModalRef = useRef<BottomSheetModal>(null);
 	return (<>
-		<TTouchableOpacity onLongPress={() => modalRef.current?.present(exercise)}>
+		<TTouchableOpacity onLongPress={() => { console.log("in pressable : " + exercise.question); editModalRef.current?.present() }}>
 			{exercise.type == "MCQ" ? <MCQResultDisplay exercise={exercise} results={exercise.answersIndices} selectedIds={exercise.answersIndices}></MCQResultDisplay> : <TFResultDisplay selected={exercise.answer} exercise={exercise as Quizzes.TF} result={exercise.answer}></TFResultDisplay>}
 		</TTouchableOpacity>
+		<EditExerciseModal exercise={exercise} removeExerciseFromList={removeExerciseFromList} editExercise={editExercise} index={index} modalRef={editModalRef} secondModalRef={secondModalRef}></EditExerciseModal>
+
 	</>
 	);
 };
 
-export const PublishQuizModal: ReactComponent<{ modalRef: RefObject<BottomSheetModalMethods>, quizName: string, dueDate: string, numberOfExercises: number }> = (props) => {
+export const PublishQuizModal: ReactComponent<{ modalRef: RefObject<BottomSheetModalMethods>, quizName: string, dueDate: string, numberOfExercises: number, publishQuiz: () => void }> = (props) => {
 	return (
 		<ModalContainer modalRef={props.modalRef}>
 			<TView>
@@ -333,7 +316,7 @@ export const PublishQuizModal: ReactComponent<{ modalRef: RefObject<BottomSheetM
 					Number of exercises : {props.numberOfExercises}
 				</TText>
 
-				<FancyButton onPress={() => props.modalRef.current?.close()}> Confirm </FancyButton>
+				<FancyButton onPress={() => { props.publishQuiz(); props.modalRef.current?.close(); router.back() }}> Confirm </FancyButton>
 			</TView>
 		</ModalContainer>
 	);
@@ -367,11 +350,12 @@ export const AddExerciseModal: ReactComponent<{ modalRef: RefObject<BottomSheetM
 	);
 
 };
-export const EditExerciseModal: ReactComponent<{ modalRef: RefObject<BottomSheetModalMethods>, secondModalRef: RefObject<BottomSheetModalMethods>, exercise: Quizzes.Exercise, removeExerciseFromList: (index: number) => void, index: number }> = (props) => {
+export const EditExerciseModal: ReactComponent<{ modalRef: RefObject<BottomSheetModalMethods>, secondModalRef: RefObject<BottomSheetModalMethods>, exercise: Quizzes.Exercise, editExercise: (exercise: Quizzes.Exercise, index: number) => void, removeExerciseFromList: (index: number) => void, index: number }> = (props) => {
 
-	console.log(props.removeExerciseFromList == undefined)
+	//console.log(props.removeExerciseFromList == undefined)
+	console.log("in edit modal  : " + props.exercise.question)
 
-	return (
+	return (<>
 		<ModalContainerScrollView modalRef={props.modalRef}>
 
 			<TView flexDirection='row' flexColumnGap={"md"} mb='sm'>
@@ -382,7 +366,9 @@ export const EditExerciseModal: ReactComponent<{ modalRef: RefObject<BottomSheet
 						Delete
 					</TText>
 				</TTouchableOpacity>
-				<TTouchableOpacity flex={1} radius={"xl"} p={"sm"} mr='sm' backgroundColor='blue' flexDirection='row' flexColumnGap='sm' onPress={() => { props.modalRef.current?.close(); props.secondModalRef.current?.present() }}>
+				<TTouchableOpacity flex={1} radius={"xl"} p={"sm"} mr='sm' backgroundColor='blue' flexDirection='row' flexColumnGap='sm' onPress={() => {
+					console.log("in edit button : " + props.exercise.question); console.log("index : " + props.index); props.secondModalRef.current?.present()
+				}}>
 					<Icon name='pencil-sharp' size='xl' mt='md' />
 					<TText color='text' size='lg' ml='lg'>
 						Edit
@@ -391,7 +377,10 @@ export const EditExerciseModal: ReactComponent<{ modalRef: RefObject<BottomSheet
 
 			</TView>
 
+			<EditSecondModal modalRef={props.secondModalRef} editExercise={props.editExercise} exercise={props.exercise} index={props.index}></EditSecondModal>
+
 		</ModalContainerScrollView>
+	</>
 
 
 	);

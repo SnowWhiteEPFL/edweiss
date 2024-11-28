@@ -19,7 +19,6 @@ export namespace CustomPredicateQuiz {
 					})
 				})
 			)],
-			deadline: Predicate.isOptionalString,
 			ended: Predicate.isBoolean,
 			exercises: [Predicate.isNonEmptyArray, Predicate.forEach(
 				Predicate.dispatch("type", {
@@ -45,6 +44,8 @@ export namespace CustomPredicateQuiz {
 				})
 			)],
 			name: Predicate.isNonEmptyString,
+			dueDate: Predicate.isDefined,
+			type: Predicate.isNonEmptyString,
 			showResultToStudents: Predicate.isBoolean
 		});
 
