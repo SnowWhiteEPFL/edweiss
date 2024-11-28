@@ -19,6 +19,7 @@ import { Timestamp } from '../time';
 namespace LectureDisplay {
 
 	export type LectureEvents = "quiz";
+	export type AvailableLangs = "english" | "french" | "spanish" | "italian" | "german" | "brazilian" | "arabic" | "chinese" | "vietanames";
 
 	interface LectureEventBase {
 		type: LectureEvents;
@@ -47,9 +48,9 @@ namespace LectureDisplay {
 	}
 
 	export const Functions = FunctionFolder("lectures", {
-    createQuestion: FunctionOf<{ courseId: string, lectureId: string, question: string; }, { id: string; }, 'invalid_arg' | 'error_firebase' | 'empty_question'>("createQuestion"),
+		addAudioTranscript: FunctionOf<{ courseId: string, lectureId: string, pageNumber: number, transcription: string; }, {}, 'invalid_arg' | 'error_firebase' | 'successfully_added'>("addAudioTranscript"),
+		createQuestion: FunctionOf<{ courseId: string, lectureId: string, question: string; }, { id: string; }, 'invalid_arg' | 'error_firebase' | 'empty_question'>("createQuestion"),
 		updateQuestion: FunctionOf<{ id: string, lectureId: string, likes: number; }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("updateQuestion"),
-		addAudioTranscript: FunctionOf<{ courseId: string, lectureId: string, pageNumber: number, transcription: string; }, 'successfully_added', 'invalid_arg' | 'error_firebase' | 'course_not_found'>("addAudioTranscript"),
 	});
 }
 

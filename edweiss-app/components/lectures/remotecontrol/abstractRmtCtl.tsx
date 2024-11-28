@@ -16,9 +16,14 @@ import Icon from '@/components/core/Icon';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { LightDarkProps } from '@/constants/Colors';
+import LectureDisplay from '@/model/lectures/lectureDoc';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import Toast from 'react-native-toast-message';
+
+// types
+import AvailableLangs = LectureDisplay.AvailableLangs;
+
 
 
 
@@ -33,6 +38,10 @@ interface AbstractRmtCrlProps {
 }
 
 export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, isRecording }) => {
+
+    // The selected language, by default en-US
+    const [selectedLanguage, setSelectedLanguage] = useState<AvailableLangs>('english');
+
     return (
         <>
             <RouteHeader disabled title={"Lecture's Slides"} />
@@ -77,7 +86,10 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                         <TTouchableOpacity
                             backgroundColor='crust'
                             borderColor='base' p={7} ml={'md'} radius={1000}
-                            onPress={() => router.push('/(app)/lectures/remotecontrol/settings' as any)}
+                            onPress={() => router.push({
+                                pathname: '/(app)/lectures/remotecontrol/settings',
+                                params: { selectedLanguage, setSelectedLanguage }
+                            } as any)}
                             testID='strc-setting-button'>
                             <Icon size={45} name='settings-outline' color='text'></Icon>
                         </TTouchableOpacity>

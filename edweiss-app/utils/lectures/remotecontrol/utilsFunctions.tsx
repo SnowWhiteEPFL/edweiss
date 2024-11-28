@@ -13,6 +13,9 @@ import LectureDisplay from '@/model/lectures/lectureDoc';
 import { FCMCommunication } from '@/model/users';
 import { Vibration } from 'react-native';
 
+// types
+import AvailableLangs = LectureDisplay.AvailableLangs;
+
 
 // ------------------------------------------------------------
 // --------------- Update Slide Audio Recording ---------------
@@ -148,3 +151,32 @@ export const handleMic = function (
     Vibration.vibrate(100);
     setIsRecording(!isRecording);
 }
+
+
+// ------------------------------------------------------------
+// -----------------    Language Selection    -----------------
+// ------------------------------------------------------------
+
+export const langIconMap: Record<AvailableLangs, string> = {
+    "english": "🇺🇸",
+    "french": "🇫🇷",
+    "spanish": "🇪🇸",
+    "italian": "🇮🇹",
+    "german": "🇩🇪",
+    "brazilian": "🇧🇷",
+    "arabic": "🇸🇦",
+    "chinese": "🇨🇳",
+    "vietanames": "🇻🇳"
+};
+
+export const langNameMap: Record<AvailableLangs, string> = {
+    "english": "English",
+    "french": "Français",
+    "spanish": "Español",
+    "italian": "Italiano",
+    "german": "Deutsch",
+    "brazilian": "Português",
+    "arabic": "العربية",
+    "chinese": "中文",
+    "vietanames": "Tiếng Việt"
+};
