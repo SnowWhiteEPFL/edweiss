@@ -1,9 +1,9 @@
 import RouteHeader from '@/components/core/header/RouteHeader';
-import { ApplicationRoute } from '@/constants/Component';
 
 import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
+import { ApplicationRoute } from '@/constants/Component';
 import { langIconMap, langNameMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { t } from 'i18next';
 

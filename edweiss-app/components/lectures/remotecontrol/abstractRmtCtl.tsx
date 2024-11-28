@@ -17,6 +17,7 @@ import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { LightDarkProps } from '@/constants/Colors';
 import LectureDisplay from '@/model/lectures/lectureDoc';
+import { langNameMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import Toast from 'react-native-toast-message';
@@ -40,13 +41,15 @@ interface AbstractRmtCrlProps {
 export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, isRecording }) => {
 
     // The selected language, by default en-US
-    const [selectedLanguage, setSelectedLanguage] = useState<AvailableLangs>('english');
+    const [selectedLang, setSelectedLang] = useState<AvailableLangs>('english');
 
     return (
         <>
             <RouteHeader disabled title={"Lecture's Slides"} />
 
             <TView borderColor='text' m={'md'} mt={'xl'} mb={'xl'} b={0.5} backgroundColor='base' radius={'lg'}>
+
+                <TText color='text'>{langNameMap[selectedLang]}</TText>
 
                 {/* STRC text and timer */}
                 <TView mt={17} mb={50} justifyContent='center' alignItems='center'>
@@ -88,10 +91,10 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                             borderColor='base' p={7} ml={'md'} radius={1000}
                             onPress={() => router.push({
                                 pathname: '/(app)/lectures/remotecontrol/settings',
-                                params: { selectedLanguage, setSelectedLanguage }
+                                params: { selectedLang, setSelectedLang }
                             } as any)}
                             testID='strc-setting-button'>
-                            <Icon size={45} name='settings-outline' color='text'></Icon>
+                            <Icon size={45} name='language-outline' color='text'></Icon>
                         </TTouchableOpacity>
 
                         <TView flex={1}></TView>
