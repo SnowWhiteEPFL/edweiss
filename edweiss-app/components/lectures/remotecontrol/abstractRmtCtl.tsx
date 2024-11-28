@@ -17,7 +17,6 @@ import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { LightDarkProps } from '@/constants/Colors';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import { langNameMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import Toast from 'react-native-toast-message';
@@ -49,14 +48,27 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
 
             <TView borderColor='text' m={'md'} mt={'xl'} mb={'xl'} b={0.5} backgroundColor='base' radius={'lg'}>
 
-                <TText color='text'>{langNameMap[selectedLang]}</TText>
-
-                {/* STRC text and timer */}
+                {/* STRC text, set language and timer */}
                 <TView mt={17} mb={50} justifyContent='center' alignItems='center'>
                     <TText size={18} mb={'md'}> {t(`showtime:showtime_title`)}</TText>
-                    <TTouchableOpacity mt={20} backgroundColor='mantle' radius={'lg'}>
-                        <TText size={50} p={'md'} pb={'sm'}>0:00:00</TText>
-                    </TTouchableOpacity>
+
+                    <TView alignItems='center' flexDirection='row' justifyContent='space-between' mt={20}>
+                        <TTouchableOpacity
+                            backgroundColor='crust'
+                            borderColor='text' p={10} b={1} ml={'md'} radius={1000}
+                            onPress={() => router.push('/(app)/lectures/remotecontrol/settings' as any)}
+                            testID='strc-setting-button'>
+                            <Icon size={40} name='language-outline' color='text'></Icon>
+                        </TTouchableOpacity>
+
+                        <TView flex={1}></TView>
+
+                        <TTouchableOpacity backgroundColor='mantle' borderColor='text' b={1} radius={'lg'} mr={'md'}>
+                            <TText size={50} p={'md'} pb={'sm'}>0:00:00</TText>
+                        </TTouchableOpacity>
+
+                    </TView>
+
                 </TView>
 
 
@@ -88,41 +100,42 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                     <TView mt={15} alignItems='center' flexDirection='row' justifyContent='space-between'>
                         <TTouchableOpacity
                             backgroundColor='crust'
-                            borderColor='base' p={7} ml={'md'} radius={1000}
-                            onPress={() => router.push({
-                                pathname: '/(app)/lectures/remotecontrol/settings',
-                                params: { selectedLang, setSelectedLang }
-                            } as any)}
+                            borderColor='text' p={10} b={1} ml={'md'} radius={1000}
+                            onPress={() => Toast.show({
+                                type: 'success',
+                                text1: 'The Go to Page',
+                                text2: 'Implementation comes soon'
+                            })}
                             testID='strc-setting-button'>
-                            <Icon size={45} name='language-outline' color='text'></Icon>
+                            <Icon size={40} name='rocket-outline' color='text'></Icon>
                         </TTouchableOpacity>
 
                         <TView flex={1}></TView>
 
                         <TTouchableOpacity
                             backgroundColor='crust'
-                            borderColor='base' p={7} mr={'md'} radius={1000}
+                            borderColor='text' p={10} b={1} radius={1000}
                             onPress={() => Toast.show({
                                 type: 'success',
                                 text1: 'The Available activities',
                                 text2: 'Implementation comes soon'
                             })}
                             testID='strc-chat-button'>
-                            <Icon size={45} name='easel-outline' color='text'></Icon>
+                            <Icon size={40} name='easel-outline' color='text'></Icon>
                         </TTouchableOpacity>
 
                         <TView flex={1}></TView>
 
                         <TTouchableOpacity
                             backgroundColor='crust'
-                            borderColor='base' p={7} mr={'md'} radius={1000}
+                            borderColor='text' p={10} b={1} mr={'md'} radius={1000}
                             onPress={() => Toast.show({
                                 type: 'success',
                                 text1: 'The Audiance  Questions',
                                 text2: 'Implementation comes soon'
                             })}
                             testID='strc-chat-button'>
-                            <Icon size={45} name='chatbubbles-outline' color='text'></Icon>
+                            <Icon size={40} name='chatbubbles-outline' color='text'></Icon>
                         </TTouchableOpacity>
 
                     </TView>
