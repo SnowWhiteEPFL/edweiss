@@ -90,10 +90,10 @@ const RichText: ReactComponent<RichTextProps> = ({ size = "md", ...props }) => {
 
 						margin: 0 !important;
  						padding: ${computeSizeOpt(props.p, paddingSizes) ?? 0} !important;
-						padding-top: ${computeSizeOpt(props.pt, paddingSizes) ?? 0} !important;
-						padding-bottom: ${computeSizeOpt(props.pb, paddingSizes) ?? 0} !important;
-						padding-left: ${computeSizeOpt(props.pl, paddingSizes) ?? 0} !important;
-						padding-right: ${computeSizeOpt(props.pr, paddingSizes) ?? 0} !important;
+						padding-top: ${computeSizeOpt(props.pt, paddingSizes) ?? computeSizeOpt(props.py, paddingSizes) ?? 0} !important;
+						padding-bottom: ${computeSizeOpt(props.pb, paddingSizes) ?? computeSizeOpt(props.py, paddingSizes) ?? 0} !important;
+						padding-left: ${computeSizeOpt(props.pl, paddingSizes) ?? computeSizeOpt(props.px, paddingSizes) ?? 0} !important;
+						padding-right: ${computeSizeOpt(props.pr, paddingSizes) ?? computeSizeOpt(props.px, paddingSizes) ?? 0} !important;
 						
 						font-family: ${props.font ?? "Inter"};
 						color: ${computedColor ?? Colors[theme].text};
