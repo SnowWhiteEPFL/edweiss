@@ -24,7 +24,7 @@ const CommunityTab: ApplicationRoute = () => {
 				My Todos
 			</FancyButton>
 
-			<FancyButton onPress={() => {
+			<FancyButton mt={10} mb={10} onPress={() => {
 				router.push({
 					pathname: '/(app)/lectures/remotecontrol' as any,
 					params: {
@@ -34,6 +34,18 @@ const CommunityTab: ApplicationRoute = () => {
 				});
 			}} >
 				<TText> Go to STRC</TText>
+			</FancyButton>
+
+			<FancyButton mt={10} mb={10} onPress={() => {
+				router.push({
+					pathname: '/(app)/lectures/slides' as any,
+					params: {
+						courseNameString: "edweiss-demo",
+						lectureIdString: "xgy30FeIOHAnKtSfPjAe"
+					}
+				});
+			}} >
+				<TText> Go to ShowTime</TText>
 			</FancyButton>
 
 
