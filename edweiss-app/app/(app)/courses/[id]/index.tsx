@@ -14,6 +14,7 @@
  * The component uses various custom components like TActivityIndicator, TText, TTouchableOpacity, and TView for rendering UI elements.
  * 
  */
+import { ArchiveRouteSignature } from '@/app/(app)/courses/[id]/archive';
 import For from '@/components/core/For';
 import Icon from '@/components/core/Icon';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
@@ -29,9 +30,10 @@ import { ApplicationRoute } from '@/constants/Component';
 import { iconSizes } from '@/constants/Sizes';
 import { timeInMS } from '@/constants/Time';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { pushWithParameters } from '@/hooks/routeParameters';
 import { Assignment, Course } from '@/model/school/courses';
 import { Time } from '@/utils/time'; // Adjust the import path as necessary
-import { Redirect, router, useLocalSearchParams } from 'expo-router';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 import React, { useMemo } from 'react';
 
 
@@ -154,7 +156,7 @@ const CoursePage: ApplicationRoute = () => {
 				</For>
 
 				{/* Bouton vers les Passed Assignments */}
-				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} onPress={() => router.push({ pathname: `/courses/[id]/archive`, params: { id: course.id, rawAssignments: JSON.stringify(previousAssignments) } })}>
+				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} onPress={() => pushWithParameters(ArchiveRouteSignature, { id: course.id, assignments: previousAssignments })}>
 					<TText my={20} align='center' color='cherry' testID={testIDs.previousAssignments} >{t(`course:previous_assignment_title`)}</TText>
 				</TTouchableOpacity>
 

@@ -18,8 +18,8 @@ import AssignmentDisplay, { AssignmentWithColor } from '@/components/courses/Ass
 import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { iconSizes } from '@/constants/Sizes';
-import { useLocalSearchParams } from 'expo-router';
-import React, { useMemo } from 'react';
+import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
+import React from 'react';
 
 
 // Tests Tags
@@ -31,9 +31,12 @@ export const testIDs = {
     noArchive: 'no-archive',
 };
 
-// ------------------------------------------------------------
-// -------------------  The Archive screen   ------------------
-// ------------------------------------------------------------
+export const ArchiveRouteSignature: ApplicationRouteSignature<{
+    id: string,
+    assignments: AssignmentWithColor[]
+}> = {
+    path: `/courses/[id]/archive`
+}
 
 /**
  * ArchiveScreen Component
@@ -46,31 +49,8 @@ export const testIDs = {
  * @returns JSX.Element - The rendered component for the previous assignments page.
  */
 const ArchiveScreen: ApplicationRoute = () => {
-    const { rawAssignments } = useLocalSearchParams();
 
-    const assignments = useMemo<AssignmentWithColor[]>(() => {
-        if (typeof rawAssignments === 'string') {
-            try {
-                // Use routeParameters to parse and validate rawAssignments
-                const parsedAssignments: AssignmentWithColor[] = JSON.parse(rawAssignments);
-
-                // Sanitizes the structure of parsedAssignments
-                parsedAssignments.forEach((assignment) => {
-                    if (!assignment.dueDate || typeof assignment.dueDate.seconds !== 'number' || typeof assignment.dueDate.nanoseconds !== 'number') {
-                        console.warn('Unexpected dueDate format:', assignment.dueDate);
-                    }
-                });
-
-                return parsedAssignments;
-            } catch (error) {
-                console.error('Failed to parse rawAssignments: ', error);
-                return [];
-            }
-        } else {
-            console.error('Invalid rawAssignments (not a string): ', rawAssignments);
-            return [];
-        }
-    }, [rawAssignments]);
+    const { assignments } = useRouteParameters(ArchiveRouteSignature);
 
     return (
         <>
