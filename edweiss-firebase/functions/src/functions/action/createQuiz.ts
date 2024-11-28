@@ -15,9 +15,9 @@ export const createQuiz = onSanitizedCall(Quizzes.Functions.createQuiz, {
 		return fail("not_authorized");
 	}
 
-	const quizCollection = CollectionOf<Quizzes.Quiz>("courses/" + args.courseId + "/quizzes");
+	const assignmentCollection = CollectionOf<Quizzes.Quiz>("courses/" + args.courseId + "/assignments");
 
-	const res = await quizCollection.add(args.quiz);
+	const res = await assignmentCollection.add(args.quiz);
 
 	return ok({ id: res.id });
 });
