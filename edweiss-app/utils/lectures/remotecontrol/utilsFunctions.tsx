@@ -166,7 +166,8 @@ export const langIconMap: Record<AvailableLangs, string> = {
     "brazilian": "🇧🇷",
     "arabic": "🇸🇦",
     "chinese": "🇨🇳",
-    "vietanames": "🇻🇳"
+    "vietanames": "🇻🇳",
+    "hindi": "🇮🇳"
 };
 
 export const langNameMap: Record<AvailableLangs, string> = {
@@ -178,5 +179,6 @@ export const langNameMap: Record<AvailableLangs, string> = {
     "brazilian": "Português",
     "arabic": "العربية",
     "chinese": "中文",
-    "vietanames": "Tiếng Việt"
+    "vietanames": "Tiếng Việt",
+    "hindi": "हिन्दी"
 };
