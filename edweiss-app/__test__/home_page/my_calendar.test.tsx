@@ -4,7 +4,6 @@ import InfinitePaginatedCounterScreen from '@/app/(app)/calendar';
 import { Calendar } from '@/components/core/calendar';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
-import { Section } from '@/model/school/courses';
 import Todolist from '@/model/todo';
 import { NavigationContainer } from '@react-navigation/native';
 import { render, screen, waitFor } from '@testing-library/react-native';
@@ -13,6 +12,7 @@ const CollectionOf = jest.fn();
 
 import React from 'react';
 import { Dimensions, ScaledSize } from 'react-native';
+import { initCourse, initPeriod } from './helper_functions';
 
 
 
@@ -153,26 +153,19 @@ const mockTodos = [
 
 ];
 
-const mockAssignments = [{ id: 'assignment1', data: { title: 'Test Assignment', dueDate: new Date(), type: 'homework', name: 'Assignment 1' } }];
+const mockPeriod = initPeriod(800, 1000, 'lecture', 'activity1', 2, 'Room 101');
 
-const mockPeriod = { id: 'period1', name: 'Period 1' }; // Define mockPeriod
-
-const mockCourses = [{
-    id: 'course1',
-    data: {
+const mockCourses = [
+    initCourse({
+        id: 'course1',
         name: 'Course 1',
-        started: true,
-        description: 'Course description',
-        professors: ['Professor 1'],
-        assistants: ['Assistant 1'],
         periods: [mockPeriod],
+        section: 'IN',
         credits: 3,
-        department: 'Department 1',
-        section: 'IN' as Section, // Adjust this to match the correct enum value
-        newAssignments: true,
-        assignments: [],
-    },
-}];
+        newAssignments: false,
+        started: true,
+    }),
+];
 
 describe('InfinitePaginatedCounterScreen Component', () => {
     beforeEach(() => {
