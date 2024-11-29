@@ -14,6 +14,7 @@
  * The component uses various custom components like TActivityIndicator, TText, TTouchableOpacity, and TView for rendering UI elements.
  * 
  */
+import { ArchiveRouteSignature } from '@/app/(app)/courses/[id]/archive';
 import For from '@/components/core/For';
 import Icon from '@/components/core/Icon';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
@@ -31,8 +32,10 @@ import { ApplicationRoute } from '@/constants/Component';
 import { iconSizes } from '@/constants/Sizes';
 import { timeInMS } from '@/constants/Time';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { pushWithParameters } from '@/hooks/routeParameters';
 import { Assignment, Course, Material } from '@/model/school/courses';
-import { Redirect, router, useLocalSearchParams } from 'expo-router';
+import { Time } from '@/utils/time'; // Adjust the import path as necessary
+import { Redirect, useLocalSearchParams } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 
 
@@ -92,7 +95,7 @@ const CoursePage: ApplicationRoute = () => {
 	) || [];
 
 	// Sort assignments by due date and add color based on time difference
-	const assignments = assignmentsCollection
+	const assignments: { id: string, data: AssignmentWithColor }[] = assignmentsCollection
 		.sort((a, b) => a.data.dueDate.seconds - b.data.dueDate.seconds) // Seconds comparison
 		.map((assignment) => {
 			const currentTime = new Date().getTime(); // Actual time in milliseconds
@@ -141,21 +144,13 @@ const CoursePage: ApplicationRoute = () => {
 
 	// Filter previous assignments
 	const previousAssignments = useMemo(() => {
-		return assignments
-			.filter(
-				(assignment) =>
-					assignment.data.dueDate.seconds * timeInMS.SECOND <= new Date().getTime()
-			)
-			.reverse();
+		return assignments.filter((assignment) => Time.isBeforeNow(assignment.data.dueDate)).reverse();
 	}, [assignments, timeInMS.SECOND]);
 
 	// Filter upcoming assignments
 	const upcomingAssignments = useMemo(() => {
-		const filteredAssignments = assignments.filter(
-			(assignment) =>
-				assignment.data.dueDate.seconds * timeInMS.SECOND > new Date().getTime()
-		);
-		return filteredAssignments;
+		const filteredAssignments = assignments.filter((assignment) => Time.isAfterNow(assignment.data.dueDate));
+		return filteredAssignments.length > 0 ? filteredAssignments : undefined;
 	}, [assignments, timeInMS.SECOND]);
 
 	const [showFutureMaterials, setShowFutureMaterials] = useState(false);
@@ -182,7 +177,7 @@ const CoursePage: ApplicationRoute = () => {
 				<TText mb={10} size={18} color='darkBlue' bold testID={testIDs.upcomingAssignments} >{t(`course:upcoming_assignment_title`)}</TText>
 
 				<For
-					each={upcomingAssignments.length > 0 ? upcomingAssignments : undefined}
+					each={upcomingAssignments && upcomingAssignments.length > 0 ? upcomingAssignments : undefined}
 					fallback={<TText size={16} testID={testIDs.noAssignmentDue}>{t('course:no_assignment_due')}</TText>}
 				>{(assignment, index) => (
 					<AssignmentDisplay item={assignment.data as AssignmentWithColor} id={assignment.id} courseID={id} index={index} isSwipeable key={assignment.data.name} />
@@ -190,7 +185,7 @@ const CoursePage: ApplicationRoute = () => {
 				</For>
 
 				{/* Bouton vers les Passed Assignments */}
-				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} alignItems='center' onPress={() => router.push({ pathname: `/courses/[id]/archive`, params: { id: course.id, rawAssignments: JSON.stringify(previousAssignments) } })}>
+				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} alignItems='center' onPress={() => pushWithParameters(ArchiveRouteSignature, { courseId: course.id, assignments: previousAssignments })}>
 					<TView flexDirection='row' mt={8} mb={16} >
 						<Icon
 							testID={testIDs.previousAssignmentsIcon}

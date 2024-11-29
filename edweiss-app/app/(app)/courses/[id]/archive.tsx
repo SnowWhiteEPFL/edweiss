@@ -18,10 +18,8 @@ import AssignmentDisplay, { AssignmentWithColor } from '@/components/courses/Ass
 import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { iconSizes } from '@/constants/Sizes';
-import { AssignmentType } from '@/model/school/courses';
-import { Timestamp } from '@react-native-firebase/firestore';
-import { useLocalSearchParams } from 'expo-router';
-import React, { useMemo } from 'react';
+import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
+import React from 'react';
 
 
 // Tests Tags
@@ -33,9 +31,12 @@ export const testIDs = {
     noArchive: 'no-archive',
 };
 
-// ------------------------------------------------------------
-// -------------------  The Archive screen   ------------------
-// ------------------------------------------------------------
+export const ArchiveRouteSignature: ApplicationRouteSignature<{
+    courseId: string,
+    assignments: { id: string, data: AssignmentWithColor }[]
+}> = {
+    path: `/courses/[id]/archive`
+}
 
 /**
  * ArchiveScreen Component
@@ -48,36 +49,8 @@ export const testIDs = {
  * @returns JSX.Element - The rendered component for the previous assignments page.
  */
 const ArchiveScreen: ApplicationRoute = () => {
-    const { id, rawAssignments } = useLocalSearchParams();
 
-    const assignments = useMemo(() => {
-        if (typeof rawAssignments === 'string') {
-            try {
-                const parsedAssignments: {
-                    id: string;
-                    data: {
-                        color: string;
-                        type: AssignmentType;
-                        name: string;
-                        dueDate: Timestamp;
-                    };
-                }[] = JSON.parse(rawAssignments);
-
-                // Transform the parsed assignments to AssignmentWithColor[]
-                const transformedAssignments = parsedAssignments;
-
-                return transformedAssignments; // Return the transformed array
-            } catch (error) {
-                console.error('Failed to parse rawAssignments: ', error);
-                return [];
-            }
-        } else {
-            console.error('Invalid rawAssignments (not a string): ', rawAssignments);
-            return [];
-        }
-    }, [rawAssignments]);
-
-    const courseId = id as string;
+    const { courseId, assignments } = useRouteParameters(ArchiveRouteSignature);
 
     return (
         <>

@@ -8,6 +8,7 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
+import { timeInMS } from '@/constants/Time';
 import { Timestamp } from '@/model/time';
 
 // ------------------------------------------------------------
@@ -28,6 +29,14 @@ export namespace Time {
 		const seconds = Math.floor(date.getTime() / 1000);
 		const nanoseconds = (date.getTime() % 1000) * 1_000_000;
 		return { seconds, nanoseconds };
+	}
+
+	export function isBeforeNow(timestamp: Timestamp): boolean {
+		return timestamp.seconds * timeInMS.SECOND <= new Date().getTime()
+	}
+
+	export function isAfterNow(timestamp: Timestamp): boolean {
+		return timestamp.seconds * timeInMS.SECOND > new Date().getTime()
 	}
 
 	export function sameDay(d1: Date, d2: Date): boolean {
