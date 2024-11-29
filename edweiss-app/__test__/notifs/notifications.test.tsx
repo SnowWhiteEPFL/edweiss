@@ -4,7 +4,7 @@
  * @author Florian Dinant
  */
 
-import NotificationsPage from '@/app/(app)/(tabs)/notifications';
+import NotificationsPage from '@/app/(app)/notifs/notifications';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { fireEvent, render } from '@testing-library/react-native';

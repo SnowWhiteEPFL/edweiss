@@ -1,4 +1,4 @@
-import { Href, router, useLocalSearchParams } from 'expo-router';
+import { router, Routes, useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
 
 /**
@@ -7,7 +7,7 @@ import { useMemo } from 'react';
  * Use with {@link useRouteParameters} and {@link pushWithParameters}.
  */
 export interface ApplicationRouteSignature<T> {
-	path: Href<string>
+	path: Routes;
 }
 
 /**
