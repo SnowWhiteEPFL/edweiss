@@ -77,32 +77,32 @@ genrated by AI etc.
 				<FancyButton mt={'md'} mb={'md'} onPress={() => router.push(`/(app)/todo`)}>
 					My Todos
 				</FancyButton>
-        
-        
-        <FancyButton mt={10} mb={10} onPress={() => {
-          router.push({
-            pathname: '/(app)/lectures/remotecontrol' as any,
-            params: {
-              courseNameString: "edweiss-demo",
-              lectureIdString: "xgy30FeIOHAnKtSfPjAe"
-            }
-          });
-        }} >
-          <TText> Go to STRC</TText>
-        </FancyButton>
 
-        <FancyButton mt={10} mb={10} onPress={() => {
-          router.push({
-            pathname: '/(app)/lectures/slides' as any,
-            params: {
-              courseNameString: "edweiss-demo",
-              lectureIdString: "xgy30FeIOHAnKtSfPjAe"
-            }
-          });
-        }} >
-          <TText> Go to ShowTime</TText>
-        </FancyButton>
-        
+
+				<FancyButton mt={10} mb={10} onPress={() => {
+					router.push({
+						pathname: '/(app)/lectures/remotecontrol' as any,
+						params: {
+							courseNameString: "edweiss-demo",
+							lectureIdString: "xgy30FeIOHAnKtSfPjAe"
+						}
+					});
+				}} >
+					<TText> Go to STRC</TText>
+				</FancyButton>
+
+				<FancyButton mt={10} mb={10} onPress={() => {
+					router.push({
+						pathname: '/(app)/lectures/slides' as any,
+						params: {
+							courseNameString: "edweiss-demo",
+							lectureIdString: "xgy30FeIOHAnKtSfPjAe"
+						}
+					});
+				}} >
+					<TText> Go to ShowTime</TText>
+				</FancyButton>
+
 
 				<FancyTextInput value={richText} onChangeText={setRichText} placeholder='Use Markdown and LaTeX' icon='document-text' label='Rich text' multiline />
 
@@ -110,7 +110,7 @@ genrated by AI etc.
 					{richText}
 				</RichText>
 
-        </TScrollView>
+			</TScrollView>
 		</>
 	);
 };
