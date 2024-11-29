@@ -6,8 +6,6 @@ import { render, screen } from '@testing-library/react-native';
 import '@testing-library/jest-native/extend-expect';
 import React from 'react';
 
-jest.mock('@/components/core/formatTime', () => jest.fn((time) => `${Math.floor(time / 60)}:${time % 60 < 10 ? '0' : ''}${time % 60}`));
-
 const mockPeriod = {
     id: 'period1',
     start: 0,
@@ -62,7 +60,7 @@ describe('PeriodBlock Component', () => {
 
         expect(screen.getByText('Lecture')).toBeTruthy();
         expect(screen.getByText('Course 1')).toBeTruthy();
-        expect(screen.getByText('0:00 - 24:00')).toBeTruthy();
+        expect(screen.getByText('Join Course')).toBeTruthy();
     });
 
     it('renders "Join Course" for students', () => {
@@ -83,7 +81,6 @@ describe('PeriodBlock Component', () => {
 
         render(
             <PeriodBlock
-
                 user={mockUserProfessor}
                 period={mockPeriod}
                 course={notStartedCourse}
@@ -97,7 +94,6 @@ describe('PeriodBlock Component', () => {
     it('renders "Stop Course" for professors when course is started', () => {
         render(
             <PeriodBlock
-
                 user={mockUserProfessor}
                 period={mockPeriod}
                 course={mockCourse}
@@ -108,7 +104,7 @@ describe('PeriodBlock Component', () => {
         expect(screen.getByText('Stop Course')).toBeTruthy();
     });
 
-    // Test pour vérifier la direction et la taille du texte pour le format 'day'
+    // Test to verify direction and text size for 'day' format
     it('sets the correct styles for format "day"', () => {
         render(
             <PeriodBlock
@@ -119,20 +115,20 @@ describe('PeriodBlock Component', () => {
             />
         );
 
-        // Vérifie que la direction est 'row' (par défaut pour "day")
-        const firstView = screen.getByTestId('period-block-view');  // Assure-toi d'ajouter un `testID` à ton TView pour identifier les éléments dans les tests
+        // Check that the direction is 'row' (default for "day")
+        const firstView = screen.getByTestId('period-block-view');  // Ensure you add a `testID` to your TView for identifying elements in tests
         expect(firstView).toHaveStyle({ flexDirection: 'column' });
 
-        // Vérifie que la taille primaire du texte est 15 pour 'day'
-        const primaryText = screen.getByText('Lecture');  // On suppose que ce texte correspond au premier TText
+        // Check that the primary text size is 15 for 'day'
+        const primaryText = screen.getByText('Lecture');  // Assuming this text corresponds to the first TText
         expect(primaryText).toHaveStyle({ fontSize: 15 });
 
-        // Vérifie que la taille secondaire du texte est 12 pour 'day'
+        // Check that the secondary text size is 12 for 'day'
         const secondaryText = screen.getByText('Course 1');
         expect(secondaryText).toHaveStyle({ fontSize: 12 });
     });
 
-    // Test pour vérifier la direction et la taille du texte pour le format 'week'
+    // Test to verify direction and text size for 'week' format
     it('sets the correct styles for format "week"', () => {
         render(
             <PeriodBlock
@@ -143,19 +139,69 @@ describe('PeriodBlock Component', () => {
             />
         );
 
-        // Vérifie que la direction est 'column' pour "week"
+        // Check that the direction is 'column' for "week"
         const firstView = screen.getByTestId('period-block-view');
         expect(firstView).toHaveStyle({ flexDirection: 'column' });
 
-        // Vérifie que la taille primaire du texte est 12 pour 'week'
+        // Check that the primary text size is 12 for 'week'
         const primaryText = screen.getByText('Lecture');
         expect(primaryText).toHaveStyle({ fontSize: 12 });
 
-        // Vérifie que la taille secondaire du texte est 9 pour 'week'
+        // Check that the secondary text size is 9 for 'week'
         const secondaryText = screen.getByText('Course 1');
         expect(secondaryText).toHaveStyle({ fontSize: 9 });
     });
-
-
-
 })
+
+describe('PeriodBlock Component - Additional Cases', () => {
+    // Test when no user is provided
+    it('renders correctly when user is null', () => {
+        render(
+            <PeriodBlock
+                period={mockPeriod}
+                course={mockCourse}
+                user={null}
+                format="day"
+            />
+        );
+
+        // Ensure no actions are displayed
+        expect(screen.queryByText('Join Course')).toBeNull();
+        expect(screen.queryByText('Start Course')).toBeNull();
+        expect(screen.queryByText('Stop Course')).toBeNull();
+    });
+
+    // Test boundary time formatting
+    it('renders correct time for boundary values', () => {
+        const boundaryPeriod = { ...mockPeriod, start: 0, end: 1439 }; // 0:00 to 23:59
+
+        render(
+            <PeriodBlock
+                period={boundaryPeriod}
+                course={mockCourse}
+                user={mockUserStudent}
+                format="day"
+            />
+        );
+
+        expect(screen.getByText('0:00 - 23:59')).toBeTruthy(); // Ensure boundary times render correctly
+    });
+
+    // Test unexpected user type
+    it('renders no actions for unsupported user type', () => {
+        const unexpectedUser = { id: 'user3', data: { type: 'admin' } };
+
+        render(
+            <PeriodBlock
+                period={mockPeriod}
+                course={mockCourse}
+                user={unexpectedUser}
+                format="day"
+            />
+        );
+
+        expect(screen.queryByText('Join Course')).toBeNull();
+        expect(screen.queryByText('Start Course')).toBeNull();
+        expect(screen.queryByText('Stop Course')).toBeNull();
+    });
+});
