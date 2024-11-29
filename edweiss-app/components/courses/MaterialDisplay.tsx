@@ -2,8 +2,11 @@ import ReactComponent from '@/constants/Component';
 
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
+import t from '@/config/i18config';
 import { iconSizes } from '@/constants/Sizes';
-import { Material } from '@/model/school/courses';
+import { formatterOptions, fullYearFormatterOptions } from '@/constants/Time';
+import { Material, MaterialType } from '@/model/school/courses';
+import { Time } from '@/utils/time';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
 
@@ -44,22 +47,32 @@ export const testIDs = {
  */
 const MaterialDisplay: ReactComponent<{ item: Material; }> = ({ item }) => {
 
+
+
     const formatDateRange = (fromSeconds: number, toSeconds: number) => {
-        const fromDate = new Date(fromSeconds * 1000);
-        const toDate = new Date(toSeconds * 1000);
 
-        const formatterOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
-        const fullYearFormatterOptions: Intl.DateTimeFormatOptions = { ...formatterOptions, year: 'numeric' };
+        const fromDate: Date = Time.dateFromSeconds(fromSeconds)
+        const toDate: Date = Time.dateFromSeconds(toSeconds)
 
-        const fromDateString = new Intl.DateTimeFormat('en-US', formatterOptions).format(fromDate);
-        const toDateString = new Intl.DateTimeFormat('en-US', fullYearFormatterOptions).format(toDate);
-
-        return `${fromDateString} - ${toDateString}`;
+        if (Time.sameYear(fromDate, toDate)) {
+            return Time.getTwoDatesTimeWithFormat(fromDate, toDate, t(`course:dateFormat`), formatterOptions, fullYearFormatterOptions);
+        }
+        else {
+            return Time.getTwoDatesTimeWithFormat(fromDate, toDate, t(`course:dateFormat`), fullYearFormatterOptions, fullYearFormatterOptions);
+        }
     };
 
+    // Type-safe order mapping
+    const order: Record<MaterialType, number> = {
+        slides: 1,
+        exercises: 2,
+        other: 3,
+        feedbacks: 4,
+    };
+
+    // Sort using the type-safe order mapping
     const sortedDocs = item.docs.sort((a, b) => {
-        const order = { slides: 1, exercises: 2, other: 3, feedbacks: 4 };
-        return (order[a.type] || 5) - (order[b.type] || 5);
+        return order[a.type as MaterialType] - order[b.type as MaterialType];
     });
 
     return (
