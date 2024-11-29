@@ -6,7 +6,9 @@ import React from 'react';
 import TScrollView from '@/components/core/containers/TScrollView';
 import ModalContainer from '@/components/core/modal/ModalContainer';
 import FancyButton from '@/components/input/FancyButton';
+import { LightDarkProps } from '@/constants/Colors';
 import ReactComponent from '@/constants/Component';
+import useTheme from '@/hooks/theme/useTheme';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { t } from 'i18next';
@@ -72,15 +74,17 @@ interface TwoLangsSelectionProps {
     lang2?: AvailableLangs;
 }
 
-const TwoLangsSelection: React.FC<TwoLangsSelectionProps> = ({ lang, setLang, lang1, lang2 }) => {
+const TwoLangsSelection: React.FC<TwoLangsSelectionProps & LightDarkProps> = ({ lang, setLang, lang1, lang2 }) => {
+    const theme = useTheme()
+
 
     /* Color pallette for selected/unselected languages
      * Note: this are `sky` and `green` in which there alpha has been modified
      */
-    const unselectedColorBord = 'rgba(4, 165, 229, 0.15)';
-    const unselectedColorBack = 'rgba(4, 165, 229, 0.01)';
-    const selectedColorBord = 'rgba(64, 160, 43, 0.6)';
-    const selectedColorBack = 'rgba(64, 160, 43, 0.1)';
+    const unselectedColorBord = (theme === "light") ? 'rgba(4, 165, 229, 0.15)' : 'rgba(166, 227, 161, 0.6)';
+    const unselectedColorBack = (theme === "light") ? 'rgba(4, 165, 229, 0.01)' : 'rgba(166, 227, 161, 0.15)';
+    const selectedColorBord = (theme === "light") ? 'rgba(64, 160, 43, 0.6)' : 'rgba(137, 220, 235, 0.7)';
+    const selectedColorBack = (theme === "light") ? 'rgba(64, 160, 43, 0.1)' : 'rgba(137, 220, 235, 0.3)';
 
     return (
         <TView alignItems='center' flexDirection='row' justifyContent='space-between' mt={20}>
