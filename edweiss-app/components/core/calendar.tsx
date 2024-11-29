@@ -12,9 +12,8 @@ import { Day } from './Day';
 import { getWeekDates } from './getWeekDates';
 import TText from './TText';
 
-const HOUR_BLOCK_HEIGHT = 80; // Hauteur de chaque bloc horaire dans la vue du calendrier
-const TOTAL_HOURS = 24; // Total des heures affichées sur le calendrier
-
+const HOUR_BLOCK_HEIGHT = 80; // Height of each hour block in the calendar view
+const TOTAL_HOURS = 24; // Total hours displayed on the calendar
 
 export const Calendar = ({
     courses,
@@ -29,15 +28,18 @@ export const Calendar = ({
     type: 'week' | 'day' | undefined;
     date: Date;
 }) => {
+    const [currentMinutes, setCurrentMinutes] = useState(getCurrentTimeInMinutes());
+    const scrollViewRef = useRef<ScrollView>(null);
     const [user, setUser] = useState<any>(null);
     const userId = useAuth().uid;
+    const [format, setFormat] = useState(type);
 
-    // Mise à jour du format si type est undefined
+    // Update the format if type is undefined
     useEffect(() => {
         if (type === undefined) setFormat('day');
     }, [type]);
 
-    // Gestion des changements d'orientation de l'écran
+    // Handle screen orientation changes
     useEffect(() => {
         const onOrientationChange = (currentOrientation: ScreenOrientation.OrientationChangeEvent) => {
             const orientationValue = currentOrientation.orientationInfo.orientation;
@@ -49,7 +51,7 @@ export const Calendar = ({
         return () => ScreenOrientation.removeOrientationChangeListener(screenOrientationListener);
     }, [type]);
 
-    // Récupération des données utilisateur
+    // Fetch user data
     useEffect(() => {
         const fetchUser = async () => {
             const userData = await getDocument(Collections.users, userId);
@@ -58,100 +60,100 @@ export const Calendar = ({
         fetchUser();
     }, [userId]);
 
-    // Mise à jour des minutes actuelles toutes les minutes
+    // Update current minutes every minute
     useEffect(() => {
         const interval = setInterval(() => setCurrentMinutes(getCurrentTimeInMinutes()), 60000);
         return () => clearInterval(interval);
     }, []);
 
-
-    const [currentMinutes, setCurrentMinutes] = useState(getCurrentTimeInMinutes());
-    const scrollViewRef = useRef<ScrollView>(null);
-
-    const [format, setFormat] = useState(type ?? 'day');
-    const weekDates = useMemo(() => getWeekDates(date), [date]);
-
-    const hoursArray = useMemo(() => Array.from({ length: TOTAL_HOURS }, (_, i) => i), []);
-
-    const dayIndex = useMemo(() => date.getDay(), [date]);
-    // Défilement vers le bloc horaire actuel
+    // Scroll to current time block
     useEffect(() => {
         scrollViewRef.current?.scrollTo({ y: (currentMinutes / 60 - 1) * HOUR_BLOCK_HEIGHT, animated: true });
     }, [currentMinutes]);
-    // Pré-calculer les données filtrées
-    const { dailyAssignments, dailyTodos, hourlyData } = useMemo(() => {
-        const dailyAssignments = assignments.filter(({ data }) => {
-            const assignmentDate = Time.toDate(data.dueDate);
-            return assignmentDate.toDateString() === date.toDateString();
-        });
 
-        const dailyTodos = todos.filter(({ data }) => {
-            const todoDate = data?.dueDate ? Time.toDate(data.dueDate) : null;
-            return todoDate?.toDateString() === date.toDateString();
-        });
+    // Memoize the week dates
+    const weekDates = useMemo(() => getWeekDates(date), [date]);
 
-        const hourlyData = hoursArray.map(hour => {
-            const filteredPeriods = courses.flatMap(({ data }) =>
-                data.periods.filter(
-                    period =>
-                        period.dayIndex === dayIndex &&
-                        period.start >= hour * 60 &&
-                        period.start < (hour + 1) * 60
-                )
+    const renderDay = (dayDate: Date) => {
+        const dayIndex = dayDate.getDay();
+
+        // Filter assignments and todos for the given day
+        const dailyAssignments = assignments.filter(assignment => {
+            const assignmentDate = Time.toDate(assignment.data.dueDate);
+            return (
+                assignmentDate.getDate() === dayDate.getDate() &&
+                assignmentDate.getMonth() === dayDate.getMonth() &&
+                assignmentDate.getFullYear() === dayDate.getFullYear()
             );
-
-            return {
-                hour,
-                todos: dailyTodos.filter(todo =>
-                    todo.data.dueDate && new Date(Time.toDate(todo.data.dueDate)).getHours() === hour
-                ),
-                assignments: dailyAssignments.filter(assignment =>
-                    new Date(Time.toDate(assignment.data.dueDate)).getHours() === hour
-                ),
-                filteredCourses: courses.filter(({ data }) =>
-                    filteredPeriods.some(
-                        period =>
-                            period.dayIndex === dayIndex &&
-                            period.start >= hour * 60 &&
-                            period.start < (hour + 1) * 60
-                    )
-                ),
-                filteredPeriods,
-            };
         });
 
-        return { dailyAssignments, dailyTodos, hourlyData };
-    }, [assignments, todos, courses, dayIndex, hoursArray, date]);
+        const dailyTodos = todos?.filter(todo => {
+            const todoDate = todo.data?.dueDate ? Time.toDate(todo.data.dueDate) : null;
+            return (
+                todoDate?.getDate() === dayDate.getDate() &&
+                todoDate?.getMonth() === dayDate.getMonth() &&
+                todoDate?.getFullYear() === dayDate.getFullYear()
+            );
+        });
 
-    const renderDay = () => {
         return (
-            <TView flex={1}>
-                {hourlyData.map(({ hour, todos, assignments, filteredPeriods, filteredCourses }) => (
-                    (todos.length > 0 || assignments.length > 0 || filteredCourses.length > 0 || filteredPeriods.length > 0) ? (
+            <TView key={dayDate.toISOString()} flex={1}>
+                {/* Render each hour block */}
+                {Array.from({ length: TOTAL_HOURS }).map((_, hour) => {
+                    const hourTodos = dailyTodos?.filter(
+                        todo =>
+                            todo.data.dueDate &&
+                            new Date(Time.toDate(todo.data.dueDate)).getHours() === hour
+                    );
+                    const hourAssignments = dailyAssignments?.filter(
+                        assignment =>
+                            new Date(Time.toDate(assignment.data.dueDate)).getHours() === hour
+                    );
+                    const filteredPeriods = courses.flatMap(course =>
+                        course.data.periods.filter(
+                            period =>
+                                period.dayIndex === dayIndex &&
+                                period.start >= hour * 60 &&
+                                period.start < (hour + 1) * 60
+                        )
+                    );
+                    const filteredCourses = courses.filter(course =>
+                        filteredPeriods.some(
+                            period =>
+                                period.dayIndex === dayIndex &&
+                                period.start >= hour * 60 &&
+                                period.start < (hour + 1) * 60
+                        )
+                    );
+                    return (
                         <TView
                             key={`hour-${dayIndex}-${hour}`}
                             bb={1}
                             bl={1}
+                            borderColor="overlay2"
                             style={{ height: HOUR_BLOCK_HEIGHT }}
                             flexDirection="row"
                         >
                             <TView flexDirection="row" flex={1}>
+                                {/* Render course periods, assignments, and todos */}
                                 <Day
                                     key={`${dayIndex}-${hour}`}
                                     course={filteredCourses}
                                     user={user}
                                     filteredPeriods={filteredPeriods}
                                     format={format ?? 'day'}
-                                    assignments={assignments}
-                                    todos={todos}
+                                    assignments={hourAssignments}
+                                    todos={hourTodos}
                                 />
                             </TView>
                         </TView>
-                    ) : null))}
+                    );
+                })}
 
-                {date.getDate() === new Date().getDate() && (
+                {/* Red line for current time */}
+                {dayDate.getDate() === date.getDate() && (
                     <TView
-                        testID="current-time-line"
+                        testID='current-time-line'
                         backgroundColor="red"
                         style={{
                             position: 'absolute',
@@ -165,22 +167,28 @@ export const Calendar = ({
         );
     };
 
+    const stringDate =
+        date.toLocaleDateString('fr-FR', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+        })
+
+
     return (
-        <TView mb={16} flex={1}>
+        <TView mb={16} flex={1} key={userId}>
+            {/* Display current date */}
             {format === 'day' && (
                 <TView pt={35} backgroundColor="constantBlack" alignItems="center">
                     <TText color="text" m={5} align="center" size="lg" style={{ width: '86%' }}>
-                        {date.toLocaleDateString('fr-FR', {
-                            weekday: 'long',
-                            day: 'numeric',
-                            month: 'long',
-                        })}
+                        {stringDate}
                     </TText>
                 </TView>
             )}
 
+            {/* Week view */}
             {format === 'week' && (
-                <TView flexDirection="row">
+                <TView flexDirection="row" >
                     <TView style={{ width: '5%' }} />
                     {weekDates.map(weekDate => (
                         <TText
@@ -199,26 +207,41 @@ export const Calendar = ({
                 </TView>
             )}
 
-            <ScrollView ref={scrollViewRef} style={{ flex: 1 }} showsVerticalScrollIndicator={true}>
+            <ScrollView
+                ref={scrollViewRef}
+                style={{ flex: 1 }}
+                showsVerticalScrollIndicator={true}
+            >
                 <TView flexDirection="row">
+                    {/* Render time labels */}
                     <TView style={format === 'week' ? { width: '5%' } : { width: '14%' }}>
-                        {hoursArray.map(hour => (
+                        {Array.from({ length: TOTAL_HOURS }).map((_, hour) => (
                             <TView
-                                key={`hour-label-${hour}`}
+                                key={`hour-${date.getTime()}-${hour}`}
                                 alignItems="center"
                                 justifyContent="center"
-                                style={{
-                                    height: HOUR_BLOCK_HEIGHT,
-                                    borderBottomWidth: 1,
-                                }}
+                                bt={1}
+                                bb={1}
+                                borderColor="overlay0"
+                                backgroundColor="constantBlack"
+                                style={{ height: HOUR_BLOCK_HEIGHT }}
                             >
-                                <TText size="sm" color="text">{`${hour}:00`}</TText>
+                                <TText color="text" size={12}>{`${hour}:00`}</TText>
                             </TView>
                         ))}
                     </TView>
-                    <TView style={format === 'week' ? { width: '95%' } : { width: '86%' }}>
-                        {renderDay()}
-                    </TView>
+
+                    {/* Render day or week view */}
+                    {format === 'day' && renderDay(date)}
+                    {format === 'week' && (
+                        <TView flexDirection="row" style={{ flex: 1 }}>
+                            {weekDates.map(weekDate => (
+                                <TView key={weekDate.toISOString()} style={{ width: '14.28%' }}>
+                                    {renderDay(weekDate)}
+                                </TView>
+                            ))}
+                        </TView>
+                    )}
                 </TView>
             </ScrollView>
         </TView>
