@@ -21,7 +21,7 @@ import { langIconMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import React, { useRef } from 'react';
 import Toast from 'react-native-toast-message';
-import LangSelectModal from './modal';
+import { GotoPageModal, LangSelectModal } from './modal';
 
 // types
 type AvailableLangs = LectureDisplay.AvailableLangs;
@@ -44,8 +44,9 @@ interface AbstractRmtCrlProps {
 
 export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, isRecording, lang, setLang }) => {
 
-
+    // Modal References
     const modalRefLangSelect = useRef<BottomSheetModal>(null);
+    const modalRefGoToPage = useRef<BottomSheetModal>(null);
 
     return (
         <>
@@ -106,11 +107,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                         <TTouchableOpacity
                             backgroundColor='crust'
                             borderColor='text' p={10} b={1} ml={'md'} radius={1000}
-                            onPress={() => Toast.show({
-                                type: 'success',
-                                text1: 'The Go to Page',
-                                text2: 'Implementation comes soon'
-                            })}
+                            onPress={() => modalRefGoToPage.current?.present()}
                             testID='strc-go-to-button'>
                             <Icon size={40} name='rocket-outline' color='text'></Icon>
                         </TTouchableOpacity>
@@ -151,6 +148,8 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
 
             {/* Modals */}
             <LangSelectModal modalRef={modalRefLangSelect} lang={lang} setLang={setLang} onClose={() => modalRefLangSelect.current?.close()} />
+
+            <GotoPageModal modalRef={modalRefGoToPage} nbOfPages={5} onClose={() => modalRefGoToPage.current?.close()} />
         </>
     );
 };
