@@ -191,3 +191,33 @@ export const langCodeMap: Record<AvailableLangs, string> = {
     "vietanames": "vi-VN",
     "hindi": "hi-IN"
 };
+
+
+// ------------------------------------------------------------
+// -----------------    Jump to Page handler     -----------------
+// ------------------------------------------------------------
+
+
+export const handleGoTo = function (
+    targetPage: number,
+    totalPages: number,
+    setCurrentPage: React.Dispatch<React.SetStateAction<number>>,
+) {
+
+    if (targetPage < totalPages) {
+
+
+        // Update the page
+        try {
+            callFunction(FCMCommunication.Functions.sendFCMPage, { page: targetPage });
+        } catch (error) {
+            console.error("Error sending FCM page:", error);
+        }
+
+
+        // On sucess update hook
+        setCurrentPage(targetPage);
+
+    }
+    Vibration.vibrate(100);
+}
