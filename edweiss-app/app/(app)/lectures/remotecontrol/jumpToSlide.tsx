@@ -21,7 +21,7 @@ import { CollectionOf, getDownloadURL } from '@/config/firebase';
 import { ApplicationRoute } from '@/constants/Component';
 import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { t } from 'i18next';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions } from 'react-native';
@@ -127,53 +127,48 @@ const JumpToSlideScreen: ApplicationRoute = () => {
 
 
     return (
-        //Screen Display on landscape mode
         <>
 
             <RouteHeader title={t('showtime:rmt_cntl_jmp_to_page')} />
 
-
+            {/* The Swipable Slides  */}
             <TView mt={'md'} mb={'md'} flexDirection='column' style={{ width: '100%', height: '33%', position: 'relative' }} >
                 {PDFViewer(uri, 1, 1)}
             </TView>
 
-
+            {/* The Switch Buttons */}
             <TView flexDirection='row' justifyContent='space-between' mb={'md'} >
                 <TView flex={1} />
 
-                <TView flexDirection='row' justifyContent='space-between' backgroundColor='surface0' p={'md'} radius={'lg'}>
+                <TTouchableOpacity
+                    backgroundColor='crust'
+                    borderColor='text' p={'sm'} b={1} radius={1000}
+                    onPress={decPageCount}
+                    testID='dec-page-button'>
+                    <Icon size={50} name='remove-circle-outline' color='text'></Icon>
+                </TTouchableOpacity>
 
+                <TView flex={1} />
 
-                    <TTouchableOpacity
-                        backgroundColor='base'
-                        borderColor='text' p={'sm'} b={1} radius={1000}
-                        onPress={decPageCount}
-                        testID='dec-page-button'>
-                        <Icon size={50} name='remove-circle-outline' color='text'></Icon>
-                    </TTouchableOpacity>
+                <TText mt={'md'} ml={'lg'} mr={'lg'} size={'xl'}>{currentPage} / {numPages}</TText>
 
-                    <TView flex={1} />
+                <TView flex={1} />
 
-                    <TText mt={'md'} ml={'lg'} mr={'lg'} size={'xl'}>{currentPage} / {numPages}</TText>
-
-                    <TView flex={1} />
-
-                    <TTouchableOpacity
-                        backgroundColor='base'
-                        borderColor='text' p={'sm'} b={1} radius={1000}
-                        onPress={incPageCount}
-                        testID='add-page-button'>
-                        <Icon size={50} name='add-circle-outline' color='text'></Icon>
-                    </TTouchableOpacity>
-
-
-                </TView>
+                <TTouchableOpacity
+                    backgroundColor='crust'
+                    borderColor='text' p={'sm'} b={1} radius={1000}
+                    onPress={incPageCount}
+                    testID='add-page-button'>
+                    <Icon size={50} name='add-circle-outline' color='text'></Icon>
+                </TTouchableOpacity>
 
 
                 <TView flex={1} />
             </TView>
 
-            <TView backgroundColor='surface0' p={'sm'} mr={'md'} ml={'md'} radius={'lg'}>
+
+            {/* Input Page go to page */}
+            <TView p={'sm'} mr={'md'} ml={'md'} radius={'lg'}>
                 <FancyTextInput
                     value={inputPage}
                     onChangeText={setInputPage}
@@ -193,8 +188,8 @@ const JumpToSlideScreen: ApplicationRoute = () => {
 
 
 
-
-            <FancyButton icon='paper-plane' mt='lg' m='md' onPress={() => console.log('going to page ' + currentPage)} testID='go-to-button'>
+            {/* Go to page Button  */}
+            <FancyButton icon='paper-plane' mt='lg' m='md' onPress={() => { console.log('going to page ' + currentPage); router.back(); }} testID='go-to-button'>
                 {t('showtime:rmt_cntl_go_page')}
             </FancyButton >
 
