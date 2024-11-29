@@ -69,7 +69,7 @@ interface TwoLangsSelectionProps {
     lang: AvailableLangs;
     setLang: (lang: AvailableLangs) => void;
     lang1: AvailableLangs;
-    lang2: AvailableLangs;
+    lang2?: AvailableLangs;
 }
 
 const TwoLangsSelection: React.FC<TwoLangsSelectionProps> = ({ lang, setLang, lang1, lang2 }) => {
@@ -98,21 +98,25 @@ const TwoLangsSelection: React.FC<TwoLangsSelectionProps> = ({ lang, setLang, la
                 </TView>
             </TTouchableOpacity>
 
+            {lang2 && (
+                <>
+                    <TView flex={1} ml={'sm'} mr={'sm'}></TView>
+                    <TTouchableOpacity
+                        mr={'sm'} radius={'lg'} b={2}
+                        style={{ borderColor: (lang === lang2) ? selectedColorBord : unselectedColorBord, backgroundColor: (lang === lang2) ? selectedColorBack : unselectedColorBack, width: 160, height: 65 }}
+                        onPress={() => setLang(lang2)}
+                        testID={`lang-but-${lang2}`}
+                    >
+                        <TView alignItems='center' flexDirection='row' justifyContent='space-between' p={'md'}>
+                            <TText size={'lg'} >{langIconMap[lang2]}</TText>
+                            <TView flex={1} alignItems='center'>
+                                <TText size={'lg'} align='center'>{langNameMap[lang2]}</TText>
+                            </TView>
+                        </TView>
+                    </TTouchableOpacity>
+                </>
+            )}
             <TView flex={1} ml={'sm'} mr={'sm'}></TView>
-
-            <TTouchableOpacity
-                mr={'sm'} radius={'lg'} b={2}
-                style={{ borderColor: (lang === lang2) ? selectedColorBord : unselectedColorBord, backgroundColor: (lang === lang2) ? selectedColorBack : unselectedColorBack, width: 160, height: 65 }}
-                onPress={() => setLang(lang2)}
-                testID={`lang-but-${lang2}`}
-            >
-                <TView alignItems='center' flexDirection='row' justifyContent='space-between' p={'md'}>
-                    <TText size={'lg'} >{langIconMap[lang2]}</TText>
-                    <TView flex={1} alignItems='center'>
-                        <TText size={'lg'} align='center'>{langNameMap[lang2]}</TText>
-                    </TView>
-                </TView>
-            </TTouchableOpacity>
         </TView>
     );
 };

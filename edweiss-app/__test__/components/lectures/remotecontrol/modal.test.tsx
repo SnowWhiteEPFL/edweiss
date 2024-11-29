@@ -121,7 +121,7 @@ describe('LangSelectModal', () => {
 
     });
 
-    it('calls setLang when a language button is pressed', () => {
+    it('verify that french can be selected when english is default', () => {
         const modalRef = React.createRef<BottomSheetModal>();
         const { getByTestId } = render(
             <LangSelectModal
@@ -136,7 +136,7 @@ describe('LangSelectModal', () => {
         expect(mockSetLang).toHaveBeenCalledWith('french');
     });
 
-    it('calls setLang when a language button is pressed', () => {
+    it('verify that english can be selected when french is default', () => {
         const modalRef = React.createRef<BottomSheetModal>();
         const { getByTestId } = render(
             <LangSelectModal
