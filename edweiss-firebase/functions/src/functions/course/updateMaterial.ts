@@ -7,9 +7,9 @@
 
 import { Course, Course_functions, Material, MaterialDocument, MaterialType } from 'model/school/courses';
 import { AppUser } from 'model/users';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocument, getDocumentAndRef } from 'utils/firestore';
-import { assertNonEmptyString, assertThatFields, Predicate } from 'utils/sanitizer';
+import { assertNonEmptyString, Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
 
@@ -20,18 +20,16 @@ import Functions = Course_functions.Functions;
  * @param args Contains `courseID`, `materialID`, and `materialJSON` with the updated material data.
  * @returns {} on success, or a fail status on error.
  */
-export const updateMaterial = onAuthentifiedCall(Functions.updateMaterial, async (userId, args) => {
-    // Validate the input fields
-    assertThatFields(args, {
-        courseID: Predicate.isNonEmptyString,
-        materialID: Predicate.isNonEmptyString,
-        materialJSON: Predicate.isNonEmptyString,
-    });
+export const updateMaterial = onSanitizedCall(Functions.updateMaterial, {
+    courseID: Predicate.isNonEmptyString,
+    materialID: Predicate.isNonEmptyString,
+    materialJSON: Predicate.isNonEmptyString,
+}, async (userId, args) => {
 
+    // Validate the input fields
     assertNonEmptyString(args.courseID, "invalid_id");
     assertNonEmptyString(args.materialID, "invalid_id");
     assertNonEmptyString(args.materialJSON, "invalid_json");
-
 
     //------------- Authorization check (ensure the user is authorized to update the material)-------------------
     // Fetch course data

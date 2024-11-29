@@ -7,9 +7,9 @@
 
 import { Course, Course_functions } from 'model/school/courses';
 import { AppUser, StudentID } from 'model/users';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocument, getDocumentAndRef } from 'utils/firestore';
-import { assertNonEmptyString, assertThatFields, Predicate } from 'utils/sanitizer';
+import { assertNonEmptyString, Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
 
@@ -20,13 +20,12 @@ import Functions = Course_functions.Functions;
  * @param args Contains `courseID` and `assistantID` with the assistant to be removed.
  * @returns {} on success, with a fail status on error.
  */
-export const removeAssistant = onAuthentifiedCall(Functions.removeAssistant, async (userId, args) => {
+export const removeAssistant = onSanitizedCall(Functions.removeAssistant, {
+    courseID: Predicate.isNonEmptyString,
+    assistantID: Predicate.isNonEmptyString,
+}, async (userId, args) => {
 
     // Validate the input fields
-    assertThatFields(args, {
-        courseID: Predicate.isNonEmptyString,
-        assistantID: Predicate.isNonEmptyString,
-    });
     assertNonEmptyString(args.courseID, "invalid_id");
     assertNonEmptyString(args.assistantID, "invalid_assistant");
 

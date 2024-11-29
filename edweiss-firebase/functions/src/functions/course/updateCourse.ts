@@ -7,7 +7,7 @@
 
 import { Course, Course_functions, Credits, Section } from 'model/school/courses';
 import { AppUser } from 'model/users';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocument, getDocumentAndRef } from 'utils/firestore';
 import { assertIsBetween, assertNonEmptyString, assertThatFields, Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
@@ -30,13 +30,12 @@ type UpdateCourseArgs = {
  * @param args courseID: ID of the course to update, courseJSON: new course information
  * @returns {} on success, with a fail status on error
  */
-export const updateCourse = onAuthentifiedCall(Functions.updateCourse, async (userId, args) => {
+export const updateCourse = onSanitizedCall(Functions.updateCourse, {
+    courseID: Predicate.isNonEmptyString,
+    courseJSON: Predicate.isNonEmptyString,
+}, async (userId, args) => {
 
     // Validate the input fields
-    assertThatFields(args, {
-        courseID: Predicate.isNonEmptyString,
-        courseJSON: Predicate.isString,
-    });
     assertNonEmptyString(args.courseID, "invalid_id");
     assertNonEmptyString(args.courseJSON, "invalid_course");
 

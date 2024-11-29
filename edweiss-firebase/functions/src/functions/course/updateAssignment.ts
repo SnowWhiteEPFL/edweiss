@@ -8,9 +8,9 @@
 import { Assignment, AssignmentType, Course, Course_functions } from 'model/school/courses';
 import { Timestamp } from 'model/time';
 import { AppUser } from 'model/users';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocument, getDocumentAndRef } from 'utils/firestore';
-import { assertIsBetween, assertIsIn, assertNonEmptyString, assertThatFields, Predicate } from 'utils/sanitizer';
+import { assertIsBetween, assertIsIn, assertNonEmptyString, Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
 
@@ -25,16 +25,13 @@ const MAX_NAME_LENGTH = 20;
  * @param args Contains `courseID`, `assignmentID`, `name`, `type`, and `dueDateJSON`.
  * @returns {} on success or a failure status on error.
  */
-export const updateAssignment = onAuthentifiedCall(Functions.updateAssignment, async (userId, args) => {
+export const updateAssignment = onSanitizedCall(Functions.updateAssignment, {
+    courseID: Predicate.isNonEmptyString,
+    assignmentID: Predicate.isNonEmptyString,
+    assignmentJSON: Predicate.isNonEmptyString,
+}, async (userId, args) => {
 
     // Validate input fields
-    assertThatFields(args, {
-        courseID: Predicate.isNonEmptyString,
-        assignmentID: Predicate.isNonEmptyString,
-        assignmentJSON: Predicate.isNonEmptyString,
-    });
-
-    // Ensure `courseID` and `assignmentID` are non-empty strings
     assertNonEmptyString(args.courseID, "invalid_courseID");
     assertNonEmptyString(args.assignmentID, "invalid_assignmentID");
     assertNonEmptyString(args.assignmentJSON, "invalid_name");

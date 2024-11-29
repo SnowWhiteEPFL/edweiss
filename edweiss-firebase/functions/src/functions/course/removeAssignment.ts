@@ -7,21 +7,20 @@
 
 import { Assignment, Course, Course_functions } from 'model/school/courses';
 import { AppUser } from 'model/users';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocument, getDocumentAndRef } from 'utils/firestore';
-import { assertNonEmptyString, assertThatFields, Predicate } from 'utils/sanitizer';
+import { assertNonEmptyString, Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
 
 
 
-export const removeAssignment = onAuthentifiedCall(Functions.removeAssignment, async (userId, args) => {
+export const removeAssignment = onSanitizedCall(Functions.removeAssignment, {
+    courseID: Predicate.isNonEmptyString,
+    assignmentID: Predicate.isNonEmptyString,
+}, async (userId, args) => {
 
     // Validate the input fields
-    assertThatFields(args, {
-        courseID: Predicate.isNonEmptyString,
-        assignmentID: Predicate.isNonEmptyString,
-    });
     assertNonEmptyString(args.courseID, "invalid_id");
     assertNonEmptyString(args.assignmentID, "invalid_id");
 

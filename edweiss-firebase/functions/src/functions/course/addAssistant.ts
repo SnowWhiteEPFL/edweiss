@@ -7,9 +7,9 @@
 
 import { Course, Course_functions } from 'model/school/courses';
 import { AppUser } from 'model/users';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocument, getDocumentAndRef } from 'utils/firestore';
-import { assertNonEmptyString, assertThatFields, Predicate } from 'utils/sanitizer';
+import { assertNonEmptyString, Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
 
@@ -20,13 +20,12 @@ import Functions = Course_functions.Functions;
  * @param args courseID: ID of the course to update, assistantID: ID of the assistant to add
  * @returns {} on success, with a fail status on error
  */
-export const addAssistant = onAuthentifiedCall(Functions.addAssistant, async (userId, args) => {
+export const addAssistant = onSanitizedCall(Functions.addAssistant, {
+    courseID: Predicate.isNonEmptyString,
+    assistantID: Predicate.isNonEmptyString,
+}, async (userId, args) => {
 
     // Validate the input fields
-    assertThatFields(args, {
-        courseID: Predicate.isNonEmptyString,
-        assistantID: Predicate.isNonEmptyString,
-    });
     assertNonEmptyString(args.courseID, "invalid_id");
     assertNonEmptyString(args.assistantID, "invalid_assistant");
 

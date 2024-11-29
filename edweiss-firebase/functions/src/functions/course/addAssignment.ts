@@ -7,9 +7,9 @@
 
 import { Assignment, AssignmentType, Course, Course_functions } from 'model/school/courses';
 import { AppUser } from 'model/users';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocument } from 'utils/firestore';
-import { Predicate, assertIsBetween, assertIsIn, assertString, assertThatFields } from 'utils/sanitizer';
+import { Predicate, assertIsBetween, assertIsIn, assertString } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
 
@@ -25,13 +25,12 @@ const MAX_NAME_LENGTH = 20;
  * @param args Contains `courseID`, `type`, `name`, and `dueDateJSON`.
  * @returns { id: string } on success, or a failure status on error.
  */
-export const addAssignment = onAuthentifiedCall(Functions.addAssignment, async (userId, args) => {
+export const addAssignment = onSanitizedCall(Functions.addAssignment, {
+    courseID: Predicate.isNonEmptyString,
+    assignmentJSON: Predicate.isNonEmptyString,
+}, async (userId, args) => {
 
     // Validate the input fields
-    assertThatFields(args, {
-        courseID: Predicate.isNonEmptyString,
-        assignmentJSON: Predicate.isNonEmptyString,
-    });
     assertString(args.courseID, "invalid_courseID");
     assertString(args.assignmentJSON, "invalid_assignmentJSON");
 
