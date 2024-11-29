@@ -72,6 +72,11 @@ export default RemoteControlScreen;
 
 
 
+// ------------------------------------------------------------
+// --------     Utils Function for Managing Audio      --------
+// ------------------------------------------------------------
+
+// Start recording
 export const startRecording = async (langCode: string) => {
     console.log(' > start recording ... in ' + langCode);
     try {
@@ -81,6 +86,7 @@ export const startRecording = async (langCode: string) => {
     }
 };
 
+// Stop recording
 export const stopRecording = async () => {
     console.log(' > stop recording ...');
     try {

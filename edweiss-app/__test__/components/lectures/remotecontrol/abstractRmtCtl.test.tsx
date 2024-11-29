@@ -1,3 +1,14 @@
+/**
+ * @file abstractRmtCtl.test.tsx
+ * @description Test suite for the AbstractRmtCtl component attached 
+ *              to the remote control screen
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import { AbstractRmtCrl } from '@/components/lectures/remotecontrol/abstractRmtCtl';
 import t from '@/config/i18config';
 import LectureDisplay from '@/model/lectures/lectureDoc';
@@ -7,6 +18,10 @@ import { fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
 import Toast from 'react-native-toast-message';
 
+
+// ------------------------------------------------------------
+// -----------------  Mocking dependencies    -----------------
+// ------------------------------------------------------------
 
 // Mock translation function
 jest.mock('@/config/i18config', () => ({

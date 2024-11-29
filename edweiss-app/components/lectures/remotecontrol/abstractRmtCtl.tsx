@@ -1,7 +1,7 @@
 /**
- * @file abstract.tsx
+ * @file abstractRmtCtl.tsx
  * @description The abstract remote control decouple from all the bussiness 
- * function from processing the audio input and slide change.
+ *              function from processing the audio input and slide change.
  * @author Adamm Alaoui
  */
 
@@ -30,7 +30,7 @@ type AvailableLangs = LectureDisplay.AvailableLangs;
 
 
 // ------------------------------------------------------------
-// ------------   Abstract Remote Control Screen  -------------
+// ----------    Abstract Remote Control Component  -----------
 // ------------------------------------------------------------
 interface AbstractRmtCrlProps {
     handleRight: () => void;

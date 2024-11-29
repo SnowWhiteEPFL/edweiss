@@ -24,6 +24,8 @@ const CommunityTab: ApplicationRoute = () => {
 				My Todos
 			</FancyButton>
 
+
+			{/* Temporary Fix for Accessing the STRC and ST! */}
 			<FancyButton mt={10} mb={10} onPress={() => {
 				router.push({
 					pathname: '/(app)/lectures/remotecontrol' as any,
