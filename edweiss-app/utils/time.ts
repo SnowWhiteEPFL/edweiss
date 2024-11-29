@@ -89,11 +89,11 @@ export namespace Time {
 		return `${hours}:${mins < 10 ? '0' : ''}${mins}`;
 	}
 
-	export function getDateTimeWithFormat(date: Date, format: Intl.LocalesArgument, formatOption: Intl.DateTimeFormatOptions): string {
+	export function getDateTimeWithFormat(date: Date, format: string, formatOption: Intl.DateTimeFormatOptions): string {
 		return new Intl.DateTimeFormat(format, formatOption).format(date);
 	}
 
-	export function getTwoDatesTimeWithFormat(date1: Date, date2: Date, format: Intl.LocalesArgument, formatOption1: Intl.DateTimeFormatOptions, formatOption2: Intl.DateTimeFormatOptions): string {
+	export function getTwoDatesTimeWithFormat(date1: Date, date2: Date, format: string, formatOption1: Intl.DateTimeFormatOptions, formatOption2: Intl.DateTimeFormatOptions): string {
 		const date1String = new Intl.DateTimeFormat(format, formatOption1).format(date1);
 		const date2String = new Intl.DateTimeFormat(format, formatOption2).format(date2);
 
