@@ -1,4 +1,6 @@
 import { PeriodBlock } from '@/components/core/PeriodBlock';
+import { Section } from '@/model/school/courses';
+import { CourseTimePeriodType } from '@/model/school/schedule';
 import { render, screen } from '@testing-library/react-native';
 
 import '@testing-library/jest-native/extend-expect';
@@ -6,19 +8,17 @@ import React from 'react';
 
 jest.mock('@/components/core/formatTime', () => jest.fn((time) => `${Math.floor(time / 60)}:${time % 60 < 10 ? '0' : ''}${time % 60}`));
 
-
-
-const mockPeriod = initPeriods({
+const mockPeriod = {
     id: 'period1',
     start: 0,
-    end: 1440, // Full day period
-    type: 'lecture', // Assuming `initPeriods` handles type casting
+    end: 1440, // Add the end time here
+    type: 'lecture' as CourseTimePeriodType,
     activityId: 'activity1',
     dayIndex: 1,
     rooms: [{ id: 'room1', name: 'Room 101', geoloc: { latitude: 0, longitude: 0 } }],
-});
+};
 
-const mockCourse = initCourse({
+const mockCourse = {
     id: 'course1',
     data: {
         name: 'Course 1',
@@ -29,12 +29,11 @@ const mockCourse = initCourse({
         periods: [mockPeriod],
         credits: 3,
         department: 'Department 1',
-        section: 'IN', // Assuming `initCourse` handles any enum or type casting
+        section: 'IN' as Section, // Adjust this to match the correct enum value
         newAssignments: true,
         assignments: [],
     },
-});
-
+};
 
 const mockUserStudent = {
     id: 'user1',

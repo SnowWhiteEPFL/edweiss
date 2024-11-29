@@ -19,7 +19,7 @@ export const initPeriod = (
 });
 
 // Parameters for initializing a course
-interface InitCourseParams {
+export interface InitCourseParams {
     id: string;
     name: string;
     periods?: CourseTimePeriod[];

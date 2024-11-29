@@ -3,10 +3,9 @@ import { Color } from '@/constants/Colors';
 import { AssignmentBase, Course, CourseTimePeriod } from '@/model/school/courses';
 import Todolist from '@/model/todo';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import TTouchableOpacity from './containers/TTouchableOpacity';
 import TView from './containers/TView';
-import For from './For';
 import { PeriodBlock } from './PeriodBlock';
 import TText from './TText';
 
@@ -37,7 +36,8 @@ export const getNavigationDetails = (user: any, courseItem: { id: string; data: 
 
 // Reusable component to render a list of items
 const RenderList = ({ title, items, color, itemKey }: { title: string; items: any[]; color: Color; itemKey: string }) =>
-    items.length > 0 && (
+
+    items?.length > 0 && (
         <TView mt={10} p={10} backgroundColor={color} b={10}>
             <TText>{title}</TText>
             {items.map((item) => (
@@ -49,6 +49,45 @@ const RenderList = ({ title, items, color, itemKey }: { title: string; items: an
     );
 
 // Main Day component
+
+// Fonction de rendu des périodes, prenant un tableau avec les détails calculés
+const renderPeriods = ({
+    periodData,
+    format,
+    user,
+    courseItem,
+}: {
+    periodData: { period: CourseTimePeriod; periodHeight: number; position: number; pathname: string; params: any; courseItem: { id: string; data: Course } }[];
+    format: string;
+    user: any;
+    courseItem: { id: string; data: Course };
+}) => {
+    return (
+        <>
+            {periodData.map(({ period, periodHeight, position, pathname, params }) => (
+                <TTouchableOpacity
+                    key={`period-${period.start}-${period.end}`}
+                    flex={1}
+                    borderColor="overlay2"
+                    radius={10}
+                    b={2}
+                    backgroundColor={getBackgroundColor(period.type)}
+                    onPress={() => router.push({ pathname: pathname as any, params })}
+                    style={{ height: periodHeight, top: position }}
+                >
+                    <PeriodBlock
+                        period={period}
+                        format={format}
+                        course={courseItem}
+                        user={user}
+                    />
+                </TTouchableOpacity>
+            ))}
+        </>
+    );
+};
+export default renderPeriods;
+
 export const Day = ({
     course,
     user,
@@ -64,32 +103,51 @@ export const Day = ({
     assignments: { id: string; data: AssignmentBase }[];
     todos: { id: string; data: Todolist.Todo }[];
 }) => {
+    const [topPosition, setTopPosition] = useState(0);
+
+    // Regrouper les périodes par leur cours associé et mémoriser les positions
+    const periodData = useMemo(() => {
+        const data: any[] = [];
+        let ind = 0
+        course.forEach((courseItem) => {
+            const periods = filteredPeriods.filter((period) =>
+                courseItem.data.periods.includes(period)
+            );
+
+            periods.forEach((period, index) => {
+
+                const periodHeight =
+                    (((period.end ?? period.start) - period.start) / 60) * 80; // HOUR_BLOCK_HEIGHT
+                const { pathname, params } = getNavigationDetails(user, courseItem, period, index);
+                const position = (period.start / 60 - ind) * HOUR_BLOCK_HEIGHT;
+                setTopPosition(periodHeight)
+                ind++
+
+                // Calculer la position et créer un tableau avec les données nécessaires
+                data.push({
+                    period,
+                    periodHeight,
+                    position,
+                    pathname,
+                    params,
+                    courseItem
+                });
+            });
+        });
+
+        return data;
+    }, [course, filteredPeriods, user]);
+
     return (
         <>
-            <For each={course.filter((courseItem) => filteredPeriods.some((period) => courseItem.data.periods.includes(period)))}>
-                {(courseItem, index) =>
-                    filteredPeriods.map((period) => {
-                        const periodHeight = ((period.end ?? period.start) - period.start) / 60 * HOUR_BLOCK_HEIGHT || HOUR_BLOCK_HEIGHT;
-                        const { pathname, params } = getNavigationDetails(user, courseItem, period, index);
+            {/* Appel de la fonction renderPeriods avec le tableau de données pré-calculé */}
+            {renderPeriods({
+                periodData,
+                format,
+                user,
+                courseItem: periodData[0]?.courseItem
+            })}
 
-                        return (
-                            <TTouchableOpacity
-                                key={`period-${courseItem.id}-${period.start}-${period.end}`}
-                                flex={1 / filteredPeriods.length}
-                                borderColor="overlay2"
-                                radius={10}
-                                b={2}
-                                backgroundColor={getBackgroundColor(period.type)}
-                                onPress={() => router.push({ pathname: pathname as any, params })}
-                                style={{ height: periodHeight }}
-
-                            >
-                                <PeriodBlock period={period} format={format} course={courseItem} user={user} />
-                            </TTouchableOpacity>
-                        );
-                    })
-                }
-            </For>
 
             <RenderList title="Assignments Due Today:" items={assignments} color="red" itemKey="assignment" />
             <RenderList title="To-Dos:" items={todos} color="blue" itemKey="todo" />
