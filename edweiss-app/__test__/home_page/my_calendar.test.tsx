@@ -16,11 +16,6 @@ import { initCourse, initPeriod } from './helper_functions';
 
 
 
-
-
-
-
-
 jest.mock('@/contexts/auth', () => ({
     useAuth: jest.fn(),
 }));

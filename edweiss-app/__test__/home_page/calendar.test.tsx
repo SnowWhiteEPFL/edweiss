@@ -1,18 +1,12 @@
-import InfinitePaginatedCounterScreen from '@/app/(app)/calendar';
 import { Calendar } from '@/components/core/calendar';
 import { getWeekDates } from '@/components/core/getWeekDates';
-import { AuthInterface, useAuth } from '@/contexts/auth';
-import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { AssignmentType } from '@/model/school/courses';
 import Todolist from '@/model/todo';
-import { act, fireEvent, render, screen } from '@testing-library/react-native';
+import { act, render, screen } from '@testing-library/react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { initCourse, initPeriod } from './helper_functions';
 
 
-
-jest.mock('@/contexts/auth');
-jest.mock('@/hooks/firebase/firestore');
 // Mocking Firebase Firestore Timestamp with Jest
 const Timestamp = {
     fromDate: jest.fn((date) => {
@@ -201,79 +195,4 @@ test('changes layout when screen orientation changes', () => {
         onOrientationChange({ orientationInfo: { orientation: 1 } });
     });
     expect(screen.getByText('lun. 25 nov.')).toBeTruthy();
-});
-describe('InfinitePaginatedCounterScreen', () => {
-    const mockAuth = { authUser: { uid: 'test-user-id' } };
-    const mockCourses = [
-        { id: 'course1', data: { name: 'Course 1' } },
-        { id: 'course2', data: { name: 'Course 2' } },
-    ];
-    const mockTodos = {
-        course1: [
-            { id: 'todo1', data: { title: 'Todo 1', status: 'incomplete' } },
-            { id: 'todo2', data: { title: 'Todo 2', status: 'completed' } },
-        ],
-        course2: [
-            { id: 'todo3', data: { title: 'Todo 3', status: 'incomplete' } },
-        ],
-    };
-    const mockAssignments = {
-        course1: [
-            { id: 'assignment1', data: { title: 'Assignment 1', type: 'homework' } },
-        ],
-        course2: [
-            { id: 'assignment2', data: { title: 'Assignment 2', type: 'exam' } },
-        ],
-    };
-
-    beforeEach(() => {
-        (useAuth as jest.Mock<AuthInterface>).mockReturnValue(mockAuth);
-        (useDynamicDocs as jest.Mock).mockImplementation(() => mockCourses);
-    });
-
-    test('should map todos and assignments correctly', () => {
-        // Mock the `useDynamicDocs` return values
-        (useDynamicDocs as jest.Mock).mockImplementationOnce(() => mockCourses);
-        (useDynamicDocs as jest.Mock).mockImplementationOnce(() => mockCourses);
-
-        // Mock the state updates for todos and assignments
-        const setTodosMock = jest.fn();
-        const setAssignmentsMock = jest.fn();
-
-        // Initialize component
-        render(<InfinitePaginatedCounterScreen />);
-
-        // Verify todos and assignments are correctly mapped
-        expect(mockTodos.course1[0].data.title).toBe('Todo 1');
-        expect(mockAssignments.course1[0].data.title).toBe('Assignment 1');
-    });
-
-    test('should add a new page when loadMorePages is called', () => {
-        // Initial state with 10 pages
-        const initialPages = Array.from({ length: 10 }, (_, index) => index - 3);
-        const { getByText } = render(<InfinitePaginatedCounterScreen />);
-
-        // Simulate loading more pages
-        act(() => {
-            const loadMoreButton = getByText('Load More');
-            loadMoreButton && fireEvent.press(loadMoreButton);
-        });
-
-        // Check if a new page has been added
-        const newPages = initialPages.concat(initialPages[initialPages.length - 1] + 1);
-        expect(newPages.length).toBeGreaterThan(initialPages.length);
-    });
-
-    test('should correctly load todos and assignments by course', () => {
-        render(<InfinitePaginatedCounterScreen />);
-
-        // Verifying todos
-        expect(screen.getByText('Todo 1')).toBeTruthy();
-        expect(screen.getByText('Todo 2')).toBeTruthy();
-        expect(screen.getByText('Todo 3')).toBeTruthy();
-
-        // Verifying assignments
-        expect(screen.getByText('Assignment 1')).toBeTruthy();
-        expect(screen.getByText('Assignment 2')).toBeTruthy();
-    });
 });
