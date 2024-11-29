@@ -8,7 +8,7 @@
 import { Course, Course_functions, Material, MaterialDocument, MaterialType } from 'model/school/courses';
 import { AppUser } from 'model/users';
 import { onSanitizedCall } from 'utils/firebase';
-import { CollectionOf, getDocument, getDocumentAndRef } from 'utils/firestore';
+import { CollectionOf, getDocumentAndRef, getRequiredDocument } from 'utils/firestore';
 import { assertNonEmptyString, Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
@@ -33,12 +33,10 @@ export const updateMaterial = onSanitizedCall(Functions.updateMaterial, {
 
     //------------- Authorization check (ensure the user is authorized to update the material)-------------------
     // Fetch course data
-    const course = await getDocument<Course>(CollectionOf<Course>('courses'), args.courseID);
-    if (!course) return fail("course_not_found");
+    const course = await getRequiredDocument<Course>(CollectionOf<Course>('courses'), args.courseID, { error: "course_not_found", status: 0 });
 
     // Fetch user data
-    const user = await getDocument<AppUser>(CollectionOf<AppUser>('users'), userId);
-    if (!user) return fail("user_not_found");
+    const user = await getRequiredDocument<AppUser>(CollectionOf<AppUser>('users'), userId, { error: "user_not_found", status: 0 });
 
     // Verify the user is a professor of the course
     if (user.type !== "professor" || !course.professors?.includes(userId)) { return fail("not_authorized"); }

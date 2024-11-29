@@ -9,7 +9,7 @@ import { Assignment, AssignmentType, Course, Course_functions } from 'model/scho
 import { Timestamp } from 'model/time';
 import { AppUser } from 'model/users';
 import { onSanitizedCall } from 'utils/firebase';
-import { CollectionOf, getDocument, getDocumentAndRef } from 'utils/firestore';
+import { CollectionOf, getDocumentAndRef, getRequiredDocument } from 'utils/firestore';
 import { assertIsBetween, assertIsIn, assertNonEmptyString, Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
@@ -38,12 +38,10 @@ export const updateAssignment = onSanitizedCall(Functions.updateAssignment, {
 
     //-------------------------------------------------------------------------------------------------
     // Fetch course data
-    const course = await getDocument<Course>(CollectionOf<Course>('courses'), args.courseID);
-    if (!course) return fail("course_not_found");
+    const course = await getRequiredDocument<Course>(CollectionOf<Course>('courses'), args.courseID, { error: "course_not_found", status: 0 });
 
     // Fetch user data
-    const user = await getDocument<AppUser>(CollectionOf<AppUser>('users'), userId);
-    if (!user) return fail("user_not_found");
+    const user = await getRequiredDocument<AppUser>(CollectionOf<AppUser>('users'), userId, { error: "user_not_found", status: 0 });
 
     // Verify user is a professor of the course
     if (user.type !== "professor" || !course.professors?.includes(userId)) {
