@@ -22,6 +22,7 @@ import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
+import { checkDupplication_EmptyField } from '@/utils/memento/utilsFunctions';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { DecksRepository } from '../../../_layout';
@@ -48,28 +49,17 @@ const CreateCardScreen: ApplicationRoute = () => {
 
     const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
 
-    // if (!deck)
-    // 	return <Redirect href={'/'} />;
-
     // Create a new card
     async function createCard() {
+        if (!deck) return
 
-        if (question.length == 0 || answer.length == 0 || existedQuestion)
-            return;
-
-        const isDuplicate = deck?.data.cards.some(card => card.question === question);
-        const isEmpty = question.length == 0 || answer.length == 0;
-        if (isDuplicate) {
-            setExistedQuestion(true);
-            setIsLoading(false);
-            if (isEmpty) setEmptyField(true);
-
-            return;  // Prevent creation if a duplicate is found
-        }
-
-        if (isEmpty) {
-            setEmptyField(true);
-            setIsLoading(false);
+        if (checkDupplication_EmptyField(
+            deck.data.cards.some(card => card.question === question),
+            question.length == 0 || answer.length == 0,
+            setExistedQuestion,
+            setEmptyField,
+            setIsLoading
+        ) == 0) {
             return;
         }
 
@@ -84,7 +74,7 @@ const CreateCardScreen: ApplicationRoute = () => {
         handler.modifyDocument(deckId, { cards: [...previousCards, card] }, () => {
             callFunction(Memento.Functions.createCard, {
                 deckId: deckId,
-                card
+                card: card
             });
         });
 

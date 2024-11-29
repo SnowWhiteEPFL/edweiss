@@ -22,6 +22,7 @@ import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
+import { checkDupplication_EmptyField } from '@/utils/memento/utilsFunctions';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { DecksRepository } from '../../../_layout';
@@ -56,21 +57,13 @@ const EditCardScreen: ApplicationRoute = () => {
 		if (deck == undefined || card == undefined)
 			return;
 
-		const isDuplicate = deck.data.cards.some(card => card.question === new_Question) && new_Question != prev_question;
-		const isEmpty = new_Question.length == 0 || new_Answer.length == 0;
-
-		if (isDuplicate) {
-			setExistedQuestion(true);
-			setIsLoading(false);
-			if (isEmpty) setEmptyField(true);
-			return;  // Prevent creation if a duplicate is found
-		}
-
-		if (isEmpty) {
-			setEmptyField(true);
-			setIsLoading(false);
-			return;
-		}
+		if (checkDupplication_EmptyField(
+			deck.data.cards.some(card => card.question === new_Question) && new_Question != prev_question,
+			new_Question.length == 0 || new_Answer.length == 0,
+			setExistedQuestion,
+			setEmptyField,
+			setIsLoading
+		) == 0) return;
 
 		const newCards = deck.data.cards;
 		newCards[cardIndexInt] = { ...card, question: new_Question, answer: new_Answer };
