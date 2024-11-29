@@ -14,7 +14,7 @@ import { CollectionOf } from '@/config/firebase';
 import { ApplicationRoute } from '@/constants/Component';
 import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import { handleLeft, handleMic, handleRight, updateSlideAudioRecording } from '@/utils/lectures/remotecontrol/utilsFunctions';
+import { handleLeft, handleMic, handleRight, langCodeMap, updateSlideAudioRecording } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import Voice from '@react-native-voice/voice';
 import { useLocalSearchParams } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -23,6 +23,7 @@ import { default as React, useEffect, useState } from 'react';
 
 // Types
 type Lecture = LectureDisplay.Lecture;
+type AvailableLangs = LectureDisplay.AvailableLangs;
 
 
 // ------------------------------------------------------------
@@ -38,9 +39,10 @@ const RemoteControlScreen: ApplicationRoute = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [pageToTranscribe, setPageToTranscribe] = useState<number>(1);
     const [talked, setTalked] = useState('');
+    const [lang, setLang] = useState<AvailableLangs>('english');
 
     useEffect(() => { if (lectureDoc) { setPortrait(); } }, [lectureDoc]);
-    useEffect(() => { updateSlideAudioRecording(talked, pageToTranscribe, courseName, lectureId, isRecording, currentPage, setPageToTranscribe, setTalked, startRecording); }, [talked]);
+    useEffect(() => { updateSlideAudioRecording(talked, pageToTranscribe, courseName, lectureId, isRecording, currentPage, setPageToTranscribe, setTalked, () => startRecording(langCodeMap[lang])); }, [talked]);
 
 
     if (!lectureDoc) return <TActivityIndicator size={40} />;
@@ -57,8 +59,10 @@ const RemoteControlScreen: ApplicationRoute = () => {
             {<AbstractRmtCrl
                 handleRight={() => handleRight(isRecording, currentPage, totalPages, setIsRecording, setCurrentPage, stopRecording)}
                 handleLeft={() => handleLeft(isRecording, currentPage, setIsRecording, setCurrentPage, stopRecording)}
-                handleMic={() => handleMic(isRecording, setIsRecording, startRecording, stopRecording)}
+                handleMic={() => handleMic(isRecording, setIsRecording, () => startRecording(langCodeMap[lang]), stopRecording)}
                 isRecording={isRecording}
+                lang={lang}
+                setLang={setLang}
             />}
         </>
     );
@@ -68,10 +72,10 @@ export default RemoteControlScreen;
 
 
 
-export const startRecording = async () => {
-    console.log(' > start recording ...');
+export const startRecording = async (langCode: string) => {
+    console.log(' > start recording ... in ' + langCode);
     try {
-        await Voice.start('en-US');
+        await Voice.start(langCode);
     } catch (e: any) {
         console.log(e);
     }

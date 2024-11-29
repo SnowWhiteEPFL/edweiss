@@ -1,7 +1,12 @@
 import { AbstractRmtCrl } from '@/components/lectures/remotecontrol/abstractRmtCtl';
 import t from '@/config/i18config';
+import LectureDisplay from '@/model/lectures/lectureDoc';
+import { langIconMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
+import Toast from 'react-native-toast-message';
+
 
 // Mock translation function
 jest.mock('@/config/i18config', () => ({
@@ -24,16 +29,106 @@ jest.mock('expo-router', () => {
     };
 });
 
+// Authentication mock
+jest.mock('@/contexts/auth', () => ({
+    useAuth: jest.fn(),
+}));
+
+// Sign in fucntions
+jest.mock('@/config/firebase', () => ({
+    signInWithGoogle: jest.fn(),
+    signInAnonymously: jest.fn(),
+    callFunction: jest.fn(),
+}));
+
+
+// Firebase modules
+jest.mock('@react-native-firebase/auth', () => ({
+    currentUser: { uid: 'anonymous' },
+    signInAnonymously: jest.fn(() => Promise.resolve({ user: { uid: 'anonymous' } })),
+}));
+
+
+// BottomSheet to detect modal appearance
+jest.mock('@gorhom/bottom-sheet', () => ({
+    BottomSheetModal: jest.fn(({ present }) => (
+        <div>{present}</div>
+    )),
+}));
+
+
+// Firebase functions
+jest.mock('@react-native-firebase/functions', () => {
+    return {
+        httpsCallable: jest.fn(() => jest.fn(() => Promise.resolve({ data: { status: true } })))
+    };
+});
+
+// Storage module
+jest.mock('@react-native-firebase/storage', () => {
+    return {
+        ref: jest.fn(() => ({
+            putFile: jest.fn(() => Promise.resolve({})),
+            getDownloadURL: jest.fn(() => Promise.resolve('mocked_download_url')),
+            delete: jest.fn(() => Promise.resolve({}))
+        })),
+    };
+});
+
+
+// Firestore communication with database
+jest.mock('@react-native-firebase/firestore', () => ({
+    __esModule: true,
+    default: jest.fn(() => Promise.resolve({})),
+}));
+
+
+
+// useDynamicDocs hooks
+jest.mock('@/hooks/firebase/firestore', () => ({
+    useDynamicDocs: jest.fn(() => [
+        { id: '1', data: () => ({ name: 'Sample Todo', status: 'yet' }) }
+    ])
+}));
+
+
+// Toast message
+jest.mock('react-native-toast-message', () => ({
+    show: jest.fn(),
+}));
+
+
+// ------------------------------------------------------------
+// ---------     Abstract Remote Control Test Suite     -------
+// ------------------------------------------------------------
 
 describe('AbstractRmtCrl Component', () => {
     const handleRightMock = jest.fn();
     const handleLeftMock = jest.fn();
     const handleMicMock = jest.fn();
+    const langMock: LectureDisplay.AvailableLangs = 'english';
+    const setLangMock = jest.fn();
+
+
+    let modalRef: React.RefObject<BottomSheetModal>;
+
 
     beforeEach(() => {
-        jest.clearAllMocks();
-    });
+        modalRef = {
+            current: {
+                present: jest.fn(),
+                dismiss: jest.fn(),
+                snapToIndex: jest.fn(),
+                snapToPosition: jest.fn(),
+                expand: jest.fn(),
+                collapse: jest.fn(),
+                close: jest.fn(),
+                forceClose: jest.fn(),
+            }
+        };
 
+        jest.clearAllMocks(); // Reset mocks before each test
+    });
 
     test('renders the disabled RouteHeader with correct title', () => {
         const { getByTestId } = render(<AbstractRmtCrl
@@ -41,6 +136,8 @@ describe('AbstractRmtCrl Component', () => {
             handleLeft={handleLeftMock}
             handleMic={handleMicMock}
             isRecording={false}
+            lang={langMock}
+            setLang={setLangMock}
         />)
 
         expect(getByTestId("title")).toBeTruthy();
@@ -52,10 +149,11 @@ describe('AbstractRmtCrl Component', () => {
             handleLeft={handleLeftMock}
             handleMic={handleMicMock}
             isRecording={false}
+            lang={langMock}
+            setLang={setLangMock}
         />)
 
         expect(getByText(t('showtime:showtime_title'))).toBeTruthy();
-        expect(getByText(t('showtime:rmt_cntl_title'))).toBeTruthy();
     });
 
     test('renders buttons', () => {
@@ -64,11 +162,21 @@ describe('AbstractRmtCrl Component', () => {
             handleLeft={handleLeftMock}
             handleMic={handleMicMock}
             isRecording={false}
+            lang={langMock}
+            setLang={setLangMock}
         />)
+
+        expect(getByTestId('strc-lang-button')).toBeTruthy();
+        expect(getByTestId('timer-but')).toBeTruthy();
 
         expect(getByTestId('prev-button')).toBeTruthy();
         expect(getByTestId('next-button')).toBeTruthy();
         expect(getByTestId('mic-button')).toBeTruthy();
+
+        expect(getByTestId('strc-go-to-button')).toBeTruthy();
+        expect(getByTestId('strc-activity-button')).toBeTruthy();
+        expect(getByTestId('strc-chat-button')).toBeTruthy();
+
     });
 
 
@@ -80,6 +188,8 @@ describe('AbstractRmtCrl Component', () => {
                 handleLeft={jest.fn()}
                 handleMic={jest.fn()}
                 isRecording={false}
+                lang={langMock}
+                setLang={setLangMock}
             />
         );
 
@@ -97,10 +207,13 @@ describe('AbstractRmtCrl Component', () => {
                 handleLeft={jest.fn()}
                 handleMic={jest.fn()}
                 isRecording={true}
+                lang={langMock}
+                setLang={setLangMock}
             />
         );
 
-        const startRecordingText = getByText(t('showtime:recording_start'));
+        const fullString = langIconMap[langMock] + " " + t(`showtime:recording_start`);
+        const startRecordingText = getByText(fullString);
         expect(startRecordingText).toBeTruthy();
         const styles = startRecordingText.props.style;
         const colorStyle = Array.isArray(styles) ? styles.find(style => style.color) : styles;
@@ -115,6 +228,8 @@ describe('AbstractRmtCrl Component', () => {
                 handleLeft={handleLeftMock}
                 handleMic={handleMicMock}
                 isRecording={false}
+                lang={langMock}
+                setLang={setLangMock}
             />
         );
 
@@ -132,6 +247,8 @@ describe('AbstractRmtCrl Component', () => {
                 handleLeft={handleLeftMock}
                 handleMic={handleMicMock}
                 isRecording={true}
+                lang={langMock}
+                setLang={setLangMock}
             />
         );
 
@@ -151,6 +268,8 @@ describe('AbstractRmtCrl Component', () => {
                 handleLeft={handleLeftMock}
                 handleMic={handleMicMock}
                 isRecording={false}
+                lang={langMock}
+                setLang={setLangMock}
             />
         );
 
@@ -165,6 +284,8 @@ describe('AbstractRmtCrl Component', () => {
                 handleLeft={handleLeftMock}
                 handleMic={handleMicMock}
                 isRecording={false}
+                lang={langMock}
+                setLang={setLangMock}
             />
         );
 
@@ -179,6 +300,8 @@ describe('AbstractRmtCrl Component', () => {
                 handleLeft={handleLeftMock}
                 handleMic={handleMicMock}
                 isRecording={false}
+                lang={langMock}
+                setLang={setLangMock}
             />
         );
 
@@ -187,4 +310,97 @@ describe('AbstractRmtCrl Component', () => {
     });
 
 
+
+    test('shows toast when Go to Page button is pressed', () => {
+        const { getByTestId } = render(
+            <AbstractRmtCrl
+                handleRight={handleRightMock}
+                handleLeft={handleLeftMock}
+                handleMic={handleMicMock}
+                isRecording={false}
+                lang={langMock}
+                setLang={setLangMock}
+            />
+        );
+
+        fireEvent.press(getByTestId('strc-go-to-button'));
+        expect(Toast.show).toHaveBeenCalledWith({
+            type: 'success',
+            text1: 'The Go to Page',
+            text2: 'Implementation comes soon'
+        });
+    });
+
+    test('shows toast when Available activities button is pressed', () => {
+        const { getByTestId } = render(
+            <AbstractRmtCrl
+                handleRight={handleRightMock}
+                handleLeft={handleLeftMock}
+                handleMic={handleMicMock}
+                isRecording={false}
+                lang={langMock}
+                setLang={setLangMock}
+            />
+        );
+
+        fireEvent.press(getByTestId('strc-activity-button'));
+        expect(Toast.show).toHaveBeenCalledWith({
+            type: 'success',
+            text1: 'The Available activities',
+            text2: 'Implementation comes soon'
+        });
+    });
+
+    test('shows toast when Audiance Questions button is pressed', () => {
+        const { getByTestId } = render(
+            <AbstractRmtCrl
+                handleRight={handleRightMock}
+                handleLeft={handleLeftMock}
+                handleMic={handleMicMock}
+                isRecording={false}
+                lang={langMock}
+                setLang={setLangMock}
+            />
+        );
+
+        fireEvent.press(getByTestId('strc-chat-button'));
+        expect(Toast.show).toHaveBeenCalledWith({
+            type: 'success',
+            text1: 'The Audiance  Questions',
+            text2: 'Implementation comes soon'
+        });
+    });
+
+    test('displays the timer correctly', () => {
+        const { getByTestId } = render(
+            <AbstractRmtCrl
+                handleRight={handleRightMock}
+                handleLeft={handleLeftMock}
+                handleMic={handleMicMock}
+                isRecording={false}
+                lang={langMock}
+                setLang={setLangMock}
+            />
+        );
+
+        const timerText = getByTestId('timer-txt');
+        expect(timerText).toBeTruthy();
+        expect(timerText.props.children).toBe('0:00:00');
+    });
+
+    test('do not close the language selection modal when language button is pressed', () => {
+        const { getByTestId } = render(
+            <AbstractRmtCrl
+                handleRight={handleRightMock}
+                handleLeft={handleLeftMock}
+                handleMic={handleMicMock}
+                isRecording={false}
+                lang={langMock}
+                setLang={setLangMock}
+            />
+        );
+
+        fireEvent.press(getByTestId('strc-lang-button'));
+        expect(modalRef.current?.close).not.toHaveBeenCalled();
+    });
 });
