@@ -120,9 +120,7 @@ export const Day = ({
                     (((period.end ?? period.start) - period.start) / 60) * 80; // HOUR_BLOCK_HEIGHT
                 const { pathname, params } = getNavigationDetails(user, courseItem, period, index);
                 const position = (period.start / 60 - ind) * HOUR_BLOCK_HEIGHT;
-                console.log(ind)
                 setTopPosition(periodHeight)
-                const pos = position
                 ind++
 
                 // Calculer la position et créer un tableau avec les données nécessaires
