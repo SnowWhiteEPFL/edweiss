@@ -287,6 +287,7 @@ describe('InfinitePaginatedCounterScreen Component', () => {
 
         jest.useRealTimers();
     });
+
 });
 
 
