@@ -63,18 +63,3 @@ const WebViewMathJaxWrapper: ReactComponent<WebViewJaxWrapperProps> = (props) =>
 };
 
 export default WebViewMathJaxWrapper;
-
-// const [mathJax, setMathJax] = useState<string | undefined>(cachedMathJax);
-
-// useEffect(() => {
-// 	if (!mathJax) {
-// 		(async () => {
-// 			const res = await fetch("https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js");
-// 			const content = await res.text();
-// 			setMathJax(content);
-// 			cachedMathJax = content;
-// 		})();
-// 	}
-// }, []);
-
-// <script type="text/javascript">${mathJax}</script>
