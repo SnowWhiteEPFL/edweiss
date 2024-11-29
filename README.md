@@ -85,3 +85,6 @@ Also, please turn on VSCode formatting !
 ## 📚 Ressources
 Check our [Figma](https://www.figma.com/design/BBD2dqgIbEF96IhNpyv7MW/EdWeiss?node-id=0-1&t=qQd63l3nEltoppuT-1) design.
 (Last update : 15.11.2024)
+
+## Admin
+(Last update : 29.11.2024)

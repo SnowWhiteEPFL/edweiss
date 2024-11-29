@@ -119,7 +119,7 @@ const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSect
     const renderLeftActions = () => (
         <TTouchableOpacity testID={testIDs.swipeLeftTounchable} onPress={() => { console.log('Read/Unread Button pressed'); handleMarkAsReadUnread(); swipeableRefs.current[index]?.close(); }}>
             <TView testID={testIDs.swipeLeftView} justifyContent='center' alignItems='flex-end' py={20} backgroundColor='blue'>
-                <TText testID={testIDs.swipeLeftText} size={16} bold={true} px={12} color='constantWhite'>
+                <TText testID={testIDs.swipeLeftText} size={16} bold px={12} color='constantWhite'>
                     {item.read ? t(`notifications:unread`) : t(`notifications:read`)}
                 </TText>
             </TView>
@@ -129,7 +129,7 @@ const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSect
     const renderRightActions = () => (
         <TTouchableOpacity testID={testIDs.swipeRightTounchable} onPress={() => { console.log('Delete Button pressed'); deleteNotifAction(id); swipeableRefs.current[index]?.close(); }}>
             <TView testID={testIDs.swipeRightView} justifyContent='center' alignItems='flex-end' py={20} backgroundColor='cherry'>
-                <TText testID={testIDs.swipeRightText} size={16} bold={true} px={12} color='constantWhite'>
+                <TText testID={testIDs.swipeRightText} size={16} bold px={12} color='constantWhite'>
                     {t(`notifications:delete`)}
                 </TText>
             </TView>

@@ -16,10 +16,10 @@ import NotifDisplay from '@/components/notifs/NotifDisplay';
 import { CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import { iconSizes } from '@/constants/Sizes';
-import { timeInMS } from '@/constants/Time';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { default as NotifList } from '@/model/notifs';
+import { Time } from '@/utils/time';
 import React from 'react';
 import { Image, useWindowDimensions } from 'react-native';
 
@@ -95,28 +95,13 @@ const NotificationsPage: ApplicationRoute = () => {
 
     // Function to categorize notifications by date
     notifs.forEach((notif) => {
-        const notifDate = new Date(notif.data.date.seconds * timeInMS.SECOND); // Date de la notif
+        const notifDate = Time.toDate(notif.data.date);
 
-        // Vérifier si la notification est du jour actuel
-        if (notifDate >= midnight) {
-            notifsDay.push(notif);
-        }
-        // Vérifier si la notification est de cette semaine
-        else if (notifDate >= mondayMidnight) {
-            notifsWeek.push(notif);
-        }
-        // Vérifier si la notification est de ce mois-ci
-        else if (notifDate >= monthStart) {
-            notifsMonth.push(notif);
-        }
-        // Vérifier si la notification est de cette année
-        else if (notifDate >= yearStart) {
-            notifsYear.push(notif);
-        }
-        // Si c'est plus ancien, la mettre dans les autres notifications
-        else {
-            otherNotifs.push(notif);
-        }
+        if (notifDate >= midnight) notifsDay.push(notif);
+        else if (notifDate >= mondayMidnight) notifsWeek.push(notif);
+        else if (notifDate >= monthStart) notifsMonth.push(notif);
+        else if (notifDate >= yearStart) notifsYear.push(notif);
+        else otherNotifs.push(notif);
     });
 
     // Sort each array by date in descending order (most recent first)

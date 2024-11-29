@@ -172,7 +172,7 @@ describe('RemoteControlScreen Test Suite', () => {
 
     it('calls startRecording to begin voice recording', async () => {
         await act(async () => {
-            await startRecording();
+            await startRecording('en-US');
         });
 
         expect(Voice.start).toHaveBeenCalledWith('en-US');
@@ -209,7 +209,7 @@ describe('RemoteControlScreen Test Suite', () => {
         console.log = jest.fn();
 
         await act(async () => {
-            await startRecording();
+            await startRecording('en-US');
         });
 
         expect(console.log).toHaveBeenCalledWith(mockError);
