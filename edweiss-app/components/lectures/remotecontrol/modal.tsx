@@ -11,7 +11,6 @@
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
-import Icon from '@/components/core/Icon';
 import ModalContainer from '@/components/core/modal/ModalContainer';
 import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
@@ -21,7 +20,7 @@ import useTheme from '@/hooks/theme/useTheme';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { t } from 'i18next';
-import React, { useState } from 'react';
+import React from 'react';
 import { langIconMap, langNameMap } from '../../../utils/lectures/remotecontrol/utilsFunctions';
 
 // type
@@ -146,87 +145,7 @@ const TwoLangsSelection: React.FC<TwoLangsSelectionProps & LightDarkProps> = ({ 
                         </TTouchableOpacity>
                     </>
                 )}
-                <TView flex={1} ml={'sm'} mr={'sm'}></TView>
             </TView>
         </>
-    );
-};
-
-
-
-
-
-// ------------------------------------------------------------
-// ----------------     Jump To Page Modal      ---------------
-// ------------------------------------------------------------
-
-export const GotoPageModal: ReactComponent<{
-    modalRef: React.RefObject<BottomSheetModalMethods>;
-    nbOfPages: number;
-    onClose: () => void;
-}> = ({ modalRef, nbOfPages, onClose }) => {
-
-    const [page, setPage] = useState(1);
-
-    return (
-        <ModalContainer modalRef={modalRef}>
-            <>
-                <TView justifyContent='center' alignItems='center' mb='sm'>
-                    <TText bold size='lg' mb='sm'>{t('showtime:rmt_cntl_go_page')}</TText>
-                </TView>
-
-                <TScrollView>
-
-
-                    <TView m={20} mb={50} flexDirection='row' justifyContent='center' alignItems='center'>
-
-                        <TView flex={1} />
-
-                        <TTouchableOpacity
-                            backgroundColor='crust'
-                            borderColor='text' p={5} b={1} radius={1000}
-                            onPress={() => {
-                                if (page > 1) {
-                                    setPage(page - 1);
-                                }
-                            }
-                            }
-                            testID='dec-page-button'>
-                            <Icon size={50} name='remove-circle-outline' color='text'></Icon>
-                        </TTouchableOpacity>
-
-
-                        <TView flex={1} />
-
-                        <TTouchableOpacity>
-                            <TText size={'xl'}>{page} / {nbOfPages}</TText>
-                        </TTouchableOpacity>
-
-                        <TView flex={1} />
-
-                        <TTouchableOpacity
-                            backgroundColor='crust'
-                            borderColor='text' p={5} b={1} radius={1000}
-                            onPress={() => {
-                                if (page < nbOfPages) {
-                                    setPage(page + 1);
-                                }
-                            }
-                            }
-                            testID='inc-page-button'>
-                            <Icon size={50} name='add-circle-outline' color='text'></Icon>
-                        </TTouchableOpacity>
-
-                        <TView flex={1} />
-
-                    </TView>
-
-                </TScrollView>
-
-                <FancyButton backgroundColor='subtext0' m='md' onPress={onClose} outlined testID='lang-sel-close-button'>
-                    {t('todo:close_btn')}
-                </FancyButton>
-            </>
-        </ModalContainer >
     );
 };

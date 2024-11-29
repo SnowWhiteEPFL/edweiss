@@ -22,7 +22,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
 import React, { useRef } from 'react';
 import Toast from 'react-native-toast-message';
-import { GotoPageModal, LangSelectModal } from './modal';
+import { LangSelectModal } from './modal';
 
 // types
 type AvailableLangs = LectureDisplay.AvailableLangs;
@@ -47,7 +47,6 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
 
     // Modal References
     const modalRefLangSelect = useRef<BottomSheetModal>(null);
-    const modalRefGoToPage = useRef<BottomSheetModal>(null);
 
     return (
         <>
@@ -158,8 +157,6 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
 
             {/* Modals */}
             <LangSelectModal modalRef={modalRefLangSelect} lang={lang} setLang={setLang} onClose={() => modalRefLangSelect.current?.close()} />
-
-            <GotoPageModal modalRef={modalRefGoToPage} nbOfPages={5} onClose={() => modalRefGoToPage.current?.close()} />
         </>
     );
 };

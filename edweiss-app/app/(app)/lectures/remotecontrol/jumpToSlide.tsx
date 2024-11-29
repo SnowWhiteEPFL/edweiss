@@ -177,9 +177,9 @@ const JumpToSlideScreen: ApplicationRoute = () => {
                 <FancyTextInput
                     value={inputPage}
                     onChangeText={setInputPage}
-                    placeholder="Enter your Page"
+                    placeholder={t('showtime:rmt_ctl_enter_page_placeholder')}
                     icon='newspaper'
-                    label="Page Picker"
+                    label={t('showtime:rmt_ctl_enter_page_label')}
                     testID='pick-page-input'
                     numeric
                 />
