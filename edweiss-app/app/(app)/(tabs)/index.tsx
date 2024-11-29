@@ -16,7 +16,7 @@ import { useCourses } from '@/contexts/courses';
 import { useDocs } from '@/hooks/firebase/firestore';
 import { Assignment, Course } from '@/model/school/courses';
 import { Time } from '@/utils/time';
-import { router } from 'expo-router';
+import { Href, router } from 'expo-router';
 import React from 'react';
 
 const HomeTab: ApplicationRoute = () => {
@@ -29,7 +29,7 @@ const HomeTab: ApplicationRoute = () => {
 		<>
 			<RouteHeader title='Home' right={
 				<HeaderButtons>
-					<HeaderButton onPress={() => router.push("/notifications" as any)} icon='notifications-outline' />
+					<HeaderButton onPress={() => router.push("/notifs/notifications" as Href<string>)} icon='notifications-outline' />
 				</HeaderButtons>
 			} />
 
@@ -139,8 +139,8 @@ const CourseDisplay: ReactComponent<{ course: Document<Course> }> = ({ course })
 
 const AssignmentDisplay: ReactComponent<{ assignment: Document<Assignment> }> = ({ assignment }) => {
 	return (
-		<TView flexDirection='row' justifyContent='space-between'>
-			<TText>
+		<TView flexColumnGap={'md'} flexDirection='row' justifyContent='space-between'>
+			<TText numberOfLines={1} style={{ flex: 1 }}>
 				{assignment.data.name}
 			</TText>
 			<TText color='subtext0'>

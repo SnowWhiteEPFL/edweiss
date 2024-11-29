@@ -18,11 +18,13 @@ import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
 import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
-import { callFunction, Collections } from '@/config/firebase';
-import { useDoc } from '@/hooks/firebase/firestore';
+import { callFunction } from '@/config/firebase';
+import { useRepositoryDocument } from '@/hooks/repository';
+import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
+import { DecksRepository } from '../../../_layout';
 
 // ------------------------------------------------------------
 // ----------------- CreateCardScreen Component ----------------
@@ -35,18 +37,24 @@ import React, { useState } from 'react';
  * @returns {ApplicationRoute} Screen to create a card
  */
 const CreateCardScreen: ApplicationRoute = () => {
+        /*
     const { deckId } = useLocalSearchParams();
     const [question, setQuestion] = useState("");
     const [answer, setAnswer] = useState("");
     const [existedQuestion, setExistedQuestion] = useState(false);
     const [emptyField, setEmptyField] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+        */
+	const { deckId } = useStringParameters();
+	const [question, setQuestion] = useState("");
+	const [answer, setAnswer] = useState("");
+	const [existedQuestion, setExistedQuestion] = useState(false);
 
-    const deck = useDoc(Collections.deck, deckId as string);
+	// const deck = useDoc(Collections.deck, deckId);
 
-    // Create a new card
-    async function createCard() {
+	const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
 
+/*
         const isDuplicate = deck?.data.cards.some(card => card.question === question);
         const isEmpty = question.length == 0 || answer.length == 0;
         if (isDuplicate) {
@@ -70,25 +78,48 @@ const CreateCardScreen: ApplicationRoute = () => {
                 answer: answer,
                 learning_status: "Not yet",
             }
+  */
+	// if (!deck)
+	// 	return <Redirect href={'/'} />;
 
-        });
+	// Create a new card
+	async function createCard() {
 
-        if (res.status == 1) {
-            console.log(`OKAY, card created with id ${res.data.id}`);
-            setIsLoading(false);
-            router.back();
-        }
+		if (question.length == 0 || answer.length == 0 || existedQuestion)
+			return;
 
-    }
+		const isDuplicate = deck?.data.cards.some(card => card.question === question);
+		if (isDuplicate) {
+			setExistedQuestion(true);
+			return;  // Prevent creation if a duplicate is found
+		}
+		const card: Memento.Card = {
+			question: question,
+			answer: answer,
+			learning_status: "Not yet",
+		};
 
-    return (
-        <>
-            <RouteHeader title='Create a card' />
+		const previousCards = deck?.data.cards ?? [];
 
-            <TScrollView>
-                {/* <TextInput value={deckName} onChangeText={n => setDeckName(n)} placeholder='Deck name' placeholderTextColor={'#555'} style={{ backgroundColor: Colors.dark.crust, borderColor: Colors.dark.blue, borderWidth: 1, padding: 8, paddingHorizontal: 16, margin: 16, marginBottom: 0, color: 'white', borderRadius: 14, fontFamily: "Inter" }}>
+		handler.modifyDocument(deckId, { cards: [...previousCards, card] }, () => {
+			callFunction(Memento.Functions.createCard, {
+				deckId: deckId,
+				card
+			});
+		});
 
-				</TextInput> */}
+		// if (res.status == 1) {
+		// 	console.log(`OKAY, card created with id ${res.data.id}`);
+		// }
+
+		router.back();
+	}
+
+	return (
+		<>
+			<RouteHeader title='Create a card' />
+
+			<TScrollView>
                 <TView m='md' borderColor='crust' radius='lg'>
                     <FancyTextInput
                         value={question}

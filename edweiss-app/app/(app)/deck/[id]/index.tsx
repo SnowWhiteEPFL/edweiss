@@ -17,17 +17,18 @@ import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
-import { CardListDisplay } from '@/components/memento/CardListDisplayComponent';
-import { DeleteOptionModalDisplay } from '@/components/memento/DeleteDeckModalAction';
-import { CardModalDisplay } from '@/components/memento/ModalDisplay';
-import { callFunction, Collections } from '@/config/firebase';
-import { useDynamicDocs } from '@/hooks/firebase/firestore';
+
+import CardScreenComponent from '@/components/memento/CardScreenComponent';
+import { callFunction } from '@/config/firebase';
+import { useRepositoryDocument } from '@/hooks/repository';
+import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
 import { sortingCards } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Redirect, router, useLocalSearchParams } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { Button } from 'react-native';
+import { DecksRepository } from '../_layout';
 
 /**
  * CardListScreen
@@ -36,20 +37,30 @@ import { Button } from 'react-native';
  * @returns {ApplicationRoute} Screen to display a list of cards in a deck
  */
 const CardListScreen: ApplicationRoute = () => {
-	const { id } = useLocalSearchParams();
+	const { id } = useStringParameters();
 	const [showDropdown, setShowDropdown] = useState(false); // State for dropdown visibility
 	const [selectedCards, setSelectedCards] = useState<Memento.Card[]>([]);
 	const [selectionMode, setSelectionMode] = useState(false); // Track selection mode
-	const [cardToDisplay, setCardToDisplay] = useState<Memento.Card | undefined>(undefined); // State to hold card to display
+  const [cardToDisplay, setCardToDisplay] = useState<Memento.Card | undefined>(undefined); // State to hold card to display
 	const [isLoading, setIsLoading] = useState(false); // State to track loading status
 	const modalRef_Card_Info = useRef<BottomSheetModal>(null); // Reference for the modal
 	const modalRef_Operation = useRef<BottomSheetModal>(null); // Reference for the modal
-	const decks = useDynamicDocs(Collections.deck);
+	const [selectedCardIndex, setSelectedCardIndex] = useState<number | null>(null); // State to hold selected card index
+	const modalRef = useRef<BottomSheetModal>(null); // Reference for the modal
+
 
 	if (typeof id != 'string') return <Redirect href={'/'} />;
 
-	const deck = decks?.find(d => d.id == id);
-	const cards = deck?.data.cards || []; // Ensure cards is an array or empty
+	const [deck, handler] = useRepositoryDocument(id, DecksRepository);
+
+	if (deck == undefined)
+		return <Redirect href={'/'} />;
+
+	// const decks = useDynamicDocs(Collections.deck);
+
+	// const deck = decks?.find(d => d.id == id);
+
+	const cards = deck.data.cards; // Ensure cards is an array or empty
 
 	const sortedCards = sortingCards(cards);
 
@@ -76,7 +87,9 @@ const CardListScreen: ApplicationRoute = () => {
 		const selectedCardIndices = selectedCards.map(card => cards.indexOf(card));
 
 		try {
-			await callFunction(Memento.Functions.deleteCards, { deckId: id, cardIndices: selectedCardIndices });
+			handler.modifyDocument(id, { cards: cards.filter((_, i) => !selectedCardIndices.includes(i)) }, (id) => {
+				callFunction(Memento.Functions.deleteCards, { deckId: id, cardIndices: selectedCardIndices });
+			});
 			setSelectedCards([]); // Clear selection after deletion
 			setSelectionMode(false); // Exit selection mode
 			setIsLoading(false);
@@ -98,10 +111,14 @@ const CardListScreen: ApplicationRoute = () => {
 	};
 
 	// Delete deck
-	const deleteDeck = async () => {
 
-		await callFunction(Memento.Functions.deleteDecks, { deckIds: [id] });
-		router.back();
+	async function deleteDeck() {
+		handler.deleteDocument(id, async (id) => {
+			const res = await callFunction(Memento.Functions.deleteDecks, { deckIds: [id] });
+			console.log(`Delete res : ${JSON.stringify(res)}`);
+			router.back();
+		});
+
 	}
 
 	return (
