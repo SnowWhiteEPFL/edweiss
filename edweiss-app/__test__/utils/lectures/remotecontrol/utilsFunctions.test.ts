@@ -10,7 +10,7 @@
 // ------------------------------------------------------------
 
 import { callFunction } from '@/config/firebase';
-import { handleLeft, handleMic, handleRight, updateSlideAudioRecording } from '@/utils/lectures/remotecontrol/utilsFunctions';
+import { handleLeft, handleMic, handleRight, langCodeMap, langIconMap, langNameMap, updateSlideAudioRecording } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { Vibration } from 'react-native';
 
 
@@ -206,6 +206,53 @@ describe('Utils Functions', () => {
             expect(mockStartRecording).toHaveBeenCalled();
             expect(mockSetIsRecording).toHaveBeenCalledWith(true);
             expect(Vibration.vibrate).toHaveBeenCalledWith(100);
+        });
+    });
+
+    describe('Language Maps', () => {
+        describe('langIconMap', () => {
+            it('should return correct icon for each language', () => {
+                expect(langIconMap.english).toBe('🇬🇧');
+                expect(langIconMap.french).toBe('🇫🇷');
+                expect(langIconMap.spanish).toBe('🇪🇸');
+                expect(langIconMap.italian).toBe('🇮🇹');
+                expect(langIconMap.german).toBe('🇩🇪');
+                expect(langIconMap.brazilian).toBe('🇧🇷');
+                expect(langIconMap.arabic).toBe('🇸🇦');
+                expect(langIconMap.chinese).toBe('🇨🇳');
+                expect(langIconMap.vietanames).toBe('🇻🇳');
+                expect(langIconMap.hindi).toBe('🇮🇳');
+            });
+        });
+
+        describe('langNameMap', () => {
+            it('should return correct name for each language', () => {
+                expect(langNameMap.english).toBe('English');
+                expect(langNameMap.french).toBe('Français');
+                expect(langNameMap.spanish).toBe('Español');
+                expect(langNameMap.italian).toBe('Italiano');
+                expect(langNameMap.german).toBe('Deutsch');
+                expect(langNameMap.brazilian).toBe('Português');
+                expect(langNameMap.arabic).toBe('العربية');
+                expect(langNameMap.chinese).toBe('中文');
+                expect(langNameMap.vietanames).toBe('Tiếng Việt');
+                expect(langNameMap.hindi).toBe('हिन्दी');
+            });
+        });
+
+        describe('langCodeMap', () => {
+            it('should return correct code for each language', () => {
+                expect(langCodeMap.english).toBe('en-US');
+                expect(langCodeMap.french).toBe('fr-FR');
+                expect(langCodeMap.spanish).toBe('es-ES');
+                expect(langCodeMap.italian).toBe('it-IT');
+                expect(langCodeMap.german).toBe('de-DE');
+                expect(langCodeMap.brazilian).toBe('pt-BR');
+                expect(langCodeMap.arabic).toBe('ar-SA');
+                expect(langCodeMap.chinese).toBe('zh-CN');
+                expect(langCodeMap.vietanames).toBe('vi-VN');
+                expect(langCodeMap.hindi).toBe('hi-IN');
+            });
         });
     });
 });
