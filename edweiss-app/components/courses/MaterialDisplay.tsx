@@ -85,9 +85,9 @@ const MaterialDisplay: ReactComponent<{ item: Material; }> = ({ item }) => {
             <TText testID={testIDs.materialTitle} mb={4} size={14} color='darkBlue' bold>{formatDateRange(item.from.seconds, item.to.seconds)}</TText>
             <TText testID={testIDs.materialDescription} lineHeight='md' align='auto' size={15} color='darkNight' py={12} textBreakStrategy='highQuality'>{item.description}</TText>
 
-            {sortedDocs.map((doc, index) => (
+            {sortedDocs.map((doc) => (
                 <TTouchableOpacity
-                    key={index}
+                    key={doc.url}
                     testID={getTestID(doc.type)}
                     flexDirection="row"
                     alignItems="center"
