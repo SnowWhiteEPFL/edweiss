@@ -17,6 +17,3 @@ export const dateFormats = {
 	month: 'long',    // Displays the month, like "October"
 	day: 'numeric',    // Displays the day of the month, like "12"
 } as const;
-
-export const formatterOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' } as const;
-export const fullYearFormatterOptions: Intl.DateTimeFormatOptions = { ...formatterOptions, year: 'numeric' } as const;

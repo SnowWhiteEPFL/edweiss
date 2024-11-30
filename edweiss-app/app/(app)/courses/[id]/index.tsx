@@ -180,7 +180,7 @@ const CoursePage: ApplicationRoute = () => {
 					each={upcomingAssignments && upcomingAssignments.length > 0 ? upcomingAssignments : undefined}
 					fallback={<TText size={16} testID={testIDs.noAssignmentDue}>{t('course:no_assignment_due')}</TText>}
 				>{(assignment, index) => (
-					<AssignmentDisplay item={assignment.data as AssignmentWithColor} id={assignment.id} courseID={id} index={index} isSwipeable key={assignment.data.name} />
+					<AssignmentDisplay item={assignment.data} id={assignment.id} courseID={id} index={index} isSwipeable key={assignment.data.name} />
 				)}
 				</For>
 
@@ -218,17 +218,17 @@ const CoursePage: ApplicationRoute = () => {
 				</TTouchableOpacity>
 
 				{showFutureMaterials && (futureMaterials.map((material, index) => (
-					<TView testID={testIDs.futureMaterialView} key={index}>
+					<TView testID={testIDs.futureMaterialView} key={material.id}>
 						<MaterialDisplay item={material.data} />
 						<TView bb={1} mx={20} mb={12} borderColor='overlay0' />
 					</TView>
 				)))}
 
-				{currentMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={index} />))}
+				{currentMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={material.id} />))}
 
 				{/*<TView bb={1} my={10} borderColor='crust' />}*/}
 
-				{passedMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={index} />))}
+				{passedMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={material.id} />))}
 
 				<TView mb={30} />
 
