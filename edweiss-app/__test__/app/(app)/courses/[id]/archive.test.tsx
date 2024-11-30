@@ -6,8 +6,8 @@
 
 import ArchiveScreen from '@/app/(app)/courses/[id]/archive';
 import { AssignmentWithColor } from '@/components/courses/AssignmentDisplay';
+import { useRouteParameters } from '@/hooks/routeParameters';
 import { render } from "@testing-library/react-native";
-import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
 
@@ -65,10 +65,8 @@ jest.mock('@/config/firebase', () => ({
     CollectionOf: jest.fn(() => 'mocked-collection'),
 }));
 
-// Mock useLocalSearchParams
-jest.mock('expo-router', () => ({
-    ...jest.requireActual('expo-router'),
-    useLocalSearchParams: jest.fn(),
+jest.mock('@/hooks/routeParameters', () => ({
+    useRouteParameters: jest.fn(),
 }));
 
 // Mock AssignmentDisplay component
@@ -109,7 +107,7 @@ describe('ArchiveScreen', () => {
     test("renders archived assignments", async () => {
 
         // Mock assignments
-        const assignments = [
+        const assignments: { id: string, data: AssignmentWithColor }[] = [
             {
                 id: "1",
                 data: {
@@ -130,11 +128,7 @@ describe('ArchiveScreen', () => {
             }
         ];
 
-        // Mock useLocalSearchParams to return the assignments
-        (useLocalSearchParams as jest.Mock).mockReturnValue({
-            id: "default-course-id",
-            rawAssignments: JSON.stringify(assignments)  // Simule la chaîne JSON des assignments
-        });
+        (useRouteParameters as jest.Mock).mockReturnValue({ courseId: 'courseID', assignments: assignments });
 
         const screen = render(<ArchiveScreen />);
 
@@ -164,12 +158,10 @@ describe('ArchiveScreen', () => {
     });
 
     test("renders nothing when no assignment is given", async () => {
-        const assignments: AssignmentWithColor[] = [];
+        const assignments: { id: string, data: AssignmentWithColor }[] = [];
 
         // Mock useLocalSearchParams to return the assignments
-        (useLocalSearchParams as jest.Mock).mockReturnValue({
-            rawAssignments: JSON.stringify(assignments)  // Simulate the JSON string of the assignments
-        });
+        (useRouteParameters as jest.Mock).mockReturnValue({ courseId: 'courseID', assignments: assignments });
 
         const screen = render(<ArchiveScreen />);
 
@@ -189,74 +181,5 @@ describe('ArchiveScreen', () => {
         // TestIDs absence check
         expect(screen.queryByTestId('assignment-view')).toBeNull();
 
-    });
-
-    test("renders nothing when rawAssignments is a string but is invalid", async () => {
-
-        // Mock console.error
-        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
-
-        // Mock useLocalSearchParams to return invalid rawAssignments
-        (useLocalSearchParams as jest.Mock).mockReturnValue({
-            rawAssignments: "invalid"  // A non-valid JSON string that will fail to deserialize
-        });
-
-        // Render the ArchiveScreen component
-        const screen = render(<ArchiveScreen />);
-
-        // Verfies that the assignments are not displayed
-        expect(screen.queryByText('Assignment 1')).toBeNull();
-        expect(screen.queryByText('Assignment 2')).toBeNull();
-
-
-        // Verifies that console.error has been called with the right message
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to parse rawAssignments: ', expect.any(Error));
-        consoleErrorSpy.mockRestore();
-
-        // Verifies that a no data message is maybe displayed
-        expect(screen.getByText('No past assignments for the moment')).toBeTruthy();
-
-    });
-
-    test("renders nothing when rawAssignments is an empty string", async () => {
-
-        // Mock console.error
-        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
-
-        // Mock useLocalSearchParams to return an empty rawAssignments
-        (useLocalSearchParams as jest.Mock).mockReturnValue({
-            rawAssignments: ""  // Une chaîne non-JSON valide qui va échouer à la déserialization
-        });
-
-        // Rennder the ArchiveScreen component
-        const screen = render(<ArchiveScreen />);
-
-        // Verifies that the assignments are not displayed
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to parse rawAssignments: ', expect.any(Error));
-        consoleErrorSpy.mockRestore();
-
-        // Verifies that a no data message is maybe displayed
-        expect(screen.getByText('No past assignments for the moment')).toBeTruthy();
-    });
-
-    test("renders nothing when rawAssignments is not a string", async () => {
-
-        // Mock console.error
-        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
-
-        // Mock useLocalSearchParams to return an invalid rawAssignments
-        (useLocalSearchParams as jest.Mock).mockReturnValue({
-            rawAssignments: 0  // Une chaîne non-JSON valide qui va échouer à la déserialization
-        });
-
-        // Render the ArchiveScreen component
-        const screen = render(<ArchiveScreen />);
-
-        // Verifies that the assignments are not displayed
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Invalid rawAssignments (not a string): ', 0);
-        consoleErrorSpy.mockRestore();
-
-        // Verifies that a no data message is maybe displayed
-        expect(screen.getByText('No past assignments for the moment')).toBeTruthy();
     });
 });
