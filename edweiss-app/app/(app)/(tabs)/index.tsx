@@ -109,7 +109,7 @@ const CourseDisplay: ReactComponent<{ course: Document<Course> }> = ({ course })
 			<TText>
 				{course.data.name}
 			</TText>
-			<For each={assignments?.length ?? 0 > 0 ? assignments : undefined}
+			<For each={assignments && assignments.length > 0 ? assignments : undefined}
 				fallback={<TText size={'sm'} color='overlay1'>{t("home:no_assignments")}</TText>}
 			>
 				{assignment => <AssignmentDisplay key={assignment.id} assignment={assignment} />}
