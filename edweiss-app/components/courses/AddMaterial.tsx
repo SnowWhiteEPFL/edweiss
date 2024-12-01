@@ -3,6 +3,7 @@ import ReactComponent from '@/constants/Component';
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
+import { IconType } from '@/constants/Style';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import TScrollView from '../core/containers/TScrollView';
@@ -12,14 +13,16 @@ import FancyTextInput from '../input/FancyTextInput';
 
 
 // Icons
-const nameIcon = 'text';
-const descriptionIcon = 'create-outline';
-const dateIcon = 'calendar';
-const timeIcon = 'alarm';
-const finishIcon = 'checkmark-circle';
+export const icons: { [key: string]: IconType } = {
+    nameIcon: 'text',
+    descriptionIcon: 'create-outline',
+    dateIcon: 'calendar',
+    timeIcon: 'alarm',
+    finishIcon: 'checkmark-circle',
+};
 
 // Tests Tags
-export const testIDs = {
+export const testIDs: { [key: string]: string } = {
     addMaterialTitle: 'add-material-title',
     addMaterialDescription: 'add-material-description',
     scrollView: 'scroll-view',
@@ -48,8 +51,10 @@ export const testIDs = {
     toTimeTouchableOpacity: 'to-time-touchable-opacity',
     toTimeIcon: 'to-time-icon',
     toTimeText: 'to-time-text',
-    datePicker: "dateTimePicker1",
-    timePicker: "dateTimePicker2",
+    fromDatePicker: "fromDate-dateTimePicker",
+    fromTimePicker: "fromTime-dateTimePicker",
+    toDatePicker: "toDate-dateTimePicker",
+    toTimePicker: "toTime-dateTimePicker",
     finishTouchableOpacity: 'finish-touchable-opacity',
     finishView: 'finish-view',
     finishIcon: 'finish-icon',
@@ -134,7 +139,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
                         value={name}
                         onChangeText={n => setName(n)}
                         placeholder={t(`course:material_title_placeholder`)}
-                        icon={nameIcon}
+                        icon={icons.nameIcon}
                     />
                     <FancyTextInput
                         testID={testIDs.descriptionInput}
@@ -142,7 +147,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
                         value={description}
                         onChangeText={n => setDescription(n)}
                         placeholder={t(`course:material_description_placeholder`)}
-                        icon={descriptionIcon}
+                        icon={icons.descriptionIcon}
                         multiline
                         numberOfLines={4}
                         mt={'md'}
@@ -158,7 +163,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'
                         >
-                            <Icon testID={testIDs.fromDateIcon} name={dateIcon} size='md' color='overlay0' />
+                            <Icon testID={testIDs.fromDateIcon} name={icons.dateIcon} size='md' color='overlay0' />
                             <TText testID={testIDs.fromDateText} ml={14} color={fromDateChanged ? 'text' : 'overlay0'}>{fromDate.toDateString()}</TText>
                         </TTouchableOpacity>
                     </TView>
@@ -168,7 +173,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
                         <TTouchableOpacity testID={testIDs.fromTimeTouchableOpacity} onPress={() => setShowPickerFromTime(true)}
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'>
-                            <Icon testID={testIDs.fromTimeIcon} name={timeIcon} size='md' color='overlay0' />
+                            <Icon testID={testIDs.fromTimeIcon} name={icons.timeIcon} size='md' color='overlay0' />
                             <TText testID={testIDs.fromTimeText} ml={10} color={fromTimeChanged ? 'text' : 'overlay0'}>{fromDate.toTimeString().split(':').slice(0, 2).join(':')}</TText>
                         </TTouchableOpacity>
                     </TView>
@@ -181,7 +186,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'
                         >
-                            <Icon testID={testIDs.toDateIcon} name={dateIcon} size='md' color='overlay0' />
+                            <Icon testID={testIDs.toDateIcon} name={icons.dateIcon} size='md' color='overlay0' />
                             <TText testID={testIDs.toDateText} ml={14} color={toDateChanged ? 'text' : 'overlay0'}>{toDate.toDateString()}</TText>
                         </TTouchableOpacity>
                     </TView>
@@ -191,7 +196,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
                         <TTouchableOpacity testID={testIDs.toTimeTouchableOpacity} onPress={() => setShowPickerToTime(true)}
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'>
-                            <Icon testID={testIDs.toTimeIcon} name={timeIcon} size='md' color='overlay0' />
+                            <Icon testID={testIDs.toTimeIcon} name={icons.timeIcon} size='md' color='overlay0' />
                             <TText testID={testIDs.toTimeText} ml={10} color={toTimeChanged ? 'text' : 'overlay0'}>{toDate.toTimeString().split(':').slice(0, 2).join(':')}</TText>
                         </TTouchableOpacity>
                     </TView>
@@ -200,7 +205,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
 
                 {showPickerFromDate && (
                     <DateTimePicker
-                        testID={testIDs.datePicker}
+                        testID={testIDs.fromDatePicker}
                         value={fromDate}
                         mode='date'
                         is24Hour={true}
@@ -217,7 +222,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
 
                 {showPickerFromTime && (
                     <DateTimePicker
-                        testID={testIDs.timePicker}
+                        testID={testIDs.fromTimePicker}
                         value={fromDate}
                         mode='time'
                         is24Hour={true}
@@ -235,7 +240,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
 
                 {showPickerToDate && (
                     <DateTimePicker
-                        testID={testIDs.datePicker}
+                        testID={testIDs.toDatePicker}
                         value={toDate}
                         mode='date'
                         is24Hour={true}
@@ -252,7 +257,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
 
                 {showPickerToTime && (
                     <DateTimePicker
-                        testID={testIDs.timePicker}
+                        testID={testIDs.toTimePicker}
                         value={toDate}
                         mode='time'
                         is24Hour={true}
@@ -277,7 +282,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
                 ml={100} mr={100} p={12} radius={'xl'}
                 style={{ position: 'absolute', bottom: 60, left: 0, right: 0, zIndex: 100, borderRadius: 9999 }}>
                 <TView testID={testIDs.finishView} flexDirection='row' justifyContent='center' alignItems='center'>
-                    <Icon testID={testIDs.finishIcon} name={finishIcon} color='base' size={'md'} />
+                    <Icon testID={testIDs.finishIcon} name={icons.finishIcon} color='base' size={'md'} />
                     <TText testID={testIDs.finishText} color='base' ml={10}>{t(`course:upload_material`)}</TText>
                 </TView>
             </TTouchableOpacity >

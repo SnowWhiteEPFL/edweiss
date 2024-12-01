@@ -3,6 +3,7 @@ import ReactComponent from '@/constants/Component';
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
+import { IconType } from '@/constants/Style';
 import { AssignmentType } from '@/model/school/courses';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
@@ -14,13 +15,15 @@ import FancyTextInput from '../input/FancyTextInput';
 
 
 // Icons
-const nameIcon = 'text';
-const dateIcon = 'calendar';
-const timeIcon = 'alarm';
-const finishIcon = 'checkmark-circle';
+export const icons: { [key: string]: IconType } = {
+    nameIcon: 'text',
+    dateIcon: 'calendar',
+    timeIcon: 'alarm',
+    finishIcon: 'checkmark-circle',
+};
 
 // Tests Tags
-export const testIDs = {
+export const testIDs: { [key: string]: string } = {
     addAssignmentTitle: 'add-assignment-title',
     addAssignmentDescription: 'add-assignment-description',
     scrollView: 'scroll-view',
@@ -102,7 +105,7 @@ const AddAssignment: ReactComponent<AddAssignmentProps> = ({ onSubmit }) => {
                         value={name}
                         onChangeText={n => setName(n)}
                         placeholder={t(`course:name_placeholder`)}
-                        icon={nameIcon}
+                        icon={icons.nameIcon}
                         label={t(`course:name_label`)}
                     />
                     <FancyButton
@@ -126,7 +129,7 @@ const AddAssignment: ReactComponent<AddAssignmentProps> = ({ onSubmit }) => {
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'
                         >
-                            <Icon testID={testIDs.dateIcon} name={dateIcon} size='md' color='overlay0' />
+                            <Icon testID={testIDs.dateIcon} name={icons.dateIcon} size='md' color='overlay0' />
                             <TText testID={testIDs.dateText} ml={14} color={dateChanged ? 'text' : 'overlay0'}>{date.toDateString()}</TText>
                         </TTouchableOpacity>
                     </TView>
@@ -136,7 +139,7 @@ const AddAssignment: ReactComponent<AddAssignmentProps> = ({ onSubmit }) => {
                         <TTouchableOpacity testID={testIDs.timeTouchableOpacity} onPress={() => setShowPickerTime(true)}
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'>
-                            <Icon testID={testIDs.timeIcon} name={timeIcon} size='md' color='overlay0' />
+                            <Icon testID={testIDs.timeIcon} name={icons.timeIcon} size='md' color='overlay0' />
                             <TText testID={testIDs.timeText} ml={10} color={timeChanged ? 'text' : 'overlay0'}>{date.toTimeString().split(':').slice(0, 2).join(':')}</TText>
                         </TTouchableOpacity>
                     </TView>
@@ -187,7 +190,7 @@ const AddAssignment: ReactComponent<AddAssignmentProps> = ({ onSubmit }) => {
                 ml={100} mr={100} p={12} radius={'xl'}
                 style={{ position: 'absolute', bottom: 60, left: 0, right: 0, zIndex: 100, borderRadius: 9999 }}>
                 <TView testID={testIDs.finishView} flexDirection='row' justifyContent='center' alignItems='center'>
-                    <Icon testID={testIDs.finishIcon} name={finishIcon} color='base' size={'md'} />
+                    <Icon testID={testIDs.finishIcon} name={icons.finishIcon} color='base' size={'md'} />
                     <TText testID={testIDs.finishText} color='base' ml={10}>{t(`course:upload_assignment`)}</TText>
                 </TView>
             </TTouchableOpacity >

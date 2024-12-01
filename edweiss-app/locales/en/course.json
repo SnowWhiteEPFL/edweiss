@@ -38,6 +38,10 @@
 
     "course_params": "Course Parameters",
     "course_params_title": "Enter/Edit the details for the course",
-
-    "credits_label": "Credits"
+    "title_label": "Title",
+    "title_placeholder": "Introduction to Computer Science",
+    "description_label": "Description",
+    "description_placeholder": "This course is an introduction to the world of computer science",
+    "credits_label": "Credits",
+    "update_changes": "Update Changes"
 }

@@ -62,6 +62,8 @@ export const testIDs = {
 	toggleFutureMaterialsIcon: 'toggle-future-materials-icon',
 	toggleFutureMaterialsText: 'toggle-future-materials-text',
 	futureMaterialView: 'future-material-view',
+
+	addElementsTouchable: 'add-elements-touchable',
 };
 
 type AssignmentWithColor = Assignment & { color: Color; };
@@ -198,12 +200,16 @@ const CoursePage: ApplicationRoute = () => {
 
 	const renderProfessorModifButton = useCallback(() => {
 		return (
-			<TTouchableOpacity style={{
-				position: 'absolute',
-				bottom: 20,
-				right: 20,
-				zIndex: 1000,
-			}} onPress={handleButtonPress}>
+			<TTouchableOpacity
+				testID={testIDs.addElementsTouchable}
+				style={{
+					position: 'absolute',
+					bottom: 20,
+					right: 20,
+					zIndex: 1000,
+				}}
+				onPress={handleButtonPress}
+			>
 				<Icon name="add-circle" size={60} color='blue' />
 			</TTouchableOpacity>
 		);
@@ -212,6 +218,11 @@ const CoursePage: ApplicationRoute = () => {
 	//Checks
 	if (!isValidId) { return <Redirect href={'/'} />; }
 	if (course == undefined || assignmentsCollection == undefined || materialCollection == undefined) { return <TActivityIndicator size={40} />; }
+
+	console.debug('CoursePage: course', course);
+	console.debug('UserID', uid);
+
+	console.debug('uid and includes? : ', uid, ' and ', course.data.professors.includes(uid))
 
 	return (
 		<>
@@ -329,7 +340,7 @@ const CoursePage: ApplicationRoute = () => {
 				animationType="slide"
 				onRequestClose={() => setModalParamVisible(false)}
 			>
-				<CourseParameters course={course} onFinish={() => setModalParamVisible(false)} />
+				<CourseParameters course={course} onGiveUp={() => setModalParamVisible(false)} onFinish={() => console.log("TODO: Update course data on firebase")} />
 			</Modal>
 		</>
 	);

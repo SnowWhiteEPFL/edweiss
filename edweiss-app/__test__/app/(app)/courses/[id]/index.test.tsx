@@ -1,5 +1,6 @@
 import CoursePage from '@/app/(app)/courses/[id]/index';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
+import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { fireEvent, render } from "@testing-library/react-native";
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
@@ -50,6 +51,45 @@ jest.mock('@/config/i18config', () =>
     })
 );
 
+// jest.mock('@/contexts/auth', () => ({
+//     useAuth: jest.fn(() => ({
+//         authUser: { uid: '123', name: 'Test User' }, // Valeurs par défaut
+//         login: jest.fn(),
+//         logout: jest.fn(),
+//     })),
+// }));
+
+jest.mock('@/contexts/auth', () => ({
+    useAuth: jest.fn(),
+}));
+
+const TeacherAuthMock = {
+    authUser: { uid: 'TeacherID', name: 'Test User' },
+    login: jest.fn(),
+    logout: jest.fn(),
+};
+
+const StudentAuthMock = {
+    authUser: { uid: 'StudentID', name: 'Test User' },
+    login: jest.fn(),
+    logout: jest.fn(),
+};
+
+const setupTeacherMockUseAuth = (overrideValues = {}) => {
+    (useAuth as jest.Mock).mockReturnValue({
+        ...TeacherAuthMock,
+        ...overrideValues, // Permet d'écraser les valeurs par défaut
+    });
+};
+
+const setupStudentMockUseAuth = (overrideValues = {}) => {
+    (useAuth as jest.Mock).mockReturnValue({
+        ...StudentAuthMock,
+        ...overrideValues, // Permet d'écraser les valeurs par défaut
+    });
+};
+
+
 jest.mock('@/hooks/firebase/firestore', () => ({
     usePrefetchedDynamicDoc: jest.fn(),
     useDynamicDocs: jest.fn(),
@@ -71,8 +111,8 @@ jest.mock('expo-router', () => ({
 }));
 
 jest.mock('@/components/core/header/RouteHeader', () => {
-    const { Text } = require('react-native');
-    return ({ title }: { title: string }) => <Text>{title}</Text>;
+    const { View, Text } = require('react-native');
+    return ({ title, right }: { title: string, right: React.ReactNode | undefined }) => <View><Text>{title}</Text>{right}</View>;
 });
 
 jest.mock('@react-native-firebase/firestore', () => { // this one does not work yet.
@@ -130,6 +170,7 @@ const seconds8 = Math.floor(date8.getTime() / 1000);
 describe('CoursePage with assignments', () => {
 
     beforeEach(() => {
+        setupStudentMockUseAuth();
         (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
         jest.spyOn(console, 'log').mockImplementation(() => { }); // Transforme `console.log` en une fonction mock
         (usePrefetchedDynamicDoc as jest.Mock).mockImplementation(() => [{
@@ -289,6 +330,7 @@ describe('CoursePage with assignments', () => {
 
 describe("CoursePage without assignments", () => {
     beforeEach(() => {
+        setupStudentMockUseAuth();
         (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
         jest.spyOn(console, 'log').mockImplementation(() => { }); // Transforme `console.log` en une fonction mock
         (usePrefetchedDynamicDoc as jest.Mock).mockImplementation(() => [{
@@ -344,6 +386,8 @@ describe("CoursePage without assignments", () => {
 describe('Navigate to PreviousPage', () => {
 
     beforeEach(() => {
+        setupStudentMockUseAuth();
+
         (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
         jest.spyOn(console, 'log').mockImplementation(() => { });
 
@@ -443,27 +487,29 @@ describe('Navigate to PreviousPage', () => {
         expect(pushSpy).toHaveBeenCalledWith({
             pathname: '/courses/[id]/archive',
             params: {
-                id: 'course-id-123',  // Vérifie que l'ID est bien celui du cours
-                rawAssignments: JSON.stringify([
-                    {
-                        id: "2",
-                        data: {
-                            name: "Assignment 2",
-                            type: "quiz",
-                            dueDate: { seconds: 86400, nanoseconds: 0 }, // Adding 86400 seconds (1 day) to the timestamp
-                            color: "darkNight"
-                        }
-                    },
-                    {
-                        id: "1",
-                        data: {
-                            name: "Assignment 1",
-                            type: "quiz",
-                            dueDate: { seconds: 0, nanoseconds: 0 },
-                            color: "darkNight"
-                        }
-                    },
-                ]),
+                params: JSON.stringify({
+                    id: 'course-id-123',  // Vérifie que l'ID est bien celui du cours
+                    assignments: [
+                        {
+                            id: "2",
+                            data: {
+                                name: "Assignment 2",
+                                type: "quiz",
+                                dueDate: { seconds: 86400, nanoseconds: 0 }, // Adding 86400 seconds (1 day) to the timestamp
+                                color: "darkNight"
+                            }
+                        },
+                        {
+                            id: "1",
+                            data: {
+                                name: "Assignment 1",
+                                type: "quiz",
+                                dueDate: { seconds: 0, nanoseconds: 0 },
+                                color: "darkNight"
+                            }
+                        },
+                    ],
+                })
             },
         });
 
@@ -474,6 +520,7 @@ describe('Navigate to PreviousPage', () => {
 
 describe('Case where id is invalid', () => {
     beforeEach(() => {
+        setupStudentMockUseAuth();
         (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 1 });
         jest.spyOn(console, 'log').mockImplementation(() => { });
         (usePrefetchedDynamicDoc as jest.Mock).mockImplementation(() => [{
@@ -510,6 +557,7 @@ describe('Case where id is invalid', () => {
 
 describe('Case where course data is not available', () => {
     beforeEach(() => {
+        setupStudentMockUseAuth();
         (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
         jest.spyOn(console, 'log').mockImplementation(() => { });
         (usePrefetchedDynamicDoc as jest.Mock).mockImplementation(() => undefined);
@@ -522,5 +570,46 @@ describe('Case where course data is not available', () => {
 
         // Vérifie que le composant TActivityIndicator a bien été rendu
         expect(TActivityIndicator as jest.Mock).toHaveBeenCalledWith({ size: 40 }, {});
+    });
+});
+
+describe("Renders buttons when user is a teacher", () => {
+    beforeEach(() => {
+        setupTeacherMockUseAuth();
+        (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
+        jest.spyOn(console, 'log').mockImplementation(() => { }); // Transforme `console.log` en une fonction mock
+        (usePrefetchedDynamicDoc as jest.Mock).mockImplementation(() => [{
+            id: "courseID",
+            data: {
+                name: "Swent",
+                description: "This is a mocked course description",
+                professors: ["TeacherID"],
+                assistants: ["StudentID"],
+                periods: [],
+                section: "IN",
+                credits: 8,
+                started: true,
+            },
+        }]);
+
+        // Mock sans assignments
+        (useDynamicDocs as jest.Mock).mockImplementation(() => []);
+    });
+
+    // Mock `console.log`
+    afterEach(() => {
+        jest.restoreAllMocks(); // Réinitialise les mocks pour les prochains tests
+    });
+
+    test("displays the reserved buttons", async () => {
+
+        const screen = render(<CoursePage />);
+
+        expect(screen.getByTestId('course-parameters-touchable')).toBeTruthy();
+        expect(screen.getByTestId('course-parameters-icon')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('course-parameters-touchable'));
+
+        expect(screen.getByTestId('add-elements-touchable')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('add-elements-touchable'));
     });
 });

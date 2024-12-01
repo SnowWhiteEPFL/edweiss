@@ -2,12 +2,10 @@ import ReactComponent from '@/constants/Component';
 
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
-import { t } from 'i18next';
+import t from '@/config/i18config';
 import React from 'react';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 
-
-// Icons
 
 // Tests Tags
 export const testIDs = {
@@ -18,7 +16,6 @@ export const testIDs = {
     addMaterialBouton: 'add-material-bouton',
     addMaterialText: 'add-material-text',
 };
-
 
 interface SelectActionsAnimatedProps {
     onOutsideClick: () => void;
