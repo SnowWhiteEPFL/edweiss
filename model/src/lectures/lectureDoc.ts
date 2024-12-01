@@ -19,6 +19,7 @@ import { Timestamp } from '../time';
 namespace LectureDisplay {
 
 	export type LectureEvents = "quiz";
+	export type AvailableLangs = "english" | "french" | "spanish" | "italian" | "german" | "brazilian" | "arabic" | "chinese" | "vietanames" | "hindi";
 
 	interface LectureEventBase {
 		type: LectureEvents;

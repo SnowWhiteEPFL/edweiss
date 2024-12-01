@@ -16,7 +16,7 @@ import { useCourses } from '@/contexts/courses';
 import { useDocs } from '@/hooks/firebase/firestore';
 import { Assignment, Course } from '@/model/school/courses';
 import { Time } from '@/utils/time';
-import { router } from 'expo-router';
+import { Href, router } from 'expo-router';
 import React from 'react';
 
 const HomeTab: ApplicationRoute = () => {
@@ -29,7 +29,7 @@ const HomeTab: ApplicationRoute = () => {
 		<>
 			<RouteHeader title='Home' right={
 				<HeaderButtons>
-					<HeaderButton onPress={() => router.push("/notifications" as any)} icon='notifications-outline' />
+					<HeaderButton onPress={() => router.push("/notifs/notifications" as Href<string>)} icon='notifications-outline' />
 				</HeaderButtons>
 			} />
 
