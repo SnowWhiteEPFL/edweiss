@@ -8,11 +8,16 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
+import { DecksRepository } from '@/app/(app)/deck/_layout';
+import { callFunction } from '@/config/firebase';
+import { useRepositoryDocument } from '@/hooks/repository';
 import Memento from '@/model/memento';
-import { getStatusColor } from '@/utils/memento/utilsFunctions';
+import { getStatusColor, mementoStatusColorMap, mementoStatusIconMap } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import React from 'react';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
+import TView from '../core/containers/TView';
+import Icon from '../core/Icon';
 import TText from '../core/TText';
 
 /**
@@ -29,6 +34,7 @@ import TText from '../core/TText';
  * @returns {React.FC} CardListDisplay component 
  */
 export const CardListDisplay: React.FC<{
+    deckId: string,
     card: Memento.Card,
     isSelected: boolean,
     toggleSelection: (card: Memento.Card) => void,
@@ -36,9 +42,26 @@ export const CardListDisplay: React.FC<{
     selectionMode: boolean,
     setCardToDisplay: React.Dispatch<React.SetStateAction<Memento.Card | undefined>>
     modalRef: React.RefObject<BottomSheetModalMethods>;
-}> = ({ card, isSelected, toggleSelection, onLongPress, selectionMode, setCardToDisplay, modalRef }) => {
+}> = ({ deckId, card, isSelected, toggleSelection, onLongPress, selectionMode, setCardToDisplay, modalRef }) => {
 
     const statusColor = getStatusColor(card.learning_status ?? "");
+
+    const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
+    console.log(deck);
+
+    async function updateCard(new_status: Memento.LearningStatus) {
+        if (deck == undefined)
+            return;
+
+        const cardIndex = deck.data.cards.findIndex(c => c.question == card.question);
+
+        const newCards = deck.data.cards;
+        newCards[cardIndex] = { ...card, learning_status: new_status };
+
+        handler.modifyDocument(deckId, { cards: newCards }, (deckId) => {
+            callFunction(Memento.Functions.updateCard, { deckId, newCard: { ...card, learning_status: new_status }, cardIndex: cardIndex });
+        });
+    }
 
     return (
         <TTouchableOpacity bb={5}
@@ -58,24 +81,26 @@ export const CardListDisplay: React.FC<{
             backgroundColor={isSelected ? 'rosewater' : 'base'}
             borderColor='crust' radius='lg'
         >
-            <TText bold>
-                {card.question}
-            </TText>
-            <TText mb='md' color='subtext0' size={'sm'}>
-                2h
-            </TText>
-            {/* Learning Status Display */}
-            <TText style={{
-                position: 'absolute',
-                top: 25,
-                right: 10,
-                backgroundColor: 'lightgray',
-                padding: 8,
-                borderRadius: 5,
-                color: statusColor
-            }} size={'sm'}>
-                {card.learning_status}
-            </TText>
+            <TView flexDirection='row' justifyContent='space-between'>
+                <TView flex={1} mr='md'>
+                    <TText bold color='text' ellipsizeMode='tail' numberOfLines={1}>
+                        {card.question}
+                    </TText>
+                    <TText mb='md' color='subtext0' size={'sm'}>
+                        2h
+                    </TText>
+                </TView>
+
+                <TTouchableOpacity
+                    onPress={() => updateCard(card.learning_status === "Not yet" ? "Got it" : "Not yet")}
+                    activeOpacity={0.2}
+                    backgroundColor={'transparent'}
+                    borderColor='overlay0'
+                    b={'md'} radius={'xl'} pl={'md'} pr={'md'} pt={'md'} pb={'md'}>
+                    <Icon testID={`status_icon ${card.question}`} name={mementoStatusIconMap[card.learning_status]} color={mementoStatusColorMap[card.learning_status]} size={'xl'} />
+                </TTouchableOpacity>
+            </TView>
+
             {isSelected && <TText color='green'>✓</TText>}
         </TTouchableOpacity>
     );
