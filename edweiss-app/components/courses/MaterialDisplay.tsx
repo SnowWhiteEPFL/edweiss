@@ -2,17 +2,23 @@ import ReactComponent from '@/constants/Component';
 
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
+import t from '@/config/i18config';
 import { iconSizes } from '@/constants/Sizes';
-import { Material } from '@/model/school/courses';
+import { IconType } from '@/constants/Style';
+import { Material, MaterialType } from '@/model/school/courses';
+import { getIconName, getIconTestID, getTestID, getTextTestID } from '@/utils/courses/materialDisplay';
+import { Time } from '@/utils/time';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
 
 
 // Icons
-const slidesIcon = 'albums-outline';
-const exerciseIcon = 'document-text-outline';
-const feedbackIcon = 'arrow-undo-outline';
-const otherIcon = 'attach-outline';
+export const icons: { [key: string]: IconType } = {
+    slidesIcon: 'albums-outline',
+    exerciseIcon: 'document-text-outline',
+    feedbackIcon: 'arrow-undo-outline',
+    otherIcon: 'attach-outline',
+};
 
 // Tests Tags
 export const testIDs = {
@@ -45,21 +51,32 @@ export const testIDs = {
 const MaterialDisplay: ReactComponent<{ item: Material; }> = ({ item }) => {
 
     const formatDateRange = (fromSeconds: number, toSeconds: number) => {
-        const fromDate = new Date(fromSeconds * 1000);
-        const toDate = new Date(toSeconds * 1000);
 
-        const formatterOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
-        const fullYearFormatterOptions: Intl.DateTimeFormatOptions = { ...formatterOptions, year: 'numeric' };
+        const fromDate: Date = Time.dateFromSeconds(fromSeconds)
+        const toDate: Date = Time.dateFromSeconds(toSeconds)
 
-        const fromDateString = new Intl.DateTimeFormat('en-US', formatterOptions).format(fromDate);
-        const toDateString = new Intl.DateTimeFormat('en-US', fullYearFormatterOptions).format(toDate);
+        const formatterOptions: Intl.DateTimeFormatOptions = {
+            month: 'short',
+            day: 'numeric',
+        };
 
-        return `${fromDateString} - ${toDateString}`;
+        const fromDateFormatted = new Intl.DateTimeFormat(t(`course:dateFormat`), formatterOptions).format(fromDate)
+        const toDateFormatted = new Intl.DateTimeFormat(t(`course:dateFormat`), formatterOptions).format(toDate)
+
+        return `${fromDateFormatted} - ${toDateFormatted}`
     };
 
+    // Type-safe order mapping
+    const order: Record<MaterialType, number> = {
+        slides: 1,
+        exercises: 2,
+        other: 3,
+        feedbacks: 4,
+    };
+
+    // Sort using the type-safe order mapping
     const sortedDocs = item.docs.sort((a, b) => {
-        const order = { slides: 1, exercises: 2, other: 3, feedbacks: 4 };
-        return (order[a.type] || 5) - (order[b.type] || 5);
+        return order[a.type] - order[b.type];
     });
 
     return (
@@ -68,24 +85,32 @@ const MaterialDisplay: ReactComponent<{ item: Material; }> = ({ item }) => {
             <TText testID={testIDs.materialTitle} mb={4} size={14} color='darkBlue' bold>{formatDateRange(item.from.seconds, item.to.seconds)}</TText>
             <TText testID={testIDs.materialDescription} lineHeight='md' align='auto' size={15} color='darkNight' py={12} textBreakStrategy='highQuality'>{item.description}</TText>
 
-            {sortedDocs.map((doc, index) => {
-                return (
-                    <TTouchableOpacity key={index} testID={doc.type === 'slides' ? testIDs.slidesTouchable : doc.type === 'exercises' ? testIDs.exercisesTouchable : doc.type === 'feedbacks' ? testIDs.feedbacksTouchable : testIDs.otherTouchable} flexDirection='row' alignItems='center' py={10} mb={10} bb={1} borderColor='crust' onPress={() => console.log(`Clic on ${item.title}`)}>
-                        <Icon
-                            testID={doc.type === 'slides' ? testIDs.slidesIcon : doc.type === 'exercises' ? testIDs.exercisesIcon : doc.type === 'other' ? testIDs.otherIcon : testIDs.feedbacksIcon}
-                            name={doc.type === 'slides' ? slidesIcon : doc.type === 'exercises' ? exerciseIcon : doc.type === 'other' ? otherIcon : feedbackIcon}
-                            size={iconSizes.md}
-                        />
-                        <TText
-                            testID={doc.type === 'slides' ? testIDs.slidesText : doc.type === 'exercises' ? testIDs.exercisesText : doc.type === 'other' ? testIDs.otherText : testIDs.feedbacksText}
-                            size={16}
-                            ml={10}
-                        >
-                            {doc.title}
-                        </TText>
-                    </TTouchableOpacity>
-                );
-            })}
+            {sortedDocs.map((doc) => (
+                <TTouchableOpacity
+                    key={doc.url}
+                    testID={getTestID(doc.type)}
+                    flexDirection="row"
+                    alignItems="center"
+                    py={10}
+                    mb={10}
+                    bb={1}
+                    borderColor="crust"
+                    onPress={() => console.log(`Click on ${item.title}`)}
+                >
+                    <Icon
+                        testID={getIconTestID(doc.type)}
+                        name={getIconName(doc.type)}
+                        size={iconSizes.md}
+                    />
+                    <TText
+                        testID={getTextTestID(doc.type)}
+                        size={16}
+                        ml={10}
+                    >
+                        {doc.title}
+                    </TText>
+                </TTouchableOpacity>
+            ))}
         </TView>
     );
 }

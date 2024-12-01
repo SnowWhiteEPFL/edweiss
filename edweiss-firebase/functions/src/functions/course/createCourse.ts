@@ -5,9 +5,9 @@
  */
 
 import { Course, Course_functions, Section } from 'model/school/courses';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf } from 'utils/firestore';
-import { Predicate, assertIsIn, assertNonEmptyString, assertString, assertThatFields } from 'utils/sanitizer';
+import { Predicate, assertIsIn, assertNonEmptyString, assertString } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
 
@@ -19,11 +19,11 @@ const allowedSections: Section[] = ["IN", "SC", "MA", "PH", "CGC", "EL", "GM", "
  * @param args courseJSON: JSON string of the course object
  * @returns {courseID: string} on success, with a fail status on error
  */
-export const createCourse = onAuthentifiedCall(Functions.createCourse, async (userId, args) => {
+export const createCourse = onSanitizedCall(Functions.createCourse, {
+    courseJSON: Predicate.isNonEmptyString,
+}, async (userId, args) => {
+
     // Validate input
-    assertThatFields(args, {
-        courseJSON: Predicate.isNonEmptyString,
-    });
     assertNonEmptyString(args.courseJSON, "invalid_arg");
 
     // Parse the course JSON

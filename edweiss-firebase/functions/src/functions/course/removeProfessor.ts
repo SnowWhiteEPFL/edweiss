@@ -7,20 +7,19 @@
 
 import { Course, Course_functions } from 'model/school/courses';
 import { AppUser, ProfessorID } from 'model/users';
-import { onAuthentifiedCall } from 'utils/firebase';
-import { CollectionOf, getDocument, getDocumentAndRef } from 'utils/firestore';
-import { assertNonEmptyString, assertThatFields, Predicate } from 'utils/sanitizer';
+import { onSanitizedCall } from 'utils/firebase';
+import { CollectionOf, getDocumentAndRef, getRequiredDocument } from 'utils/firestore';
+import { assertNonEmptyString, Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
 
 
-export const removeProfessor = onAuthentifiedCall(Functions.removeProfessor, async (userId, args) => {
+export const removeProfessor = onSanitizedCall(Functions.removeProfessor, {
+    courseID: Predicate.isNonEmptyString,
+    professorID: Predicate.isNonEmptyString,
+}, async (userId, args) => {
 
     // Validate the input fields
-    assertThatFields(args, {
-        courseID: Predicate.isNonEmptyString,
-        professorID: Predicate.isNonEmptyString,
-    });
     assertNonEmptyString(args.courseID, "invalid_id");
     assertNonEmptyString(args.professorID, "invalid_professor_id");
 
@@ -30,8 +29,7 @@ export const removeProfessor = onAuthentifiedCall(Functions.removeProfessor, asy
 
     //------------- Authorization check (ensure the user is authorized to update the material)-------------------
     // Fetch user data
-    const user = await getDocument<AppUser>(CollectionOf<AppUser>('users'), userId);
-    if (!user) return fail("user_not_found");
+    const user = await getRequiredDocument<AppUser>(CollectionOf<AppUser>('users'), userId, { error: "user_not_found", status: 0 });
 
     // Verify the user is a professor of the course
     if (user.type !== "professor" || !course.professors?.includes(userId)) { return fail("not_authorized"); }

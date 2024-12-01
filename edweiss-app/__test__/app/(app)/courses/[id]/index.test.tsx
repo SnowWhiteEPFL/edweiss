@@ -488,7 +488,7 @@ describe('Navigate to PreviousPage', () => {
             pathname: '/courses/[id]/archive',
             params: {
                 params: JSON.stringify({
-                    id: 'course-id-123',  // Vérifie que l'ID est bien celui du cours
+                    courseId: 'course-id-123',  // Vérifie que l'ID est bien celui du cours
                     assignments: [
                         {
                             id: "2",
