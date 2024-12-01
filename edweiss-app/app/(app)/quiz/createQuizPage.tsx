@@ -124,6 +124,16 @@ const CreateQuizPage: ApplicationRoute = () => {
 
 	}
 
+	function controlPublishModal() {
+		if (checkQuizParams()) {
+			publishQuizModalRef.current?.present()
+			return;
+		}
+		else {
+			return;
+		}
+	}
+
 	async function publishQuiz() {
 
 		checkQuizParams()
@@ -194,7 +204,7 @@ const CreateQuizPage: ApplicationRoute = () => {
 
 			</TScrollView>
 			<FancyButton icon='add' backgroundColor='blue' onPress={() => addModalRef.current?.present()} ></FancyButton>
-			<FancyButton onPress={() => { checkQuizParams() ? publishQuizModalRef.current?.present() : {} }}> Publish quiz </FancyButton>
+			<FancyButton onPress={() => controlPublishModal()}> Publish quiz </FancyButton >
 			<AddExerciseModal modalRef={addModalRef} updateExerciseList={addToExerciseList} />
 			<PublishQuizModal modalRef={publishQuizModalRef} quizName={quizName} dueDate={dueDate == undefined ? "undefined" : dueDate.toDateString()} numberOfExercises={exercises.length} publishQuiz={publishQuiz} />
 
