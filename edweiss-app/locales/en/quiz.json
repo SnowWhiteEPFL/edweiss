@@ -1,0 +1,12 @@
+{
+	"empty_question": "Question is empty!",
+	"empty_quiz": "Quiz does not have any exercise!",
+	"not_enough_propositions": "At least 2 propositions!",
+	"empty_propositions": "A proposition is empty!",
+	"max_propositions": "Reached max number of propositions!",
+	"not_enough_correct": "Select at least one correct choice!",
+	"date_invalid": "Due date is invalid!",
+	"quiz_name_empty": "Quiz does not have a name!"
+
+
+}
