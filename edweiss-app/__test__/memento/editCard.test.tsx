@@ -10,6 +10,7 @@
 
 import EditCardScreen from '@/app/(app)/deck/[id]/card/edition';
 import { callFunction } from '@/config/firebase';
+import { useRepositoryDocument } from '@/hooks/repository';
 import Memento from '@/model/memento';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { RepositoryMock } from '../__mocks__/repository';
@@ -125,7 +126,7 @@ describe('EditCardScreen', () => {
 		// Mock callFunction
 		(callFunction as jest.Mock).mockResolvedValueOnce({ status: 1 });
 
-		const { getByTestId, getByDisplayValue, debug } = render(<EditCardScreen />);
+		const { getByTestId, getByDisplayValue } = render(<EditCardScreen />);
 
 		const updateButton = getByTestId('updateCardButton');
 
@@ -169,5 +170,20 @@ describe('EditCardScreen', () => {
 		await waitFor(() => {
 			expect(mockModifyDocument).not.toHaveBeenCalled();
 		})
+	});
+
+	it('button should be disabled when deck or card is undefined', async () => {
+
+		// Mock useRepositoryDocument to return undefined deck and card
+		(useRepositoryDocument as jest.Mock).mockReturnValueOnce([undefined, { modifyDocument: mockModifyDocument }]);
+
+		const { getByTestId } = render(<EditCardScreen />);
+		const updateButton = getByTestId('updateCardButton');
+
+		fireEvent.press(updateButton);
+
+		await waitFor(() => {
+			expect(mockModifyDocument).not.toHaveBeenCalled();
+		});
 	});
 });
