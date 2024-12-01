@@ -4,6 +4,8 @@
  * @author Tuan Dang Nguyen
  */
 
+import { Color } from '@/constants/Colors';
+import { IconType } from '@/constants/Style';
 import Memento from '@/model/memento';
 
 /**
@@ -35,4 +37,67 @@ export const getStatusColor = (status: string) => {
         case "Got it":
             return "green";
     }
+};
+
+/**
+ * mementoStatusIconMap
+ * 
+ * @param {Memento.LearningStatus} - Learning status
+ * 
+ * @returns {IconType} - Icon type of the status
+ */
+export const mementoStatusIconMap: Record<Memento.LearningStatus, IconType> = {
+    "Not yet": "alert-circle",
+    "Got it": "checkmark-done-circle"
+};
+
+/**
+ * mementoStatusColorMap
+ * 
+ * @param {Memento.LearningStatus} - Learning status
+ * 
+ * @returns {Color} - Color of the status
+ */
+export const mementoStatusColorMap: Record<Memento.LearningStatus, Color> = {
+    "Not yet": "red",
+    "Got it": "green"
+};
+
+/**
+ * 
+ * @param {boolean} isDupplicate - Check if the question is duplicated
+ * @param {boolean} isEmptyField - Check if the question field is empty
+ * @param {React.Dispatch<React.SetStateAction<boolean>>} setExistedQuestion - Set the state of the question existence
+ * @param {React.Dispatch<React.SetStateAction<boolean>>} setEmptyField - Set the state of the empty field
+ * @param {React.Dispatch<React.SetStateAction<boolean>>} setIsLoading - Set the state of the loading status
+ * 
+ * @returns {number} - 0 if the question is duplicated or the field is empty, 1 otherwise
+ */
+export const checkDupplication_EmptyField = (
+    isDupplicate: boolean,
+    isEmptyField: boolean,
+    setExistedQuestion: (value: React.SetStateAction<boolean>) => void,
+    setEmptyField: (value: React.SetStateAction<boolean>) => void,
+    setIsLoading: (value: React.SetStateAction<boolean>) => void
+) => {
+    if (isDupplicate) {
+        setExistedQuestion(true);
+        setIsLoading(false);
+        if (isEmptyField) setEmptyField(true);
+        return 0;  // Prevent creation if a duplicate is found
+    }
+
+    if (isEmptyField) {
+        setEmptyField(true);
+        setIsLoading(false);
+        return 0;
+    }
+
+    return 1;
+};
+
+export const selectedCardIndices_play = (selectedCards: Memento.Card[], cards: Memento.Card[]) => {
+    return selectedCards.length > 0
+        ? selectedCards.map(card => cards.indexOf(card)) // Get indices of selected cards
+        : Array.from(cards.keys()); // Use indices of all cards if none are
 };
