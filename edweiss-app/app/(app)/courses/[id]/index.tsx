@@ -219,11 +219,6 @@ const CoursePage: ApplicationRoute = () => {
 	if (!isValidId) { return <Redirect href={'/'} />; }
 	if (course == undefined || assignmentsCollection == undefined || materialCollection == undefined) { return <TActivityIndicator size={40} />; }
 
-	console.debug('CoursePage: course', course);
-	console.debug('UserID', uid);
-
-	console.debug('uid and includes? : ', uid, ' and ', course.data.professors.includes(uid))
-
 	return (
 		<>
 			{/* Utilisation du RouteHeader pour afficher le titre du cours */}
