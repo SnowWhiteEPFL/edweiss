@@ -27,7 +27,7 @@ import Memento from '@/model/memento';
 import { selectedCardIndices_play, sortingCards } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Redirect, router } from 'expo-router';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from 'react-native';
 import { DecksRepository } from '../_layout';
 
@@ -64,20 +64,18 @@ const CardListScreen: ApplicationRoute = () => {
 	const sortedCards = sortingCards(cards);
 
 	// Toggle card selection
-	const toggleCardSelection = useCallback((card: Memento.Card) => {
+	const toggleCardSelection = (card: Memento.Card) => {
 		const index = selectedCards.findIndex(selected => selected.question === card.question);
 		const isAlreadySelected = index !== -1;
-
 		setSelectedCards(prev =>
 			isAlreadySelected
 				? prev.filter(selected => selected.question !== card.question)
 				: [...prev, card]
 		);
-
 		if (isAlreadySelected && selectedCards.length === 1) {
 			setSelectionMode(false); // Exit selection mode when the last card is deselected
 		}
-	}, [selectedCards]);
+	};
 
 	// Delete selected cards
 	const deleteSelectedCards = async () => {

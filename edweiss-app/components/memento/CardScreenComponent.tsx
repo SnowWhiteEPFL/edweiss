@@ -61,12 +61,6 @@ const CardScreenComponent: ReactComponent<{
 
     const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
 
-    if (deck == undefined) return;
-
-    const cards = deck.data.cards;
-
-    const card = cards[cardIndex];
-
     const rotation = useSharedValue(0);
 
     // Reset card flip when changing card
@@ -74,6 +68,25 @@ const CardScreenComponent: ReactComponent<{
         setIsFlipped(false);
         rotation.value = 0;
     }, [cardIndex]);
+
+    // Animated styles for front and back of the card
+    const fronCardStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ perspective: 1000 }, { rotateY: `${rotation.value}deg` }]
+        };
+    });
+
+    const backCardStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ perspective: 1000 }, { rotateY: `${rotation.value + 180}deg` }]
+        };
+    });
+
+    if (deck == undefined) return;
+
+    const cards = deck.data.cards;
+
+    const card = cards[cardIndex];
 
     const toggleDropDown = () => { setShowDropdown(prev => !prev); }; // Open/close dropdown
 
@@ -101,19 +114,6 @@ const CardScreenComponent: ReactComponent<{
             }
         );
     };
-
-    // Animated styles for front and back of the card
-    const fronCardStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ perspective: 1000 }, { rotateY: `${rotation.value}deg` }]
-        };
-    });
-
-    const backCardStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ perspective: 1000 }, { rotateY: `${rotation.value + 180}deg` }]
-        };
-    });
 
     // Delete card
     const deleteCard = async () => {
