@@ -46,17 +46,11 @@ const TestYourMightScreen: ApplicationRoute = () => {
 	const [currentCardIndices, setCurrentCardIndices] = useState((indices ? JSON.parse(indices) : []) as number[]);
 	const modalRef = useRef<BottomSheetModal>(null); // Reference for the modal
 
-	console.log("Current card indices: ", currentCardIndices);
-
-	// const deck = useDoc(Collections.deck, id as string);
 	const [deck] = useRepositoryDocument(id, DecksRepository);
-	/*if (deck == undefined)
-		return <Redirect href={'/'} />;*/
 
 	const cards = deck?.data.cards;
 
 	const sanitizedCardIndices = currentCardIndices
-	console.log("Sanitized indices: ", sanitizedCardIndices);
 
 	if (sanitizedCardIndices.length === 0) {
 		return (

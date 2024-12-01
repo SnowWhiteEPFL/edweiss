@@ -12,7 +12,7 @@ import { DecksRepository } from '@/app/(app)/deck/_layout';
 import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
 import Memento from '@/model/memento';
-import { getStatusColor, mementoStatusColorMap, mementoStatusIconMap } from '@/utils/memento/utilsFunctions';
+import { mementoStatusColorMap, mementoStatusIconMap } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import React from 'react';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
@@ -44,10 +44,7 @@ export const CardListDisplay: React.FC<{
     modalRef: React.RefObject<BottomSheetModalMethods>;
 }> = ({ deckId, card, isSelected, toggleSelection, onLongPress, selectionMode, setCardToDisplay, modalRef }) => {
 
-    const statusColor = getStatusColor(card.learning_status ?? "");
-
     const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
-    console.log(deck);
 
     async function updateCard(new_status: Memento.LearningStatus) {
         if (deck == undefined)
