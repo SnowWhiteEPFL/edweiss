@@ -6,7 +6,7 @@ import t from '@/config/i18config';
 import { Color } from '@/constants/Colors';
 import { iconSizes } from '@/constants/Sizes';
 import { IconType } from '@/constants/Style';
-import { Course, Section } from '@/model/school/courses';
+import { Course, Section, UpdateCourseArgs } from '@/model/school/courses';
 import { ProfessorID, StudentID } from '@/model/users';
 import React from 'react';
 import TScrollView from '../core/containers/TScrollView';
@@ -51,7 +51,7 @@ export const testIDs: { [key: string]: string } = {
 interface SelectActionsAnimatedProps {
     course: { id: string, data: Course };
     onGiveUp: () => void;
-    onFinish: () => void;
+    onFinish: (course: UpdateCourseArgs) => void;
 }
 
 
@@ -153,7 +153,6 @@ const CourseParameters: ReactComponent<SelectActionsAnimatedProps> = ({ course, 
                     <TView
                         testID={testIDs.creditsView}
                         flexDirection='row'
-                        b={1}
                         backgroundColor='crust'
                         radius={14}
                         alignItems='center'
@@ -190,7 +189,7 @@ const CourseParameters: ReactComponent<SelectActionsAnimatedProps> = ({ course, 
                 testID={testIDs.finishTouchableOpacity}
                 backgroundColor={(name === "") ? 'text' : 'blue'}
                 disabled={name === ""}
-                onPress={() => { console.log("Data has to be updated in Firebase!"); onFinish(); }}
+                onPress={() => { onFinish({ name, description, credits, section }); }}
                 ml={100} mr={100} p={12} radius={'xl'}
                 style={{ position: 'absolute', bottom: 60, left: 0, right: 0, zIndex: 100, borderRadius: 9999 }}>
                 <TView testID={testIDs.finishView} flexDirection='row' justifyContent='center' alignItems='center'>

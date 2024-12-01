@@ -4,7 +4,8 @@ import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { IconType } from '@/constants/Style';
-import { AssignmentType } from '@/model/school/courses';
+import { Assignment, AssignmentType } from '@/model/school/courses';
+import { Time } from '@/utils/time';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import TScrollView from '../core/containers/TScrollView';
@@ -51,7 +52,7 @@ export const testIDs: { [key: string]: string } = {
 
 
 interface AddAssignmentProps {
-    onSubmit: () => void;
+    onSubmit: (assignment: Assignment) => void;
 }
 
 
@@ -186,7 +187,7 @@ const AddAssignment: ReactComponent<AddAssignmentProps> = ({ onSubmit }) => {
                 testID={testIDs.finishTouchableOpacity}
                 backgroundColor={(name === "" || !dateChanged || !timeChanged) ? 'text' : 'blue'}
                 disabled={name === "" || !dateChanged || !timeChanged}
-                onPress={() => { console.log("Data has to be updated in Firebase!"); onSubmit(); }}
+                onPress={() => { console.log("Data has to be updated in Firebase!"); onSubmit({ type: type, name: name, dueDate: Time.fromDate(date) }); }}
                 ml={100} mr={100} p={12} radius={'xl'}
                 style={{ position: 'absolute', bottom: 60, left: 0, right: 0, zIndex: 100, borderRadius: 9999 }}>
                 <TView testID={testIDs.finishView} flexDirection='row' justifyContent='center' alignItems='center'>

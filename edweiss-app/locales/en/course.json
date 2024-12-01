@@ -4,6 +4,7 @@
     "previous_assignment_title": "Previous assignments",
     "no_assignment_due": "No assignments due for now",
     "add_to_todo": "Add to To-Do",
+    "delete": "Delete",
     "toast_added_to_todo_text1": "Assignment added to To-Do list",
     "toast_added_to_todo_text2": "Now you have a new reason to procrastinate! 🎉",
 
@@ -43,5 +44,29 @@
     "description_label": "Description",
     "description_placeholder": "This course is an introduction to the world of computer science",
     "credits_label": "Credits",
-    "update_changes": "Update Changes"
+    "update_changes": "Update Changes",
+
+    "successAddAssignment": "Assignment added successfully 🎉",
+    "failureAddAssignment": "Failed to add assignment ❌",
+    "successAddMaterial": "Material added successfully 🎉",
+    "failureAddMaterial": "Failed to add material ❌",
+    "successAddAssistant": "Assistant added successfully 🎉",
+    "failureAddAssistant": "Failed to add assistant ❌",
+    "successAddProfessor": "Professor added successfully 🎉",
+    "failureAddProfessor": "Failed to add professor ❌",
+    "successRemoveAssignment": "Assignment removed successfully 🎉",
+    "failureRemoveAssignment": "Failed to remove assignment ❌",
+    "successRemoveMaterial": "Material removed successfully 🎉",
+    "failureRemoveMaterial": "Failed to remove material ❌",
+    "successRemoveAssistant": "Assistant removed successfully 🎉",
+    "failureRemoveAssistant": "Failed to remove assistant ❌",
+    "successRemoveProfessor": "Professor removed successfully 🎉",
+    "failureRemoveProfessor": "Failed to remove professor ❌",
+    "successUpdateAssignment": "Assignment updated successfully 🎉",
+    "failureUpdateAssignment": "Failed to update assignment ❌",
+    "successUpdateMaterial": "Material updated successfully 🎉",
+    "failureUpdateMaterial": "Failed to update material ❌",
+    "successUpdateCourse": "Course updated successfully 🎉",
+    "failureUpdateCourse": "Failed to update course ❌"
+
 }

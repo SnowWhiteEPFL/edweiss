@@ -88,3 +88,10 @@ export namespace Course_functions {
 		createCourse: FunctionOf<{ courseJSON: string; }, { courseID: CourseID; }, 'cannot create the course'>("createCourse"),
 	});
 }
+
+export type UpdateCourseArgs = {
+	name: string,
+	description: string,
+	credits: Credits,
+	section: Section,
+}

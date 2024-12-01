@@ -38,7 +38,8 @@ import { timeInMS } from '@/constants/Time';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { pushWithParameters } from '@/hooks/routeParameters';
-import { Assignment, Course, Material } from '@/model/school/courses';
+import { Assignment, Course, CourseID, Material, UpdateCourseArgs } from '@/model/school/courses';
+import { addAssignmentAction, addMaterialAction, updateCourseAction } from '@/utils/courses/coursesActionsFunctions';
 import { Time } from '@/utils/time'; // Adjust the import path as necessary
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -215,6 +216,21 @@ const CoursePage: ApplicationRoute = () => {
 		);
 	}, []);
 
+	const addAssignmentCallback = useCallback((assignment: Assignment) => {
+		addAssignmentAction(id as CourseID, JSON.stringify(assignment));
+		setModalVisible(false);
+	}, [id]);
+
+	const addMaterialCallback = useCallback((material: Material) => {
+		addMaterialAction(id as CourseID, JSON.stringify(material));
+		setModalVisible(false);
+	}, [id]);
+
+	const updateCourseCallback = useCallback((course: UpdateCourseArgs) => {
+		updateCourseAction(id as CourseID, JSON.stringify(course));
+		setModalParamVisible(false);
+	}, [id]);
+
 	//Checks
 	if (!isValidId) { return <Redirect href={'/'} />; }
 	if (course == undefined || assignmentsCollection == undefined || materialCollection == undefined) { return <TActivityIndicator size={40} />; }
@@ -247,7 +263,7 @@ const CoursePage: ApplicationRoute = () => {
 					each={upcomingAssignments && upcomingAssignments.length > 0 ? upcomingAssignments : undefined}
 					fallback={<TText size={16} testID={testIDs.noAssignmentDue}>{t('course:no_assignment_due')}</TText>}
 				>{(assignment, index) => (
-					<AssignmentDisplay item={assignment.data} id={assignment.id} courseID={id} index={index} isSwipeable key={assignment.data.name} />
+					<AssignmentDisplay item={assignment.data} id={assignment.id} courseID={id} userID={uid} index={index} isSwipeable key={assignment.data.name} />
 				)}
 				</For>
 
@@ -327,8 +343,8 @@ const CoursePage: ApplicationRoute = () => {
 						<Icon name={'close'} size={iconSizes.lg} color="blue" mr={8} />
 					</TTouchableOpacity>
 
-					{selectedAction === 'addAssignment' && (<AddAssignment onSubmit={() => setModalVisible(false)} />)}
-					{selectedAction === 'addMaterial' && (<AddMaterial onSubmit={() => setModalVisible(false)} />)}
+					{selectedAction === 'addAssignment' && (<AddAssignment onSubmit={addAssignmentCallback} />)}
+					{selectedAction === 'addMaterial' && (<AddMaterial onSubmit={addMaterialCallback} />)}
 				</TView>
 			</Modal>
 
@@ -337,7 +353,7 @@ const CoursePage: ApplicationRoute = () => {
 				animationType="slide"
 				onRequestClose={() => setModalParamVisible(false)}
 			>
-				<CourseParameters course={course} onGiveUp={() => setModalParamVisible(false)} onFinish={() => console.log("TODO: Update course data on firebase")} />
+				<CourseParameters course={course} onGiveUp={() => setModalParamVisible(false)} onFinish={updateCourseCallback} />
 			</Modal>
 		</>
 	);

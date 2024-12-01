@@ -4,6 +4,8 @@ import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { IconType } from '@/constants/Style';
+import { Material } from '@/model/school/courses';
+import { Time } from '@/utils/time';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import TScrollView from '../core/containers/TScrollView';
@@ -63,7 +65,7 @@ export const testIDs: { [key: string]: string } = {
 
 
 interface AddMaterialProps {
-    onSubmit: () => void;
+    onSubmit: (material: Material) => void;
 }
 
 
@@ -79,7 +81,7 @@ interface AddMaterialProps {
  */
 const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
 
-    const [name, setName] = useState<string>("");
+    const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [fromDate, setFromDate] = useState(new Date());
     const [toDate, setToDate] = useState(new Date());
@@ -136,8 +138,8 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
                     <FancyTextInput
                         testID={testIDs.titleInput}
                         label={t(`course:material_title_label`)}
-                        value={name}
-                        onChangeText={n => setName(n)}
+                        value={title}
+                        onChangeText={n => setTitle(n)}
                         placeholder={t(`course:material_title_placeholder`)}
                         icon={icons.nameIcon}
                     />
@@ -276,9 +278,9 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
 
             <TTouchableOpacity
                 testID={testIDs.finishTouchableOpacity}
-                backgroundColor={(name === "" || !fromDateChanged || !fromTimeChanged || !toDateChanged || !toTimeChanged) ? 'text' : 'blue'}
-                disabled={name === "" || !fromDateChanged || !fromTimeChanged || !toDateChanged || !toTimeChanged}
-                onPress={() => { console.log("Data has to be updated in Firebase!"); onSubmit(); }}
+                backgroundColor={(title === "" || !fromDateChanged || !fromTimeChanged || !toDateChanged || !toTimeChanged) ? 'text' : 'blue'}
+                disabled={title === "" || !fromDateChanged || !fromTimeChanged || !toDateChanged || !toTimeChanged}
+                onPress={() => { onSubmit({ title: title, description: description, from: Time.fromDate(fromDate), to: Time.fromDate(toDate), docs: [] }); }}
                 ml={100} mr={100} p={12} radius={'xl'}
                 style={{ position: 'absolute', bottom: 60, left: 0, right: 0, zIndex: 100, borderRadius: 9999 }}>
                 <TView testID={testIDs.finishView} flexDirection='row' justifyContent='center' alignItems='center'>
