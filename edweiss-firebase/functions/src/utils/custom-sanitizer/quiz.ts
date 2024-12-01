@@ -1,4 +1,3 @@
-
 import { Predicate } from 'utils/sanitizer';
 
 import Quizzes, { QuizzesAttempts } from 'model/quizzes';
