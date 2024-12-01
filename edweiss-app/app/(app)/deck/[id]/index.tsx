@@ -24,10 +24,10 @@ import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
-import { sortingCards } from '@/utils/memento/utilsFunctions';
+import { selectedCardIndices_play, sortingCards } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Redirect, router } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Button } from 'react-native';
 import { DecksRepository } from '../_layout';
 
@@ -59,12 +59,12 @@ const CardListScreen: ApplicationRoute = () => {
 
 	// const deck = decks?.find(d => d.id == id);
 
-	const cards = deck.data.cards; // Ensure cards is an array or empty
+	const cards = deck.data.cards;
 
 	const sortedCards = sortingCards(cards);
 
 	// Toggle card selection
-	const toggleCardSelection = (card: Memento.Card) => {
+	const toggleCardSelection = useCallback((card: Memento.Card) => {
 		const index = selectedCards.findIndex(selected => selected.question === card.question);
 		const isAlreadySelected = index !== -1;
 
@@ -77,12 +77,11 @@ const CardListScreen: ApplicationRoute = () => {
 		if (isAlreadySelected && selectedCards.length === 1) {
 			setSelectionMode(false); // Exit selection mode when the last card is deselected
 		}
-	};
+	}, [selectedCards]);
 
 	// Delete selected cards
 	const deleteSelectedCards = async () => {
 		if (selectedCards.length === 0) return;
-
 		const selectedCardIndices = selectedCards.map(card => cards.indexOf(card));
 
 		try {
@@ -112,9 +111,10 @@ const CardListScreen: ApplicationRoute = () => {
 	// Delete deck
 	async function deleteDeck() {
 		handler.deleteDocument(id, async (id) => {
-			const res = await callFunction(Memento.Functions.deleteDecks, { deckIds: [id] });
-			router.back();
+			await callFunction(Memento.Functions.deleteDecks, { deckIds: [id] });
+			console.log("Deck deleted with id: ", id);
 		});
+		router.back();
 	}
 
 	return (
@@ -161,6 +161,7 @@ const CardListScreen: ApplicationRoute = () => {
 				{sortedCards.map((card) => (
 					<CardListDisplay
 						key={sortedCards.indexOf(card)}
+						deckId={id}
 						card={card}
 						isSelected={selectedCards.some(selected => selected.question === card.question)}
 						toggleSelection={toggleCardSelection}
@@ -172,16 +173,28 @@ const CardListScreen: ApplicationRoute = () => {
 
 			</TScrollView >
 
-			<CardModalDisplay cards={cards} id={id} modalRef={modalRef_Card_Info} card={cardToDisplay} isSelectionMode={selectionMode} />
+			<CardModalDisplay handler={handler} cards={cards} id={id} modalRef={modalRef_Card_Info} card={cardToDisplay} isSelectionMode={selectionMode} />
 
 			{/* Buttons for navigation */}
 			< TView >
-				<FancyButton testID='playButton' icon='play' onPress={() => {
-					setShowDropdown(false);
-					router.push({ pathname: `deck/${id}/playingCards` as any })
-				}}
+				<FancyButton
+					testID='playButton'
+					disabled={cards.length === 0}
+					backgroundColor={cards.length === 0 ? 'red' : 'blue'}
+					icon='play'
+					onPress={() => {
+						const selectedCardIndices = selectedCardIndices_play(selectedCards, cards);
+						cancelCardSelection();
+						router.push({
+							pathname: `deck/${id}/playingCards` as any,
+							params: {
+								indices: JSON.stringify(selectedCardIndices)
+							}
+						})
+					}}
 				>
-					{selectedCards.length == 0 ? "Play all cards" : "Play selected cards"}
+					{cards.length === 0 ? "No cards to play" :
+						selectedCards.length == 0 ? "Play all cards" : "Play selected cards"}
 				</FancyButton>
 
 				<FancyButton
