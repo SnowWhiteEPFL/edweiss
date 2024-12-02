@@ -140,7 +140,7 @@ describe('Course Parameters', () => {
 
         const screen = render(<CourseParameters course={mockCourse} onGiveUp={mockOnGiveUp} onFinish={mockOnFinish} />);
 
-        fireEvent.changeText(screen.getByTestId(testIDs.nameInput), 'Introduction to Computer Science');
+        fireEvent.changeText(screen.getByTestId(testIDs.nameInput), 'Computer Systems');
 
         fireEvent.press(screen.getByTestId(testIDs.finishTouchableOpacity));
 
