@@ -8,7 +8,7 @@ import Toast from 'react-native-toast-message';
 export async function addAssignmentAction(courseId: CourseID, assignmentJSON: string): Promise<CallResult<{}, Error>> {
     const res = await callFunction(Course_functions.Functions.addAssignment, { courseID: courseId, assignmentJSON: assignmentJSON });
     if (res.status != 1) {
-        console.error('Course failed to add Assignment');
+        console.error(res.error);
         Toast.show({
             type: 'error',
             text1: t(`course:failureAddAssignment`),
