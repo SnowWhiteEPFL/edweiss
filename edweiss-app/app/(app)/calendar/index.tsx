@@ -118,6 +118,7 @@ const InfinitePaginatedCounterScreen = () => {
     const adjustedItem = width > height ? item * 7 : item; // Mode paysage ou portrait
     const currentDate = getDateWithOffset(adjustedItem);
 
+
     return (
       <View style={{ width, height }}>
         {loading ? (
