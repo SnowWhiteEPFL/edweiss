@@ -104,6 +104,87 @@ jest.mock('@/hooks/repository', () => ({
 // Test suite for the EditCardScreen component
 describe('EditCardScreen', () => {
 
+	/*
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
+	it('should render correctly', () => {
+		const { getByText, getByTestId } = render(<EditCardScreen />);
+		expect(getByText('Question')).toBeTruthy();
+		expect(getByText('Answer')).toBeTruthy();
+		expect(getByTestId('updateCardButton')).toBeTruthy();
+	});
+
+	it('should display the correct previous question and answer', () => {
+		const { getByDisplayValue } = render(<EditCardScreen />);
+		expect(getByDisplayValue('Question 0')).toBeTruthy();
+		expect(getByDisplayValue('Answer 0')).toBeTruthy();
+	});
+
+	it('should update a card when the fields are filled', async () => {
+		const { getByTestId, getByDisplayValue } = render(<EditCardScreen />);
+		const updateButton = getByTestId('updateCardButton');
+
+		fireEvent.changeText(getByDisplayValue('Question 0'), 'Test Question');
+		fireEvent.changeText(getByDisplayValue('Answer 0'), 'Test Answer');
+
+		expect(getByDisplayValue('Test Question')).toBeTruthy();
+
+		// Mock successful response for creating a card
+		(callFunction as jest.Mock).mockResolvedValueOnce({ status: 1 });
+
+		fireEvent.press(updateButton);
+
+		await waitFor(() => {
+			expect(callFunction).toHaveBeenCalledWith(Memento.Functions.updateCard, {
+				deckId: '0',
+				newCard: {
+					question: 'Test Question',
+					answer: 'Test Answer',
+					learning_status: 'Got it',
+				},
+				cardIndex: 0
+			});
+		});
+	});
+
+	it('should not update a card when the fields are empty', async () => {
+
+		const { getByTestId, getByDisplayValue } = render(<EditCardScreen />);
+		const updateButton = getByTestId('updateCardButton');
+
+		// Mock successful response for creating a card
+		(callFunction as jest.Mock).mockResolvedValueOnce({ status: 1 });
+
+		fireEvent.changeText(getByDisplayValue('Question 0'), '');
+		fireEvent.changeText(getByDisplayValue('Answer 0'), '');
+
+		fireEvent.press(updateButton);
+
+		await waitFor(() => {
+			expect(callFunction).not.toHaveBeenCalled();
+		});
+	});
+
+	it('should not update a card when the question is duplicated', async () => {
+
+		const { getByTestId, getByDisplayValue } = render(<EditCardScreen />);
+		const updateButton = getByTestId('updateCardButton');
+
+		// Mock successful response for creating a card
+		(callFunction as jest.Mock).mockResolvedValueOnce({ status: 1 });
+
+		fireEvent.changeText(getByDisplayValue('Question 0'), 'Question 5');
+		fireEvent.changeText(getByDisplayValue('Answer 0'), 'Test Answer');
+
+		fireEvent.press(updateButton);
+
+		await waitFor(() => {
+			expect(callFunction).not.toHaveBeenCalled();
+		});
+	});
+	*/
 	beforeEach(() => {
 		jest.clearAllMocks();
 	});

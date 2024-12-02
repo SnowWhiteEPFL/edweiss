@@ -90,9 +90,6 @@ const CreateCardScreen: ApplicationRoute = () => {
             <RouteHeader title='Create a card' />
 
             <TScrollView>
-                {/* <TextInput value={deckName} onChangeText={n => setDeckName(n)} placeholder='Deck name' placeholderTextColor={'#555'} style={{ backgroundColor: Colors.dark.crust, borderColor: Colors.dark.blue, borderWidth: 1, padding: 8, paddingHorizontal: 16, margin: 16, marginBottom: 0, color: 'white', borderRadius: 14, fontFamily: "Inter" }}>
-
-				</TextInput> */}
                 <TView m='md' borderColor='crust' radius='lg'>
                     <FancyTextInput
                         value={question}

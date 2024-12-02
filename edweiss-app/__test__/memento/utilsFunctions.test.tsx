@@ -1,5 +1,5 @@
 import Memento from '@/model/memento';
-import { selectedCardIndices_play, sortingCards } from '@/utils/memento/utilsFunctions';
+import { getStatusColor, selectedCardIndices_play, sortingCards } from '@/utils/memento/utilsFunctions';
 
 // Mock cards
 const card1: Memento.Card = {
@@ -34,5 +34,12 @@ describe('sorting cards', () => {
         const cards = [card1, card2, card3];
         const sortedCards = sortingCards(cards);
         expect(sortedCards).toEqual([card2, card1, card3]);
+    });
+});
+
+describe('get status color', () => {
+    it('should return the correct color of the status', () => {
+        expect(getStatusColor('Not yet')).toBe('red');
+        expect(getStatusColor('Got it')).toBe('green');
     });
 });
