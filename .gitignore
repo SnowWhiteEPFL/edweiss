@@ -13,4 +13,5 @@ edweiss-app/package-lock.json
 .vscode/settings.json
 edweiss-app/package-lock.json
 .vscode/settings.json
+.env
 

@@ -32,7 +32,7 @@ namespace Memento {
 		learning_status: LearningStatus;
 	}
 
-	export type LearningStatus = "Got it" | "Not yet" | undefined;
+	export type LearningStatus = "Got it" | "Not yet";
 
 	export interface Deck {
 		name: string,

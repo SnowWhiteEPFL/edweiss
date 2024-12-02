@@ -21,8 +21,10 @@ import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
+import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
-import AssignmentDisplay, { testIDs as assignmentTestIDs } from '@/components/courses/AssignmentDisplay';
+import AssignmentDisplay from '@/components/courses/AssignmentDisplay';
+import MaterialDisplay from '@/components/courses/MaterialDisplay';
 import { CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import { Color } from '@/constants/Colors';
@@ -31,39 +33,27 @@ import { iconSizes } from '@/constants/Sizes';
 import { timeInMS } from '@/constants/Time';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { pushWithParameters } from '@/hooks/routeParameters';
-import { Assignment, Course } from '@/model/school/courses';
+import { Assignment, Course, Material } from '@/model/school/courses';
 import { Time } from '@/utils/time'; // Adjust the import path as necessary
 import { Redirect, useLocalSearchParams } from 'expo-router';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
-
-// Constants
-
-// Icons
-const slidesIcon = 'albums-outline';
-const exerciseIcon = 'document-text-outline';
-const feedbackIcon = 'arrow-undo-outline';
 
 // Tests Tags
 export const testIDs = {
-	...assignmentTestIDs,
 	scrollView: 'scroll-view',
+	courseDescription: 'course-description',
 	upcomingAssignments: 'upcoming-assignments',
 	assignemtView: 'assignment-view',
 	noAssignmentDue: 'no-assignment-due',
 	previousAssignmentTouchable: 'navigate-to-archive-button',
-	previousAssignments: 'previous-assignments',
-	thisWeekTitle: 'this-week-title',
-	thisWeekText: 'this-week-text',
-	slidesTouchable: 'slides-touchable',
-	slidesIcon: 'slides-icon',
-	slidesText: 'slides-text',
-	exercisesTouchable: 'exercises-touchable',
-	exercisesIcon: 'exercises-icon',
-	exercisesText: 'exercises-text',
-	feedbacksTouchable: 'feedbacks-touchable',
-	feedbacksIcon: 'feedbacks-icon',
-	feedbacksText: 'feedbacks-text',
+	previousAssignmentsIcon: 'previous-assignments-icon',
+	previousAssignmentsText: 'previous-assignments-text',
+	materialsTitle: 'materials-title',
+	toggleFutureMaterialsTouchable: 'future-materials-display-touchable',
+	toggleFutureMaterialsIcon: 'toggle-future-materials-icon',
+	toggleFutureMaterialsText: 'toggle-future-materials-text',
+	futureMaterialView: 'future-material-view',
 };
 
 type AssignmentWithColor = Assignment & { color: Color; };
@@ -85,10 +75,9 @@ const CoursePage: ApplicationRoute = () => {
 	const { id } = useLocalSearchParams();
 	// if (typeof id !== 'string') return <Redirect href={'/'} />;
 
-	// Redirection si l'ID n'est pas valide
 	const isValidId = typeof id === 'string';
 
-	// Récupérer les données du cours et des assignments depuis Firestore
+	// Retrieve course data from Firestore
 	const result = usePrefetchedDynamicDoc(
 		CollectionOf<Course>('courses'),
 		isValidId ? id : '',
@@ -97,16 +86,20 @@ const CoursePage: ApplicationRoute = () => {
 
 	const [course] = Array.isArray(result) ? result : [undefined];
 
-	const firebase_data = useDynamicDocs(
+	const assignmentsCollection = useDynamicDocs(
 		CollectionOf<Assignment>(`courses/${isValidId ? id : ''}/assignments`)
 	) || [];
 
+	const materialCollection = useDynamicDocs(
+		CollectionOf<Material>(`courses/${isValidId ? id : ''}/materials`)
+	) || [];
+
 	// Sort assignments by due date and add color based on time difference
-	const assignments: AssignmentWithColor[] = firebase_data
+	const assignments: { id: string, data: AssignmentWithColor }[] = assignmentsCollection
 		.sort((a, b) => a.data.dueDate.seconds - b.data.dueDate.seconds) // Seconds comparison
 		.map((assignment) => {
-			const currentTime = new Date().getTime(); // Actual time in millisecondes
-			const assignmentDueTime = assignment.data.dueDate.seconds * timeInMS.SECOND; // Convert dueDate in millisecondes
+			const currentTime = new Date().getTime(); // Actual time in milliseconds
+			const assignmentDueTime = assignment.data.dueDate.seconds * timeInMS.SECOND; // Convert dueDate to milliseconds
 			const timeDifference = assignmentDueTime - currentTime; // Difference between current time and due time
 
 			// Define color based on time difference
@@ -116,25 +109,59 @@ const CoursePage: ApplicationRoute = () => {
 					: 'darkNight'; // Default color
 
 			return {
-				...assignment.data,
-				color, // add color to assignment
+				id: assignment.id,
+				data: {
+					...assignment.data,
+					color, // add color to assignment
+				},
 			};
 		});
 
+	const currentMaterials = useMemo(() => {
+		return materialCollection.filter((material) => {
+			const currentTime = new Date().getTime();
+			const fromTime = material.data.from.seconds * timeInMS.SECOND;
+			const toTime = material.data.to.seconds * timeInMS.SECOND;
+			return fromTime <= currentTime && currentTime <= toTime;
+		});
+	}, [materialCollection, timeInMS.SECOND]);
+
+	const passedMaterials = useMemo(() => {
+		return materialCollection.filter((material) => {
+			const currentTime = new Date().getTime();
+			const toTime = material.data.to.seconds * timeInMS.SECOND;
+			return currentTime > toTime;
+		});
+	}, [materialCollection, timeInMS.SECOND]);
+
+	const futureMaterials = useMemo(() => {
+		return materialCollection.filter((material) => {
+			const currentTime = new Date().getTime();
+			const fromTime = material.data.from.seconds * timeInMS.SECOND;
+			return currentTime < fromTime;
+		});
+	}, [materialCollection, timeInMS.SECOND]);
+
 	// Filter previous assignments
 	const previousAssignments = useMemo(() => {
-		return assignments.filter((assignment) => Time.isBeforeNow(assignment.dueDate)).reverse();
+		return assignments.filter((assignment) => Time.isBeforeNow(assignment.data.dueDate)).reverse();
 	}, [assignments, timeInMS.SECOND]);
 
 	// Filter upcoming assignments
 	const upcomingAssignments = useMemo(() => {
-		const filteredAssignments = assignments.filter((assignment) => Time.isAfterNow(assignment.dueDate));
+		const filteredAssignments = assignments.filter((assignment) => Time.isAfterNow(assignment.data.dueDate));
 		return filteredAssignments.length > 0 ? filteredAssignments : undefined;
 	}, [assignments, timeInMS.SECOND]);
 
+	const [showFutureMaterials, setShowFutureMaterials] = useState(false);
+
+	const toggleFutureMaterials = () => {
+		setShowFutureMaterials(!showFutureMaterials);
+	};
+
 	//Checks
 	if (!isValidId) { return <Redirect href={'/'} />; }
-	if (course == undefined || firebase_data == undefined) { return <TActivityIndicator size={40} />; }
+	if (course == undefined || assignmentsCollection == undefined || materialCollection == undefined) { return <TActivityIndicator size={40} />; }
 
 	return (
 		<>
@@ -144,42 +171,67 @@ const CoursePage: ApplicationRoute = () => {
 			{/* ScrollView pour permettre le défilement */}
 			<TScrollView testID={testIDs.scrollView} p={16} backgroundColor="mantle" >
 
+				<TText testID={testIDs.courseDescription} size={16} color='text' mb={10} >{course.data.description}</TText>
+
 				{/* Section des Pending Assignments */}
 				<TText mb={10} size={18} color='darkBlue' bold testID={testIDs.upcomingAssignments} >{t(`course:upcoming_assignment_title`)}</TText>
 
 				<For
-					each={upcomingAssignments}
+					each={upcomingAssignments && upcomingAssignments.length > 0 ? upcomingAssignments : undefined}
 					fallback={<TText size={16} testID={testIDs.noAssignmentDue}>{t('course:no_assignment_due')}</TText>}
 				>{(assignment, index) => (
-					<AssignmentDisplay item={assignment} index={index} isSwipeable key={assignment.name} />
+					<AssignmentDisplay item={assignment.data} id={assignment.id} courseID={id} index={index} isSwipeable key={assignment.data.name} />
 				)}
 				</For>
 
 				{/* Bouton vers les Passed Assignments */}
-				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} onPress={() => pushWithParameters(ArchiveRouteSignature, { id: course.id, assignments: previousAssignments })}>
-					<TText my={20} align='center' color='cherry' testID={testIDs.previousAssignments} >{t(`course:previous_assignment_title`)}</TText>
+				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} alignItems='center' onPress={() => pushWithParameters(ArchiveRouteSignature, { courseId: course.id, assignments: previousAssignments })}>
+					<TView flexDirection='row' mt={8} mb={16} >
+						<Icon
+							testID={testIDs.previousAssignmentsIcon}
+							name={'chevron-forward-circle'}
+							size={iconSizes.md}
+							color='cherry'
+							mr={8}
+						/>
+						<TText color='cherry' testID={testIDs.previousAssignmentsText} >{t(`course:previous_assignment_title`)}</TText>
+					</TView>
 				</TTouchableOpacity>
 
-				{/* This Week Section */}
-				<TText mb={10} size={18} color='darkBlue' bold testID={testIDs.thisWeekTitle} >{t(`course:this_week`)}</TText>
-				<TText align='justify' size={15} color='darkNight' py={16} textBreakStrategy='highQuality' lineHeight={50} testID={testIDs.thisWeekText} >
-					Lorem ipsum dolor sit amet consectetur. Ipsum aliquam ut in dignissim nisl. Donec egestas sed amet dictumst odio magna at. Integer risus pellentesque velit sed sit bibendum. Elementum consectetur cras viverra nunc dictum et lacus varius semper. Purus viverra molestie ornare tortor purus sed. Ut nisl non risus nunc facilisi odio purus. Ullamcorper nibh elementum ultricies pulvinar integer libero. Sagittis pretium nunc quam vitae et diam condimentum diam nunc. Quis amet tellus pellentesque amet hac.
-					Lorem ipsum dolor sit amet consectetur. Ipsum aliquam ut in dignissim nisl. Donec egestas sed amet dictumst odio magna at. Integer risus pellentesque velit sed sit bibendum. Elementum consectetur cras viverra nunc dictum et lacus varius semper. Purus viverra molestie ornare tortor purus sed. Ut nisl non risus nunc facilisi odio purus. Ullamcorper nibh elementum ultricies pulvinar integer libero. Sagittis pretium nunc quam vitae et diam condimentum diam nunc. Quis amet tellus pellentesque amet hac.
-				</TText>
+				<TText testID={testIDs.materialsTitle} mb={10} size={18} color='darkBlue' bold >{t(`course:materials_title`)}</TText>
 
-				{/* Documents */}
-				<TTouchableOpacity testID={testIDs.slidesTouchable} flexDirection='row' alignItems='center' py={10} mb={10} bb={1} borderColor='crust' onPress={() => console.log('Go to Slides')}>
-					<Icon name={slidesIcon} size={iconSizes.md} testID={testIDs.slidesIcon} />
-					<TText size={16} ml={10} testID={testIDs.slidesText} >Slides</TText>
+				{/* Bouton pour afficher/masquer les "futureMaterials" */}
+				<TTouchableOpacity testID={testIDs.toggleFutureMaterialsTouchable} alignItems='flex-start' onPress={toggleFutureMaterials}>
+					<TView flexDirection='row' mt={8} mb={8} >
+						<Icon
+							testID={testIDs.toggleFutureMaterialsIcon}
+							name={showFutureMaterials ? 'chevron-down' : 'chevron-forward'}
+							size={iconSizes.sm}
+							color='blue'
+							mr={8}
+						/>
+						<TText testID={testIDs.toggleFutureMaterialsText} color='blue' align="center">
+							{showFutureMaterials ? t('course:hide_future_materials') : t('course:show_future_materials')}
+						</TText>
+					</TView>
+
 				</TTouchableOpacity>
-				<TTouchableOpacity testID={testIDs.exercisesTouchable} flexDirection='row' alignItems='center' py={10} mb={10} bb={1} borderColor='crust' onPress={() => console.log('Go to Exercises')}>
-					<Icon name={exerciseIcon} size={iconSizes.md} testID={testIDs.exercisesIcon} />
-					<TText size={16} ml={10} testID={testIDs.exercisesText} >Exercises</TText>
-				</TTouchableOpacity>
-				<TTouchableOpacity testID={testIDs.feedbacksTouchable} flexDirection='row' alignItems='center' py={10} mb={30} bb={1} borderColor='crust' onPress={() => console.log('Go to Feedbacks')}>
-					<Icon name={feedbackIcon} size={iconSizes.md} testID={testIDs.feedbacksIcon} />
-					<TText size={16} ml={10} testID={testIDs.feedbacksText} >Feedbacks</TText>
-				</TTouchableOpacity>
+
+				{showFutureMaterials && (futureMaterials.map((material, index) => (
+					<TView testID={testIDs.futureMaterialView} key={material.id}>
+						<MaterialDisplay item={material.data} />
+						<TView bb={1} mx={20} mb={12} borderColor='overlay0' />
+					</TView>
+				)))}
+
+				{currentMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={material.id} />))}
+
+				{/*<TView bb={1} my={10} borderColor='crust' />}*/}
+
+				{passedMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={material.id} />))}
+
+				<TView mb={30} />
+
 			</TScrollView>
 		</>
 	);

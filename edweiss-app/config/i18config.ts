@@ -9,6 +9,7 @@ import en_home from "@/locales/en/home.json";
 import en_login from "@/locales/en/login.json";
 import en_memento from "@/locales/en/memento.json";
 import en_notifications from "@/locales/en/notifications.json";
+import en_quiz from "@/locales/en/quiz.json";
 import en_showtime from "@/locales/en/showtime.json";
 import en_todo from "@/locales/en/todo.json";
 
@@ -19,7 +20,7 @@ export type LocaleResource = { [l in Locale]: { [ns in LocaleNamespace]: any } }
 export const defaultLang: Locale = "en" as const;
 export const defaultNS: LocaleNamespace = "common";
 
-export const namespaces = ["common", "home", "memento", "todo", "showtime", "course", "notifications", "login"] as const;
+export const namespaces = ["common", "home", "memento", "todo", "showtime", "course", "notifications", "login", "quiz"] as const;
 
 export const resources = {
 	en: {
@@ -30,7 +31,8 @@ export const resources = {
 		todo: en_todo,
 		showtime: en_showtime,
 		notifications: en_notifications,
-		login: en_login
+		login: en_login,
+		quiz: en_quiz
 	}
 } as const;
 
