@@ -68,7 +68,7 @@ const ArchiveScreen: ApplicationRoute = () => {
 
                 {assignments.length > 0 ?
                     assignments.map((assignment) => (
-                        <AssignmentDisplay item={assignment.data} id={assignment.id} courseID={courseId} index={assignments.indexOf(assignment)} isSwipeable={false} key={assignment.data.name} />
+                        <AssignmentDisplay item={assignment.data} id={assignment.id} courseID={courseId} index={assignments.indexOf(assignment)} key={assignment.data.name} />
                     ))
                     : <TView flex={1} testID={testIDs.noArchive}><TText size={16}>{t('course:no_past_assignment')}</TText></TView>
                 }

@@ -27,6 +27,7 @@ import AddAssignment from '@/components/courses/AddAssignment';
 import AddMaterial from '@/components/courses/AddMaterial';
 import AssignmentDisplay from '@/components/courses/AssignmentDisplay';
 import CourseParameters from '@/components/courses/CourseParameters';
+import EditAssignment from '@/components/courses/EditAssignment';
 import MaterialDisplay from '@/components/courses/MaterialDisplay';
 import SelectActions from '@/components/courses/SelectActionsCourse';
 import { CollectionOf } from '@/config/firebase';
@@ -38,8 +39,8 @@ import { timeInMS } from '@/constants/Time';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { pushWithParameters } from '@/hooks/routeParameters';
-import { Assignment, Course, CourseID, Material, UpdateCourseArgs } from '@/model/school/courses';
-import { addAssignmentAction, addMaterialAction, updateCourseAction } from '@/utils/courses/coursesActionsFunctions';
+import { Assignment, AssignmentID, Course, CourseID, Material, MaterialID, UpdateCourseArgs } from '@/model/school/courses';
+import { addAssignmentAction, addMaterialAction, removeAssignmentAction, updateAssignmentAction, updateCourseAction, updateMaterialAction } from '@/utils/courses/coursesActionsFunctions';
 import { Time } from '@/utils/time'; // Adjust the import path as necessary
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -176,6 +177,8 @@ const CoursePage: ApplicationRoute = () => {
 	const [modalParamVisible, setModalParamVisible] = React.useState(false);
 	const [modalVisible, setModalVisible] = useState(false);
 	const [actionModalVisible, setActionModalVisible] = useState(false);
+	const [modalEditAssignmentVisible, setModalEditAssignmentVisible] = useState(false);
+	const [assignmentToEdit, setAssignmentToEdit] = useState<{ id: string, data: Assignment } | null>(null);
 	const [selectedAction, setSelectedAction] = useState<string | null>(null);
 	const fadeAnim = useState(new Animated.Value(0))[0];
 
@@ -226,14 +229,33 @@ const CoursePage: ApplicationRoute = () => {
 		setModalVisible(false);
 	}, [id]);
 
+	const updateAssignmentCallback = useCallback((assignmentID: AssignmentID, assignment: Assignment) => {
+		updateAssignmentAction(id as CourseID, assignmentID, JSON.stringify(assignment));
+		setAssignmentToEdit(null);
+		setModalEditAssignmentVisible(false);
+	}, [id]);
+
+	const updateMaterialCallback = useCallback((materialID: MaterialID, material: Material) => {
+		updateMaterialAction(id as CourseID, materialID, JSON.stringify(material));
+		setModalVisible(false);
+	}, [id]);
+
 	const updateCourseCallback = useCallback((course: UpdateCourseArgs) => {
 		updateCourseAction(id as CourseID, JSON.stringify(course));
 		setModalParamVisible(false);
 	}, [id]);
 
+	const removeAssignmentCallback = useCallback((assignmentID: AssignmentID) => {
+		removeAssignmentAction(id as CourseID, assignmentID);
+		setAssignmentToEdit(null);
+		setModalEditAssignmentVisible(false);
+	}, [id]);
+
 	//Checks
 	if (!isValidId) { return <Redirect href={'/'} />; }
 	if (course == undefined || assignmentsCollection == undefined || materialCollection == undefined) { return <TActivityIndicator size={40} />; }
+
+	const userIsProfessor = course.data.professors && course.data.professors.includes(uid);
 
 	return (
 		<>
@@ -263,7 +285,7 @@ const CoursePage: ApplicationRoute = () => {
 					each={upcomingAssignments && upcomingAssignments.length > 0 ? upcomingAssignments : undefined}
 					fallback={<TText size={16} testID={testIDs.noAssignmentDue}>{t('course:no_assignment_due')}</TText>}
 				>{(assignment, index) => (
-					<AssignmentDisplay item={assignment.data} id={assignment.id} courseID={id} userID={uid} index={index} isSwipeable key={assignment.data.name} />
+					<AssignmentDisplay item={assignment.data} id={assignment.id} courseID={id} isTeacher={userIsProfessor} index={index} isSwipeable onSwipeLeft={() => { setAssignmentToEdit(assignment); setModalEditAssignmentVisible(true); }} key={assignment.data.name} />
 				)}
 				</For>
 
@@ -317,9 +339,7 @@ const CoursePage: ApplicationRoute = () => {
 			</TScrollView >
 
 
-
-			{course.data.professors && course.data.professors.includes(uid) && renderProfessorModifButton()}
-
+			{userIsProfessor && renderProfessorModifButton()}
 
 
 			< Modal
@@ -354,6 +374,17 @@ const CoursePage: ApplicationRoute = () => {
 				onRequestClose={() => setModalParamVisible(false)}
 			>
 				<CourseParameters course={course} onGiveUp={() => setModalParamVisible(false)} onFinish={updateCourseCallback} />
+			</Modal>
+
+
+			<Modal
+				visible={modalEditAssignmentVisible && assignmentToEdit !== null}
+				animationType="slide"
+				onRequestClose={() => setModalEditAssignmentVisible(false)}
+			>
+				{assignmentToEdit && (
+					<EditAssignment assignment={assignmentToEdit} onSubmit={updateAssignmentCallback} onDelete={removeAssignmentCallback} />
+				)}
 			</Modal>
 		</>
 	);

@@ -15,7 +15,7 @@ import Functions = Course_functions.Functions;
 
 
 // Define the valid assignment types
-const validTypes: AssignmentType[] = ["submit", "quiz"];
+const validTypes: AssignmentType[] = ["submission", "quiz"];
 const MAX_NAME_LENGTH = 20;
 
 

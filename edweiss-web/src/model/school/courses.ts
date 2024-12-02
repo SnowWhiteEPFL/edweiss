@@ -26,7 +26,7 @@ export interface Course {
 	started: boolean;
 }
 
-export type AssignmentType = "quiz" | "submit";
+export type AssignmentType = "quiz" | "submission";
 
 export interface AssignmentBase {
 	type: AssignmentType;

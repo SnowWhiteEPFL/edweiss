@@ -4,7 +4,7 @@ import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { IconType } from '@/constants/Style';
-import { Assignment, AssignmentType } from '@/model/school/courses';
+import { Assignment, AssignmentID, AssignmentType } from '@/model/school/courses';
 import { Time } from '@/utils/time';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
@@ -17,77 +17,46 @@ import FancyTextInput from '../input/FancyTextInput';
 
 // Icons
 export const icons: { [key: string]: IconType } = {
-    nameIcon: 'text',
-    dateIcon: 'calendar',
-    timeIcon: 'alarm',
-    finishIcon: 'checkmark-circle',
 };
 
 // Tests Tags
 export const testIDs: { [key: string]: string } = {
-    addAssignmentTitle: 'add-assignment-title',
-    addAssignmentDescription: 'add-assignment-description',
-    scrollView: 'scroll-view',
-    nameAndTypeView: 'name-and-type-view',
-    nameInput: 'name-input',
-    typeInput: 'type-input',
-    dueDateView: 'due-date-view',
-    dateInput: 'date-input',
-    dateTitle: 'date-title',
-    dateTouchableOpacity: 'date-touchable-opacity',
-    dateIcon: 'date-icon',
-    dateText: 'date-text',
-    timeInput: 'time-input',
-    timeTitle: 'time-title',
-    timeTouchableOpacity: 'time-touchable-opacity',
-    timeIcon: 'time-icon',
-    timeText: 'time-text',
-    datePicker: "dateTimePicker1",
-    timePicker: "dateTimePicker2",
-    finishTouchableOpacity: 'finish-touchable-opacity',
-    finishView: 'finish-view',
-    finishIcon: 'finish-icon',
-    finishText: 'finish-text',
 };
 
 
-interface AddAssignmentProps {
-    onSubmit: (assignment: Assignment) => void;
+interface EditAssignmentProps {
+    assignment: { id: string, data: Assignment };
+    onSubmit: (assignmentID: AssignmentID, assignment: Assignment) => void;
+    onDelete: (assignmentID: AssignmentID) => void;
 }
 
 
 /**
- * AddAssignment Component
+ * EditAssignment Component
  * 
- * This component is responsible for displaying the page to add an assignment to the course.
- * 
- * @param onSubmit - The function to be called when the user submits the assignment.
+ * This component is responsible for editing an assignment in the course page.
  * 
  * 
- * @returns JSX.Element - The rendered component for the assignment creation inner-page.
+ * @returns JSX.Element - The rendered component for the actions selection animation.
  */
-const AddAssignment: ReactComponent<AddAssignmentProps> = ({ onSubmit }) => {
+const EditAssignment: ReactComponent<EditAssignmentProps> = ({ assignment, onSubmit, onDelete }) => {
 
-    const [name, setName] = useState("");
-    const [type, setType] = useState<AssignmentType>('quiz');
-    const [date, setDate] = useState(new Date());
-    const [dateChanged, setDateChanged] = useState(false);
-    const [timeChanged, setTimeChanged] = useState(false);
-    const [showPickerDate, setShowPickerDate] = useState(false);
-    const [showPickerTime, setShowPickerTime] = useState(false);
+    const [name, setName] = React.useState<string>(assignment.data.name);
+    const [type, setType] = React.useState<AssignmentType>(assignment.data.type);
+    const [dueDate, setDueDate] = React.useState<Date>(Time.toDate(assignment.data.dueDate));
+    const [showPickerDate, setShowPickerDate] = useState<boolean>(false);
+    const [showPickerTime, setShowPickerTime] = useState<boolean>(false);
 
     const onChangeDate = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
-            setDateChanged(true);
-            setDate(selectedDate);
+            setDueDate(selectedDate);
             setShowPickerDate(false);
         }
     };
 
     const onChangeTime = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
-            setTimeChanged(true);
-            setDate(selectedDate);
+            setDueDate(selectedDate);
             setShowPickerTime(false);
         }
     };
@@ -131,7 +100,7 @@ const AddAssignment: ReactComponent<AddAssignmentProps> = ({ onSubmit }) => {
                             flexDirection='row' justifyContent='flex-start' alignItems='center'
                         >
                             <Icon testID={testIDs.dateIcon} name={icons.dateIcon} size='md' color='overlay0' />
-                            <TText testID={testIDs.dateText} ml={14} color={dateChanged ? 'text' : 'overlay0'}>{date.toDateString()}</TText>
+                            <TText testID={testIDs.dateText} ml={14} color={'text'}>{dueDate.toDateString()}</TText>
                         </TTouchableOpacity>
                     </TView>
 
@@ -141,7 +110,7 @@ const AddAssignment: ReactComponent<AddAssignmentProps> = ({ onSubmit }) => {
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'>
                             <Icon testID={testIDs.timeIcon} name={icons.timeIcon} size='md' color='overlay0' />
-                            <TText testID={testIDs.timeText} ml={10} color={timeChanged ? 'text' : 'overlay0'}>{date.toTimeString().split(':').slice(0, 2).join(':')}</TText>
+                            <TText testID={testIDs.timeText} ml={10} color={'text'}>{dueDate.toTimeString().split(':').slice(0, 2).join(':')}</TText>
                         </TTouchableOpacity>
                     </TView>
                 </TView>
@@ -150,7 +119,7 @@ const AddAssignment: ReactComponent<AddAssignmentProps> = ({ onSubmit }) => {
                 {showPickerDate && (
                     <DateTimePicker
                         testID={testIDs.datePicker}
-                        value={date}
+                        value={dueDate}
                         mode='date'
                         is24Hour={true}
                         display="default"
@@ -167,7 +136,7 @@ const AddAssignment: ReactComponent<AddAssignmentProps> = ({ onSubmit }) => {
                 {showPickerTime && (
                     <DateTimePicker
                         testID={testIDs.timePicker}
-                        value={date}
+                        value={dueDate}
                         mode='time'
                         is24Hour={true}
                         display="default"
@@ -183,20 +152,66 @@ const AddAssignment: ReactComponent<AddAssignmentProps> = ({ onSubmit }) => {
 
             </TScrollView >
 
-            <TTouchableOpacity
-                testID={testIDs.finishTouchableOpacity}
-                backgroundColor={(name === "" || !dateChanged || !timeChanged) ? 'text' : 'blue'}
-                disabled={name === "" || !dateChanged || !timeChanged}
-                onPress={() => { onSubmit({ type: type, name: name, dueDate: Time.fromDate(date) }); }}
-                ml={100} mr={100} p={12} radius={'xl'}
-                style={{ position: 'absolute', bottom: 60, left: 0, right: 0, zIndex: 100, borderRadius: 9999 }}>
-                <TView testID={testIDs.finishView} flexDirection='row' justifyContent='center' alignItems='center'>
-                    <Icon testID={testIDs.finishIcon} name={icons.finishIcon} color='base' size={'md'} />
-                    <TText testID={testIDs.finishText} color='base' ml={10}>{t(`course:upload_assignment`)}</TText>
-                </TView>
-            </TTouchableOpacity >
+            <TView
+                testID={testIDs.finishViews}
+                flexDirection="row"
+                justifyContent="center"
+                alignItems="center"
+                style={{ marginBottom: 60 }}
+            >
+                {/* Bouton Submit */}
+                <TTouchableOpacity
+                    testID={testIDs.submitTouchableOpacity}
+                    backgroundColor={name === "" ? 'text' : 'blue'}
+                    disabled={name === ""}
+                    onPress={() => onSubmit(assignment.id, { name, type, dueDate: Time.fromDate(dueDate) })}
+                    style={{
+                        flex: 1, // Chaque bouton occupe un espace égal
+                        marginHorizontal: 10, // Espacement entre les boutons
+                        padding: 12,
+                        borderRadius: 9999,
+                    }}
+                >
+                    <TView
+                        testID={testIDs.submitView}
+                        flexDirection="row"
+                        justifyContent="center"
+                        alignItems="center"
+                    >
+                        <Icon testID={testIDs.submitIcon} name={icons.submitIcon} color="base" size="md" />
+                        <TText testID={testIDs.submitText} color="base" ml={10}>
+                            {t(`course:update_changes`)}
+                        </TText>
+                    </TView>
+                </TTouchableOpacity>
+
+                {/* Bouton Delete */}
+                <TTouchableOpacity
+                    testID={testIDs.deleteTouchableOpacity}
+                    backgroundColor="red"
+                    onPress={() => onDelete(assignment.id)}
+                    style={{
+                        flex: 1, // Même espace que le bouton précédent
+                        marginHorizontal: 10,
+                        padding: 12,
+                        borderRadius: 9999,
+                    }}
+                >
+                    <TView
+                        testID={testIDs.deleteView}
+                        flexDirection="row"
+                        justifyContent="center"
+                        alignItems="center"
+                    >
+                        <Icon testID={testIDs.deleteIcon} name={icons.deleteIcon} color="base" size="md" />
+                        <TText testID={testIDs.deleteText} color="base" ml={10}>
+                            {t(`course:delete`)}
+                        </TText>
+                    </TView>
+                </TTouchableOpacity>
+            </TView>
         </>
     );
 };
 
-export default AddAssignment;
+export default EditAssignment;

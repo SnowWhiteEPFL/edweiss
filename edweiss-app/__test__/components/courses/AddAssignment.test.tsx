@@ -144,7 +144,7 @@ describe('Add Assignment', () => {
         const typeInput = screen.getByTestId(testIDs.typeInput);
         expect(hasTextInChildren(typeInput.props.children, 'quiz')).toBe(true);
         fireEvent.press(screen.getByTestId(testIDs.typeInput));
-        expect(hasTextInChildren(typeInput.props.children, 'submit')).toBe(true);
+        expect(hasTextInChildren(typeInput.props.children, 'submission')).toBe(true);
 
         setMockDate(defaultDate1);
         fireEvent.press(screen.getByTestId(testIDs.dateTouchableOpacity));

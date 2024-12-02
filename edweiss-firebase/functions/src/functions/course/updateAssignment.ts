@@ -15,7 +15,7 @@ import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
 
 
-const validTypes: AssignmentType[] = ["submit", "quiz"]
+const validTypes: AssignmentType[] = ["submission", "quiz"]
 const MAX_NAME_LENGTH = 20;
 
 

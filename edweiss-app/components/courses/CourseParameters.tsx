@@ -48,7 +48,7 @@ export const testIDs: { [key: string]: string } = {
 };
 
 
-interface SelectActionsAnimatedProps {
+interface CourseParamsProps {
     course: { id: string, data: Course };
     onGiveUp: () => void;
     onFinish: (course: UpdateCourseArgs) => void;
@@ -56,15 +56,14 @@ interface SelectActionsAnimatedProps {
 
 
 /**
- * AddMaterial Component
+ * CourseParameters Component
  * 
- * This component is responsible for displaying actions options to be selected when the teacher 
- * wants to add assignments or materials to the course.
+ * This component is responsible for editing the course parameters in the course page.
  * 
  * 
  * @returns JSX.Element - The rendered component for the actions selection animation.
  */
-const CourseParameters: ReactComponent<SelectActionsAnimatedProps> = ({ course, onGiveUp, onFinish }) => {
+const CourseParameters: ReactComponent<CourseParamsProps> = ({ course, onGiveUp, onFinish }) => {
 
     const [name, setName] = React.useState<string>(course.data.name);
     const [description, setDescription] = React.useState<string>(course.data.description);

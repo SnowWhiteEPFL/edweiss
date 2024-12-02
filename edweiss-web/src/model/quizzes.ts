@@ -38,7 +38,7 @@ namespace Quizzes {
         showResultToStudents: boolean;
         // inherits:
         // name: string
-        // type: AssignmentType = "quiz"|"submit"
+        // type: AssignmentType = "quiz"|"submission"
         // dueDate: TimeStamp
     }
 

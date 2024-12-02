@@ -5,6 +5,7 @@
     "no_assignment_due": "No assignments due for now",
     "add_to_todo": "Add to To-Do",
     "delete": "Delete",
+    "edit": "Edit",
     "toast_added_to_todo_text1": "Assignment added to To-Do list",
     "toast_added_to_todo_text2": "Now you have a new reason to procrastinate! 🎉",
 
@@ -68,5 +69,4 @@
     "failureUpdateMaterial": "Failed to update material ❌",
     "successUpdateCourse": "Course updated successfully 🎉",
     "failureUpdateCourse": "Failed to update course ❌"
-
 }

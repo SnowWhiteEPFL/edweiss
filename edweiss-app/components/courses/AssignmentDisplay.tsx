@@ -6,8 +6,7 @@ import t from '@/config/i18config';
 import { Color } from '@/constants/Colors';
 import { iconSizes } from '@/constants/Sizes';
 import { dateFormats, timeInMS } from '@/constants/Time';
-import { Assignment } from '@/model/school/courses';
-import { removeAssignmentAction } from '@/utils/courses/coursesActionsFunctions';
+import { Assignment, AssignmentID, CourseID } from '@/model/school/courses';
 import { saveTodo } from '@/utils/courses/saveToDo';
 import { router } from 'expo-router';
 import { useCallback, useRef } from 'react';
@@ -26,7 +25,7 @@ export const testIDs = {
     swipeViewRight: 'swipe-view-right',
     addToDoText: 'add-to-todo-text',
     swipeViewLeft: 'swipe-view-left',
-    deleteText: 'delete-text',
+    editText: 'edit-text',
     assignmentView: 'assignment-view',
     assignmentTouchable: 'assignment-touchable',
     assignmentIcon: 'assignment-icon',
@@ -52,7 +51,7 @@ export type AssignmentWithColor = Assignment & { color: Color; };
  * 
  * @returns JSX.Element - The rendered component for the assignment display.
  */
-const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, id: string, courseID: string, userID: string, index: number, isSwipeable: boolean; }> = ({ item, id, courseID, index, isSwipeable }) => {
+const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, id: AssignmentID, courseID: CourseID, isTeacher?: boolean, index: number, isSwipeable?: boolean, onSwipeLeft?: (id: AssignmentID) => void; }> = ({ item, id, courseID, isTeacher = false, index, isSwipeable = false, onSwipeLeft }) => {
 
     // Define swipeableRefs
     const swipeableRefs = useRef<(Swipeable | null)[]>([]);
@@ -64,10 +63,9 @@ const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, id: string,
         </TView>
     );
 
-    // Render left actions on swipe
     const renderLeftActions = () => (
-        <TView testID={testIDs.swipeViewLeft} justifyContent='center' alignItems='flex-start' px={14} backgroundColor='red'>
-            <TText testID={testIDs.deleteText} size={16} bold color='constantWhite'>{t(`course:delete`)}</TText>
+        <TView testID={testIDs.swipeViewLeft} justifyContent='center' alignItems='flex-start' px={26} backgroundColor='blue'>
+            <TText testID={testIDs.editText} size={16} bold color='constantWhite'>{t(`course:edit`)}</TText>
         </TView>
     );
 
@@ -97,7 +95,8 @@ const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, id: string,
             }
             if (direction === 'left') {
                 console.log(`Swipe detected on assignment: ${item.name}`);
-                removeAssignmentAction(courseID, id);
+                //removeAssignmentAction(courseID, id);
+                if (onSwipeLeft) onSwipeLeft(id);
                 swipeableRefs.current[index]?.close();
             }
         },
@@ -113,7 +112,7 @@ const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, id: string,
                     swipeableRefs.current[index] = ref;
                 }}
                 renderRightActions={renderRightActions}
-                renderLeftActions={renderLeftActions}
+                renderLeftActions={isTeacher ? renderLeftActions : undefined}
                 onSwipeableOpen={handleSwipeableOpen}
             >
                 {assignmentView()}
