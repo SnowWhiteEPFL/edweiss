@@ -28,6 +28,7 @@ import AddMaterial from '@/components/courses/AddMaterial';
 import AssignmentDisplay from '@/components/courses/AssignmentDisplay';
 import CourseParameters from '@/components/courses/CourseParameters';
 import EditAssignment from '@/components/courses/EditAssignment';
+import EditMaterial from '@/components/courses/EditMaterial';
 import MaterialDisplay from '@/components/courses/MaterialDisplay';
 import SelectActions from '@/components/courses/SelectActionsCourse';
 import { CollectionOf } from '@/config/firebase';
@@ -40,7 +41,7 @@ import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { pushWithParameters } from '@/hooks/routeParameters';
 import { Assignment, AssignmentID, Course, CourseID, Material, MaterialID, UpdateCourseArgs } from '@/model/school/courses';
-import { addAssignmentAction, addMaterialAction, removeAssignmentAction, updateAssignmentAction, updateCourseAction, updateMaterialAction } from '@/utils/courses/coursesActionsFunctions';
+import { addAssignmentAction, addMaterialAction, removeAssignmentAction, removeMaterialAction, updateAssignmentAction, updateCourseAction, updateMaterialAction } from '@/utils/courses/coursesActionsFunctions';
 import { Time } from '@/utils/time'; // Adjust the import path as necessary
 import { Redirect, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -179,6 +180,8 @@ const CoursePage: ApplicationRoute = () => {
 	const [actionModalVisible, setActionModalVisible] = useState(false);
 	const [modalEditAssignmentVisible, setModalEditAssignmentVisible] = useState(false);
 	const [assignmentToEdit, setAssignmentToEdit] = useState<{ id: string, data: Assignment } | null>(null);
+	const [modalEditMaterialVisible, setModalEditMaterialVisible] = useState(false);
+	const [materialToEdit, setMaterialToEdit] = useState<{ id: string, data: Material } | null>(null);
 	const [selectedAction, setSelectedAction] = useState<string | null>(null);
 	const fadeAnim = useState(new Animated.Value(0))[0];
 
@@ -237,7 +240,8 @@ const CoursePage: ApplicationRoute = () => {
 
 	const updateMaterialCallback = useCallback((materialID: MaterialID, material: Material) => {
 		updateMaterialAction(id as CourseID, materialID, JSON.stringify(material));
-		setModalVisible(false);
+		setMaterialToEdit(null);
+		setModalEditMaterialVisible(false);
 	}, [id]);
 
 	const updateCourseCallback = useCallback((course: UpdateCourseArgs) => {
@@ -249,6 +253,12 @@ const CoursePage: ApplicationRoute = () => {
 		removeAssignmentAction(id as CourseID, assignmentID);
 		setAssignmentToEdit(null);
 		setModalEditAssignmentVisible(false);
+	}, [id]);
+
+	const removeMaterialCallback = useCallback((materialID: MaterialID) => {
+		removeMaterialAction(id as CourseID, materialID);
+		setMaterialToEdit(null);
+		setModalEditMaterialVisible(false);
 	}, [id]);
 
 	//Checks
@@ -321,18 +331,18 @@ const CoursePage: ApplicationRoute = () => {
 					</TView>
 				</TTouchableOpacity>
 
-				{showFutureMaterials && (futureMaterials.map((material, index) => (
+				{showFutureMaterials && (futureMaterials.map((material) => (
 					<TView testID={testIDs.futureMaterialView} key={material.id}>
-						<MaterialDisplay item={material.data} />
+						<MaterialDisplay item={material.data} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} />
 						<TView bb={1} mx={20} mb={12} borderColor='overlay0' />
 					</TView>
 				)))}
 
-				{currentMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={material.id} />))}
+				{currentMaterials.map((material) => (<MaterialDisplay item={material.data} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} key={material.id} />))}
 
 				{/*<TView bb={1} my={10} borderColor='crust' />}*/}
 
-				{passedMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={material.id} />))}
+				{passedMaterials.map((material) => (<MaterialDisplay item={material.data} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} key={material.id} />))}
 
 				<TView mb={30} />
 
@@ -382,9 +392,29 @@ const CoursePage: ApplicationRoute = () => {
 				animationType="slide"
 				onRequestClose={() => setModalEditAssignmentVisible(false)}
 			>
-				{assignmentToEdit && (
-					<EditAssignment assignment={assignmentToEdit} onSubmit={updateAssignmentCallback} onDelete={removeAssignmentCallback} />
-				)}
+				<TView flex={1} p={20} backgroundColor='mantle'>
+					<TTouchableOpacity alignItems="flex-start" onPress={() => { setModalEditAssignmentVisible(false); }}>
+						<Icon name={'close'} size={iconSizes.lg} color="blue" mr={8} />
+					</TTouchableOpacity>
+					{assignmentToEdit && (
+						<EditAssignment assignment={assignmentToEdit} onSubmit={updateAssignmentCallback} onDelete={removeAssignmentCallback} />
+					)}
+				</TView>
+			</Modal>
+
+			<Modal
+				visible={modalEditMaterialVisible && materialToEdit !== null}
+				animationType="slide"
+				onRequestClose={() => setModalEditMaterialVisible(false)}
+			>
+				<TView flex={1} p={20} backgroundColor='mantle'>
+					<TTouchableOpacity alignItems="flex-start" onPress={() => { setModalEditMaterialVisible(false); }}>
+						<Icon name={'close'} size={iconSizes.lg} color="blue" mr={8} />
+					</TTouchableOpacity>
+					{materialToEdit && (
+						<EditMaterial material={materialToEdit} onSubmit={updateMaterialCallback} onDelete={removeMaterialCallback} />
+					)}
+				</TView>
 			</Modal>
 		</>
 	);

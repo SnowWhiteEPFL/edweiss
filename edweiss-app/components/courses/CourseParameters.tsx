@@ -6,7 +6,7 @@ import t from '@/config/i18config';
 import { Color } from '@/constants/Colors';
 import { iconSizes } from '@/constants/Sizes';
 import { IconType } from '@/constants/Style';
-import { Course, Section, UpdateCourseArgs } from '@/model/school/courses';
+import { Course, MAX_COURSE_DESCRIPTION_LENGTH, MAX_COURSE_NAME_LENGTH, Section, UpdateCourseArgs } from '@/model/school/courses';
 import { ProfessorID, StudentID } from '@/model/users';
 import React from 'react';
 import TScrollView from '../core/containers/TScrollView';
@@ -106,6 +106,7 @@ const CourseParameters: ReactComponent<CourseParamsProps> = ({ course, onGiveUp,
                         onChangeText={n => setName(n)}
                         placeholder={t(`course:title_placeholder`)}
                         icon={icons.nameIcon}
+                        error={name.length > MAX_COURSE_NAME_LENGTH ? t(`course:name_too_long`) : undefined}
                     />
                     <FancyTextInput
                         testID={testIDs.descriptionInput}
@@ -118,6 +119,7 @@ const CourseParameters: ReactComponent<CourseParamsProps> = ({ course, onGiveUp,
                         numberOfLines={4}
                         mt={'md'}
                         mb={'sm'}
+                        error={description.length > MAX_COURSE_DESCRIPTION_LENGTH ? t(`course:description_too_long`) : undefined}
                     />
                     <FancyButton
                         testID={testIDs.sectionInput}
@@ -186,8 +188,8 @@ const CourseParameters: ReactComponent<CourseParamsProps> = ({ course, onGiveUp,
 
             <TTouchableOpacity
                 testID={testIDs.finishTouchableOpacity}
-                backgroundColor={(name === "") ? 'text' : 'blue'}
-                disabled={name === ""}
+                backgroundColor={(name === "" || name.length > MAX_COURSE_NAME_LENGTH || description.length > MAX_COURSE_DESCRIPTION_LENGTH) ? 'text' : 'blue'}
+                disabled={name === "" || name.length > MAX_COURSE_NAME_LENGTH || description.length > MAX_COURSE_DESCRIPTION_LENGTH}
                 onPress={() => { onFinish({ name, description, credits, section }); }}
                 ml={100} mr={100} p={12} radius={'xl'}
                 style={{ position: 'absolute', bottom: 60, left: 0, right: 0, zIndex: 100, borderRadius: 9999 }}>

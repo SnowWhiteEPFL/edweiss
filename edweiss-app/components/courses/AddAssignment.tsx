@@ -4,7 +4,7 @@ import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { IconType } from '@/constants/Style';
-import { Assignment, AssignmentType } from '@/model/school/courses';
+import { Assignment, AssignmentType, MAX_ASSIGNMENT_NAME_LENGTH } from '@/model/school/courses';
 import { Time } from '@/utils/time';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
@@ -108,6 +108,7 @@ const AddAssignment: ReactComponent<AddAssignmentProps> = ({ onSubmit }) => {
                         placeholder={t(`course:name_placeholder`)}
                         icon={icons.nameIcon}
                         label={t(`course:name_label`)}
+                        error={name.length > MAX_ASSIGNMENT_NAME_LENGTH ? t(`course:name_too_long`) : undefined}
                     />
                     <FancyButton
                         testID={testIDs.typeInput}
@@ -185,8 +186,8 @@ const AddAssignment: ReactComponent<AddAssignmentProps> = ({ onSubmit }) => {
 
             <TTouchableOpacity
                 testID={testIDs.finishTouchableOpacity}
-                backgroundColor={(name === "" || !dateChanged || !timeChanged) ? 'text' : 'blue'}
-                disabled={name === "" || !dateChanged || !timeChanged}
+                backgroundColor={(name === "" || !dateChanged || !timeChanged || name.length > MAX_ASSIGNMENT_NAME_LENGTH) ? 'text' : 'blue'}
+                disabled={name === "" || !dateChanged || !timeChanged || name.length > MAX_ASSIGNMENT_NAME_LENGTH}
                 onPress={() => { onSubmit({ type: type, name: name, dueDate: Time.fromDate(date) }); }}
                 ml={100} mr={100} p={12} radius={'xl'}
                 style={{ position: 'absolute', bottom: 60, left: 0, right: 0, zIndex: 100, borderRadius: 9999 }}>

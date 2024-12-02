@@ -5,11 +5,11 @@
  */
 
 
-import { Course, Course_functions, Material, MaterialDocument, MaterialType } from 'model/school/courses';
+import { Course, Course_functions, Material, MaterialDocument, MaterialType, MAX_MATERIAL_DESCRIPTION_LENGTH, MAX_MATERIAL_TITLE_LENGTH } from 'model/school/courses';
 import { AppUser } from 'model/users';
 import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocumentAndRef, getRequiredDocument } from 'utils/firestore';
-import { assertNonEmptyString, Predicate } from 'utils/sanitizer';
+import { assertIsBetween, assertNonEmptyString, Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
 
@@ -50,6 +50,9 @@ export const updateMaterial = onSanitizedCall(Functions.updateMaterial, {
         console.error("Error parsing materialJSON:", error);
         return fail("invalid_json");
     }
+
+    assertIsBetween(materialData.title.length, 1, MAX_MATERIAL_TITLE_LENGTH, "material_title_too_long");
+    assertIsBetween(materialData.description.length, 1, MAX_MATERIAL_DESCRIPTION_LENGTH, "material_description_too_long");
 
     // Prepare updated fields
     const updatedFields: Partial<Material> = {};

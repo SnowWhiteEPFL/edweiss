@@ -4,7 +4,7 @@ import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { IconType } from '@/constants/Style';
-import { Assignment, AssignmentID, AssignmentType } from '@/model/school/courses';
+import { Assignment, AssignmentID, AssignmentType, MAX_ASSIGNMENT_NAME_LENGTH } from '@/model/school/courses';
 import { Time } from '@/utils/time';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
@@ -77,6 +77,7 @@ const EditAssignment: ReactComponent<EditAssignmentProps> = ({ assignment, onSub
                         placeholder={t(`course:name_placeholder`)}
                         icon={icons.nameIcon}
                         label={t(`course:name_label`)}
+                        error={name.length > MAX_ASSIGNMENT_NAME_LENGTH ? t(`course:name_too_long`) : name === "" ? t(`course:field_required`) : undefined}
                     />
                     <FancyButton
                         testID={testIDs.typeInput}
@@ -162,8 +163,8 @@ const EditAssignment: ReactComponent<EditAssignmentProps> = ({ assignment, onSub
                 {/* Bouton Submit */}
                 <TTouchableOpacity
                     testID={testIDs.submitTouchableOpacity}
-                    backgroundColor={name === "" ? 'text' : 'blue'}
-                    disabled={name === ""}
+                    backgroundColor={name === "" || name.length > MAX_ASSIGNMENT_NAME_LENGTH ? 'text' : 'blue'}
+                    disabled={name === "" || name.length > MAX_ASSIGNMENT_NAME_LENGTH}
                     onPress={() => onSubmit(assignment.id, { name, type, dueDate: Time.fromDate(dueDate) })}
                     style={{
                         flex: 1, // Chaque bouton occupe un espace égal

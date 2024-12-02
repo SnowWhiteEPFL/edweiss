@@ -17,6 +17,10 @@ export interface CourseTimePeriod extends CyclicTimePeriod {
 	type: CourseTimePeriodType;
 }
 
+export const MAX_COURSE_NAME_LENGTH = 30;
+export const MAX_COURSE_DESCRIPTION_LENGTH = 100;
+export const MAX_COURSE_CREDITS = 30;
+
 export interface Course {
 	name: string;
 	description: string;
@@ -32,6 +36,7 @@ export interface Course {
 
 export type AssignmentType = "quiz" | "submission";
 
+export const MAX_ASSIGNMENT_NAME_LENGTH = 20;
 export interface AssignmentBase {
 	type: AssignmentType;
 	name: string;
@@ -47,6 +52,9 @@ export interface MaterialDocument {
 	title: string;
 	type: MaterialType;
 }
+
+export const MAX_MATERIAL_TITLE_LENGTH = 30;
+export const MAX_MATERIAL_DESCRIPTION_LENGTH = 300;
 
 export interface Material {
 	title: string;

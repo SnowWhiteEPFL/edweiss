@@ -4,7 +4,7 @@ import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { IconType } from '@/constants/Style';
-import { Material, MAX_MATERIAL_DESCRIPTION_LENGTH, MAX_MATERIAL_TITLE_LENGTH } from '@/model/school/courses';
+import { Material, MaterialID, MAX_MATERIAL_DESCRIPTION_LENGTH, MAX_MATERIAL_TITLE_LENGTH } from '@/model/school/courses';
 import { Time } from '@/utils/time';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
@@ -16,79 +16,34 @@ import FancyTextInput from '../input/FancyTextInput';
 
 // Icons
 export const icons: { [key: string]: IconType } = {
-    nameIcon: 'text',
-    descriptionIcon: 'create-outline',
-    dateIcon: 'calendar',
-    timeIcon: 'alarm',
-    finishIcon: 'checkmark-circle',
 };
 
 // Tests Tags
 export const testIDs: { [key: string]: string } = {
-    addMaterialTitle: 'add-material-title',
-    addMaterialDescription: 'add-material-description',
-    scrollView: 'scroll-view',
-    titleAndDescriptionView: 'title-and-description-view',
-    titleInput: 'title-input',
-    descriptionInput: 'description-input',
-    fromDateView: 'from-date-view',
-    fromDateInput: 'from-date-input',
-    fromDateTitle: 'from-date-title',
-    fromDateTouchableOpacity: 'from-date-touchable-opacity',
-    fromDateIcon: 'from-date-icon',
-    fromDateText: 'from-date-text',
-    fromTimeInput: 'from-time-input',
-    fromTimeTitle: 'from-time-title',
-    fromTimeTouchableOpacity: 'from-time-touchable-opacity',
-    fromTimeIcon: 'from-time-icon',
-    fromTimeText: 'from-time-text',
-    toDateView: 'to-date-view',
-    toDateInput: 'to-date-input',
-    toDateTitle: 'to-date-title',
-    toDateTouchableOpacity: 'to-date-touchable-opacity',
-    toDateIcon: 'to-date-icon',
-    toDateText: 'to-date-text',
-    toTimeInput: 'to-time-input',
-    toTimeTitle: 'to-time-title',
-    toTimeTouchableOpacity: 'to-time-touchable-opacity',
-    toTimeIcon: 'to-time-icon',
-    toTimeText: 'to-time-text',
-    fromDatePicker: "fromDate-dateTimePicker",
-    fromTimePicker: "fromTime-dateTimePicker",
-    toDatePicker: "toDate-dateTimePicker",
-    toTimePicker: "toTime-dateTimePicker",
-    finishTouchableOpacity: 'finish-touchable-opacity',
-    finishView: 'finish-view',
-    finishIcon: 'finish-icon',
-    finishText: 'finish-text',
 };
 
 
-interface AddMaterialProps {
-    onSubmit: (material: Material) => void;
+interface EditMaterialProps {
+    material: { id: string, data: Material };
+    onSubmit: (materialID: MaterialID, material: Material) => void;
+    onDelete: (materialID: MaterialID) => void;
 }
 
 
 /**
- * AddMaterial Component
+ * EditMaterial Component
  * 
- * This component is responsible for displaying the page to add a material to the course.
- * 
- * @argument onSubmit - The function to be called when the user submits the material.
+ * This component is responsible for editing a material in the course page.
  * 
  * 
- * @returns JSX.Element - The rendered component for the material creation inner-page.
+ * @returns JSX.Element - The rendered component for the actions selection animation.
  */
-const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
+const EditMaterial: ReactComponent<EditMaterialProps> = ({ material, onSubmit, onDelete }) => {
 
-    const [title, setTitle] = useState<string>("");
-    const [description, setDescription] = useState<string>("");
-    const [fromDate, setFromDate] = useState(new Date());
-    const [toDate, setToDate] = useState(new Date());
-    const [fromDateChanged, setFromDateChanged] = useState(false);
-    const [fromTimeChanged, setFromTimeChanged] = useState(false);
-    const [toDateChanged, setToDateChanged] = useState(false);
-    const [toTimeChanged, setToTimeChanged] = useState(false);
+    const [title, setTitle] = useState<string>(material.data.title);
+    const [description, setDescription] = useState<string>(material.data.description);
+    const [fromDate, setFromDate] = useState(Time.toDate(material.data.from));
+    const [toDate, setToDate] = useState(Time.toDate(material.data.to));
     const [showPickerFromDate, setShowPickerFromDate] = useState(false);
     const [showPickerFromTime, setShowPickerFromTime] = useState(false);
     const [showPickerToDate, setShowPickerToDate] = useState(false);
@@ -96,7 +51,6 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
 
     const onChangeFromDate = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
-            setFromDateChanged(true);
             setFromDate(selectedDate);
             setShowPickerFromDate(false);
         }
@@ -104,7 +58,6 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
 
     const onChangeFromTime = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
-            setFromTimeChanged(true);
             setFromDate(selectedDate);
             setShowPickerFromTime(false);
         }
@@ -112,7 +65,6 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
 
     const onChangeToDate = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
-            setToDateChanged(true);
             setToDate(selectedDate);
             setShowPickerToDate(false);
         }
@@ -120,7 +72,6 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
 
     const onChangeToTime = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
-            setToTimeChanged(true);
             setToDate(selectedDate);
             setShowPickerToTime(false);
         }
@@ -142,7 +93,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
                         onChangeText={n => setTitle(n)}
                         placeholder={t(`course:material_title_placeholder`)}
                         icon={icons.nameIcon}
-                        error={title.length > MAX_MATERIAL_TITLE_LENGTH ? t(`course:title_too_long`) : undefined}
+                        error={title.length > MAX_MATERIAL_TITLE_LENGTH ? t(`course:title_too_long`) : title === "" ? t(`course:field_required`) : undefined}
                     />
                     <FancyTextInput
                         testID={testIDs.descriptionInput}
@@ -168,7 +119,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
                             flexDirection='row' justifyContent='flex-start' alignItems='center'
                         >
                             <Icon testID={testIDs.fromDateIcon} name={icons.dateIcon} size='md' color='overlay0' />
-                            <TText testID={testIDs.fromDateText} ml={14} color={fromDateChanged ? 'text' : 'overlay0'}>{fromDate.toDateString()}</TText>
+                            <TText testID={testIDs.fromDateText} ml={14} color={'text'}>{fromDate.toDateString()}</TText>
                         </TTouchableOpacity>
                     </TView>
 
@@ -178,7 +129,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'>
                             <Icon testID={testIDs.fromTimeIcon} name={icons.timeIcon} size='md' color='overlay0' />
-                            <TText testID={testIDs.fromTimeText} ml={10} color={fromTimeChanged ? 'text' : 'overlay0'}>{fromDate.toTimeString().split(':').slice(0, 2).join(':')}</TText>
+                            <TText testID={testIDs.fromTimeText} ml={10} color={'text'}>{fromDate.toTimeString().split(':').slice(0, 2).join(':')}</TText>
                         </TTouchableOpacity>
                     </TView>
                 </TView>
@@ -191,7 +142,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
                             flexDirection='row' justifyContent='flex-start' alignItems='center'
                         >
                             <Icon testID={testIDs.toDateIcon} name={icons.dateIcon} size='md' color='overlay0' />
-                            <TText testID={testIDs.toDateText} ml={14} color={toDateChanged ? 'text' : 'overlay0'}>{toDate.toDateString()}</TText>
+                            <TText testID={testIDs.toDateText} ml={14} color={'text'}>{toDate.toDateString()}</TText>
                         </TTouchableOpacity>
                     </TView>
 
@@ -201,7 +152,7 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'>
                             <Icon testID={testIDs.toTimeIcon} name={icons.timeIcon} size='md' color='overlay0' />
-                            <TText testID={testIDs.toTimeText} ml={10} color={toTimeChanged ? 'text' : 'overlay0'}>{toDate.toTimeString().split(':').slice(0, 2).join(':')}</TText>
+                            <TText testID={testIDs.toTimeText} ml={10} color={'text'}>{toDate.toTimeString().split(':').slice(0, 2).join(':')}</TText>
                         </TTouchableOpacity>
                     </TView>
                 </TView>
@@ -278,20 +229,77 @@ const AddMaterial: ReactComponent<AddMaterialProps> = ({ onSubmit }) => {
 
             </TScrollView >
 
-            <TTouchableOpacity
+            {/* <TTouchableOpacity
                 testID={testIDs.finishTouchableOpacity}
-                backgroundColor={(title === "" || !fromDateChanged || !fromTimeChanged || !toDateChanged || !toTimeChanged || title.length > MAX_MATERIAL_TITLE_LENGTH || description.length > MAX_MATERIAL_DESCRIPTION_LENGTH) ? 'text' : 'blue'}
-                disabled={title === "" || !fromDateChanged || !fromTimeChanged || !toDateChanged || !toTimeChanged || title.length > MAX_MATERIAL_TITLE_LENGTH || description.length > MAX_MATERIAL_DESCRIPTION_LENGTH}
-                onPress={() => { onSubmit({ title: title, description: description, from: Time.fromDate(fromDate), to: Time.fromDate(toDate), docs: [] }); }}
+                backgroundColor={(title === "") ? 'text' : 'blue'}
+                disabled={title === ""}
+                onPress={() => { onSubmit(material.id, { title: title, description: description, from: Time.fromDate(fromDate), to: Time.fromDate(toDate), docs: [] }); }}
                 ml={100} mr={100} p={12} radius={'xl'}
                 style={{ position: 'absolute', bottom: 60, left: 0, right: 0, zIndex: 100, borderRadius: 9999 }}>
                 <TView testID={testIDs.finishView} flexDirection='row' justifyContent='center' alignItems='center'>
                     <Icon testID={testIDs.finishIcon} name={icons.finishIcon} color='base' size={'md'} />
                     <TText testID={testIDs.finishText} color='base' ml={10}>{t(`course:upload_material`)}</TText>
                 </TView>
-            </TTouchableOpacity >
+            </TTouchableOpacity > */}
+
+            <TView
+                testID={testIDs.finishViews}
+                flexDirection="row"
+                justifyContent="center"
+                alignItems="center"
+                style={{ marginBottom: 60 }}
+            >
+                <TTouchableOpacity
+                    testID={testIDs.submitTouchableOpacity}
+                    backgroundColor={(title === "" || title.length > MAX_MATERIAL_TITLE_LENGTH || description.length > MAX_MATERIAL_DESCRIPTION_LENGTH) ? 'text' : 'blue'}
+                    disabled={title === "" || title.length > MAX_MATERIAL_TITLE_LENGTH || description.length > MAX_MATERIAL_DESCRIPTION_LENGTH}
+                    onPress={() => onSubmit(material.id, { title: title, description: description, from: Time.fromDate(fromDate), to: Time.fromDate(toDate), docs: [] })}
+                    style={{
+                        flex: 1,
+                        marginHorizontal: 10,
+                        padding: 12,
+                        borderRadius: 9999,
+                    }}
+                >
+                    <TView
+                        testID={testIDs.submitView}
+                        flexDirection="row"
+                        justifyContent="center"
+                        alignItems="center"
+                    >
+                        <Icon testID={testIDs.submitIcon} name={icons.submitIcon} color="base" size="md" />
+                        <TText testID={testIDs.submitText} color="base" ml={10}>
+                            {t(`course:update_changes`)}
+                        </TText>
+                    </TView>
+                </TTouchableOpacity>
+
+                <TTouchableOpacity
+                    testID={testIDs.deleteTouchableOpacity}
+                    backgroundColor="red"
+                    onPress={() => onDelete(material.id)}
+                    style={{
+                        flex: 1,
+                        marginHorizontal: 10,
+                        padding: 12,
+                        borderRadius: 9999,
+                    }}
+                >
+                    <TView
+                        testID={testIDs.deleteView}
+                        flexDirection="row"
+                        justifyContent="center"
+                        alignItems="center"
+                    >
+                        <Icon testID={testIDs.deleteIcon} name={icons.deleteIcon} color="base" size="md" />
+                        <TText testID={testIDs.deleteText} color="base" ml={10}>
+                            {t(`course:delete`)}
+                        </TText>
+                    </TView>
+                </TTouchableOpacity>
+            </TView>
         </>
     );
 };
 
-export default AddMaterial;
+export default EditMaterial;

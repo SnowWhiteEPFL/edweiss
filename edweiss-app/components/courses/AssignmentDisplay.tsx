@@ -51,7 +51,7 @@ export type AssignmentWithColor = Assignment & { color: Color; };
  * 
  * @returns JSX.Element - The rendered component for the assignment display.
  */
-const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, id: AssignmentID, courseID: CourseID, isTeacher?: boolean, index: number, isSwipeable?: boolean, onSwipeLeft?: (id: AssignmentID) => void; }> = ({ item, id, courseID, isTeacher = false, index, isSwipeable = false, onSwipeLeft }) => {
+const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, id: AssignmentID, courseID: CourseID, isTeacher?: boolean, index: number, isSwipeable?: boolean, onSwipeLeft?: () => void; }> = ({ item, id, courseID, isTeacher = false, index, isSwipeable = false, onSwipeLeft }) => {
 
     // Define swipeableRefs
     const swipeableRefs = useRef<(Swipeable | null)[]>([]);
@@ -96,7 +96,7 @@ const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, id: Assignm
             if (direction === 'left') {
                 console.log(`Swipe detected on assignment: ${item.name}`);
                 //removeAssignmentAction(courseID, id);
-                if (onSwipeLeft) onSwipeLeft(id);
+                if (onSwipeLeft) onSwipeLeft();
                 swipeableRefs.current[index]?.close();
             }
         },

@@ -5,7 +5,7 @@
  */
 
 
-import { Assignment, AssignmentType, Course, Course_functions } from 'model/school/courses';
+import { Assignment, AssignmentType, Course, Course_functions, MAX_ASSIGNMENT_NAME_LENGTH } from 'model/school/courses';
 import { AppUser } from 'model/users';
 import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getRequiredDocument } from 'utils/firestore';
@@ -16,7 +16,6 @@ import Functions = Course_functions.Functions;
 
 // Define the valid assignment types
 const validTypes: AssignmentType[] = ["submission", "quiz"];
-const MAX_NAME_LENGTH = 20;
 
 
 /**
@@ -60,7 +59,7 @@ export const addAssignment = onSanitizedCall(Functions.addAssignment, {
     if (!assignmentData.type || !assignmentData.name || !assignmentData.dueDate) { return fail("invalid_assignment_structure"); }
 
     // Validate the assignment name length
-    assertIsBetween(assignmentData.type.length, 1, MAX_NAME_LENGTH, "invalid_name");
+    assertIsBetween(assignmentData.type.length, 1, MAX_ASSIGNMENT_NAME_LENGTH, "invalid_name");
     // Validate the assignment type
     assertIsIn(assignmentData.type, validTypes, "invalid_type");
 

@@ -5,11 +5,11 @@
  */
 
 
-import { Course, Course_functions, Material, MaterialType } from 'model/school/courses';
+import { Course, Course_functions, Material, MaterialType, MAX_MATERIAL_DESCRIPTION_LENGTH, MAX_MATERIAL_TITLE_LENGTH } from 'model/school/courses';
 import { AppUser } from 'model/users';
 import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getRequiredDocument } from 'utils/firestore';
-import { Predicate, assertIsIn, assertNonEmptyString } from 'utils/sanitizer';
+import { assertIsBetween, assertIsIn, assertNonEmptyString, Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
 
@@ -55,9 +55,12 @@ export const addMaterial = onSanitizedCall(Functions.addMaterial, {
     }
 
     // Validate the parsed material structure
-    if (!materialData.title || !materialData.description || !materialData.from || !materialData.to || !Array.isArray(materialData.docs)) {
+    if (!materialData.title || materialData.description == undefined || !materialData.from || !materialData.to || !Array.isArray(materialData.docs)) {
         return fail("invalid_material_structure");
     }
+
+    assertIsBetween(materialData.title.length, 1, MAX_MATERIAL_TITLE_LENGTH, "material_title_too_long");
+    assertIsBetween(materialData.description.length, 0, MAX_MATERIAL_DESCRIPTION_LENGTH, "material_description_too_long");
 
     for (const [index, doc] of materialData.docs.entries()) {
         if (!doc.url || !doc.title) {
