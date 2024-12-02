@@ -49,7 +49,7 @@ jest.mock('@/config/i18config', () =>
 );
 
 
-describe('Add Assignment', () => {
+describe('Course Parameters', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -74,7 +74,7 @@ describe('Add Assignment', () => {
     const mockCourse: { id: string, data: Course } = {
         id: '1',
         data: {
-            name: 'Introduction to Computer Science',
+            name: 'Intro to Computer Science',
             description: 'This course is an introduction to the world of computer science',
             professors: ['prof1', 'prof2'],
             assistants: ['asst1', 'asst2'],
@@ -151,7 +151,7 @@ describe('Add Assignment', () => {
 
         const screen = render(<CourseParameters course={mockCourse} onGiveUp={mockOnGiveUp} onFinish={mockOnFinish} />);
 
-        fireEvent.changeText(screen.getByTestId(testIDs.nameInput), 'Introduction to Computer Science 2');
+        fireEvent.changeText(screen.getByTestId(testIDs.nameInput), 'Computer Science 2');
 
         fireEvent.press(screen.getByTestId(testIDs.finishTouchableOpacity));
 

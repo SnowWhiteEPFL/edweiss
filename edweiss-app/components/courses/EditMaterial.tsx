@@ -16,10 +16,55 @@ import FancyTextInput from '../input/FancyTextInput';
 
 // Icons
 export const icons: { [key: string]: IconType } = {
+    nameIcon: 'text-outline',
+    descriptionIcon: 'create-outline',
+    dateIcon: 'calendar',
+    timeIcon: 'alarm',
+    submitIcon: 'checkmark-circle',
+    deleteIcon: 'trash-outline',
 };
 
 // Tests Tags
 export const testIDs: { [key: string]: string } = {
+    editMaterialTitle: 'edit-material-title',
+    editMaterialDescription: 'edit-material-description',
+    scrollView: 'scroll-view',
+    titleAndDescriptionView: 'title-and-description-view',
+    titleInput: 'title-input',
+    descriptionInput: 'description-input',
+    fromDateView: 'from-date-view',
+    fromDateInput: 'from-date-input',
+    fromDateTitle: 'from-date-title',
+    fromDateTouchableOpacity: 'from-date-touchable-opacity',
+    fromDateIcon: 'from-date-icon',
+    fromDateText: 'from-date-text',
+    fromTimeInput: 'from-time-input',
+    fromTimeTitle: 'from-time-title',
+    fromTimeTouchableOpacity: 'from-time-touchable-opacity',
+    fromTimeIcon: 'from-time-icon',
+    fromTimeText: 'from-time-text',
+    toDateView: 'to-date-view',
+    toDateInput: 'to-date-input',
+    toDateTitle: 'to-date-title',
+    toDateTouchableOpacity: 'to-date-touchable-opacity',
+    toDateIcon: 'to-date-icon',
+    toDateText: 'to-date-text',
+    toTimeInput: 'to-time-input',
+    toTimeTitle: 'to-time-title',
+    toTimeTouchableOpacity: 'to-time-touchable-opacity',
+    toTimeIcon: 'to-time-icon',
+    toTimeText: 'to-time-text',
+    fromDatePicker: 'from-date-picker',
+    fromTimePicker: 'from-time-picker',
+    toDatePicker: 'to-date-picker',
+    toTimePicker: 'to-time-picker',
+    finishViews: 'finish-views',
+    submitTouchableOpacity: 'submit-touchable-opacity',
+    submitView: 'submit-view',
+    submitText: 'submit-text',
+    deleteTouchableOpacity: 'delete-touchable-opacity',
+    deleteView: 'delete-view',
+    deleteText: 'delete-text',
 };
 
 
@@ -80,8 +125,8 @@ const EditMaterial: ReactComponent<EditMaterialProps> = ({ material, onSubmit, o
 
     return (
         <>
-            <TText testID={testIDs.addMaterialTitle} size={24} bold mb={20} mx='md' pt={20}>{t(`course:add_material`)}</TText>
-            <TText testID={testIDs.addMaterialDescription} mx='md' mb={15}>{t(`course:add_material_title`)}</TText>
+            <TText testID={testIDs.editMaterialTitle} size={24} bold mb={20} mx='md' pt={20}>{t(`course:edit_material`)}</TText>
+            <TText testID={testIDs.editMaterialDescription} mx='md' mb={15}>{t(`course:edit_material_title`)}</TText>
 
             <TScrollView testID={testIDs.scrollView}>
 
@@ -228,19 +273,6 @@ const EditMaterial: ReactComponent<EditMaterialProps> = ({ material, onSubmit, o
                 )}
 
             </TScrollView >
-
-            {/* <TTouchableOpacity
-                testID={testIDs.finishTouchableOpacity}
-                backgroundColor={(title === "") ? 'text' : 'blue'}
-                disabled={title === ""}
-                onPress={() => { onSubmit(material.id, { title: title, description: description, from: Time.fromDate(fromDate), to: Time.fromDate(toDate), docs: [] }); }}
-                ml={100} mr={100} p={12} radius={'xl'}
-                style={{ position: 'absolute', bottom: 60, left: 0, right: 0, zIndex: 100, borderRadius: 9999 }}>
-                <TView testID={testIDs.finishView} flexDirection='row' justifyContent='center' alignItems='center'>
-                    <Icon testID={testIDs.finishIcon} name={icons.finishIcon} color='base' size={'md'} />
-                    <TText testID={testIDs.finishText} color='base' ml={10}>{t(`course:upload_material`)}</TText>
-                </TView>
-            </TTouchableOpacity > */}
 
             <TView
                 testID={testIDs.finishViews}

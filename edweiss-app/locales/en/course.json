@@ -17,7 +17,9 @@
     "no_past_assignment": "No past assignments for the moment",
 
     "add_assignment": "Add Assignment",
+    "edit_assignment": "Edit Assignment",
     "add_assignment_title": "Enter the details for the new assignment",
+    "edit_assignment_title": "Edit the details for the assignment",
     "name_label": "Name",
     "name_placeholder": "Weekly Assignment",
     "type_label": "Type",
@@ -27,7 +29,9 @@
     "upload_assignment": "Upload Assignment",
 
     "add_material": "Add Material",
+    "edit_material": "Edit Material",
     "add_material_title": "Enter the details for the new material",
+    "edit_material_title": "Edit the details for the material",
     "title_too_long": "Title is too long",
     "material_title_label": "Title",
     "material_title_placeholder": "Week number",
@@ -40,7 +44,7 @@
     "upload_material": "Upload Material",
 
     "course_params": "Course Parameters",
-    "course_params_title": "Enter/Edit the details for the course",
+    "course_params_title": "Edit the details for the course",
     "name_too_long": "Name is too long",
     "title_label": "Title",
     "title_placeholder": "Introduction to Computer Science",

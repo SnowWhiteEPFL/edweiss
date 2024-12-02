@@ -301,9 +301,9 @@ describe('CoursePage with assignments', () => {
 
         //Fire events
         fireEvent.press(screen.getByTestId('slides-touchable'));
-        expect(console.log).toHaveBeenCalledWith('Clic on Material 1');
+        expect(console.log).toHaveBeenCalledWith('Click on Material 1');
         fireEvent.press(screen.getAllByTestId('exercises-touchable')[0]); // Press the first exercises-touchable
-        expect(console.log).toHaveBeenCalledWith('Clic on Material 2');
+        expect(console.log).toHaveBeenCalledWith('Click on Material 2');
     });
 
     test('should display future Materials when the \"Show future materials\" is clicked', () => {
@@ -324,7 +324,7 @@ describe('CoursePage with assignments', () => {
         expect(screen.getByTestId('future-material-view')).toBeTruthy();
 
         fireEvent.press(screen.getByTestId('other-touchable'));
-        expect(console.log).toHaveBeenCalledWith('Clic on Material 3');
+        expect(console.log).toHaveBeenCalledWith('Click on Material 3');
     });
 });
 

@@ -17,10 +17,42 @@ import FancyTextInput from '../input/FancyTextInput';
 
 // Icons
 export const icons: { [key: string]: IconType } = {
+    nameIcon: 'text',
+    dateIcon: 'calendar',
+    timeIcon: 'alarm',
+    finishIcon: 'checkmark-circle',
+    deleteIcon: 'trash',
 };
 
 // Tests Tags
 export const testIDs: { [key: string]: string } = {
+    editAssignmentTitle: 'edit-assignment-title',
+    editAssignmentDescription: 'edit-assignment-description',
+    scrollView: 'scroll-view',
+    nameAndTypeView: 'name-and-type-view',
+    nameInput: 'name-input',
+    typeInput: 'type-input',
+    dueDateView: 'due-date-view',
+    dateInput: 'date-input',
+    dateTitle: 'date-title',
+    dateTouchableOpacity: 'date-touchable-opacity',
+    dateIcon: 'date-icon',
+    dateText: 'date-text',
+    timeInput: 'time-input',
+    timeTitle: 'time-title',
+    timeTouchableOpacity: 'time-touchable-opacity',
+    timeIcon: 'time-icon',
+    timeText: 'time-text',
+    datePicker: "dateTimePicker1",
+    timePicker: "dateTimePicker2",
+    submitTouchableOpacity: 'submit-touchable-opacity',
+    submitView: 'submit-view',
+    submitIcon: 'submit-icon',
+    submitText: 'submit-text',
+    deleteTouchableOpacity: 'delete-touchable-opacity',
+    deleteView: 'delete-view',
+    deleteText: 'delete-text',
+    deleteIcon: 'delete-icon',
 };
 
 
@@ -64,8 +96,8 @@ const EditAssignment: ReactComponent<EditAssignmentProps> = ({ assignment, onSub
 
     return (
         <>
-            <TText testID={testIDs.addAssignmentTitle} size={24} bold mb={20} mx='md' pt={20}>{t(`course:add_assignment`)}</TText>
-            <TText testID={testIDs.addAssignmentDescription} mx='md' mb={15}>{t(`course:add_assignment_title`)}</TText>
+            <TText testID={testIDs.editAssignmentTitle} size={24} bold mb={20} mx='md' pt={20}>{t(`course:edit_assignment`)}</TText>
+            <TText testID={testIDs.editAssignmentDescription} mx='md' mb={15}>{t(`course:edit_assignment_title`)}</TText>
 
             <TScrollView testID={testIDs.scrollView}>
 
@@ -79,6 +111,7 @@ const EditAssignment: ReactComponent<EditAssignmentProps> = ({ assignment, onSub
                         label={t(`course:name_label`)}
                         error={name.length > MAX_ASSIGNMENT_NAME_LENGTH ? t(`course:name_too_long`) : name === "" ? t(`course:field_required`) : undefined}
                     />
+
                     <FancyButton
                         testID={testIDs.typeInput}
                         onPress={() => setType(type === 'quiz' ? 'submission' : 'quiz')}
