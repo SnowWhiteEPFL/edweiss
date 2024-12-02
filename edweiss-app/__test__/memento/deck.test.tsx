@@ -33,20 +33,28 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 }));
 // CommonMock.mockAsyncStorage();
 
+const deck1: Memento.Deck = {
+	name: 'Deck 1',
+	cards: []
+}
+
 RepositoryMock.mockRepository<Memento.Deck>([{
 	name: 'Deck 1', cards: []
 }]);
+
+const mockAddDocument = jest.fn();
+
+const mockDeleteDocuments = jest.fn();
+
+jest.mock('@/hooks/repository', () => ({
+	...jest.requireActual('@/hooks/repository'),
+	useRepository: jest.fn(() => [[{ id: '1', data: { name: 'Deck 1', cards: [] } }], { deleteDocuments: mockDeleteDocuments, addDocument: mockAddDocument }]),
+}));
 
 // Mock Firebase functions and firestore
 jest.mock('@/config/firebase', () => ({
 	callFunction: jest.fn(),
 	Collections: { deck: 'decks' }
-}));
-
-jest.mock('@/hooks/firebase/firestore', () => ({
-	useDynamicDocs: jest.fn(() => [
-		{ id: '1', data: { name: 'Deck 1', cards: [] } }
-	])
 }));
 
 // Mock expo-router Stack and Screen
@@ -103,7 +111,16 @@ describe('DeckScreen', () => {
 
 		// Click delete button
 		fireEvent.press(getByText('Delete Selected Deck'));
-		expect(callFunction).toHaveBeenCalledWith(Memento.Functions.deleteDecks, { deckIds: ['1'] });
+		//expect(callFunction).toHaveBeenCalledWith(Memento.Functions.deleteDecks, { deckIds: ['1'] });
+
+		await waitFor(() => {
+			expect(mockDeleteDocuments).toHaveBeenCalledWith(
+				['1'], expect.any(Function)
+			);
+
+			expect(callFunction).not.toHaveBeenCalled();
+		});
+
 	});
 
 	it('allows cancelling selection mode', () => {
@@ -173,21 +190,6 @@ describe('DeckScreen', () => {
 		});
 	});
 
-	it('handles errors when creating a deck', async () => {
-		const { getByPlaceholderText, getByText } = render(<DeckScreen />);
-
-		// Mock an error response for creating a deck
-		(callFunction as jest.Mock).mockRejectedValueOnce(new Error('Network Error'));
-
-		const input = getByPlaceholderText('My amazing deck'); // Change this based on your placeholder
-		fireEvent.changeText(input, 'Unique Deck'); // Set a unique deck name
-		fireEvent.press(getByText('Create Deck')); // Press the button to create the deck
-
-		await waitFor(() => {
-			expect(callFunction).toHaveBeenCalled(); // Ensure callFunction was called
-			// Optionally, you can check for an error message in your UI
-		});
-	});
 });
 
 // Test cases for the DeckDisplay component

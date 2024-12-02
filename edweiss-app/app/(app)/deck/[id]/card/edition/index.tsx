@@ -22,6 +22,7 @@ import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
+import { checkDupplication_EmptyField } from '@/utils/memento/utilsFunctions';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { DecksRepository } from '../../../_layout';
@@ -37,13 +38,13 @@ import { DecksRepository } from '../../../_layout';
  * @returns {ApplicationRoute} Screen to edit a card
  */
 const EditCardScreen: ApplicationRoute = () => {
-
 	const { deckId, prev_question, prev_answer, cardIndex } = useStringParameters();
 	const [question, setQuestion] = useState(prev_question);
 	const [answer, setAnswer] = useState(prev_answer);
 	const [existedQuestion, setExistedQuestion] = useState(false);
 	const [emptyField, setEmptyField] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+
 
 	const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
 
@@ -56,21 +57,13 @@ const EditCardScreen: ApplicationRoute = () => {
 		if (deck == undefined || card == undefined)
 			return;
 
-		const isDuplicate = deck.data.cards.some(card => card.question === new_Question) && new_Question != prev_question;
-		const isEmpty = new_Question.length == 0 || new_Answer.length == 0;
-
-		if (isDuplicate) {
-			setExistedQuestion(true);
-			setIsLoading(false);
-			if (isEmpty) setEmptyField(true);
-			return;  // Prevent creation if a duplicate is found
-		}
-
-		if (isEmpty) {
-			setEmptyField(true);
-			setIsLoading(false);
-			return;
-		}
+		if (checkDupplication_EmptyField(
+			deck.data.cards.some(card => card.question === new_Question) && new_Question != prev_question,
+			new_Question.length == 0 || new_Answer.length == 0,
+			setExistedQuestion,
+			setEmptyField,
+			setIsLoading
+		) == 0) return;
 
 		const newCards = deck.data.cards;
 		newCards[cardIndexInt] = { ...card, question: new_Question, answer: new_Answer };
@@ -90,7 +83,6 @@ const EditCardScreen: ApplicationRoute = () => {
 			<RouteHeader title='Edit card' />
 
 			<TScrollView>
-
 				<TView testID='questionInput' m='md' borderColor='crust' radius='lg'>
 					<FancyTextInput
 						value={question}
@@ -127,11 +119,11 @@ const EditCardScreen: ApplicationRoute = () => {
 				<FancyButton
 					testID='updateCardButton'
 					loading={isLoading}
-					//onPress={() => updateQuestionAnswerCard(deckId as any, cardIndexInt, updateCard, question, answer, card)}
 					onPress={() => {
-						setIsLoading(true)
+						setIsLoading(true);
 						updateCard(question, answer)
-					}}
+					}
+					}
 					backgroundColor='blue' mt={'md'} mb={'sm'} icon='logo-firebase' mx={300}
 				>
 					Done!

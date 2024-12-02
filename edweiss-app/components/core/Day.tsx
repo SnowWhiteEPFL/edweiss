@@ -80,7 +80,7 @@ export const Day = ({
                                 radius={10}
                                 b={2}
                                 backgroundColor={getBackgroundColor(period.type)}
-                                onPress={() => router.push({ pathname, params })}
+                                onPress={() => router.push({ pathname: pathname as any, params })}
                                 style={{ height: periodHeight }}
 
                             >

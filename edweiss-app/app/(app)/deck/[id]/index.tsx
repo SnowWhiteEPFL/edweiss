@@ -17,13 +17,14 @@ import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
-
-import CardScreenComponent from '@/components/memento/CardScreenComponent';
+import { CardListDisplay } from '@/components/memento/CardListDisplayComponent';
+import { DeleteOptionModalDisplay } from '@/components/memento/DeleteDeckModalAction';
+import { CardModalDisplay } from '@/components/memento/ModalDisplay';
 import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
-import { sortingCards } from '@/utils/memento/utilsFunctions';
+import { selectedCardIndices_play, sortingCards } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Redirect, router } from 'expo-router';
 import React, { useRef, useState } from 'react';
@@ -41,13 +42,11 @@ const CardListScreen: ApplicationRoute = () => {
 	const [showDropdown, setShowDropdown] = useState(false); // State for dropdown visibility
 	const [selectedCards, setSelectedCards] = useState<Memento.Card[]>([]);
 	const [selectionMode, setSelectionMode] = useState(false); // Track selection mode
-  const [cardToDisplay, setCardToDisplay] = useState<Memento.Card | undefined>(undefined); // State to hold card to display
+	const [cardToDisplay, setCardToDisplay] = useState<Memento.Card | undefined>(undefined); // State to hold card to display
 	const [isLoading, setIsLoading] = useState(false); // State to track loading status
 	const modalRef_Card_Info = useRef<BottomSheetModal>(null); // Reference for the modal
 	const modalRef_Operation = useRef<BottomSheetModal>(null); // Reference for the modal
-	const [selectedCardIndex, setSelectedCardIndex] = useState<number | null>(null); // State to hold selected card index
-	const modalRef = useRef<BottomSheetModal>(null); // Reference for the modal
-
+	//const decks = useDynamicDocs(Collections.deck);
 
 	if (typeof id != 'string') return <Redirect href={'/'} />;
 
@@ -60,7 +59,7 @@ const CardListScreen: ApplicationRoute = () => {
 
 	// const deck = decks?.find(d => d.id == id);
 
-	const cards = deck.data.cards; // Ensure cards is an array or empty
+	const cards = deck.data.cards;
 
 	const sortedCards = sortingCards(cards);
 
@@ -68,13 +67,11 @@ const CardListScreen: ApplicationRoute = () => {
 	const toggleCardSelection = (card: Memento.Card) => {
 		const index = selectedCards.findIndex(selected => selected.question === card.question);
 		const isAlreadySelected = index !== -1;
-
 		setSelectedCards(prev =>
 			isAlreadySelected
 				? prev.filter(selected => selected.question !== card.question)
 				: [...prev, card]
 		);
-
 		if (isAlreadySelected && selectedCards.length === 1) {
 			setSelectionMode(false); // Exit selection mode when the last card is deselected
 		}
@@ -83,7 +80,6 @@ const CardListScreen: ApplicationRoute = () => {
 	// Delete selected cards
 	const deleteSelectedCards = async () => {
 		if (selectedCards.length === 0) return;
-
 		const selectedCardIndices = selectedCards.map(card => cards.indexOf(card));
 
 		try {
@@ -111,14 +107,12 @@ const CardListScreen: ApplicationRoute = () => {
 	};
 
 	// Delete deck
-
 	async function deleteDeck() {
 		handler.deleteDocument(id, async (id) => {
-			const res = await callFunction(Memento.Functions.deleteDecks, { deckIds: [id] });
-			console.log(`Delete res : ${JSON.stringify(res)}`);
-			router.back();
+			await callFunction(Memento.Functions.deleteDecks, { deckIds: [id] });
+			console.log("Deck deleted with id: ", id);
 		});
-
+		router.back();
 	}
 
 	return (
@@ -165,6 +159,7 @@ const CardListScreen: ApplicationRoute = () => {
 				{sortedCards.map((card) => (
 					<CardListDisplay
 						key={sortedCards.indexOf(card)}
+						deckId={id}
 						card={card}
 						isSelected={selectedCards.some(selected => selected.question === card.question)}
 						toggleSelection={toggleCardSelection}
@@ -176,16 +171,28 @@ const CardListScreen: ApplicationRoute = () => {
 
 			</TScrollView >
 
-			<CardModalDisplay cards={cards} id={id} modalRef={modalRef_Card_Info} card={cardToDisplay} isSelectionMode={selectionMode} />
+			<CardModalDisplay handler={handler} cards={cards} id={id} modalRef={modalRef_Card_Info} card={cardToDisplay} isSelectionMode={selectionMode} />
 
 			{/* Buttons for navigation */}
 			< TView >
-				<FancyButton testID='playButton' icon='play' onPress={() => {
-					setShowDropdown(false);
-					router.push({ pathname: `deck/${id}/playingCards` as any })
-				}}
+				<FancyButton
+					testID='playButton'
+					disabled={cards.length === 0}
+					backgroundColor={cards.length === 0 ? 'red' : 'blue'}
+					icon='play'
+					onPress={() => {
+						const selectedCardIndices = selectedCardIndices_play(selectedCards, cards);
+						cancelCardSelection();
+						router.push({
+							pathname: `deck/${id}/playingCards` as any,
+							params: {
+								indices: JSON.stringify(selectedCardIndices)
+							}
+						})
+					}}
 				>
-					{selectedCards.length == 0 ? "Play all cards" : "Play selected cards"}
+					{cards.length === 0 ? "No cards to play" :
+						selectedCards.length == 0 ? "Play all cards" : "Play selected cards"}
 				</FancyButton>
 
 				<FancyButton

@@ -10,6 +10,7 @@
 
 import { callFunction } from '@/config/firebase';
 import ReactComponent from '@/constants/Component';
+import { RepositoryHandler } from '@/hooks/repository';
 import Memento from '@/model/memento';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { router } from 'expo-router';
@@ -33,12 +34,13 @@ import FancyButton from '../input/FancyButton';
  * @returns {ReactComponent} CardModalDisplay component
  */
 export const CardModalDisplay: ReactComponent<{
+    handler: RepositoryHandler<Memento.Deck>;
     cards: Memento.Card[];
     id: string,
     modalRef: React.RefObject<BottomSheetModalMethods>;
     card: Memento.Card | undefined;
     isSelectionMode: boolean;
-}> = ({ cards, id, modalRef, card, isSelectionMode }) => {
+}> = ({ handler, cards, id, modalRef, card, isSelectionMode }) => {
 
     const [isAnswerVisible, setIsAnswerVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -57,12 +59,12 @@ export const CardModalDisplay: ReactComponent<{
     async function deleteCard() {
         if (absolute_index == null) return;
 
-        const res = await callFunction(Memento.Functions.deleteCards, { deckId: id, cardIndices: [absolute_index] });
-        if (res.status == 1) {
-            console.log(`Card deleted with id ${res.data.id}`);
+        handler.modifyDocument(id, { cards: cards.filter((_, index) => index !== absolute_index) }, (deckId) => {
+            callFunction(Memento.Functions.deleteCards, { deckId: id, cardIndices: [absolute_index] });
+            console.log(`Card deleted with index ${absolute_index}`);
             setIsLoading(false);
-            modalRef.current?.dismiss()
-        }
+            modalRef.current?.dismiss();
+        });
 
     }
 

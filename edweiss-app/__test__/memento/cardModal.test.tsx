@@ -10,6 +10,7 @@
 
 import { CardModalDisplay } from '@/components/memento/ModalDisplay';
 import { callFunction } from '@/config/firebase';
+import { RepositoryHandler } from '@/hooks/repository';
 import Memento from '@/model/memento';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { fireEvent, render } from '@testing-library/react-native';
@@ -82,13 +83,34 @@ jest.mock('@gorhom/bottom-sheet', () => ({
 describe('CardModal', () => {
     const modalRef = React.createRef<BottomSheetModal>();
 
+    const mockHandler: RepositoryHandler<Memento.Deck> = {
+        modifyDocument: jest.fn((id, data, syncCallback) => {
+            if (syncCallback) {
+                syncCallback(id);
+            }
+        }),
+        deleteDocument: jest.fn((id, syncCallback) => {
+            if (syncCallback) {
+                syncCallback(id);
+            }
+        }),
+        addDocument: jest.fn(),
+        deleteDocuments: jest.fn(),
+    };
+
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+
     it('renders correctly', () => {
-        const { getByText } = render(<CardModalDisplay cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
+        const { getByText } = render(<CardModalDisplay handler={mockHandler} cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
         expect(getByText('Card details')).toBeTruthy();
     });
 
     it('toggle answer visibility', () => {
-        const { getByText } = render(<CardModalDisplay cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
+        const { getByText } = render(<CardModalDisplay handler={mockHandler} cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
         const toggleButton = getByText('Click to reveal the answer');
         expect(toggleButton).toBeTruthy();
 
@@ -97,7 +119,7 @@ describe('CardModal', () => {
     });
 
     it('delete card', () => {
-        const { getByTestId } = render(<CardModalDisplay cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
+        const { getByTestId } = render(<CardModalDisplay handler={mockHandler} cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
         const deleteButton = getByTestId('delete-card');
         expect(deleteButton).toBeTruthy();
 
@@ -108,7 +130,7 @@ describe('CardModal', () => {
     });
 
     it('edit card', () => {
-        const { getByTestId } = render(<CardModalDisplay cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
+        const { getByTestId } = render(<CardModalDisplay handler={mockHandler} cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
         const editButton = getByTestId('edit-card');
         expect(editButton).toBeTruthy();
 

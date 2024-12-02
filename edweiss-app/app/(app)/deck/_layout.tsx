@@ -1,6 +1,6 @@
 import { CollectionOf } from '@/config/firebase';
 import { ApplicationLayout } from '@/constants/Component';
-import { RepositoryLayout, createRepository } from '@/hooks/repository';
+import { createRepository, RepositoryLayout } from '@/hooks/repository';
 import Memento from '@/model/memento';
 
 export const DecksRepository = createRepository<Memento.Deck>("my-decks");

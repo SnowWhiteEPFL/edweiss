@@ -22,6 +22,7 @@ import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
+import { checkDupplication_EmptyField } from '@/utils/memento/utilsFunctions';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { DecksRepository } from '../../../_layout';
@@ -37,89 +38,58 @@ import { DecksRepository } from '../../../_layout';
  * @returns {ApplicationRoute} Screen to create a card
  */
 const CreateCardScreen: ApplicationRoute = () => {
-        /*
-    const { deckId } = useLocalSearchParams();
+    const { deckId } = useStringParameters();
     const [question, setQuestion] = useState("");
     const [answer, setAnswer] = useState("");
     const [existedQuestion, setExistedQuestion] = useState(false);
     const [emptyField, setEmptyField] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-        */
-	const { deckId } = useStringParameters();
-	const [question, setQuestion] = useState("");
-	const [answer, setAnswer] = useState("");
-	const [existedQuestion, setExistedQuestion] = useState(false);
 
-	// const deck = useDoc(Collections.deck, deckId);
+    // const deck = useDoc(Collections.deck, deckId);
 
-	const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
+    const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
 
-/*
-        const isDuplicate = deck?.data.cards.some(card => card.question === question);
-        const isEmpty = question.length == 0 || answer.length == 0;
-        if (isDuplicate) {
-            setExistedQuestion(true);
-            setIsLoading(false);
-            if (isEmpty) setEmptyField(true);
+    // Create a new card
+    async function createCard() {
+        if (!deck) return
 
-            return;  // Prevent creation if a duplicate is found
-        }
-
-        if (isEmpty) {
-            setEmptyField(true);
-            setIsLoading(false);
+        if (checkDupplication_EmptyField(
+            deck.data.cards.some(card => card.question === question),
+            question.length == 0 || answer.length == 0,
+            setExistedQuestion,
+            setEmptyField,
+            setIsLoading
+        ) == 0) {
             return;
         }
 
-        const res = await callFunction(Memento.Functions.createCard, {
-            deckId: deckId,
-            card: {
-                question: question,
-                answer: answer,
-                learning_status: "Not yet",
-            }
-  */
-	// if (!deck)
-	// 	return <Redirect href={'/'} />;
+        const card: Memento.Card = {
+            question: question,
+            answer: answer,
+            learning_status: "Not yet",
+        };
 
-	// Create a new card
-	async function createCard() {
+        const previousCards = deck?.data.cards ?? [];
 
-		if (question.length == 0 || answer.length == 0 || existedQuestion)
-			return;
+        handler.modifyDocument(deckId, { cards: [...previousCards, card] }, () => {
+            callFunction(Memento.Functions.createCard, {
+                deckId: deckId,
+                card: card
+            });
+        });
 
-		const isDuplicate = deck?.data.cards.some(card => card.question === question);
-		if (isDuplicate) {
-			setExistedQuestion(true);
-			return;  // Prevent creation if a duplicate is found
-		}
-		const card: Memento.Card = {
-			question: question,
-			answer: answer,
-			learning_status: "Not yet",
-		};
+        // if (res.status == 1) {
+        // 	console.log(`OKAY, card created with id ${res.data.id}`);
+        // }
 
-		const previousCards = deck?.data.cards ?? [];
+        router.back();
+    }
 
-		handler.modifyDocument(deckId, { cards: [...previousCards, card] }, () => {
-			callFunction(Memento.Functions.createCard, {
-				deckId: deckId,
-				card
-			});
-		});
+    return (
+        <>
+            <RouteHeader title='Create a card' />
 
-		// if (res.status == 1) {
-		// 	console.log(`OKAY, card created with id ${res.data.id}`);
-		// }
-
-		router.back();
-	}
-
-	return (
-		<>
-			<RouteHeader title='Create a card' />
-
-			<TScrollView>
+            <TScrollView>
                 <TView m='md' borderColor='crust' radius='lg'>
                     <FancyTextInput
                         value={question}
