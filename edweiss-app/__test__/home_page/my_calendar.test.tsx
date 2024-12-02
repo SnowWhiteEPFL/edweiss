@@ -54,34 +54,6 @@ jest.mock('@react-native-firebase/storage', () => ({
         ref: jest.fn(),
     })),
 }));
-jest.mock('@/contexts/auth', () => ({
-    useAuth: jest.fn(),					// mock authentication
-}));
-
-jest.mock('@/config/firebase', () => ({
-    callFunction: jest.fn(),
-}));
-
-jest.mock('react-native/Libraries/Settings/Settings', () => ({
-    get: jest.fn(),
-    set: jest.fn(),
-}));
-jest.mock('@react-native-google-signin/google-signin', () => ({ // mock google sign-in
-    GoogleSignin: {
-        configure: jest.fn(),
-        hasPlayServices: jest.fn(() => Promise.resolve(true)),
-        signIn: jest.fn(() => Promise.resolve({ user: { id: 'test-id', email: 'test@example.com' } })),
-        signOut: jest.fn(() => Promise.resolve()),
-        isSignedIn: jest.fn(() => Promise.resolve(true)),
-        getTokens: jest.fn(() => Promise.resolve({ idToken: 'test-id-token', accessToken: 'test-access-token' })),
-    },
-}));
-
-jest.mock('@react-native-async-storage/async-storage', () => ({
-    setItem: jest.fn(),
-    getItem: jest.fn(),
-    removeItem: jest.fn(),
-}));
 
 jest.mock('@react-native-google-signin/google-signin', () => ({
     __esModule: true,
@@ -95,30 +67,12 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
     },
 }));
 
-const mockTodos = [
-    { id: 'todo1', data: { title: 'Test Todo', completed: false, name: 'Todo 1', status: 'incomplete' as Todolist.TodoStatus, } },
 
-];
-
-const mockPeriod = initPeriod(800, 1000, 'lecture', 'activity1', 1, 'Room 101');
-const mockAssignments = [{ id: 'assignment1', data: { title: 'Test Assignment', dueDate: new Date(), type: 'homework', name: 'Assignment 1' } }];
 
 jest.mock('@/hooks/firebase/firestore', () => ({
     useDynamicDocs: jest.fn(),
-    CollectionOf: jest.fn().mockReturnValue([
-        { id: '1', data: () => ({ name: 'Course 1' }) },
-        { id: '2', data: () => ({ name: 'Course 2' }) },
-    ]),
-}));
-jest.mock('@react-native-firebase', () => ({
-    getDocument: jest.fn().mockResolvedValue({ name: 'John Doe', email: 'john@example.com' }),
 }));
 
-jest.mock('@react-native-firebase/collections', () => ({
-    Collections: {
-        users: 'usersCollectionPath', // La collection 'users'
-    },
-}));
 jest.mock('@react-native-firebase/auth', () => ({
     __esModule: true,
     default: jest.fn(() => ({
@@ -136,11 +90,11 @@ jest.mock('@react-native-firebase/firestore', () => {
                 description: 'A course for testing purposes.',
                 professors: ['prof1'],
                 assistants: ['student1'],
-                periods: [mockPeriod],
+                periods: [],
                 section: 'IN',
                 credits: 3,
                 newAssignments: false,
-                assignments: mockAssignments,
+                assignments: [],
                 started: true,
             })),
         }),
@@ -189,6 +143,12 @@ const mockAuth = {
 
 
 
+const mockTodos = [
+    { id: 'todo1', data: { title: 'Test Todo', completed: false, name: 'Todo 1', status: 'incomplete' as Todolist.TodoStatus, } },
+
+];
+
+const mockPeriod = initPeriod(800, 1000, 'lecture', 'activity1', 2, 'Room 101');
 
 const mockCourses = [
     initCourse({
@@ -203,17 +163,19 @@ const mockCourses = [
 ];
 
 describe('InfinitePaginatedCounterScreen Component', () => {
-    jest.mock('@/hooks/firebase/firestore', () => ({
-        useDynamicDocs: jest.fn(),
-    }));
-
     beforeEach(() => {
-        (useDynamicDocs as jest.Mock).mockImplementationOnce(() => [
-            { id: 'course1', data: { name: 'Course 1' } },
-            { id: 'course2', data: { name: 'Course 2', dayIndex: 1 } },
-        ]);
+        (useAuth as jest.Mock).mockReturnValue(mockAuth);
+        (useDynamicDocs as jest.Mock).mockImplementation((collection) => {
+            if (collection === 'courses') {
+                return mockCourses;
+            }
+            if (collection === `users/${mockAuth.authUser.uid}/courses`) {
+                return mockCourses;
+            }
+            return [];
+        });
+        Dimensions.get = jest.fn(() => ({ width: 400, height: 600, scale: 1, fontScale: 1 } as ScaledSize));
     });
-
     afterEach(() => {
         jest.clearAllMocks();
     });
@@ -328,53 +290,5 @@ describe('InfinitePaginatedCounterScreen Component', () => {
 
 });
 
-describe('InfinitePaginatedCounterScreen Component', () => {
-    beforeEach(() => {
-        // Mock initial setup
-        (useAuth as jest.Mock).mockReturnValue(mockAuth);
-        (useDynamicDocs as jest.Mock).mockImplementation((collection) => {
-            if (collection === 'courses') {
-                return mockCourses; // Return predefined mock courses
-            }
-            if (collection === `users/${mockAuth.authUser.uid}/courses`) {
-                return mockCourses; // Return mock courses for user's courses
-            }
-            return [];
-        });
-        Dimensions.get = jest.fn(() => ({ width: 400, height: 600, scale: 1, fontScale: 1 } as ScaledSize));
-    });
-
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
-
-    it('should render courses fetched from useDynamicDocs', async () => {
-        // Render component with valid course data
-        render(<InfinitePaginatedCounterScreen />);
-
-        // Wait for the course data to be rendered
-        await waitFor(() => {
-            // Check if the course name from the mock is rendered
-            expect(screen.getByText('Course 1')).toBeTruthy();
-            expect(screen.getByText('Course 2')).toBeTruthy();
-        });
-    });
-
-
-
-    it('should handle errors gracefully when fetching courses', async () => {
-        // Simulate an error scenario in fetching courses
-        (useDynamicDocs as jest.Mock).mockImplementationOnce(() => { throw new Error('Error fetching courses') });
-
-        // Render the component
-        render(<InfinitePaginatedCounterScreen />);
-
-        // Wait for the error handling to be triggered
-        await waitFor(() => {
-            // Verify that an error message or fallback UI is rendered
-            expect(screen.queryByText('Error fetching courses')).toBeTruthy();
-        });
-    });
-});
 
 

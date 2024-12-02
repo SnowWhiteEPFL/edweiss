@@ -7,11 +7,15 @@ import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { Course } from '@/model/school/courses';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, Dimensions, FlatList, ScaledSize, View } from 'react-native';
-export type CourseWithId = Course & { id: string };
 
-const useWindowDimensions = () => {
+const InfinitePaginatedCounterScreen = () => {
+  const auth = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [pages, setPages] = useState(Array.from({ length: 10 }, (_, index) => index - 3));
+  const scrollRef = useRef<FlatList>(null);
   const [dimensions, setDimensions] = useState(() => Dimensions.get('window'));
 
+  // Gestion des dimensions avec un abonnement global
   useEffect(() => {
     const handleResize = ({ window }: { window: ScaledSize }) =>
       setDimensions(window);
@@ -20,28 +24,20 @@ const useWindowDimensions = () => {
     return () => subscription?.remove();
   }, []);
 
-  return dimensions;
-};
-
-const useCourseData = (authUserId: string) => {
-  const courses: CourseWithId[] = useDynamicDocs(CollectionOf('courses'))?.map(doc => ({ ...doc.data as unknown as Course, id: doc.id })) ?? [];
-
-
+  // Chargement des données des cours
   const myCourses = useDynamicDocs(
-    CollectionOf(`users/${authUserId}/courses`)
+    CollectionOf(`users/${auth.authUser?.uid ?? 'default-uid'}/courses`)
   )?.map((doc) => ({ id: doc.id, data: doc.data })) ?? [];
 
-  const myCourseIds = myCourses.map((course) => course.id);
-  const filteredCourses = courses.filter((course) => myCourseIds.includes(course.id));
+  const courses = useDynamicDocs(CollectionOf('courses'))?.map((doc) => ({
+    id: doc.id,
+    data: doc.data as unknown as Course,
+  })) ?? [];
 
-  return { courses, filteredCourses };
-};
-
-const useAssignmentsAndTodos = (authUserId: string, courses: Course[]) => {
-  const [loading, setLoading] = useState(true);
+  // Gestion des tâches et des devoirs par cours
   const [assignmentsByCourse, setAssignmentsByCourse] = useState<{ [key: string]: any[] }>({});
   const [todoByCourse, setTodoByCourse] = useState<{ [key: string]: any[] }>({});
-
+  const { width, height } = dimensions;
   useEffect(() => {
     const fetchData = async () => {
       if (courses.length === 0) return;
@@ -53,7 +49,7 @@ const useAssignmentsAndTodos = (authUserId: string, courses: Course[]) => {
         await Promise.all(
           courses.map(async (course) => {
             const assignmentsRef = CollectionOf(`courses/${course.id}/assignments`);
-            const todoRef = CollectionOf(`users/${authUserId}/todos`);
+            const todoRef = CollectionOf(`users/${auth.authUser?.uid ?? 'default-uid'}/todos`);
 
             const [assignmentsSnapshot, todoSnapshot] = await Promise.all([
               assignmentsRef.get(),
@@ -74,47 +70,33 @@ const useAssignmentsAndTodos = (authUserId: string, courses: Course[]) => {
     };
 
     fetchData();
-  }, [authUserId, courses]);
+  }, [courses]);
 
-  return { loading, assignmentsByCourse, todoByCourse };
-};
-
-const InfinitePaginatedCounterScreen = () => {
-  const auth = useAuth();
-  const dimensions = useWindowDimensions();
-  const { width, height } = dimensions;
-
-  const { courses, filteredCourses } = useCourseData(auth.authUser?.uid ?? 'default-uid');
-  const { loading, assignmentsByCourse, todoByCourse } = useAssignmentsAndTodos(
-    auth.authUser?.uid ?? 'default-uid',
-    courses
-  );
-
-  const [pages, setPages] = useState(Array.from({ length: 10 }, (_, index) => index - 3));
-  const scrollRef = useRef<FlatList>(null);
-
-  const todos = filteredCourses.flatMap((course) =>
-    (todoByCourse[course.id] || []).map((todo) => ({ id: course.id, data: todo }))
-  );
-
-  const assignments = filteredCourses.flatMap((course) =>
-    (assignmentsByCourse[course.id] || []).map((assignment) => ({
-      id: course.id,
-      data: assignment,
-    }))
-  );
-
+  const myCourseIds = myCourses.map((course) => course.id);
+  const filteredCourses = courses.filter((course) => myCourseIds.includes(course.id));
+  const todos = filteredCourses.flatMap((course) => (todoByCourse[course.id] || []).map((todo) => ({
+    id: course.id,
+    data: todo,
+  })))
+  const assignments = filteredCourses.flatMap((course) => (assignmentsByCourse[course.id] || []).map((assignment) => ({
+    id: course.id,
+    data: assignment,
+  })))
+  // Ajout de nouvelles pages pour le défilement infini
   const loadMorePages = () => {
     setPages((prevPages) => [...prevPages, prevPages[prevPages.length - 1] + 1]);
   };
 
+  // Calcul de la date avec un décalage
   const getDateWithOffset = (offset: number): Date => {
     const date = new Date();
     date.setDate(date.getDate() + offset);
     return date;
   };
 
+  // Rendu des items de la liste
   const renderItem = ({ item }: { item: number }) => {
+
     const adjustedItem = width > height ? item * 7 : item; // Mode paysage ou portrait
     const currentDate = getDateWithOffset(adjustedItem);
 
@@ -128,12 +110,11 @@ const InfinitePaginatedCounterScreen = () => {
         ) : (
           <Animated.View style={{ height }}>
             <Calendar
-              courses={filteredCourses.map(course => ({ id: course.id, data: course }))}
+              courses={filteredCourses}
               assignments={assignments}
               todos={todos}
               date={currentDate}
-              type={undefined}
-            />
+              type={undefined} />
           </Animated.View>
         )}
       </View>
