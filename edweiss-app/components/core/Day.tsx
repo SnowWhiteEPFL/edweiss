@@ -140,6 +140,7 @@ export const Day = ({
 
     return (
         <>
+
             {/* Appel de la fonction renderPeriods avec le tableau de données pré-calculé */}
             {renderPeriods({
                 periodData,
@@ -147,6 +148,7 @@ export const Day = ({
                 user,
                 courseItem: periodData[0]?.courseItem
             })}
+
 
 
             <RenderList title="Assignments Due Today:" items={assignments} color="red" itemKey="assignment" />

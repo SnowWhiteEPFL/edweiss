@@ -20,10 +20,11 @@ import { ActivityIndicator } from 'react-native';
 
 const TempQuizStudentViewPage: ApplicationRoute = () => {
 
-    const { quizId, path, courseId } = useLocalSearchParams();
-    const pathToAttempts = path + "/" + quizId + "/attempts";
+    const { quizId, courseId } = useLocalSearchParams();
+    const pathToAssignments = "courses/" + courseId + "/assignments"
+    const pathToAttempts = pathToAssignments + "/" + quizId + "/attempts";
     const { uid } = useAuth();
-    const [quiz, loading] = usePrefetchedDynamicDoc(CollectionOf<Quizzes.Quiz>(path as string), quizId as string, undefined);
+    const [quiz, loading] = usePrefetchedDynamicDoc(CollectionOf<Quizzes.Quiz>(pathToAssignments as string), quizId as string, undefined);
     const previousAttempt = useDoc(CollectionOf<QuizzesAttempts.QuizAttempt>(pathToAttempts), uid);
     const [studentAnswers, setStudentAnswers] = useState<QuizzesAttempts.Answer[]>([]);
 

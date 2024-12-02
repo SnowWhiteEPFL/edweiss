@@ -10,7 +10,6 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
-import For from '@/components/core/For';
 import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
@@ -58,23 +57,13 @@ const DeckScreen: ApplicationRoute = () => {
 			return;  // Prevent creation if a duplicate is found
 		}
 
-		try {
-			const deck = {
-				name: deckName,
-				cards: []
-			}
-			handler.addDocument(deck, callFunction(Memento.Functions.createDeck, { deck }));
-			setDeckName(""); // Clear the input field after successful creation
-
-			// const res = await callFunction(Memento.Functions.createDeck, { deck });
-
-			// if (res.status === 1) {
-			// 	console.log(`OKAY, deck created with id ${res.data.id}`);
-			// }
-		} catch (error) {
-			console.error("Failed to create deck:", error);
-			// Optionally, set an error state to inform the user
+		const deck = {
+			name: deckName,
+			cards: []
 		}
+		handler.addDocument(deck, callFunction(Memento.Functions.createDeck, { deck }));
+		setDeckName(""); // Clear the input field after successful creation
+
 	}
 
 	// Toggle deck selection
@@ -99,14 +88,11 @@ const DeckScreen: ApplicationRoute = () => {
 
 		const deckIds = selectedDecks.map(deck => decks?.filter(d => d.data.name === deck.name)[0].id) as string[];
 
+		/*
 		if (deckIds == undefined)
-			return;
+			return;*/
 
-		handler.deleteDocuments(deckIds, (ids) => {
-			callFunction(Memento.Functions.deleteDecks, {
-				deckIds: ids
-			});
-		});
+		handler.deleteDocuments(deckIds, (ids) => { callFunction(Memento.Functions.deleteDecks, { deckIds: ids }) });
 
 		// await callFunction(Memento.Functions.deleteDecks, {
 		// 	deckIds: deckIds
@@ -169,18 +155,17 @@ const DeckScreen: ApplicationRoute = () => {
 					</TView>
 				)}
 
-				<For each={decks}>
-					{deck =>
-						<DeckDisplay
-							key={deck.id}
-							deck={deck.data}
-							id={deck.id}
-							isSelected={selectedDecks.some(selected => selected.name === deck.data.name)}
-							toggleSelection={toggleDeckSelection}
-							onLongPress={enterSelectionMode}
-							selectionMode={selectionMode}
-						/>}
-				</For>
+				{decks?.map((deck) => (
+					<DeckDisplay
+						key={deck.id}
+						deck={deck.data}
+						id={deck.id}
+						isSelected={selectedDecks.some(selected => selected.name === deck.data.name)}
+						toggleSelection={toggleDeckSelection}
+						onLongPress={enterSelectionMode}
+						selectionMode={selectionMode}
+					/>)
+				)}
 			</TScrollView>
 		</>
 	);
