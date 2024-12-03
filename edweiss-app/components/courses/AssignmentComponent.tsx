@@ -118,7 +118,7 @@ const AssignmentComponent: ReactComponent<EditAssignmentProps> = ({ mode, onSubm
                 {mode == 'add' ? t(`course:add_assignment`) : mode == 'edit' ? t(`course:edit_assignment`) : undefined}
             </TText>
             <TText
-                testID={testIDs.editAssignmentDescription}
+                testID={mode == 'add' ? testIDs.addAssignmentDescription : mode == 'edit' ? testIDs.editAssignmentDescription : undefined}
                 mx='md' mb={15}
             >
                 {mode == 'add' ? t(`course:add_assignment_title`) : mode == 'edit' ? t(`course:edit_assignment_title`) : undefined}
