@@ -32,7 +32,7 @@ export const testIDs = {
 };
 
 export const ArchiveRouteSignature: ApplicationRouteSignature<{
-    id: string,
+    courseId: string,
     assignments: { id: string, data: AssignmentWithColor }[]
 }> = {
     path: `/courses/[id]/archive`
@@ -49,7 +49,7 @@ export const ArchiveRouteSignature: ApplicationRouteSignature<{
  */
 const ArchiveScreen: ApplicationRoute = () => {
 
-    const { id, assignments } = useRouteParameters(ArchiveRouteSignature);
+    const { courseId, assignments } = useRouteParameters(ArchiveRouteSignature);
 
     return (
         <>
@@ -68,7 +68,7 @@ const ArchiveScreen: ApplicationRoute = () => {
 
                 {assignments.length > 0 ?
                     assignments.map((assignment) => (
-                        <AssignmentDisplay item={assignment.data} id={assignment.id} courseID={id} index={assignments.indexOf(assignment)} isSwipeable={false} key={assignment.data.name} />
+                        <AssignmentDisplay item={assignment.data} id={assignment.id} courseID={courseId} index={assignments.indexOf(assignment)} isSwipeable={false} key={assignment.data.name} />
                     ))
                     : <TView flex={1} testID={testIDs.noArchive}><TText size={16}>{t('course:no_past_assignment')}</TText></TView>
                 }

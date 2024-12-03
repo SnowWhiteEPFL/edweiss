@@ -443,27 +443,29 @@ describe('Navigate to PreviousPage', () => {
         expect(pushSpy).toHaveBeenCalledWith({
             pathname: '/courses/[id]/archive',
             params: {
-                id: 'course-id-123',  // Vérifie que l'ID est bien celui du cours
-                rawAssignments: JSON.stringify([
-                    {
-                        id: "2",
-                        data: {
-                            name: "Assignment 2",
-                            type: "quiz",
-                            dueDate: { seconds: 86400, nanoseconds: 0 }, // Adding 86400 seconds (1 day) to the timestamp
-                            color: "darkNight"
-                        }
-                    },
-                    {
-                        id: "1",
-                        data: {
-                            name: "Assignment 1",
-                            type: "quiz",
-                            dueDate: { seconds: 0, nanoseconds: 0 },
-                            color: "darkNight"
-                        }
-                    },
-                ]),
+                params: JSON.stringify({
+                    courseId: 'course-id-123',  // Vérifie que l'ID est bien celui du cours
+                    assignments: [
+                        {
+                            id: "2",
+                            data: {
+                                name: "Assignment 2",
+                                type: "quiz",
+                                dueDate: { seconds: 86400, nanoseconds: 0 }, // Adding 86400 seconds (1 day) to the timestamp
+                                color: "darkNight"
+                            }
+                        },
+                        {
+                            id: "1",
+                            data: {
+                                name: "Assignment 1",
+                                type: "quiz",
+                                dueDate: { seconds: 0, nanoseconds: 0 },
+                                color: "darkNight"
+                            }
+                        },
+                    ],
+                })
             },
         });
 

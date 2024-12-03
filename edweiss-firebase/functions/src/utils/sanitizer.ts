@@ -302,6 +302,13 @@ export namespace Predicate {
 	};
 
 	/**
+	 * @returns `true` if it's a string and it's empty (`length == 0`).
+	 */
+	export function isBetweenLength(min: number, max: number): Predicate<string> {
+		return (x: string) => typeof x == "string" && x.length >= min && x.length <= max;
+	}
+
+	/**
 	 * @returns A predicate that returns `true` if the number is more than the `threshold` (`x > threshold`).
 	 */
 	export function isMore(threshold: number): Predicate<number> {

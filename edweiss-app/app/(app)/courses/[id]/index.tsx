@@ -87,7 +87,6 @@ const CoursePage: ApplicationRoute = () => {
 
 	// Get user id
 	const uid = useAuth().authUser?.uid;
-
 	// Retrieve course data from Firestore
 	const result = usePrefetchedDynamicDoc(
 		CollectionOf<Course>('courses'),
@@ -106,7 +105,7 @@ const CoursePage: ApplicationRoute = () => {
 	) || [];
 
 	// Sort assignments by due date and add color based on time difference
-	const assignments = assignmentsCollection
+	const assignments: { id: string, data: AssignmentWithColor }[] = assignmentsCollection
 		.sort((a, b) => a.data.dueDate.seconds - b.data.dueDate.seconds) // Seconds comparison
 		.map((assignment) => {
 			const currentTime = new Date().getTime(); // Actual time in milliseconds
@@ -208,7 +207,6 @@ const CoursePage: ApplicationRoute = () => {
 			</TTouchableOpacity>
 		);
 	}, []);
-
 	//Checks
 	if (!isValidId) { return <Redirect href={'/'} />; }
 	if (course == undefined || assignmentsCollection == undefined || materialCollection == undefined) { return <TActivityIndicator size={40} />; }
@@ -241,12 +239,12 @@ const CoursePage: ApplicationRoute = () => {
 					each={upcomingAssignments && upcomingAssignments.length > 0 ? upcomingAssignments : undefined}
 					fallback={<TText size={16} testID={testIDs.noAssignmentDue}>{t('course:no_assignment_due')}</TText>}
 				>{(assignment, index) => (
-					<AssignmentDisplay item={assignment.data as AssignmentWithColor} id={assignment.id} courseID={id} index={index} isSwipeable key={assignment.data.name} />
+					<AssignmentDisplay item={assignment.data} id={assignment.id} courseID={id} index={index} isSwipeable key={assignment.data.name} />
 				)}
 				</For>
 
 				{/* Bouton vers les Passed Assignments */}
-				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} alignItems='center' onPress={() => pushWithParameters(ArchiveRouteSignature, { id: course.id, assignments: previousAssignments })}>
+				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} alignItems='center' onPress={() => pushWithParameters(ArchiveRouteSignature, { courseId: course.id, assignments: previousAssignments })}>
 					<TView flexDirection='row' mt={8} mb={16} >
 						<Icon
 							testID={testIDs.previousAssignmentsIcon}
@@ -278,15 +276,15 @@ const CoursePage: ApplicationRoute = () => {
 				</TTouchableOpacity>
 
 				{showFutureMaterials && (futureMaterials.map((material, index) => (
-					<TView testID={testIDs.futureMaterialView} key={index}>
+					<TView testID={testIDs.futureMaterialView} key={material.id}>
 						<MaterialDisplay item={material.data} />
 						<TView bb={1} mx={20} mb={12} borderColor='overlay0' />
 					</TView>
 				)))}
 
-				{currentMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={index} />))}
+				{currentMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={material.id} />))}
 
-				{passedMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={index} />))}
+				{passedMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={material.id} />))}
 
 				<TView mb={30} />
 
