@@ -16,9 +16,19 @@ jest.mock('expo-router', () => ({
 const mockCourses = [
     initCourse({
         id: 'course1',
-        name: 'Course 1',
-        description: 'Course 1 description',
-        periods: [initPeriod(540, 600, 'lecture', 'view', 0, 'Room 101')]
+        data: {
+            name: 'Course 1',
+            description: 'Course 1 description',
+            periods: [initPeriod(540, 600, 'lecture', 'view', 0, 'Room 101')],
+            id: '',
+            professors: [],
+            assistants: [],
+            credits: 0,
+            section: 'IN',
+            assignments: [],
+            newAssignments: false,
+            started: false
+        }
     })
 ];
 
