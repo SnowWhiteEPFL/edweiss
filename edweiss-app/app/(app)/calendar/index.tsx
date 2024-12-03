@@ -44,7 +44,7 @@ const useAssignmentsAndTodos = (authUserId: string, courses: Course[]) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if ((courses as unknown as CourseWithId[]).length === 0) return;
+      if (courses.length === 0) return;
 
       try {
         const assignmentsData: { [key: string]: any[] } = {};
@@ -52,7 +52,7 @@ const useAssignmentsAndTodos = (authUserId: string, courses: Course[]) => {
 
         await Promise.all(
           courses.map(async (course) => {
-            const assignmentsRef = CollectionOf(`courses/${(courses as unknown as CourseWithId).id}/assignments`);
+            const assignmentsRef = CollectionOf(`courses/${course.id}/assignments`);
             const todoRef = CollectionOf(`users/${authUserId}/todos`);
 
             const [assignmentsSnapshot, todoSnapshot] = await Promise.all([
@@ -60,8 +60,8 @@ const useAssignmentsAndTodos = (authUserId: string, courses: Course[]) => {
               todoRef.get(),
             ]);
 
-            assignmentsData[(courses as unknown as CourseWithId).id] = assignmentsSnapshot.docs.map((doc) => doc.data());
-            todoData[(courses as unknown as CourseWithId).id] = todoSnapshot.docs.map((doc) => doc.data());
+            assignmentsData[course.id] = assignmentsSnapshot.docs.map((doc) => doc.data());
+            todoData[course.id] = todoSnapshot.docs.map((doc) => doc.data());
           })
         );
 

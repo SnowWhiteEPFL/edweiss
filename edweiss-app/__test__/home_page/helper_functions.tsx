@@ -1,7 +1,5 @@
 import { AssignmentBase, CourseTimePeriod, Section } from '@/model/school/courses';
 import { CourseTimePeriodType } from '@/model/school/schedule';
-import { ProfessorID, StudentID } from '@/model/users';
-
 
 // Helper functions to initialize mock objects
 export const initPeriod = (
@@ -23,40 +21,45 @@ export const initPeriod = (
 // Parameters for initializing a course
 export interface InitCourseParams {
     id: string;
-    data: {
-        id: string;
-        name: string;
-        periods: CourseTimePeriod[];
-        professors: ProfessorID[];
-        assistants: StudentID[];
-        credits: number;
-        section: Section;
-        description: string;
-        assignments: AssignmentBase[];
-        newAssignments: boolean;
-        started: boolean;
-    }
+    name: string;
+    periods?: CourseTimePeriod[];
+    professors?: string[];
+    assistants?: string[];
+    credits?: number;
+    section?: Section;
+    description?: string;
+    assignments?: AssignmentBase[];
+    newAssignments?: boolean;
+    started?: boolean;
 }
 
 // Default values for optional parameters
 const defaultCourseDescription = 'Default course description';
 
-export const initCourse = (params: InitCourseParams) => {
-    const { id, data } = params;
-    const { name, periods, professors, assistants, description = defaultCourseDescription, section, credits, assignments, newAssignments, started } = data;
-    return {
-        id,
-        data: {
-            name,
-            periods,
-            professors,
-            assistants,
-            description,
-            section,
-            credits,
-            assignments,
-            newAssignments,
-            started,
-        },
-    };
-};
+export const initCourse = ({
+    id,
+    name,
+    periods = [],
+    professors = ['Default Professor'],
+    assistants = ['Default Assistant'],
+    description = defaultCourseDescription,
+    section = 'IN',
+    credits = 3,
+    assignments = [],
+    newAssignments = false,
+    started = true,
+}: InitCourseParams) => ({
+    id,
+    data: {
+        name,
+        periods,
+        professors,
+        assistants,
+        description,
+        section,
+        credits,
+        assignments,
+        newAssignments,
+        started,
+    },
+});
