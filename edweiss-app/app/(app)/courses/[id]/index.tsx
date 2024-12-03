@@ -24,11 +24,10 @@ import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import AddAssignment from '@/components/courses/AddAssignment';
-import AddMaterial from '@/components/courses/AddMaterial';
 import AssignmentDisplay from '@/components/courses/AssignmentDisplay';
 import CourseParameters from '@/components/courses/CourseParameters';
 import EditAssignment from '@/components/courses/EditAssignment';
-import EditMaterial from '@/components/courses/EditMaterial';
+import MaterialComponent from '@/components/courses/MaterialComponent';
 import MaterialDisplay from '@/components/courses/MaterialDisplay';
 import SelectActions from '@/components/courses/SelectActionsCourse';
 import { CollectionOf } from '@/config/firebase';
@@ -238,8 +237,10 @@ const CoursePage: ApplicationRoute = () => {
 		setModalEditAssignmentVisible(false);
 	}, [id]);
 
-	const updateMaterialCallback = useCallback((materialID: MaterialID, material: Material) => {
-		updateMaterialAction(id as CourseID, materialID, JSON.stringify(material));
+	const updateMaterialCallback = useCallback((material: Material, materialID?: MaterialID) => {
+		if (materialID) {
+			updateMaterialAction(id as CourseID, materialID, JSON.stringify(material));
+		}
 		setMaterialToEdit(null);
 		setModalEditMaterialVisible(false);
 	}, [id]);
@@ -374,7 +375,7 @@ const CoursePage: ApplicationRoute = () => {
 					</TTouchableOpacity>
 
 					{selectedAction === 'addAssignment' && (<AddAssignment onSubmit={addAssignmentCallback} />)}
-					{selectedAction === 'addMaterial' && (<AddMaterial onSubmit={addMaterialCallback} />)}
+					{selectedAction === 'addMaterial' && (<MaterialComponent mode='add' onSubmit={addMaterialCallback} />)}
 				</TView>
 			</Modal>
 
@@ -412,7 +413,7 @@ const CoursePage: ApplicationRoute = () => {
 						<Icon name={'close'} size={iconSizes.lg} color="blue" mr={8} />
 					</TTouchableOpacity>
 					{materialToEdit && (
-						<EditMaterial material={materialToEdit} onSubmit={updateMaterialCallback} onDelete={removeMaterialCallback} />
+						<MaterialComponent mode='edit' material={materialToEdit} onSubmit={updateMaterialCallback} onDelete={removeMaterialCallback} />
 					)}
 				</TView>
 			</Modal>

@@ -52,12 +52,12 @@ export const updateMaterial = onSanitizedCall(Functions.updateMaterial, {
     }
 
     assertIsBetween(materialData.title.length, 1, MAX_MATERIAL_TITLE_LENGTH, "material_title_too_long");
-    assertIsBetween(materialData.description.length, 1, MAX_MATERIAL_DESCRIPTION_LENGTH, "material_description_too_long");
+    assertIsBetween(materialData.description.length, 0, MAX_MATERIAL_DESCRIPTION_LENGTH, "material_description_too_long");
 
     // Prepare updated fields
     const updatedFields: Partial<Material> = {};
     if (materialData.title) updatedFields.title = materialData.title;
-    if (materialData.description) updatedFields.description = materialData.description;
+    if (materialData.description || materialData.description == '') updatedFields.description = materialData.description;
     if (materialData.from) updatedFields.from = materialData.from;
     if (materialData.to) updatedFields.to = materialData.to;
     if (materialData.docs) {

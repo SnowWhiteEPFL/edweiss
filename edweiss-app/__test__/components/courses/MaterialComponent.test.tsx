@@ -1,4 +1,4 @@
-import EditMaterial, { testIDs } from '@/components/courses/EditMaterial';
+import MaterialComponent, { testIDs } from '@/components/courses/MaterialComponent';
 import { Material, MaterialID } from '@/model/school/courses';
 import { Time } from '@/utils/time';
 import { fireEvent, render } from '@testing-library/react-native';
@@ -37,7 +37,10 @@ jest.mock('@/components/core/Icon', () => {
 // Mock t() function
 jest.mock('@/config/i18config', () =>
     jest.fn((str: string) => {
-        if (str === 'course:edit_material') return 'Edit Material';
+        if (str === 'course:add_material') return 'Add Material';
+        else if (str === 'course:add_material_title') return 'Enter the details for the new material';
+        else if (str === 'course:material_title_placeholder') return 'Week number';
+        else if (str === 'course:edit_material') return 'Edit Material';
         else if (str === 'course:edit_material_title') return 'Edit the details for the material';
         else if (str === 'course:material_title_label') return 'Title';
         else if (str === 'course:material_title_placeholder') return 'Weekly Material';
@@ -50,6 +53,7 @@ jest.mock('@/config/i18config', () =>
         else if (str === 'course:to_date_label') return 'To Date';
         else if (str === 'course:to_time_label') return 'To Time';
         else if (str === 'course:update_changes') return 'Update Changes';
+        else if (str === 'course:upload_material') return 'Upload Material';
         else if (str === 'course:delete') return 'Delete';
         else if (str === 'course:field_required') return 'This field cannot be empty';
         else return str;
@@ -78,6 +82,110 @@ const setMockDate = (date: Date) => {
     mockDate = date;
 };
 
+describe('Add Material', () => {
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    const mockOnSubmit = jest.fn();
+
+    it('should render the component', () => {
+        const screen = render(<MaterialComponent mode='add' onSubmit={mockOnSubmit} />);
+
+        expect(screen.getByTestId(testIDs.addMaterialTitle).props.children).toBe('Add Material');
+        expect(screen.getByTestId(testIDs.addMaterialDescription).props.children).toBe('Enter the details for the new material');
+        expect(screen.getByTestId(testIDs.scrollView)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.titleAndDescriptionView)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.titleInput)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.descriptionInput)).toBeTruthy();
+
+        expect(screen.getByTestId(testIDs.fromDateView)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.fromDateInput)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.fromDateTitle).props.children).toBe('From Date');
+        expect(screen.getByTestId(testIDs.fromDateTouchableOpacity)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.fromDateIcon)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.fromDateText)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.fromTimeInput)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.fromTimeTitle).props.children).toBe('From Time');
+        expect(screen.getByTestId(testIDs.fromTimeTouchableOpacity)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.fromTimeIcon)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.fromTimeText)).toBeTruthy();
+
+        expect(screen.getByTestId(testIDs.toDateView)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.toDateInput)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.toDateTitle).props.children).toBe('To Date');
+        expect(screen.getByTestId(testIDs.toDateTouchableOpacity)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.toDateIcon)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.toDateText)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.toTimeInput)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.toTimeTitle).props.children).toBe('To Time');
+        expect(screen.getByTestId(testIDs.toTimeTouchableOpacity)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.toTimeIcon)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.toTimeText)).toBeTruthy();
+
+        expect(screen.queryByTestId(testIDs.fromDatePicker)).toBeNull();
+        expect(screen.queryByTestId(testIDs.fromTimePicker)).toBeNull();
+        expect(screen.queryByTestId(testIDs.toDatePicker)).toBeNull();
+        expect(screen.queryByTestId(testIDs.toTimePicker)).toBeNull();
+
+        expect(screen.getByTestId(testIDs.submitTouchableOpacity)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.submitView)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.submitIcon)).toBeTruthy();
+        expect(screen.getByTestId(testIDs.submitText).props.children).toBe('Upload Material');
+    });
+
+    it('should NOT call onSubmit when the submitTouchableOpacity is pressed but fields not filled', () => {
+        const screen = render(<MaterialComponent mode='add' onSubmit={mockOnSubmit} />);
+
+        fireEvent.press(screen.getByTestId(testIDs.submitTouchableOpacity));
+
+        expect(mockOnSubmit).toHaveBeenCalledTimes(0);
+    });
+
+    it('should call onSubmit when the submitTouchableOpacity is pressed', () => {
+
+        setMockEventType('set');
+        const defaultDate1 = new Date(2012, 3, 4, 12, 34, 56);
+        const expectedTime1 = defaultDate1.toTimeString().split(':').slice(0, 2).join(':');
+
+        const defaultDate2 = new Date(2012, 3, 9, 12, 34, 56);
+        const expectedTime2 = defaultDate2.toTimeString().split(':').slice(0, 2).join(':');
+
+        const screen = render(<MaterialComponent mode='add' onSubmit={mockOnSubmit} />);
+
+        fireEvent.changeText(screen.getByTestId(testIDs.titleInput), 'Week 1');
+        fireEvent.changeText(screen.getByTestId(testIDs.descriptionInput), 'This week\'s slides');
+
+        setMockDate(defaultDate1);
+        fireEvent.press(screen.getByTestId(testIDs.fromDateTouchableOpacity));
+        expect(screen.getByTestId(testIDs.fromDateText).props.children).toBe(defaultDate1.toDateString());
+        fireEvent.press(screen.getByTestId(testIDs.fromTimeTouchableOpacity));
+        expect(screen.getByTestId(testIDs.fromTimeText).props.children).toBe(expectedTime1);
+
+        setMockDate(defaultDate2);
+        fireEvent.press(screen.getByTestId(testIDs.toDateTouchableOpacity));
+        expect(screen.getByTestId(testIDs.toDateText).props.children).toBe(defaultDate2.toDateString());
+        fireEvent.press(screen.getByTestId(testIDs.toTimeTouchableOpacity));
+        expect(screen.getByTestId(testIDs.toTimeText).props.children).toBe(expectedTime2);
+
+        fireEvent.press(screen.getByTestId(testIDs.submitTouchableOpacity));
+
+        expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+    });
+
+    test('handles dismissed event for DateTimePicker', async () => {
+        // Mock the dismissed event
+        setMockEventType('dismissed');
+
+        const screen = render(<MaterialComponent mode='add' onSubmit={mockOnSubmit} />);
+
+        fireEvent.press(screen.getByTestId(testIDs.fromDateTouchableOpacity));
+        fireEvent.press(screen.getByTestId(testIDs.fromTimeTouchableOpacity));
+        fireEvent.press(screen.getByTestId(testIDs.toDateTouchableOpacity));
+        fireEvent.press(screen.getByTestId(testIDs.toTimeTouchableOpacity));
+    });
+});
 
 describe('Edit Assignment', () => {
 
@@ -113,7 +221,7 @@ describe('Edit Assignment', () => {
     const mockOnDelete = jest.fn();
 
     it('should render the component', () => {
-        const screen = render(<EditMaterial material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
+        const screen = render(<MaterialComponent mode='edit' material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
 
         expect(screen.getByTestId(testIDs.editMaterialTitle).props.children).toBe('Edit Material');
         expect(screen.getByTestId(testIDs.editMaterialDescription).props.children).toBe('Edit the details for the material');
@@ -158,7 +266,7 @@ describe('Edit Assignment', () => {
 
     it('should call onSubmit when the submitTouchableOpacity is pressed and all fields have not been modified', () => {
 
-        const screen = render(<EditMaterial material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
+        const screen = render(<MaterialComponent mode='edit' material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
 
         fireEvent.press(screen.getByTestId(testIDs.submitTouchableOpacity));
 
@@ -167,7 +275,7 @@ describe('Edit Assignment', () => {
 
     it('should call onDelete when delete button is pressed', () => {
 
-        const screen = render(<EditMaterial material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
+        const screen = render(<MaterialComponent mode='edit' material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
 
         fireEvent.press(screen.getByTestId(testIDs.deleteTouchableOpacity));
 
@@ -176,7 +284,7 @@ describe('Edit Assignment', () => {
 
     it('should NOT call onSubmit when the title is empty', () => {
 
-        const screen = render(<EditMaterial material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
+        const screen = render(<MaterialComponent mode='edit' material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
 
         fireEvent.changeText(screen.getByTestId(testIDs.titleInput), '');
         fireEvent.press(screen.getByTestId(testIDs.submitTouchableOpacity));
@@ -186,7 +294,7 @@ describe('Edit Assignment', () => {
 
     it('should NOT call onSubmit when the title is too long', () => {
 
-        const screen = render(<EditMaterial material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
+        const screen = render(<MaterialComponent mode='edit' material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
 
         fireEvent.changeText(screen.getByTestId(testIDs.titleInput), 'long'.repeat(10));
         fireEvent.press(screen.getByTestId(testIDs.submitTouchableOpacity));
@@ -196,7 +304,7 @@ describe('Edit Assignment', () => {
 
     it('should NOT call onSubmit when the description is too long', () => {
 
-        const screen = render(<EditMaterial material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
+        const screen = render(<MaterialComponent mode='edit' material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
 
         fireEvent.changeText(screen.getByTestId(testIDs.descriptionInput), 'long'.repeat(100));
         fireEvent.press(screen.getByTestId(testIDs.submitTouchableOpacity));
@@ -213,7 +321,7 @@ describe('Edit Assignment', () => {
         const defaultDate2 = new Date(2012, 3, 8, 12, 34, 56);
         const expectedTime2 = defaultDate2.toTimeString().split(':').slice(0, 2).join(':');
 
-        const screen = render(<EditMaterial material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
+        const screen = render(<MaterialComponent mode='edit' material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
 
         fireEvent.changeText(screen.getByTestId(testIDs.titleInput), 'Material 5');
         fireEvent.changeText(screen.getByTestId(testIDs.descriptionInput), 'New Description');
@@ -242,7 +350,7 @@ describe('Edit Assignment', () => {
         // Mock the dismissed event
         setMockEventType('dismissed');
 
-        const screen = render(<EditMaterial material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
+        const screen = render(<MaterialComponent mode='edit' material={material} onSubmit={mockOnSubmit} onDelete={mockOnDelete} />);
 
         fireEvent.press(screen.getByTestId(testIDs.fromDateTouchableOpacity));
         fireEvent.press(screen.getByTestId(testIDs.fromTimeTouchableOpacity));
