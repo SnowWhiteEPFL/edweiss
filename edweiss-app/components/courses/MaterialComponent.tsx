@@ -95,10 +95,10 @@ interface MaterialProps {
  */
 const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDelete, material }) => {
 
-    const [title, setTitle] = useState<string>(material ? material.data.title : "");
-    const [description, setDescription] = useState<string>(material ? material.data.description : "");
-    const [fromDate, setFromDate] = useState<Date>(material ? Time.toDate(material.data.from) : new Date());
-    const [toDate, setToDate] = useState<Date>(material ? Time.toDate(material.data.to) : new Date());
+    const [title, setTitle] = useState<string>(material && mode == 'edit' ? material.data.title : "");
+    const [description, setDescription] = useState<string>(material && mode == 'edit' ? material.data.description : "");
+    const [fromDate, setFromDate] = useState<Date>(material && mode == 'edit' ? Time.toDate(material.data.from) : new Date());
+    const [toDate, setToDate] = useState<Date>(material && mode == 'edit' ? Time.toDate(material.data.to) : new Date());
     const [titleChanged, setTitleChanged] = useState<boolean>(false);
     const [fromDateChanged, setFromDateChanged] = useState<boolean>(false);
     const [fromTimeChanged, setFromTimeChanged] = useState<boolean>(false);
@@ -236,6 +236,8 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                     </TView>
                 </TView>
 
+                {toDateChanged && fromDateChanged && toDate.getTime() < fromDate.getTime() && <TText align='center' mx='md' color='red'>{t(`course:to_date_before_from_date`)}</TText>}
+
 
                 {showPickerFromDate && (
                     <DateTimePicker
@@ -317,8 +319,8 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
             >
                 <TTouchableOpacity
                     testID={testIDs.submitTouchableOpacity}
-                    backgroundColor={(mode == 'add' && (!fromDateChanged || !fromTimeChanged || !toDateChanged || !toTimeChanged) || title === "" || title.length > MAX_MATERIAL_TITLE_LENGTH || description.length > MAX_MATERIAL_DESCRIPTION_LENGTH) ? 'text' : 'blue'}
-                    disabled={(mode == 'add' && (!fromDateChanged || !fromTimeChanged || !toDateChanged || !toTimeChanged) || title === "" || title.length > MAX_MATERIAL_TITLE_LENGTH || description.length > MAX_MATERIAL_DESCRIPTION_LENGTH)}
+                    backgroundColor={(mode == 'add' && (!fromDateChanged || !fromTimeChanged || !toDateChanged || !toTimeChanged || (toDateChanged && fromDateChanged && toDate.getTime() < fromDate.getTime())) || toDate.getTime() < fromDate.getTime() || title === "" || title.length > MAX_MATERIAL_TITLE_LENGTH || description.length > MAX_MATERIAL_DESCRIPTION_LENGTH) ? 'text' : 'blue'}
+                    disabled={(mode == 'add' && (!fromDateChanged || !fromTimeChanged || !toDateChanged || !toTimeChanged || (toDateChanged && fromDateChanged && toDate.getTime() < fromDate.getTime())) || toDate.getTime() < fromDate.getTime() || title === "" || title.length > MAX_MATERIAL_TITLE_LENGTH || description.length > MAX_MATERIAL_DESCRIPTION_LENGTH)}
                     onPress={() => material ? onSubmit({ title: title, description: description, from: Time.fromDate(fromDate), to: Time.fromDate(toDate), docs: [] }, material.id) : onSubmit({ title: title, description: description, from: Time.fromDate(fromDate), to: Time.fromDate(toDate), docs: [] })}
                     flex={1} mx={10} p={12} radius={'xl'}
                 >

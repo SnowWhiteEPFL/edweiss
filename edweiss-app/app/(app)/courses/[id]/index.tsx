@@ -23,10 +23,9 @@ import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
-import AddAssignment from '@/components/courses/AddAssignment';
+import AssignmentComponent from '@/components/courses/AssignmentComponent';
 import AssignmentDisplay from '@/components/courses/AssignmentDisplay';
 import CourseParameters from '@/components/courses/CourseParameters';
-import EditAssignment from '@/components/courses/EditAssignment';
 import MaterialComponent from '@/components/courses/MaterialComponent';
 import MaterialDisplay from '@/components/courses/MaterialDisplay';
 import SelectActions from '@/components/courses/SelectActionsCourse';
@@ -231,8 +230,10 @@ const CoursePage: ApplicationRoute = () => {
 		setModalVisible(false);
 	}, [id]);
 
-	const updateAssignmentCallback = useCallback((assignmentID: AssignmentID, assignment: Assignment) => {
-		updateAssignmentAction(id as CourseID, assignmentID, JSON.stringify(assignment));
+	const updateAssignmentCallback = useCallback((assignment: Assignment, assignmentID?: AssignmentID) => {
+		if (assignmentID) {
+			updateAssignmentAction(id as CourseID, assignmentID, JSON.stringify(assignment));
+		}
 		setAssignmentToEdit(null);
 		setModalEditAssignmentVisible(false);
 	}, [id]);
@@ -374,7 +375,7 @@ const CoursePage: ApplicationRoute = () => {
 						<Icon name={'close'} size={iconSizes.lg} color="blue" mr={8} />
 					</TTouchableOpacity>
 
-					{selectedAction === 'addAssignment' && (<AddAssignment onSubmit={addAssignmentCallback} />)}
+					{selectedAction === 'addAssignment' && (<AssignmentComponent mode='add' onSubmit={addAssignmentCallback} />)}
 					{selectedAction === 'addMaterial' && (<MaterialComponent mode='add' onSubmit={addMaterialCallback} />)}
 				</TView>
 			</Modal>
@@ -398,7 +399,7 @@ const CoursePage: ApplicationRoute = () => {
 						<Icon name={'close'} size={iconSizes.lg} color="blue" mr={8} />
 					</TTouchableOpacity>
 					{assignmentToEdit && (
-						<EditAssignment assignment={assignmentToEdit} onSubmit={updateAssignmentCallback} onDelete={removeAssignmentCallback} />
+						<AssignmentComponent mode='edit' assignment={assignmentToEdit} onSubmit={updateAssignmentCallback} onDelete={removeAssignmentCallback} />
 					)}
 				</TView>
 			</Modal>

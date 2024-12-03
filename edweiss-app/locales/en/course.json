@@ -41,6 +41,7 @@
     "from_time_label": "From Time",
     "to_date_label": "To Date",
     "to_time_label": "To Time",
+    "to_date_before_from_date": "To date must be after from date",
     "upload_material": "Upload Material",
 
     "course_params": "Course Parameters",

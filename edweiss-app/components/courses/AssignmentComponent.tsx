@@ -26,6 +26,8 @@ export const icons: { [key: string]: IconType } = {
 
 // Tests Tags
 export const testIDs: { [key: string]: string } = {
+    addAssignmentTitle: 'add-assignment-title',
+    addAssignmentDescription: 'add-assignment-description',
     editAssignmentTitle: 'edit-assignment-title',
     editAssignmentDescription: 'edit-assignment-description',
     scrollView: 'scroll-view',
@@ -45,6 +47,7 @@ export const testIDs: { [key: string]: string } = {
     timeText: 'time-text',
     datePicker: "dateTimePicker1",
     timePicker: "dateTimePicker2",
+    finishViews: 'finish-views',
     submitTouchableOpacity: 'submit-touchable-opacity',
     submitView: 'submit-view',
     submitIcon: 'submit-icon',
@@ -55,32 +58,43 @@ export const testIDs: { [key: string]: string } = {
     deleteIcon: 'delete-icon',
 };
 
+type AssignmentMode = 'edit' | 'add';
 
 interface EditAssignmentProps {
-    assignment: { id: string, data: Assignment };
-    onSubmit: (assignmentID: AssignmentID, assignment: Assignment) => void;
-    onDelete: (assignmentID: AssignmentID) => void;
+    mode: AssignmentMode;
+    onSubmit: (assignment: Assignment, assignmentID?: AssignmentID) => void;
+    onDelete?: (assignmentID: AssignmentID) => void;
+    assignment?: { id: string, data: Assignment };
 }
 
 
 /**
- * EditAssignment Component
+ * AssignmentComponent Component
  * 
- * This component is responsible for editing an assignment in the course page.
+ * This component is responsible for adding or editing an assignment in the course page.
  * 
+ * @param mode - The mode of the assignment component.
+ * @param onSubmit - The function to call when the user submits the assignment.
+ * @param onDelete - The function to call when the user deletes the assignment.
+ * @param assignment - The assignment data to be edited.
  * 
- * @returns JSX.Element - The rendered component for the actions selection animation.
+ * @returns JSX.Element - The rendered component for the assignment editing.
  */
-const EditAssignment: ReactComponent<EditAssignmentProps> = ({ assignment, onSubmit, onDelete }) => {
+const AssignmentComponent: ReactComponent<EditAssignmentProps> = ({ mode, onSubmit, onDelete, assignment }) => {
 
-    const [name, setName] = React.useState<string>(assignment.data.name);
-    const [type, setType] = React.useState<AssignmentType>(assignment.data.type);
-    const [dueDate, setDueDate] = React.useState<Date>(Time.toDate(assignment.data.dueDate));
+    const [name, setName] = React.useState<string>(assignment && mode == 'edit' ? assignment.data.name : "");
+    const [type, setType] = React.useState<AssignmentType>(assignment && mode == 'edit' ? assignment.data.type : 'quiz');
+    const [dueDate, setDueDate] = React.useState<Date>(assignment && mode == 'edit' ? Time.toDate(assignment.data.dueDate) : new Date());
+    const [nameChanged, setNameChanged] = useState<boolean>(false);
+    const [dateChanged, setDateChanged] = useState<boolean>(false);
+    const [timeChanged, setTimeChanged] = useState<boolean>(false);
     const [showPickerDate, setShowPickerDate] = useState<boolean>(false);
     const [showPickerTime, setShowPickerTime] = useState<boolean>(false);
 
+
     const onChangeDate = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
+            setDateChanged(true);
             setDueDate(selectedDate);
             setShowPickerDate(false);
         }
@@ -88,6 +102,7 @@ const EditAssignment: ReactComponent<EditAssignmentProps> = ({ assignment, onSub
 
     const onChangeTime = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
+            setTimeChanged(true);
             setDueDate(selectedDate);
             setShowPickerTime(false);
         }
@@ -96,8 +111,18 @@ const EditAssignment: ReactComponent<EditAssignmentProps> = ({ assignment, onSub
 
     return (
         <>
-            <TText testID={testIDs.editAssignmentTitle} size={24} bold mb={20} mx='md' pt={20}>{t(`course:edit_assignment`)}</TText>
-            <TText testID={testIDs.editAssignmentDescription} mx='md' mb={15}>{t(`course:edit_assignment_title`)}</TText>
+            <TText
+                testID={mode == 'add' ? testIDs.addAssignmentTitle : mode == 'edit' ? testIDs.editAssignmentTitle : undefined}
+                size={24} bold mb={20} mx='md' pt={20}
+            >
+                {mode == 'add' ? t(`course:add_assignment`) : mode == 'edit' ? t(`course:edit_assignment`) : undefined}
+            </TText>
+            <TText
+                testID={testIDs.editAssignmentDescription}
+                mx='md' mb={15}
+            >
+                {mode == 'add' ? t(`course:add_assignment_title`) : mode == 'edit' ? t(`course:edit_assignment_title`) : undefined}
+            </TText>
 
             <TScrollView testID={testIDs.scrollView}>
 
@@ -105,11 +130,11 @@ const EditAssignment: ReactComponent<EditAssignmentProps> = ({ assignment, onSub
                     <FancyTextInput
                         testID={testIDs.nameInput}
                         value={name}
-                        onChangeText={n => setName(n)}
+                        onChangeText={n => { setNameChanged(true); setName(n) }}
                         placeholder={t(`course:name_placeholder`)}
                         icon={icons.nameIcon}
                         label={t(`course:name_label`)}
-                        error={name.length > MAX_ASSIGNMENT_NAME_LENGTH ? t(`course:name_too_long`) : name === "" ? t(`course:field_required`) : undefined}
+                        error={name.length > MAX_ASSIGNMENT_NAME_LENGTH ? t(`course:name_too_long`) : (name === "" && (nameChanged || mode == 'edit')) ? t(`course:field_required`) : undefined}
                     />
 
                     <FancyButton
@@ -134,7 +159,7 @@ const EditAssignment: ReactComponent<EditAssignmentProps> = ({ assignment, onSub
                             flexDirection='row' justifyContent='flex-start' alignItems='center'
                         >
                             <Icon testID={testIDs.dateIcon} name={icons.dateIcon} size='md' color='overlay0' />
-                            <TText testID={testIDs.dateText} ml={14} color={'text'}>{dueDate.toDateString()}</TText>
+                            <TText testID={testIDs.dateText} ml={14} color={!dateChanged && mode == 'add' ? 'overlay0' : 'text'}>{dueDate.toDateString()}</TText>
                         </TTouchableOpacity>
                     </TView>
 
@@ -144,7 +169,7 @@ const EditAssignment: ReactComponent<EditAssignmentProps> = ({ assignment, onSub
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'>
                             <Icon testID={testIDs.timeIcon} name={icons.timeIcon} size='md' color='overlay0' />
-                            <TText testID={testIDs.timeText} ml={10} color={'text'}>{dueDate.toTimeString().split(':').slice(0, 2).join(':')}</TText>
+                            <TText testID={testIDs.timeText} ml={10} color={!timeChanged && mode == 'add' ? 'overlay0' : 'text'}>{dueDate.toTimeString().split(':').slice(0, 2).join(':')}</TText>
                         </TTouchableOpacity>
                     </TView>
                 </TView>
@@ -196,15 +221,10 @@ const EditAssignment: ReactComponent<EditAssignmentProps> = ({ assignment, onSub
                 {/* Bouton Submit */}
                 <TTouchableOpacity
                     testID={testIDs.submitTouchableOpacity}
-                    backgroundColor={name === "" || name.length > MAX_ASSIGNMENT_NAME_LENGTH ? 'text' : 'blue'}
-                    disabled={name === "" || name.length > MAX_ASSIGNMENT_NAME_LENGTH}
-                    onPress={() => onSubmit(assignment.id, { name, type, dueDate: Time.fromDate(dueDate) })}
-                    style={{
-                        flex: 1, // Chaque bouton occupe un espace égal
-                        marginHorizontal: 10, // Espacement entre les boutons
-                        padding: 12,
-                        borderRadius: 9999,
-                    }}
+                    backgroundColor={(mode == 'add' && (!dateChanged || !timeChanged)) || name === "" || name.length > MAX_ASSIGNMENT_NAME_LENGTH ? 'text' : 'blue'}
+                    disabled={(mode == 'add' && (!dateChanged || !timeChanged)) || name === "" || name.length > MAX_ASSIGNMENT_NAME_LENGTH}
+                    onPress={() => assignment ? onSubmit({ name, type, dueDate: Time.fromDate(dueDate) }, assignment.id) : onSubmit({ name, type, dueDate: Time.fromDate(dueDate) })}
+                    flex={1} mx={10} p={12} radius={'xl'}
                 >
                     <TView
                         testID={testIDs.submitView}
@@ -214,38 +234,34 @@ const EditAssignment: ReactComponent<EditAssignmentProps> = ({ assignment, onSub
                     >
                         <Icon testID={testIDs.submitIcon} name={icons.submitIcon} color="base" size="md" />
                         <TText testID={testIDs.submitText} color="base" ml={10}>
-                            {t(`course:update_changes`)}
+                            {mode == 'add' ? t(`course:upload_assignment`) : mode == 'edit' ? t(`course:update_changes`) : undefined}
                         </TText>
                     </TView>
                 </TTouchableOpacity>
 
-                {/* Bouton Delete */}
-                <TTouchableOpacity
-                    testID={testIDs.deleteTouchableOpacity}
-                    backgroundColor="red"
-                    onPress={() => onDelete(assignment.id)}
-                    style={{
-                        flex: 1, // Même espace que le bouton précédent
-                        marginHorizontal: 10,
-                        padding: 12,
-                        borderRadius: 9999,
-                    }}
-                >
-                    <TView
-                        testID={testIDs.deleteView}
-                        flexDirection="row"
-                        justifyContent="center"
-                        alignItems="center"
+                {mode == 'edit' && onDelete &&
+                    <TTouchableOpacity
+                        testID={testIDs.deleteTouchableOpacity}
+                        backgroundColor="red"
+                        onPress={() => assignment && onDelete(assignment.id)}
+                        flex={1} mx={10} p={12} radius={'xl'}
                     >
-                        <Icon testID={testIDs.deleteIcon} name={icons.deleteIcon} color="base" size="md" />
-                        <TText testID={testIDs.deleteText} color="base" ml={10}>
-                            {t(`course:delete`)}
-                        </TText>
-                    </TView>
-                </TTouchableOpacity>
+                        <TView
+                            testID={testIDs.deleteView}
+                            flexDirection="row"
+                            justifyContent="center"
+                            alignItems="center"
+                        >
+                            <Icon testID={testIDs.deleteIcon} name={icons.deleteIcon} color="base" size="md" />
+                            <TText testID={testIDs.deleteText} color="base" ml={10}>
+                                {t(`course:delete`)}
+                            </TText>
+                        </TView>
+                    </TTouchableOpacity>
+                }
             </TView>
         </>
     );
 };
 
-export default EditAssignment;
+export default AssignmentComponent;
