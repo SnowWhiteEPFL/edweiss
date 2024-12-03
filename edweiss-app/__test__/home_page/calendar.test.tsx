@@ -2,6 +2,7 @@ import { Calendar } from '@/components/core/calendar';
 import { getWeekDates } from '@/components/core/getWeekDates';
 import { AssignmentType } from '@/model/school/courses';
 import Todolist from '@/model/todo';
+import { ProfessorID, StudentID } from '@/model/users';
 import { act, render, screen } from '@testing-library/react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { initCourse, initPeriod } from './helper_functions';
@@ -64,20 +65,26 @@ const mockPeriod = initPeriod(540, 600, 'lecture', 'Period 1', 1, 'Room 101');
 
 // Use `initCourse` to define a course
 const mockCourses = [
-    initCourse({
+    initCourse(
+        {
+            id: 'course1',
+            data: {
+                description: 'Course description',
+                professors: ['prof1'] as ProfessorID[],
+                assistants: ['Assistant 1'] as StudentID[],
+                periods: [mockPeriod],
+                credits: 3,
+                section: 'IN',
+                newAssignments: false,
+                assignments: [],
+                started: true,
+                id: 'course1',
+                name: 'Course 1',
 
-        id: 'course1',
-        name: 'Course 1',
-        description: 'Course description',
-        professors: ['Professor 1'],
-        assistants: ['Assistant 1'],
-        periods: [mockPeriod],
-        credits: 3,
-        section: 'IN',
-        newAssignments: true,
-        assignments: [],
-        started: true,
-    }),
+            }
+        },
+        // Add the id property here
+    )
 ];
 
 // Mock Firebase Authentication
@@ -97,7 +104,7 @@ jest.mock('@react-native-firebase/firestore', () => {
             data: jest.fn(() => ({
                 name: 'Test Course',
                 description: 'A course for testing purposes.',
-                professors: ['prof1'],
+                professors: ['prof1'] as ProfessorID[],
                 assistants: ['student1'],
                 periods: [],
                 section: 'IN',

@@ -110,15 +110,9 @@ jest.mock('@/hooks/firebase/firestore', () => ({
         { id: '2', data: () => ({ name: 'Course 2' }) },
     ]),
 }));
-jest.mock('@react-native-firebase', () => ({
-    getDocument: jest.fn().mockResolvedValue({ name: 'John Doe', email: 'john@example.com' }),
-}));
 
-jest.mock('@react-native-firebase/collections', () => ({
-    Collections: {
-        users: 'usersCollectionPath', // La collection 'users'
-    },
-}));
+
+
 jest.mock('@react-native-firebase/auth', () => ({
     __esModule: true,
     default: jest.fn(() => ({
@@ -193,12 +187,19 @@ const mockAuth = {
 const mockCourses = [
     initCourse({
         id: 'course1',
-        name: 'Course 1',
-        periods: [mockPeriod],
-        section: 'IN',
-        credits: 3,
-        newAssignments: false,
-        started: true,
+        data: {
+            name: 'Course 1',
+            periods: [mockPeriod],
+            section: 'IN',
+            credits: 3,
+            newAssignments: false,
+            started: true,
+            id: '',
+            professors: [],
+            assistants: [],
+            description: '',
+            assignments: []
+        }
     }),
 ];
 

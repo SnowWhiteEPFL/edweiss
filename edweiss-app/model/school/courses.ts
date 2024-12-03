@@ -7,11 +7,7 @@ export type CourseID = string & {};
 
 export type Credits = number & {};
 
-export type AssignmentID = string & {};
-
-export type MaterialID = string & {};
-
-export type Section = "IN" | "SC" | "MA" | "PH" | "CGC" | "EL" | "GM" | "MT" | "MX" | "SV" | "AR" | "GC" | "SIE";
+export type Section = "IN" | "COM" | "PH" | "MT";
 
 export interface CourseTimePeriod extends CyclicTimePeriod {
 	type: CourseTimePeriodType;
@@ -40,22 +36,6 @@ export interface AssignmentBase {
 
 export type Assignment = AssignmentBase;
 
-export type MaterialType = "slides" | "exercises" | "feedbacks" | "other";
-
-export interface MaterialDocument {
-	url: string;
-	title: string;
-	type: MaterialType;
-}
-
-export interface Material {
-	title: string;
-	description: string;
-	from: Timestamp;
-	to: Timestamp;
-	docs: MaterialDocument[]; // References pointing to MaterialDocument
-}
-
 export function isProfessorOf(professor: ProfessorID, course: Course) {
 	return course.professors.includes(professor);
 }
@@ -66,25 +46,7 @@ export function isAssistantOf(student: StudentID, course: Course) {
 
 export namespace Course_functions {
 	export const Functions = FunctionFolder("course", {
-		toogleCourse: FunctionOf<{ courseID: CourseID, course: Course; }, {}, 'cannot stop the course'>("toogleCourse"),
-		tooglePeriod: FunctionOf<{ lectureID: string, courseID: CourseID, course: Course; }, { available: boolean; }, 'cannot stop the course'>("tooglePeriod"),
-
-		updateCourse: FunctionOf<{ courseID: CourseID, courseJSON: string; }, {}, 'cannot update the course'>("updateCourse"),
-
-		addAssignment: FunctionOf<{ courseID: CourseID, assignmentJSON: string; }, { assignmentID: AssignmentID }, 'cannot add the assignment'>("addAssignment"),
-		removeAssignment: FunctionOf<{ courseID: CourseID, assignmentID: AssignmentID; }, {}, 'cannot remove the assignment'>("removeAssignment"),
-		updateAssignment: FunctionOf<{ courseID: CourseID, assignmentID: AssignmentID, assignmentJSON: string; }, {}, 'cannot update the assignment'>("updateAssignment"),
-
-		addMaterial: FunctionOf<{ courseID: CourseID, materialJSON: string; }, { materialID: MaterialID }, 'cannot add the material'>("addMaterial"),
-		removeMaterial: FunctionOf<{ courseID: CourseID, materialID: MaterialID; }, {}, 'cannot remove the material'>("removeMaterial"),
-		updateMaterial: FunctionOf<{ courseID: CourseID, materialID: MaterialID, materialJSON: string; }, {}, 'cannot update the material'>("updateMaterial"),
-
-		addProfessor: FunctionOf<{ courseID: CourseID, professorID: ProfessorID; }, {}, 'cannot add the professor'>("addProfessor"),
-		removeProfessor: FunctionOf<{ courseID: CourseID, professorID: ProfessorID; }, {}, 'cannot remove the professor'>("removeProfessor"),
-
-		addAssistant: FunctionOf<{ courseID: CourseID, assistantID: StudentID; }, {}, 'cannot add the assistant'>("addAssistant"),
-		removeAssistant: FunctionOf<{ courseID: CourseID, assistantID: StudentID; }, {}, 'cannot remove the assistant'>("removeAssistant"),
-
-		createCourse: FunctionOf<{ courseJSON: string; }, { courseID: CourseID; }, 'cannot create the course'>("createCourse"),
+		toogleCourse: FunctionOf<{ courseID: string, course: Course; }, {}, 'cannot stop the course'>("toogleCourse"),
+		tooglePeriod: FunctionOf<{ lectureID: string, courseID: string, course: Course; }, { available: boolean; }, 'cannot stop the course'>("tooglePeriod"),
 	});
 }
