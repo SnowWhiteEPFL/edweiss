@@ -7,7 +7,6 @@ import { Color } from '@/constants/Colors';
 import { iconSizes } from '@/constants/Sizes';
 import { IconType } from '@/constants/Style';
 import { Course, MAX_COURSE_DESCRIPTION_LENGTH, MAX_COURSE_NAME_LENGTH, Section, UpdateCourseArgs } from '@/model/school/courses';
-import { ProfessorID, StudentID } from '@/model/users';
 import React from 'react';
 import TScrollView from '../core/containers/TScrollView';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
@@ -69,8 +68,6 @@ const CourseParameters: ReactComponent<CourseParamsProps> = ({ course, onGiveUp,
     const [description, setDescription] = React.useState<string>(course.data.description);
     const [section, setSection] = React.useState<Section>(course.data.section);
     const [credits, setCredits] = React.useState<number>(course.data.credits);
-    const [professor, setProfessor] = React.useState<ProfessorID>("");
-    const [assistant, setAssistant] = React.useState<StudentID>("");
 
     const sectionOptions: { section: Section, color: Color }[] = [
         { section: "IN", color: "cherry" },

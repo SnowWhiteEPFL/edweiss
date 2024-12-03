@@ -95,10 +95,10 @@ interface MaterialProps {
  */
 const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDelete, material }) => {
 
-    const [title, setTitle] = useState<string>(material && mode == 'edit' ? material.data.title : "");
-    const [description, setDescription] = useState<string>(material && mode == 'edit' ? material.data.description : "");
-    const [fromDate, setFromDate] = useState<Date>(material && mode == 'edit' ? Time.toDate(material.data.from) : new Date());
-    const [toDate, setToDate] = useState<Date>(material && mode == 'edit' ? Time.toDate(material.data.to) : new Date());
+    const [title, setTitle] = useState<string>(material?.data.title ?? "");
+    const [description, setDescription] = useState<string>(material?.data.description ?? "");
+    const [fromDate, setFromDate] = useState<Date>(material ? Time.toDate(material.data.from) : new Date());
+    const [toDate, setToDate] = useState<Date>(material ? Time.toDate(material.data.to) : new Date());
     const [titleChanged, setTitleChanged] = useState<boolean>(false);
     const [fromDateChanged, setFromDateChanged] = useState<boolean>(false);
     const [fromTimeChanged, setFromTimeChanged] = useState<boolean>(false);
@@ -149,17 +149,17 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
     return (
         <>
             <TText
-                testID={mode == 'add' ? testIDs.addMaterialTitle : mode == 'edit' ? testIDs.editMaterialTitle : undefined}
+                testID={mode === 'add' ? testIDs.addMaterialTitle : testIDs.editMaterialTitle}
                 size={24} bold mb={20} mx='md' pt={20}
             >
-                {mode == 'add' ? t(`course:add_material`) : mode == 'edit' ? t(`course:edit_material`) : undefined}
+                {mode === 'add' ? t('course:add_material') : t('course:edit_material')}
             </TText>
 
             <TText
-                testID={mode == 'add' ? testIDs.addMaterialDescription : mode == 'edit' ? testIDs.editMaterialDescription : undefined}
+                testID={mode === 'add' ? testIDs.addMaterialDescription : testIDs.editMaterialDescription}
                 mx='md' mb={15}
             >
-                {mode == 'add' ? t(`course:add_material_title`) : mode == 'edit' ? t(`course:edit_material_title`) : undefined}
+                {mode === 'add' ? t('course:add_material_title') : t('course:edit_material_title')}
             </TText>
 
             <TScrollView testID={testIDs.scrollView}>
@@ -167,25 +167,35 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                 <TView testID={testIDs.titleAndDescriptionView}>
                     <FancyTextInput
                         testID={testIDs.titleInput}
-                        label={t(`course:material_title_label`)}
+                        label={t('course:material_title_label')}
                         value={title}
-                        onChangeText={n => onChangeTitle(n)}
-                        placeholder={t(`course:material_title_placeholder`)}
+                        onChangeText={onChangeTitle}
+                        placeholder={t('course:material_title_placeholder')}
                         icon={icons.nameIcon}
-                        error={title.length > MAX_MATERIAL_TITLE_LENGTH ? t(`course:title_too_long`) : (title === "" && (mode == 'edit' || titleChanged)) ? t(`course:field_required`) : undefined}
+                        error={
+                            title.length > MAX_MATERIAL_TITLE_LENGTH
+                                ? t('course:title_too_long')
+                                : title === '' && (mode === 'edit' || titleChanged)
+                                    ? t('course:field_required')
+                                    : undefined
+                        }
                     />
                     <FancyTextInput
                         testID={testIDs.descriptionInput}
-                        label={t(`course:material_description_label`)}
+                        label={t('course:material_description_label')}
                         value={description}
-                        onChangeText={n => setDescription(n)}
-                        placeholder={t(`course:material_description_placeholder`)}
+                        onChangeText={setDescription}
+                        placeholder={t('course:material_description_placeholder')}
                         icon={icons.descriptionIcon}
                         multiline
                         numberOfLines={4}
-                        mt={'md'}
-                        mb={'sm'}
-                        error={description.length > MAX_MATERIAL_DESCRIPTION_LENGTH ? t(`course:description_too_long`) : undefined}
+                        mt="md"
+                        mb="sm"
+                        error={
+                            description.length > MAX_MATERIAL_DESCRIPTION_LENGTH
+                                ? t('course:description_too_long')
+                                : undefined
+                        }
                     />
                 </TView>
 
@@ -332,7 +342,7 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                     >
                         <Icon testID={testIDs.submitIcon} name={icons.submitIcon} color="base" size="md" />
                         <TText testID={testIDs.submitText} color="base" ml={10}>
-                            {mode == 'add' ? t(`course:upload_material`) : mode == 'edit' ? t(`course:update_changes`) : undefined}
+                            {mode === 'add' ? t('course:upload_material') : t('course:update_changes')}
                         </TText>
                     </TView>
                 </TTouchableOpacity>

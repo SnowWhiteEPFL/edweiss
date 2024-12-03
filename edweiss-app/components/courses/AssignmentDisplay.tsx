@@ -95,7 +95,6 @@ const AssignmentDisplay: ReactComponent<{ item: AssignmentWithColor, id: Assignm
             }
             if (direction === 'left') {
                 console.log(`Swipe detected on assignment: ${item.name}`);
-                //removeAssignmentAction(courseID, id);
                 if (onSwipeLeft) onSwipeLeft();
                 swipeableRefs.current[index]?.close();
             }

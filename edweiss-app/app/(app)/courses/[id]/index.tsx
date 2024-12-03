@@ -181,7 +181,7 @@ const CoursePage: ApplicationRoute = () => {
 	const [modalEditMaterialVisible, setModalEditMaterialVisible] = useState(false);
 	const [materialToEdit, setMaterialToEdit] = useState<{ id: string, data: Material } | null>(null);
 	const [selectedAction, setSelectedAction] = useState<string | null>(null);
-	const fadeAnim = useState(new Animated.Value(0))[0];
+	const [fadeAnim] = useState(new Animated.Value(0));
 
 	const handleButtonPress = () => {
 		setActionModalVisible(true);
@@ -267,7 +267,7 @@ const CoursePage: ApplicationRoute = () => {
 	if (!isValidId) { return <Redirect href={'/'} />; }
 	if (course == undefined || assignmentsCollection == undefined || materialCollection == undefined) { return <TActivityIndicator size={40} />; }
 
-	const userIsProfessor = course.data.professors && course.data.professors.includes(uid);
+	const userIsProfessor = course.data.professors?.includes(uid);
 
 	return (
 		<>
@@ -277,7 +277,7 @@ const CoursePage: ApplicationRoute = () => {
 				align="center"
 				isBold
 				right={
-					course.data.professors && course.data.professors.includes(uid) ? (
+					userIsProfessor ? (
 						<TTouchableOpacity testID={testIDs.courseParametersTouchable} onPress={() => setModalParamVisible(true)}>
 							<Icon testID={testIDs.courseParametersIcon} name='cog' size={iconSizes.lg} mr={8} />
 						</TTouchableOpacity>
