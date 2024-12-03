@@ -67,16 +67,20 @@ const mockCourses = [
     initCourse({
 
         id: 'course1',
-        name: 'Course 1',
-        description: 'Course description',
-        professors: ['Professor 1'],
-        assistants: ['Assistant 1'],
-        periods: [mockPeriod],
-        credits: 3,
-        section: 'IN',
-        newAssignments: true,
-        assignments: [],
-        started: true,
+        data: {
+
+            name: 'Course 1',
+            description: 'Course description',
+            professors: ['Professor 1'],
+            assistants: ['Assistant 1'],
+            periods: [mockPeriod],
+            credits: 3,
+            section: 'IN',
+            newAssignments: true,
+            assignments: [],
+            started: true,
+
+        }
     }),
 ];
 

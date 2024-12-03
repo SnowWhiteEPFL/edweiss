@@ -193,12 +193,18 @@ const mockAuth = {
 const mockCourses = [
     initCourse({
         id: 'course1',
-        name: 'Course 1',
-        periods: [mockPeriod],
-        section: 'IN',
-        credits: 3,
-        newAssignments: false,
-        started: true,
+        data: {
+            name: 'Course 1',
+            periods: [mockPeriod],
+            section: 'IN',
+            credits: 3,
+            newAssignments: false,
+            started: true,
+            description: '',
+            professors: [],
+            assistants: [],
+            assignments: []
+        }
     }),
 ];
 
