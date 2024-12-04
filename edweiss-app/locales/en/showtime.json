@@ -14,6 +14,7 @@
     "rmt_ctl_enter_page_label":"Page Picker",
     "rmt_ctl_set_timer_title": "Set Timer",
     "rmt_ctl_set_it_up": "Set it up",
+    "rmt_ctl_invalid_recall": "Recall can't be larger than Timer",
 
 
     "lecturer_transcript_deftxt" : "Lecturer’s transcript... currently in invisible ink!",
