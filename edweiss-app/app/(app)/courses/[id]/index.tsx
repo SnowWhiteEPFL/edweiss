@@ -23,24 +23,32 @@ import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
+import AddAssignment from '@/components/courses/AddAssignment';
+import AddMaterial from '@/components/courses/AddMaterial';
 import AssignmentDisplay from '@/components/courses/AssignmentDisplay';
+import CourseParameters from '@/components/courses/CourseParameters';
 import MaterialDisplay from '@/components/courses/MaterialDisplay';
+import SelectActions from '@/components/courses/SelectActionsCourse';
 import { CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import { Color } from '@/constants/Colors';
 import { ApplicationRoute } from '@/constants/Component';
 import { iconSizes } from '@/constants/Sizes';
 import { timeInMS } from '@/constants/Time';
+import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { pushWithParameters } from '@/hooks/routeParameters';
 import { Assignment, Course, Material } from '@/model/school/courses';
 import { Time } from '@/utils/time'; // Adjust the import path as necessary
 import { Redirect, useLocalSearchParams } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { Animated, Modal } from 'react-native';
 
 
 // Tests Tags
 export const testIDs = {
+	courseParametersTouchable: 'course-parameters-touchable',
+	courseParametersIcon: 'course-parameters-icon',
 	scrollView: 'scroll-view',
 	courseDescription: 'course-description',
 	upcomingAssignments: 'upcoming-assignments',
@@ -77,6 +85,8 @@ const CoursePage: ApplicationRoute = () => {
 
 	const isValidId = typeof id === 'string';
 
+	// Get user id
+	const uid = useAuth().authUser?.uid;
 	// Retrieve course data from Firestore
 	const result = usePrefetchedDynamicDoc(
 		CollectionOf<Course>('courses'),
@@ -159,6 +169,44 @@ const CoursePage: ApplicationRoute = () => {
 		setShowFutureMaterials(!showFutureMaterials);
 	};
 
+	const [modalParamVisible, setModalParamVisible] = React.useState(false);
+	const [modalVisible, setModalVisible] = useState(false);
+	const [actionModalVisible, setActionModalVisible] = useState(false);
+	const [selectedAction, setSelectedAction] = useState<string | null>(null);
+	const fadeAnim = useState(new Animated.Value(0))[0];
+
+	const handleButtonPress = () => {
+		setActionModalVisible(true);
+		Animated.timing(fadeAnim, {
+			toValue: 1,
+			duration: 500,
+			useNativeDriver: true,
+		}).start();
+	};
+
+	const handleActionSelect = (action: string) => {
+		setSelectedAction(action);
+		setActionModalVisible(false);
+		setModalVisible(true);
+	};
+
+	const closeModalOnOutsideClick = () => {
+		setActionModalVisible(false);
+	};
+
+
+	const renderProfessorModifButton = useCallback(() => {
+		return (
+			<TTouchableOpacity style={{
+				position: 'absolute',
+				bottom: 20,
+				right: 20,
+				zIndex: 1000,
+			}} onPress={handleButtonPress}>
+				<Icon name="add-circle" size={60} color='blue' />
+			</TTouchableOpacity>
+		);
+	}, []);
 	//Checks
 	if (!isValidId) { return <Redirect href={'/'} />; }
 	if (course == undefined || assignmentsCollection == undefined || materialCollection == undefined) { return <TActivityIndicator size={40} />; }
@@ -166,7 +214,18 @@ const CoursePage: ApplicationRoute = () => {
 	return (
 		<>
 			{/* Utilisation du RouteHeader pour afficher le titre du cours */}
-			<RouteHeader title={course.data.name} align="center" isBold />
+			<RouteHeader
+				title={course.data.name}
+				align="center"
+				isBold
+				right={
+					course.data.professors && course.data.professors.includes(uid) ? (
+						<TTouchableOpacity testID={testIDs.courseParametersTouchable} onPress={() => setModalParamVisible(true)}>
+							<Icon testID={testIDs.courseParametersIcon} name='cog' size={iconSizes.lg} mr={8} />
+						</TTouchableOpacity>
+					) : undefined
+				}
+			/>
 
 			{/* ScrollView pour permettre le défilement */}
 			<TScrollView testID={testIDs.scrollView} p={16} backgroundColor="mantle" >
@@ -214,7 +273,6 @@ const CoursePage: ApplicationRoute = () => {
 							{showFutureMaterials ? t('course:hide_future_materials') : t('course:show_future_materials')}
 						</TText>
 					</TView>
-
 				</TTouchableOpacity>
 
 				{showFutureMaterials && (futureMaterials.map((material, index) => (
@@ -226,13 +284,51 @@ const CoursePage: ApplicationRoute = () => {
 
 				{currentMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={material.id} />))}
 
-				{/*<TView bb={1} my={10} borderColor='crust' />}*/}
-
 				{passedMaterials.map((material, index) => (<MaterialDisplay item={material.data} key={material.id} />))}
 
 				<TView mb={30} />
 
 			</TScrollView>
+
+
+
+			{course.data.professors && course.data.professors.includes(uid) && renderProfessorModifButton()}
+
+
+
+			<Modal
+				visible={actionModalVisible}
+				animationType="fade"
+				transparent={true}
+				onRequestClose={() => setActionModalVisible(false)}
+			>
+				<Animated.View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', opacity: fadeAnim }}>
+					<SelectActions onOutsideClick={closeModalOnOutsideClick} onSelectAssignment={() => handleActionSelect('addAssignment')} onSelectMaterial={() => handleActionSelect('addMaterial')} />
+				</Animated.View>
+			</Modal>
+
+			<Modal
+				visible={modalVisible}
+				animationType="slide"
+				onRequestClose={() => setModalVisible(false)}
+			>
+				<TView flex={1} p={20} backgroundColor='mantle'>
+					<TTouchableOpacity alignItems="flex-start" onPress={() => { setModalVisible(false); }}>
+						<Icon name={'close'} size={iconSizes.lg} color="blue" mr={8} />
+					</TTouchableOpacity>
+
+					{selectedAction === 'addAssignment' && (<AddAssignment onSubmit={() => setModalVisible(false)} />)}
+					{selectedAction === 'addMaterial' && (<AddMaterial onSubmit={() => setModalVisible(false)} />)}
+				</TView>
+			</Modal>
+
+			<Modal
+				visible={modalParamVisible}
+				animationType="slide"
+				onRequestClose={() => setModalParamVisible(false)}
+			>
+				<CourseParameters course={course} onFinish={() => setModalParamVisible(false)} />
+			</Modal>
 		</>
 	);
 };
