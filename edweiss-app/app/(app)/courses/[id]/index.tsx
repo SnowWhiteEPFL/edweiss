@@ -36,9 +36,10 @@ import { ApplicationRoute } from '@/constants/Component';
 import { iconSizes } from '@/constants/Sizes';
 import { timeInMS } from '@/constants/Time';
 import { useAuth } from '@/contexts/auth';
-import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { useDoc, useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { pushWithParameters } from '@/hooks/routeParameters';
 import { Assignment, AssignmentID, Course, CourseID, Material, MaterialID, UpdateCourseArgs } from '@/model/school/courses';
+import { AppUser } from '@/model/users';
 import { addAssignmentAction, addMaterialAction, removeAssignmentAction, removeMaterialAction, updateAssignmentAction, updateCourseAction, updateMaterialAction } from '@/utils/courses/coursesActionsFunctions';
 import { Time } from '@/utils/time'; // Adjust the import path as necessary
 import { Redirect, useLocalSearchParams } from 'expo-router';
@@ -89,7 +90,9 @@ const CoursePage: ApplicationRoute = () => {
 	const isValidId = typeof id === 'string';
 
 	// Get user id
-	const uid = useAuth().authUser?.uid;
+	const auth = useAuth();
+	const uid = auth.authUser?.uid;
+	const user = useDoc<AppUser>(CollectionOf<AppUser>('users'), uid);
 
 	// Retrieve course data from Firestore
 	const result = usePrefetchedDynamicDoc(
@@ -265,9 +268,9 @@ const CoursePage: ApplicationRoute = () => {
 
 	//Checks
 	if (!isValidId) { return <Redirect href={'/'} />; }
-	if (course == undefined || assignmentsCollection == undefined || materialCollection == undefined) { return <TActivityIndicator size={40} />; }
+	if (user == undefined || course == undefined || assignmentsCollection == undefined || materialCollection == undefined) { return <TActivityIndicator size={40} />; }
 
-	const userIsProfessor = course.data.professors?.includes(uid);
+	const userIsProfessor = user.data.type == 'professor' && course.data.professors?.includes(uid);
 
 	return (
 		<>
