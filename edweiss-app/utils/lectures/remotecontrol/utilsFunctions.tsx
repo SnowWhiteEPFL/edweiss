@@ -210,10 +210,10 @@ export const handleGoTo = function (
         // Update the page
         try {
             callFunction(FCMCommunication.Functions.sendFCMPage, { page: targetPage });
+            console.log("Go to page " + targetPage);
         } catch (error) {
             console.error("Error sending FCM page:", error);
         }
-
 
         // On sucess update hook
         setCurrentPage(targetPage);

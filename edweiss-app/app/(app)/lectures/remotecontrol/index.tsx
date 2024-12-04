@@ -14,7 +14,7 @@ import { CollectionOf } from '@/config/firebase';
 import { ApplicationRoute } from '@/constants/Component';
 import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import { handleLeft, handleMic, handleRight, langCodeMap, updateSlideAudioRecording } from '@/utils/lectures/remotecontrol/utilsFunctions';
+import { handleGoTo, handleLeft, handleMic, handleRight, langCodeMap, updateSlideAudioRecording } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import Voice from '@react-native-voice/voice';
 import { useLocalSearchParams } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -60,6 +60,7 @@ const RemoteControlScreen: ApplicationRoute = () => {
                 handleRight={() => handleRight(isRecording, currentPage, totalPages, setIsRecording, setCurrentPage, stopRecording)}
                 handleLeft={() => handleLeft(isRecording, currentPage, setIsRecording, setCurrentPage, stopRecording)}
                 handleMic={() => handleMic(isRecording, setIsRecording, () => startRecording(langCodeMap[lang]), stopRecording)}
+                handleGoTo={(target: number) => handleGoTo(target, totalPages, setCurrentPage)}
                 isRecording={isRecording}
                 lang={lang}
                 setLang={setLang}
