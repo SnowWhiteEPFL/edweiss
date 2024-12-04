@@ -4,6 +4,7 @@ import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import React from 'react';
+import { DimensionValue, StyleProp, ViewStyle } from 'react-native';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 
 
@@ -17,6 +18,7 @@ export const testIDs = {
     addMaterialText: 'add-material-text',
 };
 
+  
 interface SelectActionsAnimatedProps {
     onOutsideClick: () => void;
     onSelectAssignment: () => void;
@@ -35,6 +37,18 @@ interface SelectActionsAnimatedProps {
  */
 const SelectActions: ReactComponent<SelectActionsAnimatedProps> = ({ onOutsideClick, onSelectAssignment, onSelectMaterial }) => {
 
+    const buttonStyle: StyleProp<ViewStyle> = {
+        borderWidth: 1,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+        width: '80%' as DimensionValue,
+        maxWidth: 350,
+        alignItems: 'center' as 'center',
+    }
+
     return (
         <TTouchableOpacity
             testID={testIDs.screenTouchable}
@@ -52,17 +66,7 @@ const SelectActions: ReactComponent<SelectActionsAnimatedProps> = ({ onOutsideCl
                     borderColor='text'
                     justifyContent='center'
                     alignItems='center'
-                    style={{
-                        borderWidth: 1,
-                        borderRadius: 10,
-                        shadowColor: '#000',
-                        shadowOpacity: 0.2,
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowRadius: 4,
-                        width: '80%',
-                        maxWidth: 350,
-                        alignItems: 'center',
-                    }}
+                    style={buttonStyle}
                     onPress={onSelectAssignment}
                 >
                     <TText testID={testIDs.addAssignmentText} size={18} bold color='blue'>{t(`course:add_assignment`)}</TText>
@@ -77,17 +81,7 @@ const SelectActions: ReactComponent<SelectActionsAnimatedProps> = ({ onOutsideCl
                     borderColor='text'
                     justifyContent='center'
                     alignItems='center'
-                    style={{
-                        borderWidth: 1,
-                        borderRadius: 10,
-                        shadowColor: '#000',
-                        shadowOpacity: 0.2,
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowRadius: 4,
-                        width: '80%',
-                        maxWidth: 350,
-                        alignItems: 'center',
-                    }}
+                    style={buttonStyle}
                     onPress={onSelectMaterial}
                 >
                     <TText testID={testIDs.addMaterialText} size={18} bold color='blue'>{t(`course:add_material`)}</TText>

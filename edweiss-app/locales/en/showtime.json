@@ -5,7 +5,14 @@
     "rmt_cntl_title" : "Remote Control",
     "rmt_cntl_setting_title": "Remote Control Settings",
     "rmt_cntl_lang_section": "Language Selection",
-    "rmt_cntl_go_page": "Jump to Page",
+    "rmt_cntl_jmp_to_page": "Jump to Page",
+    "rmt_cntl_go_page": "Go to Page",
+    "rmt_cntl_pick_page": "Pick",
+    "rmt_cntl_inv_page_toast" : "The Page is Out of Bound",
+    "rmt_cntl_inv_page_toast_funny" : "Oops! That page must be hiding somewhere else.",
+    "rmt_ctl_enter_page_placeholder": "Enter your Page",
+    "rmt_ctl_enter_page_label":"Page Picker",
+
 
     "lecturer_transcript_deftxt" : "Lecturer’s transcript... currently in invisible ink!",
     

@@ -93,7 +93,7 @@ const CoursePage: ApplicationRoute = () => {
 	const auth = useAuth();
 	const uid = auth.authUser?.uid;
 	const user = useDoc<AppUser>(CollectionOf<AppUser>('users'), uid);
-
+    
 	// Retrieve course data from Firestore
 	const result = usePrefetchedDynamicDoc(
 		CollectionOf<Course>('courses'),
@@ -265,7 +265,7 @@ const CoursePage: ApplicationRoute = () => {
 		setMaterialToEdit(null);
 		setModalEditMaterialVisible(false);
 	}, [id]);
-
+    
 	//Checks
 	if (!isValidId) { return <Redirect href={'/'} />; }
 	if (user == undefined || course == undefined || assignmentsCollection == undefined || materialCollection == undefined) { return <TActivityIndicator size={40} />; }
@@ -366,7 +366,7 @@ const CoursePage: ApplicationRoute = () => {
 				<Animated.View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', opacity: fadeAnim }}>
 					<SelectActions onOutsideClick={closeModalOnOutsideClick} onSelectAssignment={() => handleActionSelect('addAssignment')} onSelectMaterial={() => handleActionSelect('addMaterial')} />
 				</Animated.View>
-			</Modal >
+			</Modal>
 
 			<Modal
 				visible={modalVisible}

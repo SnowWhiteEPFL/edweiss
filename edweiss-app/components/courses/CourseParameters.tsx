@@ -68,6 +68,8 @@ const CourseParameters: ReactComponent<CourseParamsProps> = ({ course, onGiveUp,
     const [description, setDescription] = React.useState<string>(course.data.description);
     const [section, setSection] = React.useState<Section>(course.data.section);
     const [credits, setCredits] = React.useState<number>(course.data.credits);
+    const [professor, setProfessor] = React.useState<ProfessorID>("");
+    const [assistant, setAssistant] = React.useState<StudentID>("");
 
     const sectionOptions: { section: Section, color: Color }[] = [
         { section: "IN", color: "cherry" },

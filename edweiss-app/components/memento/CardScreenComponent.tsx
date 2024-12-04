@@ -12,22 +12,26 @@
 
 import ReactComponent from '@/constants/Component';
 
-import { callFunction, Collections } from '@/config/firebase';
-import { useDynamicDocs } from '@/hooks/firebase/firestore';
+import { DecksRepository } from '@/app/(app)/deck/_layout';
+import { callFunction } from '@/config/firebase';
+import { useRepositoryDocument } from '@/hooks/repository';
 import Memento from '@/model/memento';
+import { mementoStatusColorMap, mementoStatusIconMap } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, StyleSheet } from 'react-native';
 import { State, TapGestureHandler } from 'react-native-gesture-handler';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import TView from '../core/containers/TView';
 import RouteHeader from '../core/header/RouteHeader';
+import Icon from '../core/Icon';
 import TText from '../core/TText';
 import FancyButton from '../input/FancyButton';
+import { OptionCardModalDisplay } from './OptionCardModalAction';
 
 // ------------------------------------------------------------
-// ---------------- CardScreenComponent Component -----------
+// ---------------- CardScreenComponent Component -------------
 // ------------------------------------------------------------
 
 /**
@@ -37,19 +41,25 @@ import FancyButton from '../input/FancyButton';
  * @param {string} deckId - Deck id
  * @param {number} cardIndex - Card index
  * @param {boolean} isModal - boolean to check if the screen is a modal then change the style
+ * @param {React.RefObject<BottomSheetModal>} modalRef - Reference to the modal
+ * 
  * @returns {ReactComponent} Screen to see a card
  */
-const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; isModal?: boolean; modalRef: React.RefObject<BottomSheetModal> }> = ({ deckId, cardIndex, isModal, modalRef }) => {
+const CardScreenComponent: ReactComponent<{
+    deckId: string,
+    cardIndex: number;
+    currentCardIndices: number[]
+    setCurrentCardIndices: React.Dispatch<React.SetStateAction<number[]>>
+    isModal?: boolean;
+    modalRef: React.RefObject<BottomSheetModal>
+}> = ({ deckId, cardIndex, currentCardIndices, setCurrentCardIndices, isModal, modalRef }) => {
 
     const [showDropdown, setShowDropdown] = useState(false); // State for dropdown visibility
     const [isFlipped, setIsFlipped] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const modalRef_Operation = useRef<BottomSheetModal>(null); // Reference for the modal
 
-    const decks = useDynamicDocs(Collections.deck);
-
-    const deck = decks?.find(d => d.id == deckId);
-
-    const card = deck?.data.cards[cardIndex];
+    const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
 
     const rotation = useSharedValue(0);
 
@@ -58,6 +68,25 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
         setIsFlipped(false);
         rotation.value = 0;
     }, [cardIndex]);
+
+    // Animated styles for front and back of the card
+    const fronCardStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ perspective: 1000 }, { rotateY: `${rotation.value}deg` }]
+        };
+    });
+
+    const backCardStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ perspective: 1000 }, { rotateY: `${rotation.value + 180}deg` }]
+        };
+    });
+
+    if (deck == undefined) return;
+
+    const cards = deck.data.cards;
+
+    const card = cards[cardIndex];
 
     const toggleDropDown = () => { setShowDropdown(prev => !prev); }; // Open/close dropdown
 
@@ -86,43 +115,26 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
         );
     };
 
-    // Animated styles for front and back of the card
-    const fronCardStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ perspective: 1000 }, { rotateY: `${rotation.value}deg` }]
-        };
-    });
-
-    const backCardStyle = useAnimatedStyle(() => {
-        return {
-            transform: [{ perspective: 1000 }, { rotateY: `${rotation.value + 180}deg` }]
-        };
-    });
-
     // Delete card
-    async function deleteCard() {
-
-        const res = await callFunction(Memento.Functions.deleteCards, { deckId: deckId, cardIndices: [cardIndex] });
-        if (res.status == 1) {
-            console.log(`Card deleted with id ${res.data.id}`);
-            isModal ? modalRef.current?.dismiss() : router.back();
-        }
-
+    const deleteCard = async () => {
+        handler.modifyDocument(deckId, { cards: cards.filter((_, index) => index != cardIndex) }, (deckId) => {
+            callFunction(Memento.Functions.deleteCards, { deckId: deckId, cardIndices: [cardIndex] });
+            console.log(`Card deleted with index ${cardIndex}`);
+            const newCardIndices = currentCardIndices.filter((index) => index != cardIndex).map((index) => index > cardIndex ? index - 1 : index);
+            setCurrentCardIndices(newCardIndices);
+            modalRef_Operation.current?.dismiss();
+        })
     }
+
+    const editCard = () => { router.push({ pathname: `/deck/${deckId}/card/edition` as any, params: { deckId: deckId, prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex } }) }
 
     // Update card
     async function updateCard(new_learning_status: Memento.LearningStatus) {
         if (!card) return;
-        try {
-            const res = await callFunction(Memento.Functions.updateCard, { deckId: deckId as any, newCard: { ...card, learning_status: new_learning_status }, cardIndex: cardIndex });
 
-            if (res.status == 1) {
-                console.log(`OKAY, card updated with index ${cardIndex}`);
-            }
-        } catch (error) {
-            console.error("Error deleting card:", error);
-        }
-
+        handler.modifyDocument(deckId, { cards: cards.map((c, index) => index == cardIndex ? { ...c, learning_status: new_learning_status } : c) }, (deckId) => {
+            callFunction(Memento.Functions.updateCard, { deckId: deckId as any, newCard: { ...card, learning_status: new_learning_status }, cardIndex: cardIndex });
+        });
     }
 
     return (
@@ -130,25 +142,11 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
             {!isModal && <RouteHeader
                 title='Test Your Might!'
                 right={
-                    <Button testID='toggleButton' onPress={toggleDropDown} title='⋮' />
+                    <Button color={'black'} testID='toggleButton' onPress={() => { setShowDropdown(true); modalRef_Operation.current?.present() }} title='⋮' />
                 }
             />}
 
-            {showDropdown && (
-                <TView testID='2ButtonsDropDown' borderColor='blue' style={{ position: 'absolute', top: -16, right: 0, padding: 0, zIndex: 1000 }} >
-                    <FancyButton testID='deleteCardButton' onPress={deleteCard} backgroundColor='transparent' textColor='red' mt={'md'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
-                        Delete Card
-                    </FancyButton>
-                    <FancyButton testID='editCardButton' onPress={() => {
-                        if (isModal) { modalRef.current?.dismiss(); }
-                        router.push({ pathname: `/deck/${deckId}/card/edition` as any, params: { deckId: deckId, prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex } })
-                    }
-                    }
-                        backgroundColor='transparent' textColor='teal' mb={'sm'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
-                        Edit Card
-                    </FancyButton>
-                </TView>
-            )}
+            <OptionCardModalDisplay modalRef={modalRef_Operation} toggleDropDown={showDropdown} deleteCard={deleteCard} editCard={editCard} />
 
             <TapGestureHandler
                 testID='flipCardToSeeAnswer'
@@ -159,7 +157,10 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
                 }}>
                 <Animated.View style={[isModal ? styles.modalCard : styles.cardContainer, fronCardStyle]}>
                     <TText mr={10} ml={10} size={20} ellipsizeMode='tail' style={{ textAlign: 'center', fontSize: calculateFontSize(card?.question ?? ""), lineHeight: calculateFontSize(card?.question ?? "") * 1.2 }}>
-                        {card?.question}
+                        {card.question}
+                    </TText>
+                    <TText style={{ position: 'absolute', top: '2%', right: '2%' }} >
+                        <Icon name={mementoStatusIconMap[card.learning_status]} color={mementoStatusColorMap[card.learning_status]} size={'lg'} />
                     </TText>
                 </Animated.View>
             </TapGestureHandler>
@@ -173,7 +174,10 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
                 }}>
                 <Animated.View style={[styles.cardContainer, backCardStyle]}>
                     <TText mr={10} ml={10} size={20} ellipsizeMode='tail' style={{ textAlign: 'center', fontSize: calculateFontSize(card?.answer ?? ""), lineHeight: calculateFontSize(card?.answer ?? "") * 1.2 }}>
-                        {card?.answer}
+                        {card.answer}
+                    </TText>
+                    <TText style={{ position: 'absolute', top: '2%', right: '2%' }} >
+                        <Icon name={mementoStatusIconMap[card.learning_status]} color={mementoStatusColorMap[card.learning_status]} size={'lg'} />
                     </TText>
                 </Animated.View>
             </TapGestureHandler>
@@ -190,8 +194,7 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
                             setIsLoading(true);
                             await updateCard("Not yet");
                             setIsLoading(false);
-                        }
-                        }
+                        }}
                         style={{ width: '100%', height: '100%' }} // Make button fill its half
                         icon='close-sharp'
                     >
@@ -206,7 +209,6 @@ const CardScreenComponent: ReactComponent<{ deckId: string, cardIndex: number; i
                         onPress={async () => {
                             setIsLoading(true);
                             await updateCard("Got it");
-                            //await updateLearningStatusCard(deckId, cardIndex, updateCard, "Got it", card);
                             setIsLoading(false);
                         }}
                         style={{ width: '100%', height: '100%' }} // Make button fill its half

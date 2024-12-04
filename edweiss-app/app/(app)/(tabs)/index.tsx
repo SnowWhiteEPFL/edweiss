@@ -104,35 +104,19 @@ const SchedulePoint: ReactComponent<{ color: Color, time: string, name: string, 
 const CourseDisplay: ReactComponent<{ course: Document<Course> }> = ({ course }) => {
 	const assignments = useDocs(CollectionOf<Assignment>(`courses/${course.id}/assignments`));
 
+	const validAssignment = assignments && assignments.length > 0 ? assignments : undefined
+
 	return (
 		<TTouchableOpacity onPress={() => router.push(`/courses/${course.id}`)} radius={'md'} backgroundColor='base' mx={'md'} p={'md'} mb={"md"}>
 			<TText>
 				{course.data.name}
 			</TText>
-			<For each={assignments && assignments.length > 0 ? assignments : undefined}
+			<For each={validAssignment}
 				fallback={<TText size={'sm'} color='overlay1'>{t("home:no_assignments")}</TText>}
 			>
 				{assignment => <AssignmentDisplay key={assignment.id} assignment={assignment} />}
 			</For>
 		</TTouchableOpacity>
-		// <TTouchableOpacity onPress={() => router.push(`/courses/${course.id}`)} radius={'md'} flexDirection='row' p={5} borderColor='overlay2' backgroundColor='surface0' mb={8} >
-		// 	<TView flexDirection='column'>
-		// 		<TView flexDirection='row'>
-		// 			<TText color='subtext1' p={10}>{course.data.name}</TText>
-		// 			{course.data.newAssignments && <TText color='green' pt={10} pb={0} size={25}>New!</TText>}
-		// 		</TView>
-		// 		<TView p={5} flexDirection='row'>
-		// 			<TText p={5} pr={70}>Crédits: {course.data.credits}</TText>
-		// 			<TView >
-		// 				{course.data.assignments &&
-		// 					<TView borderColor='red' radius={3} >
-		// 						{course.data.assignments.length > 0 && <TText color='subtext1' p={10} >assignements : {course.data.assignments.length}</TText>}
-		// 					</TView>
-		// 				}
-		// 			</TView>
-		// 		</TView>
-		// 	</TView>
-		// </TTouchableOpacity>
 	);
 };
 
