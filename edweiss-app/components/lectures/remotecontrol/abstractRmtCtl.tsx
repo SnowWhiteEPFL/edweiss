@@ -21,6 +21,7 @@ import { langIconMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
+import { Vibration } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { LangSelectModal } from './modal';
 
@@ -53,20 +54,31 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
     const modalRefLangSelect = useRef<BottomSheetModal>(null);
 
 
-    const [timer, setTimer] = useState(0);
+    const [timer, setTimer] = useState(350);
+    const [recall, setRecall] = useState(345);
     const [isRunning, setIsRunning] = useState(false);
+    const [isCritical, setIsCritical] = useState(timer < recall);
 
     useEffect(() => {
         let interval: NodeJS.Timeout | null = null;
         if (isRunning) {
             interval = setInterval(() => {
-                setTimer(prevTimer => prevTimer + 1);
+                setTimer(prevTimer => prevTimer - 1);
             }, 1000);
         } else if (!isRunning && timer !== 0) {
             clearInterval(interval!);
         }
         return () => clearInterval(interval!);
     }, [isRunning, timer]);
+
+    useEffect(() => {
+        if (isRunning && timer === recall) {
+            Vibration.vibrate([50, 300, 50, 300, 50, 300]);
+            setIsCritical(true);
+        }
+
+
+    }, [isRunning, timer])
 
     const formatTime = (seconds: number) => {
         const getSeconds = `0${seconds % 60}`.slice(-2);
@@ -83,7 +95,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
             <TView borderColor='text' m={'md'} mt={'xl'} mb={'xl'} b={0.5} backgroundColor='base' radius={'lg'}>
 
                 {/* STRC text, set language and timer */}
-                <TView mt={17} mb={50} justifyContent='center' alignItems='center'>
+                <TView mt={'sm'} mb={'lg'} justifyContent='center' alignItems='center'>
                     <TText size={18} mt={'sm'} mb={'sm'}> {t(`showtime:showtime_title`)}</TText>
 
                     <TView alignItems='center' flexDirection='row' justifyContent='space-between' mt={20}>
@@ -102,7 +114,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                         {/* The Stop Watch */}
                         <TTouchableOpacity
                             backgroundColor='mantle'
-                            borderColor='text'
+                            borderColor={isRunning ? (isCritical ? 'red' : 'green') : 'text'}
                             b={1}
                             radius={'lg'}
                             mr={'lg'}
@@ -111,6 +123,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                         >
                             <TText
                                 size={50}
+                                color={isRunning ? (isCritical ? 'red' : 'green') : 'overlay1'}
                                 style={{ width: 200, height: 70, paddingTop: 40, paddingLeft: 10 }}
                                 testID='timer-txt'>
                                 {formatTime(timer)}
