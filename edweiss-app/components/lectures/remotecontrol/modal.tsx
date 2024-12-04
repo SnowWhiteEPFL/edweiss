@@ -22,6 +22,7 @@ import LectureDisplay from '@/model/lectures/lectureDoc';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { t } from 'i18next';
 import React, { useState } from 'react';
+import { Vibration } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { langIconMap, langNameMap } from '../../../utils/lectures/remotecontrol/utilsFunctions';
 
@@ -201,8 +202,17 @@ export const TimerSettingModal: ReactComponent<{
         return `0${Math.floor(seconds / 3600)}`.slice(-1);
     }
 
+    const setTimerInterf = (seconds: number) => {
+        if (0 <= seconds && seconds <= 35999) {
+            setTmpTimer(seconds);
+        }
+    }
 
-
+    const setRecallInterf = (seconds: number) => {
+        if (0 <= seconds && seconds <= 35999) {
+            setTmpRecall(seconds);
+        }
+    }
 
     return (
         <ModalContainer modalRef={modalRef}>
@@ -277,10 +287,11 @@ export const TimerSettingModal: ReactComponent<{
                             backgroundColor='crust'
                             borderColor='text' p={'sm'} b={1} radius={1000}
                             onPress={() => {
+                                Vibration.vibrate(100);
                                 if (Math.floor(butSelcted / 3) == 0) {
-                                    setTmpTimer(tmpTimer - curCoef)
+                                    setTimerInterf(tmpTimer - curCoef)
                                 } else {
-                                    setTmpRecall(tmpRecall - curCoef)
+                                    setRecallInterf(tmpRecall - curCoef)
                                 }
                             }}
                             testID='dec-timer-button'>
@@ -296,10 +307,11 @@ export const TimerSettingModal: ReactComponent<{
                             backgroundColor='crust'
                             borderColor='text' p={'sm'} b={1} radius={1000}
                             onPress={() => {
+                                Vibration.vibrate(100);
                                 if (Math.floor(butSelcted / 3) == 0) {
-                                    setTmpTimer(tmpTimer + curCoef)
+                                    setTimerInterf(tmpTimer + curCoef)
                                 } else {
-                                    setTmpRecall(tmpRecall + curCoef)
+                                    setRecallInterf(tmpRecall + curCoef)
                                 }
                             }} testID='add-timer-button'>
                             <Icon size={50} name='add-circle-outline' color='text'></Icon>
