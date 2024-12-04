@@ -11,6 +11,7 @@
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
+import Icon from '@/components/core/Icon';
 import ModalContainer from '@/components/core/modal/ModalContainer';
 import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
@@ -20,7 +21,7 @@ import useTheme from '@/hooks/theme/useTheme';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { t } from 'i18next';
-import React from 'react';
+import React, { useState } from 'react';
 import { langIconMap, langNameMap } from '../../../utils/lectures/remotecontrol/utilsFunctions';
 
 // type
@@ -164,6 +165,23 @@ export const TimerSettingModal: ReactComponent<{
     onClose: () => void;
 }> = ({ modalRef, currentTimer, currentRecall, setTimer, setRecall, onClose }) => {
 
+    const [tmpTimer, setTmpTimer] = useState(currentTimer);
+    const [tmpRecall, setTmpRecall] = useState(currentRecall);
+
+    const getTimerSeconds = (seconds: number) => {
+        return `0${seconds % 60}`.slice(-2);
+    }
+
+    const getTimerMinute = (seconds: number) => {
+        const minutes = Math.floor(seconds / 60);
+        return `0${minutes % 60}`.slice(-2);
+    }
+
+    const getTimerHour = (seconds: number) => {
+        return `0${Math.floor(seconds / 3600)}`.slice(-1);
+
+    }
+
     return (
         <ModalContainer modalRef={modalRef}>
             <>
@@ -172,12 +190,105 @@ export const TimerSettingModal: ReactComponent<{
                 </TView>
 
 
-                <TText>{currentTimer}</TText>
+
+                <TView mt={'sm'}>
+
+
+                    <TView flexDirection='row' justifyContent='space-between' mb={'md'} >
+                        <TView flexDirection='row' justifyContent='space-between' flex={1} mt={'xs'}>
+
+                            <TText ml={'md'} mt={'md'} size={'lg'}>Timer</TText>
+
+                            <TTouchableOpacity ml={'lg'} radius={'md'} borderColor='text' b={1} justifyContent='center' pr={'md'} pl={'md'}>
+                                <TText size={'lg'}>{getTimerHour(tmpTimer)}</TText>
+                            </TTouchableOpacity>
+
+                            <TText size={'xl'} pt={'lg'}>:</TText>
+
+                            <TTouchableOpacity radius={'md'} borderColor='text' b={1} justifyContent='center' pr={'md'} pl={'md'}>
+                                <TText size={'lg'}>{getTimerMinute(tmpTimer)}</TText>
+                            </TTouchableOpacity>
+
+                            <TText size={'xl'} pt={'lg'} >:</TText>
+
+                            <TTouchableOpacity mr={'lg'} radius={'md'} borderColor='text' b={1} justifyContent='center' pr={'md'} pl={'md'}>
+                                <TText size={'lg'}>{getTimerSeconds(tmpTimer)}</TText>
+                            </TTouchableOpacity>
+                        </TView>
+
+                    </TView>
+
+
+                    <TView flexDirection='row' justifyContent='space-between' mb={'md'} mt={'sm'}>
+                        <TView flexDirection='row' justifyContent='space-between' flex={1} mt={'xs'}>
+
+                            <TText ml={'md'} mt={'md'} size={'lg'}>Recall</TText>
+
+                            <TTouchableOpacity ml={'lg'} radius={'md'} borderColor='text' b={1} justifyContent='center' pr={'md'} pl={'md'}>
+                                <TText size={'lg'}>{getTimerHour(tmpTimer)}</TText>
+                            </TTouchableOpacity>
+
+                            <TText size={'xl'} pt={'lg'}>:</TText>
+
+                            <TTouchableOpacity radius={'md'} borderColor='text' b={1} justifyContent='center' pr={'md'} pl={'md'}>
+                                <TText size={'lg'}>{getTimerMinute(tmpTimer)}</TText>
+                            </TTouchableOpacity>
+
+                            <TText size={'xl'} pt={'lg'} >:</TText>
+
+                            <TTouchableOpacity mr={'lg'} radius={'md'} borderColor='text' b={1} justifyContent='center' pr={'md'} pl={'md'}>
+                                <TText size={'lg'}>{getTimerSeconds(tmpTimer)}</TText>
+                            </TTouchableOpacity>
+                        </TView>
+
+                    </TView>
+
+
+                    <TView flex={1} />
+
+
+                    {/* <TText mt={'md'} ml={'lg'} mr={'lg'} size={'lg'} testID='timer-val-status'>Timer: {formatTime(tmpTimer)}</TText> */}
+
+                    <TView flexDirection='row' justifyContent='space-between' mb={'sm'} mt={'sm'}>
+
+                        <TView flex={1} />
+
+                        <TTouchableOpacity
+                            ml={'xl'}
+                            backgroundColor='crust'
+                            borderColor='text' p={'sm'} b={1} radius={1000}
+                            onPress={() => setTmpTimer(tmpTimer - 1)}
+                            testID='dec-timer-button'>
+                            <Icon size={50} name='remove-circle-outline' color='text'></Icon>
+                        </TTouchableOpacity>
+
+                        <TView flex={1} />
+
+
+
+                        <TTouchableOpacity
+                            mr={'xs'}
+                            backgroundColor='crust'
+                            borderColor='text' p={'sm'} b={1} radius={1000}
+                            onPress={() => setTmpTimer(tmpTimer + 1)}
+                            testID='add-timer-button'>
+                            <Icon size={50} name='add-circle-outline' color='text'></Icon>
+                        </TTouchableOpacity>
+
+
+                        <TView flex={1} />
+                    </TView>
+                </TView>
+
+
+                <FancyButton icon='stopwatch-outline' mt={'lg'} m='md' mb={0} onPress={() => { setTimer(tmpTimer); setRecall(tmpRecall); onClose() }} outlined testID='lang-sel-close-button'>
+                    {t('showtime:rmt_ctl_set_it_up')}
+                </FancyButton>
 
                 <FancyButton backgroundColor='subtext0' m='md' onPress={onClose} outlined testID='lang-sel-close-button'>
                     {t('todo:close_btn')}
                 </FancyButton>
             </>
-        </ModalContainer>
+        </ModalContainer >
     );
 };

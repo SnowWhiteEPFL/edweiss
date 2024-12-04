@@ -58,7 +58,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
 
 
     const [timer, setTimer] = useState(0);
-    const [recall, setRecall] = useState(-1);
+    const [recall, setRecall] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
     const [isCritical, setIsCritical] = useState(timer < recall);
 
