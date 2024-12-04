@@ -148,3 +148,36 @@ const TwoLangsSelection: React.FC<TwoLangsSelectionProps & LightDarkProps> = ({ 
         </TView>
     );
 };
+
+
+// ------------------------------------------------------------
+// ----------      Modal For the timer settings      ----------
+// ------------------------------------------------------------
+
+
+export const TimerSettingModal: ReactComponent<{
+    modalRef: React.RefObject<BottomSheetModalMethods>;
+    currentTimer: number,
+    currentRecall: number
+    setTimer: React.Dispatch<React.SetStateAction<number>>;
+    setRecall: React.Dispatch<React.SetStateAction<number>>;
+    onClose: () => void;
+}> = ({ modalRef, currentTimer, currentRecall, setTimer, setRecall, onClose }) => {
+
+    return (
+        <ModalContainer modalRef={modalRef}>
+            <>
+                <TView justifyContent='center' alignItems='center' mb='sm'>
+                    <TText bold size='lg' mb='sm'>{t('showtime:rmt_ctl_set_timer_title')}</TText>
+                </TView>
+
+
+                <TText>{currentTimer}</TText>
+
+                <FancyButton backgroundColor='subtext0' m='md' onPress={onClose} outlined testID='lang-sel-close-button'>
+                    {t('todo:close_btn')}
+                </FancyButton>
+            </>
+        </ModalContainer>
+    );
+};

@@ -18,12 +18,12 @@ import t from '@/config/i18config';
 import { LightDarkProps } from '@/constants/Colors';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { langIconMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { router } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Vibration } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { LangSelectModal } from './modal';
+import { LangSelectModal, TimerSettingModal } from './modal';
 
 // types
 type AvailableLangs = LectureDisplay.AvailableLangs;
@@ -45,30 +45,35 @@ interface AbstractRmtCrlProps {
     totPageProvided: number;
     courseNameString: string;
     lectureIdString: string;
+    modalRefLangSelect: React.RefObject<BottomSheetModalMethods>;
+    modalRefTimer: React.RefObject<BottomSheetModalMethods>;
 
 }
 
-export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, isRecording, lang, setLang, curPageProvided, totPageProvided, courseNameString, lectureIdString }) => {
+export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, isRecording, lang, setLang, curPageProvided, totPageProvided, courseNameString, lectureIdString, modalRefTimer, modalRefLangSelect }) => {
 
     // Modal References
-    const modalRefLangSelect = useRef<BottomSheetModal>(null);
+
+    console.log("Lang: " + modalRefLangSelect.current + "Timer: " + modalRefTimer.current);
 
 
-    const [timer, setTimer] = useState(350);
-    const [recall, setRecall] = useState(345);
+    const [timer, setTimer] = useState(0);
+    const [recall, setRecall] = useState(-1);
     const [isRunning, setIsRunning] = useState(false);
     const [isCritical, setIsCritical] = useState(timer < recall);
 
     useEffect(() => {
-        let interval: NodeJS.Timeout | null = null;
-        if (isRunning) {
-            interval = setInterval(() => {
-                setTimer(prevTimer => prevTimer - 1);
-            }, 1000);
-        } else if (!isRunning && timer !== 0) {
-            clearInterval(interval!);
+        if (timer > 0) {
+            let interval: NodeJS.Timeout | null = null;
+            if (isRunning) {
+                interval = setInterval(() => {
+                    setTimer(prevTimer => prevTimer - 1);
+                }, 1000);
+            } else if (!isRunning && timer !== 0) {
+                clearInterval(interval!);
+            }
+            return () => clearInterval(interval!);
         }
-        return () => clearInterval(interval!);
     }, [isRunning, timer]);
 
     useEffect(() => {
@@ -76,7 +81,6 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
             Vibration.vibrate([50, 300, 50, 300, 50, 300]);
             setIsCritical(true);
         }
-
 
     }, [isRunning, timer])
 
@@ -118,8 +122,9 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                             b={1}
                             radius={'lg'}
                             mr={'lg'}
-                            testID='timer-but'
                             onPress={() => setIsRunning(!isRunning)}
+                            onLongPress={() => { if (!isRunning) { Vibration.vibrate(100); modalRefTimer.current?.present(); } }}
+                            testID='timer-but'
                         >
                             <TText
                                 size={50}
@@ -215,10 +220,11 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
 
                 </TView>
 
-            </TView>
+            </TView >
 
             {/* Modals */}
-            <LangSelectModal modalRef={modalRefLangSelect} lang={lang} setLang={setLang} onClose={() => modalRefLangSelect.current?.close()} />
+            < LangSelectModal modalRef={modalRefLangSelect} lang={lang} setLang={setLang} onClose={() => modalRefLangSelect.current?.close()} />
+            <TimerSettingModal modalRef={modalRefTimer} currentTimer={timer} currentRecall={recall} setTimer={setTimer} setRecall={setRecall} onClose={() => modalRefTimer.current?.close()} />
         </>
     );
 };
