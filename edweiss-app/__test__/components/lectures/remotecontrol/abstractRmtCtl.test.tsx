@@ -15,6 +15,7 @@ import LectureDisplay from '@/model/lectures/lectureDoc';
 import { langIconMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { fireEvent, render } from '@testing-library/react-native';
+import { router } from 'expo-router';
 import React from 'react';
 import Toast from 'react-native-toast-message';
 
@@ -22,6 +23,13 @@ import Toast from 'react-native-toast-message';
 // ------------------------------------------------------------
 // -----------------  Mocking dependencies    -----------------
 // ------------------------------------------------------------
+
+// Constants
+const curPageProvided = 3;
+const totPageProvided = 5;
+const courseNameString = "super-cool-course";
+const lectureIdString = "super-interessting-lecture-id";
+
 
 // Mock translation function
 jest.mock('@/config/i18config', () => ({
@@ -153,6 +161,10 @@ describe('AbstractRmtCrl Component', () => {
             isRecording={false}
             lang={langMock}
             setLang={setLangMock}
+            curPageProvided={curPageProvided}
+            totPageProvided={totPageProvided}
+            courseNameString={courseNameString}
+            lectureIdString={lectureIdString}
         />)
 
         expect(getByTestId("title")).toBeTruthy();
@@ -166,6 +178,10 @@ describe('AbstractRmtCrl Component', () => {
             isRecording={false}
             lang={langMock}
             setLang={setLangMock}
+            curPageProvided={curPageProvided}
+            totPageProvided={totPageProvided}
+            courseNameString={courseNameString}
+            lectureIdString={lectureIdString}
         />)
 
         expect(getByText(t('showtime:showtime_title'))).toBeTruthy();
@@ -179,6 +195,10 @@ describe('AbstractRmtCrl Component', () => {
             isRecording={false}
             lang={langMock}
             setLang={setLangMock}
+            curPageProvided={curPageProvided}
+            totPageProvided={totPageProvided}
+            courseNameString={courseNameString}
+            lectureIdString={lectureIdString}
         />)
 
         expect(getByTestId('strc-lang-button')).toBeTruthy();
@@ -205,6 +225,10 @@ describe('AbstractRmtCrl Component', () => {
                 isRecording={false}
                 lang={langMock}
                 setLang={setLangMock}
+                curPageProvided={curPageProvided}
+                totPageProvided={totPageProvided}
+                courseNameString={courseNameString}
+                lectureIdString={lectureIdString}
             />
         );
 
@@ -224,6 +248,10 @@ describe('AbstractRmtCrl Component', () => {
                 isRecording={true}
                 lang={langMock}
                 setLang={setLangMock}
+                curPageProvided={curPageProvided}
+                totPageProvided={totPageProvided}
+                courseNameString={courseNameString}
+                lectureIdString={lectureIdString}
             />
         );
 
@@ -245,6 +273,10 @@ describe('AbstractRmtCrl Component', () => {
                 isRecording={false}
                 lang={langMock}
                 setLang={setLangMock}
+                curPageProvided={curPageProvided}
+                totPageProvided={totPageProvided}
+                courseNameString={courseNameString}
+                lectureIdString={lectureIdString}
             />
         );
 
@@ -264,6 +296,10 @@ describe('AbstractRmtCrl Component', () => {
                 isRecording={true}
                 lang={langMock}
                 setLang={setLangMock}
+                curPageProvided={curPageProvided}
+                totPageProvided={totPageProvided}
+                courseNameString={courseNameString}
+                lectureIdString={lectureIdString}
             />
         );
 
@@ -285,6 +321,10 @@ describe('AbstractRmtCrl Component', () => {
                 isRecording={false}
                 lang={langMock}
                 setLang={setLangMock}
+                curPageProvided={curPageProvided}
+                totPageProvided={totPageProvided}
+                courseNameString={courseNameString}
+                lectureIdString={lectureIdString}
             />
         );
 
@@ -301,6 +341,10 @@ describe('AbstractRmtCrl Component', () => {
                 isRecording={false}
                 lang={langMock}
                 setLang={setLangMock}
+                curPageProvided={curPageProvided}
+                totPageProvided={totPageProvided}
+                courseNameString={courseNameString}
+                lectureIdString={lectureIdString}
             />
         );
 
@@ -317,6 +361,10 @@ describe('AbstractRmtCrl Component', () => {
                 isRecording={false}
                 lang={langMock}
                 setLang={setLangMock}
+                curPageProvided={curPageProvided}
+                totPageProvided={totPageProvided}
+                courseNameString={courseNameString}
+                lectureIdString={lectureIdString}
             />
         );
 
@@ -335,14 +383,22 @@ describe('AbstractRmtCrl Component', () => {
                 isRecording={false}
                 lang={langMock}
                 setLang={setLangMock}
+                curPageProvided={curPageProvided}
+                totPageProvided={totPageProvided}
+                courseNameString={courseNameString}
+                lectureIdString={lectureIdString}
             />
         );
 
         fireEvent.press(getByTestId('strc-go-to-button'));
-        expect(Toast.show).toHaveBeenCalledWith({
-            type: 'success',
-            text1: 'The Go to Page',
-            text2: 'Implementation comes soon'
+        expect(router.push).toHaveBeenCalledWith({
+            pathname: '/(app)/lectures/remotecontrol/jumpToSlide',
+            params: {
+                courseNameString,
+                lectureIdString,
+                currentPageString: curPageProvided.toString(),
+                totalPageString: totPageProvided.toString(),
+            },
         });
     });
 
@@ -355,6 +411,10 @@ describe('AbstractRmtCrl Component', () => {
                 isRecording={false}
                 lang={langMock}
                 setLang={setLangMock}
+                curPageProvided={curPageProvided}
+                totPageProvided={totPageProvided}
+                courseNameString={courseNameString}
+                lectureIdString={lectureIdString}
             />
         );
 
@@ -375,6 +435,10 @@ describe('AbstractRmtCrl Component', () => {
                 isRecording={false}
                 lang={langMock}
                 setLang={setLangMock}
+                curPageProvided={curPageProvided}
+                totPageProvided={totPageProvided}
+                courseNameString={courseNameString}
+                lectureIdString={lectureIdString}
             />
         );
 
@@ -395,6 +459,10 @@ describe('AbstractRmtCrl Component', () => {
                 isRecording={false}
                 lang={langMock}
                 setLang={setLangMock}
+                curPageProvided={curPageProvided}
+                totPageProvided={totPageProvided}
+                courseNameString={courseNameString}
+                lectureIdString={lectureIdString}
             />
         );
 
@@ -412,6 +480,10 @@ describe('AbstractRmtCrl Component', () => {
                 isRecording={false}
                 lang={langMock}
                 setLang={setLangMock}
+                curPageProvided={curPageProvided}
+                totPageProvided={totPageProvided}
+                courseNameString={courseNameString}
+                lectureIdString={lectureIdString}
             />
         );
 
