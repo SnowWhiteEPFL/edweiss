@@ -93,7 +93,7 @@ const CoursePage: ApplicationRoute = () => {
 	const auth = useAuth();
 	const uid = auth.authUser?.uid;
 	const user = useDoc<AppUser>(CollectionOf<AppUser>('users'), uid);
-    
+
 	// Retrieve course data from Firestore
 	const result = usePrefetchedDynamicDoc(
 		CollectionOf<Course>('courses'),
@@ -265,12 +265,12 @@ const CoursePage: ApplicationRoute = () => {
 		setMaterialToEdit(null);
 		setModalEditMaterialVisible(false);
 	}, [id]);
-    
+
 	//Checks
 	if (!isValidId) { return <Redirect href={'/'} />; }
 	if (user == undefined || course == undefined || assignmentsCollection == undefined || materialCollection == undefined) { return <TActivityIndicator size={40} />; }
 
-	const userIsProfessor = user.data.type == 'professor' && course.data.professors?.includes(uid);
+	const userIsProfessor = user.data.type === 'professor' && course.data.professors?.includes(uid);
 
 	return (
 		<>
