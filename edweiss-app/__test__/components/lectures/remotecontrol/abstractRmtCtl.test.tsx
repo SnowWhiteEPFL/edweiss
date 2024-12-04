@@ -374,7 +374,7 @@ describe('AbstractRmtCrl Component', () => {
 
 
 
-    test('shows toast when Go to Page button is pressed', () => {
+    test('go to JumpToPage screen when Go to Page button is pressed', () => {
         const { getByTestId } = render(
             <AbstractRmtCrl
                 handleRight={handleRightMock}
