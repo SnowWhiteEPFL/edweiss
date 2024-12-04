@@ -1,7 +1,9 @@
 import CoursePage from '@/app/(app)/courses/[id]/index';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import { useAuth } from '@/contexts/auth';
-import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { useDoc, useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { Timestamp } from '@/model/time';
+import { ProfessorUser, StudentUser } from '@/model/users';
 import { fireEvent, render } from "@testing-library/react-native";
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
@@ -51,14 +53,6 @@ jest.mock('@/config/i18config', () =>
     })
 );
 
-// jest.mock('@/contexts/auth', () => ({
-//     useAuth: jest.fn(() => ({
-//         authUser: { uid: '123', name: 'Test User' }, // Valeurs par défaut
-//         login: jest.fn(),
-//         logout: jest.fn(),
-//     })),
-// }));
-
 jest.mock('@/contexts/auth', () => ({
     useAuth: jest.fn(),
 }));
@@ -93,6 +87,7 @@ const setupStudentMockUseAuth = (overrideValues = {}) => {
 jest.mock('@/hooks/firebase/firestore', () => ({
     usePrefetchedDynamicDoc: jest.fn(),
     useDynamicDocs: jest.fn(),
+    useDoc: jest.fn(),
 }));
 
 jest.mock('@/config/firebase', () => ({
@@ -171,6 +166,7 @@ describe('CoursePage with assignments', () => {
 
     beforeEach(() => {
         setupStudentMockUseAuth();
+        (useDoc as jest.Mock).mockReturnValue({ id: 'StudentID', data: { type: 'student', name: 'Test User', createdAt: { seconds: 0, nanoseconds: 0 } as Timestamp, courses: ['courseID'] } as StudentUser });
         (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
         jest.spyOn(console, 'log').mockImplementation(() => { }); // Transforme `console.log` en une fonction mock
         (usePrefetchedDynamicDoc as jest.Mock).mockImplementation(() => [{
@@ -331,6 +327,7 @@ describe('CoursePage with assignments', () => {
 describe("CoursePage without assignments", () => {
     beforeEach(() => {
         setupStudentMockUseAuth();
+        (useDoc as jest.Mock).mockReturnValue({ id: 'StudentID', data: { type: 'student', name: 'Test User', createdAt: { seconds: 0, nanoseconds: 0 } as Timestamp, courses: ['courseID'] } as StudentUser });
         (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
         jest.spyOn(console, 'log').mockImplementation(() => { }); // Transforme `console.log` en une fonction mock
         (usePrefetchedDynamicDoc as jest.Mock).mockImplementation(() => [{
@@ -387,6 +384,8 @@ describe('Navigate to PreviousPage', () => {
 
     beforeEach(() => {
         setupStudentMockUseAuth();
+
+        (useDoc as jest.Mock).mockReturnValue({ id: 'StudentID', data: { type: 'student', name: 'Test User', createdAt: { seconds: 0, nanoseconds: 0 } as Timestamp, courses: ['courseID'] } as StudentUser });
 
         (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
         jest.spyOn(console, 'log').mockImplementation(() => { });
@@ -521,6 +520,7 @@ describe('Navigate to PreviousPage', () => {
 describe('Case where id is invalid', () => {
     beforeEach(() => {
         setupStudentMockUseAuth();
+        (useDoc as jest.Mock).mockReturnValue({ id: 'StudentID', data: { type: 'student', name: 'Test User', createdAt: { seconds: 0, nanoseconds: 0 } as Timestamp, courses: ['courseID'] } as StudentUser });
         (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 1 });
         jest.spyOn(console, 'log').mockImplementation(() => { });
         (usePrefetchedDynamicDoc as jest.Mock).mockImplementation(() => [{
@@ -558,6 +558,7 @@ describe('Case where id is invalid', () => {
 describe('Case where course data is not available', () => {
     beforeEach(() => {
         setupStudentMockUseAuth();
+        (useDoc as jest.Mock).mockReturnValue({ id: 'StudentID', data: { type: 'student', name: 'Test User', createdAt: { seconds: 0, nanoseconds: 0 } as Timestamp, courses: ['courseID'] } as StudentUser });
         (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
         jest.spyOn(console, 'log').mockImplementation(() => { });
         (usePrefetchedDynamicDoc as jest.Mock).mockImplementation(() => undefined);
@@ -576,6 +577,7 @@ describe('Case where course data is not available', () => {
 describe("Renders buttons when user is a teacher", () => {
     beforeEach(() => {
         setupTeacherMockUseAuth();
+        (useDoc as jest.Mock).mockReturnValue({ id: 'TeacherID', data: { type: 'professor', name: 'Test User', createdAt: { seconds: 0, nanoseconds: 0 } as Timestamp, courses: ['courseID'] } as ProfessorUser });
         (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
         jest.spyOn(console, 'log').mockImplementation(() => { }); // Transforme `console.log` en une fonction mock
         (usePrefetchedDynamicDoc as jest.Mock).mockImplementation(() => [{
