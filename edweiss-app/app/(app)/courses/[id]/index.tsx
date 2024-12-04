@@ -336,7 +336,7 @@ const CoursePage: ApplicationRoute = () => {
 					</TView>
 				</TTouchableOpacity>
 
-				{showFutureMaterials && (futureMaterials.map((material) => (
+				{showFutureMaterials && (futureMaterials.sort((a, b) => a.data.to.seconds - b.data.to.seconds).map((material) => (
 					<TView testID={testIDs.futureMaterialView} key={material.id}>
 						<MaterialDisplay item={material.data} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} />
 						<TView bb={1} mx={20} mb={12} borderColor='overlay0' />
@@ -347,7 +347,7 @@ const CoursePage: ApplicationRoute = () => {
 
 				{/*<TView bb={1} my={10} borderColor='crust' />}*/}
 
-				{passedMaterials.map((material) => (<MaterialDisplay item={material.data} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} key={material.id} />))}
+				{passedMaterials.sort((a, b) => b.data.to.seconds - a.data.to.seconds).map((material) => (<MaterialDisplay item={material.data} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} key={material.id} />))}
 
 				<TView mb={30} />
 

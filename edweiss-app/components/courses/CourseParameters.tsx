@@ -134,7 +134,7 @@ const CourseParameters: ReactComponent<CourseParamsProps> = ({ course, onGiveUp,
                 </TView>
 
 
-                <TView testID={testIDs.creditsComponentView} flexDirection='row' justifyContent='center'>
+                <TView testID={testIDs.creditsComponentView} flexDirection='row' justifyContent='center' pb={200}>
                     <FancyButton
                         testID={testIDs.descreaseCreidtsButton}
                         onPress={() => {

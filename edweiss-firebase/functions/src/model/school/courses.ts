@@ -18,7 +18,7 @@ export interface CourseTimePeriod extends CyclicTimePeriod {
 }
 
 export const MAX_COURSE_NAME_LENGTH = 30;
-export const MAX_COURSE_DESCRIPTION_LENGTH = 100;
+export const MAX_COURSE_DESCRIPTION_LENGTH = 400;
 export const MAX_COURSE_CREDITS = 30;
 
 export interface Course {
