@@ -34,6 +34,7 @@ namespace LectureDisplay {
 	export interface Question {
 		text: string,
 		userID: string,
+		username: string,
 		anonym: boolean,
 		likes: number,
 		postedTime: Timestamp,
@@ -47,9 +48,9 @@ namespace LectureDisplay {
 	}
 
 	export const Functions = FunctionFolder("lectures", {
-    createQuestion: FunctionOf<{ courseId: string, lectureId: string, question: string; }, { id: string; }, 'invalid_arg' | 'error_firebase' | 'empty_question'>("createQuestion"),
-		updateQuestion: FunctionOf<{ id: string, lectureId: string, likes: number; }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("updateQuestion"),
-		addAudioTranscript: FunctionOf<{ courseId: string, lectureId: string, pageNumber: number, transcription: string; }, 'successfully_added', 'invalid_arg' | 'error_firebase' | 'course_not_found'>("addAudioTranscript"),
+		addAudioTranscript: FunctionOf<{ courseId: string, lectureId: string, pageNumber: number, transcription: string; }, {}, 'invalid_arg' | 'error_firebase' | 'successfully_added'>("addAudioTranscript"),
+		createQuestion: FunctionOf<{ courseId: string, lectureId: string, question: string, username: string; }, { id: string; }, 'invalid_arg' | 'error_firebase' | 'empty_question'>("createQuestion"),
+		updateQuestion: FunctionOf<{ id: string, courseId: string, lectureId: string, likes: number; }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("updateQuestion"),
 	});
 }
 

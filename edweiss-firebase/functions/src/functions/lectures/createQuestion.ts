@@ -14,10 +14,11 @@ export const createQuestion = onAuthentifiedCall(LectureDisplay.Functions.create
     const newQuestion: LectureDisplay.Question = {
         text: args.question,
         userID: userId,
-        anonym: false,
+        username: args.username,
+        anonym: args.username.length == 0,
         likes: 0,
         postedTime: Timestamp.now()
-    }
+    } 
     const ref = await addDocument(CollectionOf<LectureDisplay.Question>(`courses/${args.courseId}/lectures/${args.lectureId}/questions`), newQuestion);
 
     console.log("Question successfully created!");
