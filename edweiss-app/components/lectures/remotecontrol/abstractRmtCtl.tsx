@@ -20,7 +20,7 @@ import LectureDisplay from '@/model/lectures/lectureDoc';
 import { langIconMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Toast from 'react-native-toast-message';
 import { LangSelectModal } from './modal';
 
@@ -52,6 +52,30 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
     // Modal References
     const modalRefLangSelect = useRef<BottomSheetModal>(null);
 
+
+    const [timer, setTimer] = useState(0);
+    const [isRunning, setIsRunning] = useState(false);
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout | null = null;
+        if (isRunning) {
+            interval = setInterval(() => {
+                setTimer(prevTimer => prevTimer + 1);
+            }, 1000);
+        } else if (!isRunning && timer !== 0) {
+            clearInterval(interval!);
+        }
+        return () => clearInterval(interval!);
+    }, [isRunning, timer]);
+
+    const formatTime = (seconds: number) => {
+        const getSeconds = `0${seconds % 60}`.slice(-2);
+        const minutes = Math.floor(seconds / 60);
+        const getMinutes = `0${minutes % 60}`.slice(-2);
+        const getHours = `0${Math.floor(seconds / 3600)}`.slice(-1);
+        return `${getHours}:${getMinutes}:${getSeconds}`;
+    };
+
     return (
         <>
             <RouteHeader disabled title={"Lecture's Slides"} />
@@ -63,6 +87,8 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                     <TText size={18} mt={'sm'} mb={'sm'}> {t(`showtime:showtime_title`)}</TText>
 
                     <TView alignItems='center' flexDirection='row' justifyContent='space-between' mt={20}>
+
+                        {/* Language Selection */}
                         <TTouchableOpacity
                             backgroundColor='crust'
                             borderColor='text' p={10} b={1} ml={'md'} radius={1000}
@@ -73,8 +99,22 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
 
                         <TView flex={1}></TView>
 
-                        <TTouchableOpacity backgroundColor='mantle' borderColor='text' b={1} radius={'lg'} mr={'md'} testID='timer-but'>
-                            <TText size={50} p={'md'} pb={'sm'} testID='timer-txt'>0:00:00</TText>
+                        {/* The Stop Watch */}
+                        <TTouchableOpacity
+                            backgroundColor='mantle'
+                            borderColor='text'
+                            b={1}
+                            radius={'lg'}
+                            mr={'lg'}
+                            testID='timer-but'
+                            onPress={() => setIsRunning(!isRunning)}
+                        >
+                            <TText
+                                size={50}
+                                style={{ width: 200, height: 70, paddingTop: 40, paddingLeft: 10 }}
+                                testID='timer-txt'>
+                                {formatTime(timer)}
+                            </TText>
                         </TTouchableOpacity>
 
                     </TView>
@@ -106,8 +146,10 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                     )}
 
 
-                    {/* End buttons for settings, activities and audiance questions */}
+                    {/* End buttons */}
                     <TView mt={15} alignItems='center' flexDirection='row' justifyContent='space-between'>
+
+                        {/* Jump to Slide button */}
                         <TTouchableOpacity
                             backgroundColor='crust'
                             borderColor='text' p={10} b={1} ml={'md'} radius={1000}
@@ -128,6 +170,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
 
                         <TView flex={1}></TView>
 
+                        {/* Lecture Activities */}
                         <TTouchableOpacity
                             backgroundColor='crust'
                             borderColor='text' p={10} b={1} radius={1000}
@@ -142,6 +185,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
 
                         <TView flex={1}></TView>
 
+                        {/* Andiance Questions */}
                         <TTouchableOpacity
                             backgroundColor='crust'
                             borderColor='text' p={10} b={1} mr={'md'} radius={1000}
