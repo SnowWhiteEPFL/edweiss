@@ -167,15 +167,19 @@ export const TimerSettingModal: ReactComponent<{
     onClose: () => void;
 }> = ({ modalRef, currentTimer, currentRecall, setTimer, setRecall, onClose }) => {
 
+    // Coefficient Constants
     const secondsCoef = 1;
     const minutesCoef = 60 * secondsCoef;
     const hoursCoef = 60 * minutesCoef;
 
+    // Hooks
     const [tmpTimer, setTmpTimer] = useState(currentTimer);
     const [tmpRecall, setTmpRecall] = useState(currentRecall);
     const [curCoef, setCurCoef] = useState(minutesCoef);
     const [butSelcted, setButSelcted] = useState(1);
 
+
+    // Pretty Printers
     const getTimerSeconds = (seconds: number) => {
         return `0${seconds % 60}`.slice(-2);
     }
@@ -202,12 +206,14 @@ export const TimerSettingModal: ReactComponent<{
         return `0${Math.floor(seconds / 3600)}`.slice(-1);
     }
 
+    // Timer Seter interface 
     const setTimerInterf = (seconds: number) => {
         if (0 <= seconds && seconds <= 35999) {
             setTmpTimer(seconds);
         }
     }
 
+    // Recall Seter interface
     const setRecallInterf = (seconds: number) => {
         if (0 <= seconds && seconds <= 35999) {
             setTmpRecall(seconds);
@@ -225,24 +231,27 @@ export const TimerSettingModal: ReactComponent<{
 
                 <TView mt={'sm'}>
 
-
+                    {/* Timer Display */}
                     <TView flexDirection='row' justifyContent='space-between' mb={'md'} >
                         <TView flexDirection='row' justifyContent='space-between' flex={1} mt={'xs'}>
 
-                            <TText ml={'md'} mt={'md'} size={'lg'}>Timer</TText>
+                            <TText ml={'md'} mt={'md'} size={'lg'}>{t('showtime:rmt_ctl_timer')}</TText>
 
+                            {/* Timer Hours */}
                             <TTouchableOpacity ml={'lg'} radius={'md'} borderColor={butSelcted === 0 ? 'blue' : 'surface2'} b={1} justifyContent='center' pr={'md'} pl={'md'} onPress={() => { setButSelcted(0); setCurCoef(hoursCoef); }} testID='hours-timer'>
                                 <TText size={'lg'} color={butSelcted === 0 ? 'blue' : 'surface1'}>{getTimerHour(tmpTimer)}</TText>
                             </TTouchableOpacity>
 
                             <TText size={'xl'} pt={'lg'}>:</TText>
 
+                            {/* Timer Minutes */}
                             <TTouchableOpacity radius={'md'} borderColor={butSelcted === 1 ? 'blue' : 'surface2'} b={1} justifyContent='center' pr={'md'} pl={'md'} onPress={() => { setButSelcted(1); setCurCoef(minutesCoef); }} testID='minutes-timer'>
                                 <TText size={'lg'} color={butSelcted === 1 ? 'blue' : 'surface1'}>{getTimerMinute(tmpTimer)}</TText>
                             </TTouchableOpacity>
 
                             <TText size={'xl'} pt={'lg'} >:</TText>
 
+                            {/* Timer Seconds */}
                             <TTouchableOpacity mr={'lg'} radius={'md'} borderColor={butSelcted === 2 ? 'blue' : 'surface1'} b={1} justifyContent='center' pr={'md'} pl={'md'} onPress={() => { setButSelcted(2); setCurCoef(secondsCoef); }} testID='seconds-timer'>
                                 <TText size={'lg'} color={butSelcted === 2 ? 'blue' : 'surface1'}>{getTimerSeconds(tmpTimer)}</TText>
                             </TTouchableOpacity>
@@ -251,23 +260,27 @@ export const TimerSettingModal: ReactComponent<{
                     </TView>
 
 
+                    {/* Recall Display */}
                     <TView flexDirection='row' justifyContent='space-between' mb={'md'} mt={'sm'}>
                         <TView flexDirection='row' justifyContent='space-between' flex={1} mt={'xs'}>
 
-                            <TText ml={'md'} mt={'md'} size={'lg'}>Recall</TText>
+                            <TText ml={'md'} mt={'md'} size={'lg'}>{t('showtime:rmt_ctl_recall')}</TText>
 
+                            {/* Recall  Hours*/}
                             <TTouchableOpacity ml={'lg'} radius={'md'} borderColor={butSelcted === 3 ? 'blue' : 'surface2'} b={1} justifyContent='center' pr={'md'} pl={'md'} onPress={() => { setButSelcted(3); setCurCoef(hoursCoef); }} testID='hours-recall'>
                                 <TText size={'lg'} color={butSelcted === 3 ? 'blue' : 'surface1'}>{getRecallHour(tmpRecall)}</TText>
                             </TTouchableOpacity>
 
                             <TText size={'xl'} pt={'lg'}>:</TText>
 
+                            {/* Recall Minutes */}
                             <TTouchableOpacity radius={'md'} borderColor={butSelcted === 4 ? 'blue' : 'surface2'} b={1} justifyContent='center' pr={'md'} pl={'md'} onPress={() => { setButSelcted(4); setCurCoef(minutesCoef); }} testID='minutes-recall'>
                                 <TText size={'lg'} color={butSelcted === 4 ? 'blue' : 'surface1'}>{getRecallMinute(tmpRecall)}</TText>
                             </TTouchableOpacity>
 
                             <TText size={'xl'} pt={'lg'} >:</TText>
 
+                            {/* Recall Seconds */}
                             <TTouchableOpacity mr={'lg'} radius={'md'} borderColor={butSelcted === 5 ? 'blue' : 'surface2'} b={1} justifyContent='center' pr={'md'} pl={'md'} onPress={() => { setButSelcted(5); setCurCoef(secondsCoef); }} testID='seconds-recall'>
                                 <TText size={'lg'} color={butSelcted === 5 ? 'blue' : 'surface1'}>{getRecallSeconds(tmpRecall)}</TText>
                             </TTouchableOpacity>
@@ -278,10 +291,12 @@ export const TimerSettingModal: ReactComponent<{
 
                     <TView flex={1} />
 
+                    {/* Increase - Decrease Buttons  */}
                     <TView flexDirection='row' justifyContent='space-between' mb={'sm'} mt={'sm'}>
 
                         <TView flex={1} />
 
+                        {/* Minus Button */}
                         <TTouchableOpacity
                             ml={'xl'}
                             backgroundColor='crust'
@@ -300,8 +315,7 @@ export const TimerSettingModal: ReactComponent<{
 
                         <TView flex={1} />
 
-
-
+                        {/* Plus Button */}
                         <TTouchableOpacity
                             mr={'xs'}
                             backgroundColor='crust'
@@ -323,12 +337,14 @@ export const TimerSettingModal: ReactComponent<{
                 </TView>
 
 
+                {/* Set it the timer and recall up */}
                 <FancyButton icon='stopwatch-outline' mt={'lg'} m='md' mb={0} onPress={() => {
                     if (tmpTimer < tmpRecall) {
                         Toast.show
                             ({
                                 type: 'error',
-                                text1: t('showtime:rmt_ctl_invalid_recall')
+                                text1: t('showtime:rmt_ctl_invalid_recall'),
+                                text2: t('showtime:rmt_ctl_invalid_recall_funny')
                             });
                     } else {
                         setTimer(tmpTimer);
@@ -336,11 +352,12 @@ export const TimerSettingModal: ReactComponent<{
                         onClose()
                     }
 
-                }} outlined testID='lang-sel-close-button'>
+                }} outlined testID='set-it-up-button'>
                     {t('showtime:rmt_ctl_set_it_up')}
                 </FancyButton>
 
-                <FancyButton backgroundColor='subtext0' m='md' onPress={onClose} outlined testID='lang-sel-close-button'>
+                {/*  Exit Button */}
+                <FancyButton backgroundColor='subtext0' m='md' onPress={onClose} outlined testID='timer-set-close-button'>
                     {t('todo:close_btn')}
                 </FancyButton>
             </>
