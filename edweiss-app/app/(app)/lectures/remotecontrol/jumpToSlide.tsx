@@ -109,21 +109,9 @@ const JumpToSlideScreen: ApplicationRoute = () => {
     };
 
     const PDFViewer = (uri: string, widthPorp: number, heightProp: number) => (
-        <Pdf
-            trustAllCerts={false}
-            source={{ uri }}
-            renderActivityIndicator={() => <ActivityIndicator size="large" />}
-            enablePaging
-            onLoadComplete={(totalPages) => setNumPages(totalPages)}
-            onPageChanged={(currentPage) => setCurrentPage(currentPage)}
-            onError={(error) => console.log(error)}
-            page={page}
-            horizontal
-            style={{
-                flex: 1,
-                width: Dimensions.get('window').width * widthPorp,
-                height: Dimensions.get('window').height * heightProp,
-            }}
+        <Pdf trustAllCerts={false} source={{ uri }} renderActivityIndicator={() => <ActivityIndicator size="large" />} enablePaging
+            onLoadComplete={(totalPages) => setNumPages(totalPages)} onPageChanged={(currentPage) => setCurrentPage(currentPage)}
+            onError={(error) => console.log(error)} page={page} horizontal style={{ flex: 1, width: Dimensions.get('window').width * widthPorp, height: Dimensions.get('window').height * heightProp }}
         />
     );
 
@@ -153,7 +141,7 @@ const JumpToSlideScreen: ApplicationRoute = () => {
 
                 <TView flex={1} />
 
-                <TText mt={'md'} ml={'lg'} mr={'lg'} size={'xl'}>{currentPage} / {numPages}</TText>
+                <TText mt={'md'} ml={'lg'} mr={'lg'} size={'xl'} testID='goto-page-status'>{currentPage} / {numPages}</TText>
 
                 <TView flex={1} />
 

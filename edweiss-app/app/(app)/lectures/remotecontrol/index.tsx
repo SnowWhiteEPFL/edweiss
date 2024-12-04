@@ -45,9 +45,7 @@ const RemoteControlScreen: ApplicationRoute = () => {
     useEffect(() => { updateSlideAudioRecording(talked, pageToTranscribe, courseName, lectureId, isRecording, currentPage, setPageToTranscribe, setTalked, () => startRecording(langCodeMap[lang])); }, [talked]);
 
     // Function to set the current page
-    const setCurrentPageExternal = (page: number) => {
-        setCurrentPage(page);
-    };
+    const setCurrentPageExternal = (page: number) => { setCurrentPage(page); };
 
     // Expose the function to be used externally
     (window as any).setCurrentPageExternal = setCurrentPageExternal;
