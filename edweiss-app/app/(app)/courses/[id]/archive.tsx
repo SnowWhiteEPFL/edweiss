@@ -44,7 +44,6 @@ export const ArchiveRouteSignature: ApplicationRouteSignature<{
  * This component is responsible for displaying the previous assignments of a course.
  * It fetches the assignments data from the URL and displays them in a scrollable list.
  * 
- * @param rawAssignments - The extra information passed in the URL.
  * 
  * @returns JSX.Element - The rendered component for the previous assignments page.
  */
