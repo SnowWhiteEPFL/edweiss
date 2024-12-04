@@ -44,6 +44,12 @@ const RemoteControlScreen: ApplicationRoute = () => {
     useEffect(() => { if (lectureDoc) { setPortrait(); } }, [lectureDoc]);
     useEffect(() => { updateSlideAudioRecording(talked, pageToTranscribe, courseName, lectureId, isRecording, currentPage, setPageToTranscribe, setTalked, () => startRecording(langCodeMap[lang])); }, [talked]);
 
+    // Function to set the current page
+    const setCurrentPageExternal = (page: number) => { setCurrentPage(page); };
+
+    // Expose the function to be used externally
+    (window as any).setCurrentPageExternal = setCurrentPageExternal;
+
 
     if (!lectureDoc) return <TActivityIndicator size={40} />;
     const currentLecture = lectureDoc.data;
@@ -63,6 +69,10 @@ const RemoteControlScreen: ApplicationRoute = () => {
                 isRecording={isRecording}
                 lang={lang}
                 setLang={setLang}
+                courseNameString={courseName}
+                lectureIdString={lectureId}
+                curPageProvided={currentPage}
+                totPageProvided={totalPages}
             />}
         </>
     );
@@ -72,6 +82,11 @@ export default RemoteControlScreen;
 
 
 
+// ------------------------------------------------------------
+// --------     Utils Function for Managing Audio      --------
+// ------------------------------------------------------------
+
+// Start recording
 export const startRecording = async (langCode: string) => {
     console.log(' > start recording ... in ' + langCode);
     try {
@@ -81,6 +96,7 @@ export const startRecording = async (langCode: string) => {
     }
 };
 
+// Stop recording
 export const stopRecording = async () => {
     console.log(' > stop recording ...');
     try {

@@ -11,8 +11,9 @@
 import prompt from 'actions/ai';
 import LectureDisplay from 'model/lectures/lectureDoc';
 import { Course } from 'model/school/courses';
-import { onAuthentifiedCall } from 'utils/firebase';
+import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocumentAndRef, getRequiredDocument } from 'utils/firestore';
+import { assert, Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = LectureDisplay.Functions;
 
@@ -23,10 +24,12 @@ type Lecture = LectureDisplay.Lecture;
 // -----------  Add Audio Transcript Cloud Function   ---------
 // ------------------------------------------------------------
 
-export const addAudioTranscript = onAuthentifiedCall(Functions.addAudioTranscript, async (userId, args) => {
-	if (!args.courseId || !args.lectureId || !args.pageNumber || !args.transcription) {
-		return fail('invalid_arg');
-	}
+export const addAudioTranscript = onSanitizedCall(Functions.addAudioTranscript, {
+	courseId: Predicate.isNonEmptyString,
+	lectureId: Predicate.isNonEmptyString,
+	transcription: Predicate.isNonEmptyString,
+	pageNumber: Predicate.isStrictlyPositive,
+}, async (userId, args) => {
 
 	const course = await getRequiredDocument(CollectionOf<Course>(`courses`), args.courseId, fail("course_not_found"));
 
@@ -35,9 +38,8 @@ export const addAudioTranscript = onAuthentifiedCall(Functions.addAudioTranscrip
 	if (lecture == undefined)
 		return fail("error_firebase");
 
-	if (typeof args.pageNumber !== 'number' || args.pageNumber < 1 || args.pageNumber > lecture.nbOfPages) {
-		return fail('invalid_arg');
-	}
+	// Check the correct page bound
+	assert(args.pageNumber > lecture.nbOfPages);
 
 	const pageKey = `audioTranscript.${args.pageNumber}`;
 

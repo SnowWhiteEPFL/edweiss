@@ -1,23 +1,37 @@
-import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
-import TView from '@/components/core/containers/TView';
-import TText from '@/components/core/TText';
-import React from 'react';
+/**
+ * @file modal.tsx
+ * @description The modal embedded in the AbstractRmtCtl component 
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
 
 import TScrollView from '@/components/core/containers/TScrollView';
+import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
+import TView from '@/components/core/containers/TView';
 import ModalContainer from '@/components/core/modal/ModalContainer';
+import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
+import { LightDarkProps } from '@/constants/Colors';
 import ReactComponent from '@/constants/Component';
+import useTheme from '@/hooks/theme/useTheme';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { t } from 'i18next';
+import React from 'react';
 import { langIconMap, langNameMap } from '../../../utils/lectures/remotecontrol/utilsFunctions';
 
-import AvailableLangs = LectureDisplay.AvailableLangs;
+// type
+type AvailableLangs = LectureDisplay.AvailableLangs;
 
 
+// ------------------------------------------------------------
+// -------------      Language Selection Modal    -------------
+// ------------------------------------------------------------
 
-
-const LangSelectModal: ReactComponent<{
+export const LangSelectModal: ReactComponent<{
     modalRef: React.RefObject<BottomSheetModalMethods>;
     lang: AvailableLangs;
     setLang: (lang: AvailableLangs) => void;
@@ -60,10 +74,11 @@ const LangSelectModal: ReactComponent<{
         </ModalContainer>
     );
 };
-export default LangSelectModal;
 
 
-
+// ------------------------------------------------------------
+// ---------    Utils Sub Component For Lang Display    -------
+// ------------------------------------------------------------
 
 interface TwoLangsSelectionProps {
     lang: AvailableLangs;
@@ -71,22 +86,32 @@ interface TwoLangsSelectionProps {
     lang1: AvailableLangs;
     lang2?: AvailableLangs;
 }
+/**
+ * Note: this component can handle an odd number of langs passed as input.
+ * You just would have to let lang2 tobe undefined
+ */
+const TwoLangsSelection: React.FC<TwoLangsSelectionProps & LightDarkProps> = ({ lang, setLang, lang1, lang2 }) => {
+    const theme = useTheme()
 
-const TwoLangsSelection: React.FC<TwoLangsSelectionProps> = ({ lang, setLang, lang1, lang2 }) => {
 
     /* Color pallette for selected/unselected languages
      * Note: this are `sky` and `green` in which there alpha has been modified
      */
-    const unselectedColorBord = 'rgba(4, 165, 229, 0.15)';
-    const unselectedColorBack = 'rgba(4, 165, 229, 0.01)';
-    const selectedColorBord = 'rgba(64, 160, 43, 0.6)';
-    const selectedColorBack = 'rgba(64, 160, 43, 0.1)';
+    const unselectedColorBord = (theme === "light") ? 'rgba(4, 165, 229, 0.15)' : 'rgba(166, 227, 161, 0.6)';
+    const unselectedColorBack = (theme === "light") ? 'rgba(4, 165, 229, 0.01)' : 'rgba(166, 227, 161, 0.15)';
+    const selectedColorBord = (theme === "light") ? 'rgba(64, 160, 43, 0.6)' : 'rgba(137, 220, 235, 0.7)';
+    const selectedColorBack = (theme === "light") ? 'rgba(64, 160, 43, 0.1)' : 'rgba(137, 220, 235, 0.3)';
 
     return (
+
         <TView alignItems='center' flexDirection='row' justifyContent='space-between' mt={20}>
             <TTouchableOpacity
                 ml={'sm'} radius={'lg'} b={2}
-                style={{ borderColor: (lang === lang1) ? selectedColorBord : unselectedColorBord, backgroundColor: (lang === lang1) ? selectedColorBack : unselectedColorBack, width: 160, height: 65 }}
+                style={{
+                    borderColor: (lang === lang1) ? selectedColorBord : unselectedColorBord,
+                    backgroundColor: (lang === lang1) ? selectedColorBack : unselectedColorBack,
+                    width: 160, height: 65
+                }}
                 onPress={() => setLang(lang1)}
                 testID={`lang-but-${lang1}`}
             >
@@ -103,7 +128,11 @@ const TwoLangsSelection: React.FC<TwoLangsSelectionProps> = ({ lang, setLang, la
                     <TView flex={1} ml={'sm'} mr={'sm'}></TView>
                     <TTouchableOpacity
                         mr={'sm'} radius={'lg'} b={2}
-                        style={{ borderColor: (lang === lang2) ? selectedColorBord : unselectedColorBord, backgroundColor: (lang === lang2) ? selectedColorBack : unselectedColorBack, width: 160, height: 65 }}
+                        style={{
+                            borderColor: (lang === lang2) ? selectedColorBord : unselectedColorBord,
+                            backgroundColor: (lang === lang2) ? selectedColorBack : unselectedColorBack,
+                            width: 160, height: 65
+                        }}
                         onPress={() => setLang(lang2)}
                         testID={`lang-but-${lang2}`}
                     >
@@ -116,7 +145,6 @@ const TwoLangsSelection: React.FC<TwoLangsSelectionProps> = ({ lang, setLang, la
                     </TTouchableOpacity>
                 </>
             )}
-            <TView flex={1} ml={'sm'} mr={'sm'}></TView>
         </TView>
     );
 };
