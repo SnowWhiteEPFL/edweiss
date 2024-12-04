@@ -1,16 +1,34 @@
-import LangSelectModal from '@/components/lectures/remotecontrol/modal';
+/**
+ * @file modal.test.tsx
+ * @description Test suite for the modals that get plugged into 
+ *              the AbstractRmtCtl component
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
+import { LangSelectModal } from '@/components/lectures/remotecontrol/modal';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
 
-const mockSetLang = jest.fn();
-const mockOnClose = jest.fn();
 
+// ------------------------------------------------------------
+// -----------------  Mocking dependencies    -----------------
+// ------------------------------------------------------------
+
+// Global constants
 const availableLangs: LectureDisplay.AvailableLangs[] = [
     'english', 'french', 'german', 'spanish', 'italian', 'brazilian', 'arabic', 'chinese', 'vietanames', 'hindi'
 ];
 
+
+// Mock the setLang and onClose lambda
+const mockSetLang = jest.fn();
+const mockOnClose = jest.fn();
 
 
 // Mock translation function
@@ -100,6 +118,9 @@ jest.mock('@/hooks/firebase/firestore', () => ({
 }));
 
 
+// ------------------------------------------------------------
+// -------------     LangSelectModal Tests suites     ---------
+// ------------------------------------------------------------
 
 describe('LangSelectModal', () => {
     it('renders all language buttons', () => {

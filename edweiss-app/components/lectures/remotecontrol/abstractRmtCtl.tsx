@@ -1,7 +1,7 @@
 /**
- * @file abstract.tsx
+ * @file abstractRmtCtl.tsx
  * @description The abstract remote control decouple from all the bussiness 
- * function from processing the audio input and slide change.
+ *              function from processing the audio input and slide change.
  * @author Adamm Alaoui
  */
 
@@ -19,9 +19,10 @@ import { LightDarkProps } from '@/constants/Colors';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { langIconMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { router } from 'expo-router';
 import React, { useRef } from 'react';
 import Toast from 'react-native-toast-message';
-import LangSelectModal from './modal';
+import { LangSelectModal } from './modal';
 
 // types
 type AvailableLangs = LectureDisplay.AvailableLangs;
@@ -30,7 +31,7 @@ type AvailableLangs = LectureDisplay.AvailableLangs;
 
 
 // ------------------------------------------------------------
-// ------------   Abstract Remote Control Screen  -------------
+// ----------    Abstract Remote Control Component  -----------
 // ------------------------------------------------------------
 interface AbstractRmtCrlProps {
     handleRight: () => void;
@@ -39,12 +40,16 @@ interface AbstractRmtCrlProps {
     isRecording: boolean;
     lang: AvailableLangs;
     setLang: (lang: AvailableLangs) => void;
+    curPageProvided: number;
+    totPageProvided: number;
+    courseNameString: string;
+    lectureIdString: string;
 
 }
 
-export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, isRecording, lang, setLang }) => {
+export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, isRecording, lang, setLang, curPageProvided, totPageProvided, courseNameString, lectureIdString }) => {
 
-
+    // Modal References
     const modalRefLangSelect = useRef<BottomSheetModal>(null);
 
     return (
@@ -106,11 +111,17 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                         <TTouchableOpacity
                             backgroundColor='crust'
                             borderColor='text' p={10} b={1} ml={'md'} radius={1000}
-                            onPress={() => Toast.show({
-                                type: 'success',
-                                text1: 'The Go to Page',
-                                text2: 'Implementation comes soon'
-                            })}
+                            onPress={() => {
+                                router.push({
+                                    pathname: '/(app)/lectures/remotecontrol/jumpToSlide' as any,
+                                    params: {
+                                        courseNameString,
+                                        lectureIdString,
+                                        currentPageString: curPageProvided.toString(),
+                                        totalPageString: totPageProvided.toString(),
+                                    },
+                                })
+                            }}
                             testID='strc-go-to-button'>
                             <Icon size={40} name='rocket-outline' color='text'></Icon>
                         </TTouchableOpacity>
