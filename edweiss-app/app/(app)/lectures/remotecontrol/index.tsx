@@ -14,7 +14,7 @@ import { CollectionOf } from '@/config/firebase';
 import { ApplicationRoute } from '@/constants/Component';
 import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import { handleGoTo, handleLeft, handleMic, handleRight, langCodeMap, updateSlideAudioRecording } from '@/utils/lectures/remotecontrol/utilsFunctions';
+import { handleLeft, handleMic, handleRight, langCodeMap, updateSlideAudioRecording } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import Voice from '@react-native-voice/voice';
 import { useLocalSearchParams } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -44,6 +44,14 @@ const RemoteControlScreen: ApplicationRoute = () => {
     useEffect(() => { if (lectureDoc) { setPortrait(); } }, [lectureDoc]);
     useEffect(() => { updateSlideAudioRecording(talked, pageToTranscribe, courseName, lectureId, isRecording, currentPage, setPageToTranscribe, setTalked, () => startRecording(langCodeMap[lang])); }, [talked]);
 
+    // Function to set the current page
+    const setCurrentPageExternal = (page: number) => {
+        setCurrentPage(page);
+    };
+
+    // Expose the function to be used externally
+    (window as any).setCurrentPageExternal = setCurrentPageExternal;
+
 
     if (!lectureDoc) return <TActivityIndicator size={40} />;
     const currentLecture = lectureDoc.data;
@@ -60,7 +68,6 @@ const RemoteControlScreen: ApplicationRoute = () => {
                 handleRight={() => handleRight(isRecording, currentPage, totalPages, setIsRecording, setCurrentPage, stopRecording)}
                 handleLeft={() => handleLeft(isRecording, currentPage, setIsRecording, setCurrentPage, stopRecording)}
                 handleMic={() => handleMic(isRecording, setIsRecording, () => startRecording(langCodeMap[lang]), stopRecording)}
-                handleGoTo={(target: number) => handleGoTo(target, totalPages, setCurrentPage)}
                 isRecording={isRecording}
                 lang={lang}
                 setLang={setLang}

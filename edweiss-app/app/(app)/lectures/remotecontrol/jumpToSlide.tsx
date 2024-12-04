@@ -21,6 +21,7 @@ import { CollectionOf, getDownloadURL } from '@/config/firebase';
 import { ApplicationRoute } from '@/constants/Component';
 import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import LectureDisplay from '@/model/lectures/lectureDoc';
+import { handleGoTo } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { router, useLocalSearchParams } from 'expo-router';
 import { t } from 'i18next';
 import React, { useEffect, useState } from 'react';
@@ -42,6 +43,7 @@ const JumpToSlideScreen: ApplicationRoute = () => {
     const lectureId = lectureIdString as string;
     const providedTotalPage = parseInt(totalPageString as any, 10);
     const providedCurrentPage = parseInt(currentPageString as any, 10);
+    const setCurrentPageExternal = (window as any).setCurrentPageExternal as (page: number) => void;
 
     // Hooks
     const [numPages, setNumPages] = useState<number>(providedTotalPage);
@@ -190,7 +192,7 @@ const JumpToSlideScreen: ApplicationRoute = () => {
 
 
             {/* Go to page Button  */}
-            <FancyButton icon='paper-plane' mt='lg' m='md' onPress={() => { console.log('going to page ' + currentPage); router.back(); }} testID='go-to-button'>
+            <FancyButton icon='paper-plane' mt='lg' m='md' onPress={() => { handleGoTo(currentPage, numPages, setCurrentPageExternal); router.back(); }} testID='go-to-button'>
                 {t('showtime:rmt_cntl_go_page')}
             </FancyButton >
 

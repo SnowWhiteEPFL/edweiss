@@ -201,7 +201,7 @@ export const langCodeMap: Record<AvailableLangs, string> = {
 export const handleGoTo = function (
     targetPage: number,
     totalPages: number,
-    setCurrentPage: React.Dispatch<React.SetStateAction<number>>,
+    setCurrentPage: (page: number) => void,
 ) {
 
     if (targetPage < totalPages) {

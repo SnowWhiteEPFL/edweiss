@@ -37,7 +37,6 @@ interface AbstractRmtCrlProps {
     handleRight: () => void;
     handleLeft: () => void;
     handleMic: () => void;
-    handleGoTo: (target: number) => void;
     isRecording: boolean;
     lang: AvailableLangs;
     setLang: (lang: AvailableLangs) => void;
@@ -48,7 +47,7 @@ interface AbstractRmtCrlProps {
 
 }
 
-export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, handleGoTo, isRecording, lang, setLang, curPageProvided, totPageProvided, courseNameString, lectureIdString }) => {
+export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, isRecording, lang, setLang, curPageProvided, totPageProvided, courseNameString, lectureIdString }) => {
 
     // Modal References
     const modalRefLangSelect = useRef<BottomSheetModal>(null);
@@ -120,7 +119,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                                         lectureIdString,
                                         currentPageString: curPageProvided.toString(),
                                         totalPageString: totPageProvided.toString(),
-                                    }
+                                    },
                                 })
                             }}
                             testID='strc-go-to-button'>
