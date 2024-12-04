@@ -43,7 +43,9 @@ jest.mock('@/config/i18config', () =>
         else if (str === 'course:upcoming_assignment_title') return 'Upcoming assignments';
         else if (str === 'course:previous_assignment_title') return 'Previous assignments';
         else if (str === 'course:no_assignment_due') return 'No assignments due for now';
-        else if (str === 'course:this_week') return 'This Week';
+        else if (str === 'course:materials_title') return 'Materials';
+        else if (str === 'course:hide_future_materials') return 'Hide future materials';
+        else if (str === 'course:show_future_materials') return 'Show future materials';
         else return str;
     })
 );
@@ -54,7 +56,9 @@ jest.mock('@/hooks/firebase/firestore', () => ({
 }));
 
 jest.mock('@/config/firebase', () => ({
-    CollectionOf: jest.fn(() => 'mocked-collection'),
+    CollectionOf: jest.fn((path: string) => {
+        return path;
+    }),
 }));
 
 jest.mock('expo-router', () => ({
@@ -95,15 +99,35 @@ jest.mock('@/components/core/TActivityIndicator', () => {
 });
 
 
+// Mock Date
+const fixedDate = new Date('2025-01-01T00:02:00Z'); // 1st of January 2025
+
+const date1 = new Date('2025-01-03T00:02:00Z'); // 3rd of January 2025
+const seconds1 = Math.floor(date1.getTime() / 1000);
+
+const date2 = new Date('2025-01-02T00:02:00Z'); // 2nd of January 2025
+const seconds2 = Math.floor(date2.getTime() / 1000);
+
+// Previous
+const date3 = new Date('2024-12-16T06:00:00Z'); // 16th of December 2024 at 08:00:00 UTC+2
+const seconds3 = Math.floor(date3.getTime() / 1000);
+const date4 = new Date('2024-12-20T17:00:00Z'); // 20th of December 2024 at 19:00:00 UTC+2
+const seconds4 = Math.floor(date4.getTime() / 1000);
+
+// Current
+const date5 = new Date('2024-12-30T06:00:00Z'); // 30th of December 2024 at 08:00:00 UTC+2
+const seconds5 = Math.floor(date5.getTime() / 1000);
+const date6 = new Date('2025-01-03T17:00:00Z'); // 3rd of January 2025 at 19:00:00 UTC+2
+const seconds6 = Math.floor(date6.getTime() / 1000);
+
+// Future
+const date7 = new Date('2025-02-03T06:00:00Z'); // 3rd of February 2025 at 08:00:00 UTC+2
+const seconds7 = Math.floor(date7.getTime() / 1000);
+const date8 = new Date('2025-02-07T17:00:00Z'); // 7th of February 2025 at 19:00:00 UTC+2
+const seconds8 = Math.floor(date8.getTime() / 1000);
+
+
 describe('CoursePage with assignments', () => {
-
-    const fixedDate = new Date('2025-01-01T00:02:00Z'); // 1st of January 2025
-
-    const date1 = new Date('2025-01-03T00:02:00Z'); // 3rd of January 2025
-    const seconds1 = Math.floor(date1.getTime() / 1000);
-
-    const date2 = new Date('2025-01-02T00:02:00Z'); // 2nd of January 2025
-    const seconds2 = Math.floor(date2.getTime() / 1000);
 
     beforeEach(() => {
         (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
@@ -122,26 +146,64 @@ describe('CoursePage with assignments', () => {
             },
         }]);
 
-        (useDynamicDocs as jest.Mock).mockImplementation(() => [
-            {
-                id: "assignmentID_1",
-                data: {
-                    name: "Assignment 1",
-                    type: "quiz",
-                    dueDate: { seconds: seconds1, nanoseconds: 0 },
-                    color: "red",
-                },
-            },
-            {
-                id: "assignmentID_2",
-                data: {
-                    name: "Assignment 2",
-                    type: "quiz",
-                    dueDate: { seconds: seconds2, nanoseconds: 0 },
-                    color: "blue",
-                },
-            },
-        ]);
+        (useDynamicDocs as jest.Mock).mockImplementation((collectionPath) => {
+            if (collectionPath.includes('assignments')) {
+                return [
+                    {
+                        id: "assignmentID_1",
+                        data: {
+                            name: "Assignment 1",
+                            type: "quiz",
+                            dueDate: { seconds: seconds1, nanoseconds: 0 },
+                            color: "red",
+                        },
+                    },
+                    {
+                        id: "assignmentID_2",
+                        data: {
+                            name: "Assignment 2",
+                            type: "quiz",
+                            dueDate: { seconds: seconds2, nanoseconds: 0 },
+                            color: "blue",
+                        },
+                    },
+                ];
+            } else if (collectionPath.includes('materials')) {
+                return [
+                    {
+                        id: "materialID_1",
+                        data: {
+                            title: "Material 1",
+                            description: "Description of Material 1",
+                            from: { seconds: seconds3, nanoseconds: 0 },
+                            to: { seconds: seconds4, nanoseconds: 0 },
+                            docs: [{ url: "url1", title: "Document 1", type: "slides" }, { url: "url1.1", title: "Document 1.1", type: "exercises" }],
+                        },
+                    },
+                    {
+                        id: "materialID_2",
+                        data: {
+                            title: "Material 2",
+                            description: "Description of Material 2",
+                            from: { seconds: seconds5, nanoseconds: 0 },
+                            to: { seconds: seconds6, nanoseconds: 0 },
+                            docs: [{ url: "url2", title: "Document 2", type: "exercises" }],
+                        },
+                    },
+                    {
+                        id: "materialID_3",
+                        data: {
+                            title: "Material 3",
+                            description: "Description of Material 3",
+                            from: { seconds: seconds7, nanoseconds: 0 },
+                            to: { seconds: seconds8, nanoseconds: 0 },
+                            docs: [{ url: "url3", title: "Document 3", type: "other" }],
+                        },
+                    },
+                ];
+            }
+            return [];
+        });
 
         const RealDate = Date;
 
@@ -162,20 +224,6 @@ describe('CoursePage with assignments', () => {
 
 
     test("renders course with assignments", async () => {
-        // const assignments: AssignmentWithColor[] = [
-        //     {
-        //         name: "Assignment 1",
-        //         type: "quiz",
-        //         dueDate: { seconds: 2000, nanoseconds: 0 },
-        //         color: "red"
-        //     },
-        //     {
-        //         name: "Assignment 2",
-        //         type: "quiz",
-        //         dueDate: { seconds: 86400 + 2000, nanoseconds: 0 }, // Adding 86400 seconds (1 day) to the timestamp
-        //         color: "blue"
-        //     }
-        // ];
 
         const screen = render(<CoursePage />);
 
@@ -188,38 +236,54 @@ describe('CoursePage with assignments', () => {
         expect(screen.getByText('Assignment 2')).toBeTruthy();
         expect(screen.getByText('Upcoming assignments')).toBeTruthy();
         expect(screen.getByText('Previous assignments')).toBeTruthy();
-        expect(screen.getByText('This Week')).toBeTruthy();
-        expect(screen.getByText('Slides')).toBeTruthy();
-        expect(screen.getByText('Exercises')).toBeTruthy();
-        expect(screen.getByText('Feedbacks')).toBeTruthy();
 
         //Texts absence check
         expect(screen.queryByText('No assignments due for now')).toBeNull();
 
         //Test IDs presence check
         expect(screen.getByTestId('scroll-view')).toBeTruthy();
+        expect(screen.getByTestId('course-description')).toBeTruthy();
         expect(screen.getByTestId('upcoming-assignments')).toBeTruthy();
         expect(screen.getAllByTestId('assignment-view')).toHaveLength(2);
-        expect(screen.getByTestId('previous-assignments')).toBeTruthy();
-        expect(screen.getByTestId('this-week-title')).toBeTruthy();
-        expect(screen.getByTestId('this-week-text')).toBeTruthy();
-        expect(screen.getByTestId('slides-text')).toBeTruthy();
-        expect(screen.getByTestId('exercises-text')).toBeTruthy();
-        expect(screen.getByTestId('feedbacks-text')).toBeTruthy();
-        expect(screen.getByTestId('slides-icon')).toBeTruthy();
-        expect(screen.getByTestId('exercises-icon')).toBeTruthy();
-        expect(screen.getByTestId('feedbacks-icon')).toBeTruthy();
+        expect(screen.getByTestId('navigate-to-archive-button')).toBeTruthy();
+        expect(screen.getByTestId('previous-assignments-icon')).toBeTruthy();
+        expect(screen.getByTestId('previous-assignments-text')).toBeTruthy();
+        expect(screen.getByTestId('materials-title')).toBeTruthy();
+        expect(screen.getByTestId('future-materials-display-touchable')).toBeTruthy();
+        expect(screen.getByTestId('toggle-future-materials-icon')).toBeTruthy();
+        expect(screen.getByTestId('toggle-future-materials-text')).toBeTruthy();
 
         //Test IDs absence check
         expect(screen.queryByTestId('no-assignment-due')).toBeNull();
+        expect(screen.queryByTestId('future-material-view')).toBeNull();
+        expect(screen.queryByTestId('feedbacks-touchable')).toBeNull();
 
         //Fire events
         fireEvent.press(screen.getByTestId('slides-touchable'));
-        expect(console.log).toHaveBeenCalledWith('Go to Slides');
-        fireEvent.press(screen.getByTestId('exercises-touchable'));
-        expect(console.log).toHaveBeenCalledWith('Go to Exercises');
-        fireEvent.press(screen.getByTestId('feedbacks-touchable'));
-        expect(console.log).toHaveBeenCalledWith('Go to Feedbacks');
+        expect(console.log).toHaveBeenCalledWith('Clic on Material 1');
+        fireEvent.press(screen.getAllByTestId('exercises-touchable')[0]); // Press the first exercises-touchable
+        expect(console.log).toHaveBeenCalledWith('Clic on Material 2');
+    });
+
+    test('should display future Materials when the \"Show future materials\" is clicked', () => {
+        // Render the CoursePage component
+        const screen = render(
+            <CoursePage />
+        );
+
+        // Trouve le bouton TouchableOpacity par testID
+        const button = screen.getByTestId('future-materials-display-touchable');
+
+        // Simule un clic sur le bouton
+        fireEvent.press(button);
+
+        // Vérifie que le texte du bouton a bien changé
+        expect(screen.getByTestId('toggle-future-materials-text').props.children).toBe('Hide future materials');
+
+        expect(screen.getByTestId('future-material-view')).toBeTruthy();
+
+        fireEvent.press(screen.getByTestId('other-touchable'));
+        expect(console.log).toHaveBeenCalledWith('Clic on Material 3');
     });
 });
 
@@ -258,35 +322,22 @@ describe("CoursePage without assignments", () => {
         expect(screen.getByText('No assignments due for now')).toBeTruthy();
         expect(screen.getByText('Upcoming assignments')).toBeTruthy();
         expect(screen.getByText('Previous assignments')).toBeTruthy();
-        expect(screen.getByText('This Week')).toBeTruthy();
-        expect(screen.getByText('Slides')).toBeTruthy();
-        expect(screen.getByText('Exercises')).toBeTruthy();
-        expect(screen.getByText('Feedbacks')).toBeTruthy();
 
         //Test IDs presence check
         expect(screen.getByTestId('scroll-view')).toBeTruthy();
+        expect(screen.getByTestId('course-description')).toBeTruthy();
         expect(screen.getByTestId('upcoming-assignments')).toBeTruthy();
         expect(screen.getByTestId('no-assignment-due')).toBeTruthy();
-        expect(screen.getByTestId('previous-assignments')).toBeTruthy();
-        expect(screen.getByTestId('this-week-title')).toBeTruthy();
-        expect(screen.getByTestId('this-week-text')).toBeTruthy();
-        expect(screen.getByTestId('slides-text')).toBeTruthy();
-        expect(screen.getByTestId('exercises-text')).toBeTruthy();
-        expect(screen.getByTestId('feedbacks-text')).toBeTruthy();
-        expect(screen.getByTestId('slides-icon')).toBeTruthy();
-        expect(screen.getByTestId('exercises-icon')).toBeTruthy();
-        expect(screen.getByTestId('feedbacks-icon')).toBeTruthy();
+        expect(screen.getByTestId('navigate-to-archive-button')).toBeTruthy();
+        expect(screen.getByTestId('previous-assignments-icon')).toBeTruthy();
+        expect(screen.getByTestId('previous-assignments-text')).toBeTruthy();
+        expect(screen.getByTestId('materials-title')).toBeTruthy();
+        expect(screen.getByTestId('future-materials-display-touchable')).toBeTruthy();
+        expect(screen.getByTestId('toggle-future-materials-icon')).toBeTruthy();
+        expect(screen.getByTestId('toggle-future-materials-text')).toBeTruthy();
 
         //Test IDs absence check
         expect(screen.queryByTestId('assignment-view')).toBeNull();
-
-        //Fire events
-        fireEvent.press(screen.getByTestId('slides-touchable'));
-        expect(console.log).toHaveBeenCalledWith('Go to Slides');
-        fireEvent.press(screen.getByTestId('exercises-touchable'));
-        expect(console.log).toHaveBeenCalledWith('Go to Exercises');
-        fireEvent.press(screen.getByTestId('feedbacks-touchable'));
-        expect(console.log).toHaveBeenCalledWith('Go to Feedbacks');
     });
 });
 
@@ -311,25 +362,65 @@ describe('Navigate to PreviousPage', () => {
             },
         }]);
 
-        // Mock des assignments
-        (useDynamicDocs as jest.Mock).mockImplementation(() => [
-            {
-                id: "assignmentID_1",
-                data: {
-                    name: "Assignment 1",
-                    type: "quiz",
-                    dueDate: { seconds: 0, nanoseconds: 0 },
-                },
-            },
-            {
-                id: "assignmentID_2",
-                data: {
-                    name: "Assignment 2",
-                    type: "quiz",
-                    dueDate: { seconds: 86400, nanoseconds: 0 },
-                },
-            },
-        ]);
+        (useDynamicDocs as jest.Mock).mockImplementation((collectionPath) => {
+
+            if (collectionPath.includes('assignments')) {
+                return [
+                    {
+                        id: "1",
+                        data: {
+                            name: "Assignment 1",
+                            type: "quiz",
+                            dueDate: { seconds: 0, nanoseconds: 0 },
+                            color: "darkNight"
+                        }
+                    },
+                    {
+                        id: "2",
+                        data: {
+                            name: "Assignment 2",
+                            type: "quiz",
+                            dueDate: { seconds: 86400, nanoseconds: 0 }, // Adding 86400 seconds (1 day) to the timestamp
+                            color: "darkNight"
+                        }
+                    },
+                ];
+            } else if (collectionPath.includes('materials')) {
+                return [
+                    {
+                        id: "materialID_1",
+                        data: {
+                            title: "Material 1",
+                            description: "Description of Material 1",
+                            from: { seconds: 0, nanoseconds: 0 },
+                            to: { seconds: 10000, nanoseconds: 0 },
+                            docs: [{ url: "url1", title: "Document 1", type: "slides" }],
+                        },
+                    },
+                    {
+                        id: "materialID_2",
+                        data: {
+                            title: "Material 2",
+                            description: "Description of Material 2",
+                            from: { seconds: 120000, nanoseconds: 0 },
+                            to: { seconds: 120000 + 1, nanoseconds: 0 },
+                            docs: [{ url: "url2", title: "Document 2", type: "exercices" }],
+                        },
+                    },
+                    {
+                        id: "materialID_3",
+                        data: {
+                            title: "Material 3",
+                            description: "Description of Material 3",
+                            from: { seconds: -120000 - 1, nanoseconds: 0 },
+                            to: { seconds: -120000, nanoseconds: 0 },
+                            docs: [{ url: "url3", title: "Document 3", type: "other" }],
+                        },
+                    },
+                ];
+            }
+            fail('Invalid collection path');
+        });
     });
 
     test('should navigate to the archive page with correct params when the button is clicked', () => {
@@ -352,21 +443,29 @@ describe('Navigate to PreviousPage', () => {
         expect(pushSpy).toHaveBeenCalledWith({
             pathname: '/courses/[id]/archive',
             params: {
-                id: 'course-id-123',  // Vérifie que l'ID est bien celui du cours
-                extraInfo: JSON.stringify([
-                    {
-                        name: "Assignment 2",
-                        type: "quiz",
-                        dueDate: { seconds: 86400, nanoseconds: 0 },
-                        color: "darkNight",
-                    },
-                    {
-                        name: "Assignment 1",
-                        type: "quiz",
-                        dueDate: { seconds: 0, nanoseconds: 0 },
-                        color: "darkNight"
-                    }
-                ]),
+                params: JSON.stringify({
+                    courseId: 'course-id-123',  // Vérifie que l'ID est bien celui du cours
+                    assignments: [
+                        {
+                            id: "2",
+                            data: {
+                                name: "Assignment 2",
+                                type: "quiz",
+                                dueDate: { seconds: 86400, nanoseconds: 0 }, // Adding 86400 seconds (1 day) to the timestamp
+                                color: "darkNight"
+                            }
+                        },
+                        {
+                            id: "1",
+                            data: {
+                                name: "Assignment 1",
+                                type: "quiz",
+                                dueDate: { seconds: 0, nanoseconds: 0 },
+                                color: "darkNight"
+                            }
+                        },
+                    ],
+                })
             },
         });
 
