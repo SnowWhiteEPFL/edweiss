@@ -37,16 +37,17 @@ type Question = LectureDisplay.Question;
 // ------------------------------------------------------------
 
 const JumpToSlideScreen: ApplicationRoute = () => {
-    const { courseNameString, lectureIdString, currentPageString } = useLocalSearchParams();
+    const { courseNameString, lectureIdString, currentPageString, totalPageString } = useLocalSearchParams();
     const courseName = courseNameString as string;
     const lectureId = lectureIdString as string;
+    const providedTotalPage = parseInt(totalPageString as any, 10);
     const providedCurrentPage = parseInt(currentPageString as any, 10);
 
     // Hooks
-    const [numPages, setNumPages] = useState<number>(1);
-    const [page, setPage] = useState<number>(1);
+    const [numPages, setNumPages] = useState<number>(providedTotalPage);
+    const [page, setPage] = useState<number>(providedCurrentPage);
     const [currentPage, setCurrentPage] = useState<number>(providedCurrentPage);  // Track swiped or active page
-    const [uri, setUri] = useState<string>('');                 // Url state
+    const [uri, setUri] = useState<string>('');                                   // Url state
 
     const [inputPage, setInputPage] = useState<string>("");
 

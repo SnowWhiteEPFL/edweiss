@@ -40,10 +40,14 @@ interface AbstractRmtCrlProps {
     isRecording: boolean;
     lang: AvailableLangs;
     setLang: (lang: AvailableLangs) => void;
+    curPageProvided: number;
+    totPageProvided: number;
+    courseNameString: string;
+    lectureIdString: string;
 
 }
 
-export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, isRecording, lang, setLang }) => {
+export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, isRecording, lang, setLang, curPageProvided, totPageProvided, courseNameString, lectureIdString }) => {
 
     // Modal References
     const modalRefLangSelect = useRef<BottomSheetModal>(null);
@@ -111,9 +115,10 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                                 router.push({
                                     pathname: '/(app)/lectures/remotecontrol/jumpToSlide' as any,
                                     params: {
-                                        courseNameString: "edweiss-demo",
-                                        lectureIdString: "xgy30FeIOHAnKtSfPjAe",
-                                        currentPageString: "2",
+                                        courseNameString,
+                                        lectureIdString,
+                                        currentPageString: curPageProvided.toString(),
+                                        totalPageString: totPageProvided.toString(),
                                     }
                                 })
                             }}

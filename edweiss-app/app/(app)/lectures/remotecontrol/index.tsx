@@ -63,6 +63,10 @@ const RemoteControlScreen: ApplicationRoute = () => {
                 isRecording={isRecording}
                 lang={lang}
                 setLang={setLang}
+                courseNameString={courseName}
+                lectureIdString={lectureId}
+                curPageProvided={currentPage}
+                totPageProvided={totalPages}
             />}
         </>
     );
