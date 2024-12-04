@@ -31,10 +31,9 @@ import Toast from 'react-native-toast-message';
 
 // Types
 type Lecture = LectureDisplay.Lecture;
-type Question = LectureDisplay.Question;
 
 // ------------------------------------------------------------
-// --------------------  Lecture Screen  ----------------------
+// --------------   Go to Slide Number Screen   ---------------
 // ------------------------------------------------------------
 
 const JumpToSlideScreen: ApplicationRoute = () => {

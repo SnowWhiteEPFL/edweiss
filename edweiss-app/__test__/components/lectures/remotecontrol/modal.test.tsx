@@ -9,7 +9,7 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
-import LangSelectModal from '@/components/lectures/remotecontrol/modal';
+import { LangSelectModal } from '@/components/lectures/remotecontrol/modal';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { fireEvent, render } from '@testing-library/react-native';
