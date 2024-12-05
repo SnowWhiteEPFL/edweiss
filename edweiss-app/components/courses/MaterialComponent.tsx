@@ -95,20 +95,6 @@ interface MaterialProps {
  */
 const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDelete, material }) => {
 
-    // const [title, setTitle] = useState<string>(material?.data.title ?? "");
-    // const [description, setDescription] = useState<string>(material?.data.description ?? "");
-    // const [fromDate, setFromDate] = useState<Date>(material ? Time.toDate(material.data.from) : new Date());
-    // const [toDate, setToDate] = useState<Date>(material ? Time.toDate(material.data.to) : new Date());
-    // const [titleChanged, setTitleChanged] = useState<boolean>(false);
-    // const [fromDateChanged, setFromDateChanged] = useState<boolean>(false);
-    // const [fromTimeChanged, setFromTimeChanged] = useState<boolean>(false);
-    // const [toDateChanged, setToDateChanged] = useState<boolean>(false);
-    // const [toTimeChanged, setToTimeChanged] = useState<boolean>(false);
-    // const [showPickerFromDate, setShowPickerFromDate] = useState<boolean>(false);
-    // const [showPickerFromTime, setShowPickerFromTime] = useState<boolean>(false);
-    // const [showPickerToDate, setShowPickerToDate] = useState<boolean>(false);
-    // const [showPickerToTime, setShowPickerToTime] = useState<boolean>(false);
-
     const [state, setState] = useState({
         title: material?.data.title ?? "",
         description: material?.data.description ?? "",
@@ -146,8 +132,6 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
     const updateState = <K extends keyof StateType>(key: K, value: StateType[K]) => {
         setState((prev) => ({ ...prev, [key]: value }));
     };
-
-    //const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
     useEffect(() => {
         const isInvalid =
