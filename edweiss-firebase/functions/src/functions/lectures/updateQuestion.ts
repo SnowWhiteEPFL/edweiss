@@ -21,7 +21,7 @@ export const updateQuestion = onAuthentifiedCall(LectureDisplay.Functions.update
         username: question.username
     };
     try {
-        await ref.update({ updatedQuestion });
+        await ref.update(updatedQuestion);
     } catch (error) {
         return fail('error_firebase2');
     }
