@@ -60,7 +60,6 @@ export const updateAssignment = onSanitizedCall(Functions.updateAssignment, {
     // Build the `updatedFields` object for the assignment
     const updatedFields: Partial<Assignment> = {};
     if (assignmentData.name) {
-        assertNonEmptyString(assignmentData.name, "invalid_name");
         assertIsBetween(assignmentData.name.length, 1, MAX_ASSIGNMENT_NAME_LENGTH, "invalid_name");
         updatedFields.name = assignmentData.name as string;
     }
