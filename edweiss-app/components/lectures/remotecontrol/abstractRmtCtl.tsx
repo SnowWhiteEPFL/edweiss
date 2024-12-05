@@ -58,7 +58,9 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
     const [timer, setTimer] = useState(0);
     const [recall, setRecall] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
-    const [isCritical, setIsCritical] = useState(false);
+    const [isCritical, setIsCritical] = useState(timer < recall);
+    const [timerColor, setTimerColor] = useState<'red' | 'green'>(isCritical ? 'red' : 'green');
+
 
     useEffect(() => {
         if (timer >= 0) {
@@ -77,6 +79,15 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
         }
 
     }, [isRunning, timer])
+
+    useEffect(() => {
+        if (isCritical) {
+            setTimerColor('red');
+        } else {
+            setTimerColor('green');
+        }
+    }, [isCritical])
+
 
     const formatTime = (seconds: number) => {
         const getSeconds = `0${seconds % 60}`.slice(-2);
@@ -112,7 +123,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                         {/* The Stop Watch */}
                         <TTouchableOpacity
                             backgroundColor='mantle'
-                            borderColor={isRunning ? (isCritical ? 'red' : 'green') : 'text'}
+                            borderColor={isRunning ? timerColor as any : 'text'}
                             b={1}
                             radius={'lg'}
                             mr={'lg'}
@@ -122,7 +133,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                         >
                             <TText
                                 size={50}
-                                color={isRunning ? (isCritical ? 'red' : 'green') : 'overlay1'}
+                                color={isRunning ? timerColor as any : 'overlay1'}
                                 style={{ width: 200, height: 70, paddingTop: 40, paddingLeft: 10 }}
                                 testID='timer-txt'>
                                 {formatTime(timer)}

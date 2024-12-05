@@ -341,12 +341,11 @@ export const TimerSettingModal: ReactComponent<{
                 {/* Set it the timer and recall up */}
                 <FancyButton icon='stopwatch-outline' mt={'lg'} m='md' mb={0} onPress={() => {
                     if (tmpTimer < tmpRecall) {
-                        Toast.show
-                            ({
-                                type: 'error',
-                                text1: t('showtime:rmt_ctl_invalid_recall'),
-                                text2: t('showtime:rmt_ctl_invalid_recall_funny')
-                            });
+                        Toast.show({
+                            type: 'error',
+                            text1: t('showtime:rmt_ctl_invalid_recall'),
+                            text2: t('showtime:rmt_ctl_invalid_recall_funny')
+                        });
                     } else {
                         setTimer(tmpTimer);
                         setRecall(tmpRecall);
