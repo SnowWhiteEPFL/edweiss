@@ -15,16 +15,21 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import { ApplicationRoute } from '@/constants/Component';
 
 import TScrollView from '@/components/core/containers/TScrollView';
+import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
+import Icon from '@/components/core/Icon';
+import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { callFunction } from '@/config/firebase';
+import { iconSizes } from '@/constants/Sizes';
 import { useRepositoryDocument } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
 import { checkDupplication_EmptyField } from '@/utils/memento/utilsFunctions';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
+import { Modal } from 'react-native';
 import { DecksRepository } from '../../../_layout';
 
 // ------------------------------------------------------------
@@ -44,8 +49,8 @@ const CreateCardScreen: ApplicationRoute = () => {
     const [existedQuestion, setExistedQuestion] = useState(false);
     const [emptyField, setEmptyField] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [previewModalVisible, setPreviewModalVisible] = useState(false);
 
-    // const deck = useDoc(Collections.deck, deckId);
 
     const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
 
@@ -77,10 +82,6 @@ const CreateCardScreen: ApplicationRoute = () => {
                 card: card
             });
         });
-
-        // if (res.status == 1) {
-        // 	console.log(`OKAY, card created with id ${res.data.id}`);
-        // }
 
         router.back();
     }
@@ -136,6 +137,37 @@ const CreateCardScreen: ApplicationRoute = () => {
 
                     Create Card
                 </FancyButton>
+
+                <FancyButton onPress={() => setPreviewModalVisible(true)}>
+                    Preview Card
+                </FancyButton>
+
+                <Modal
+                    visible={previewModalVisible}
+                    animationType='fade'
+                    onRequestClose={() => setPreviewModalVisible(false)}
+                >
+                    <TView flex={1} p={20} backgroundColor='mantle'>
+                        <TTouchableOpacity alignItems="flex-start" onPress={() => { setPreviewModalVisible(false); }}>
+                            <Icon name={'close'} size={iconSizes.lg} color="blue" mr={8} />
+                        </TTouchableOpacity>
+
+                        {/* Box for card.question */}
+                        <TView m="md" p="md" borderColor="crust" style={{ borderWidth: 1 }} radius="lg" mb="sm">
+                            <TText bold mb="sm">Question:</TText>
+                            <TText>{question}</TText>
+                        </TView>
+
+                        {/* Box for card.answer */}
+                        <TView m="md" p="md" borderColor="crust" style={{ borderWidth: 1 }} radius="lg" mb="sm">
+
+                            <TText bold mb="sm">Answer:</TText>
+                            <TText>{answer}</TText>
+
+                        </TView>
+
+                    </TView>
+                </Modal>
 
             </TScrollView >
         </>
