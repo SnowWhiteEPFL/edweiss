@@ -75,14 +75,14 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                 // Display feedback to the user when failure (empty question)
                 Toast.show({
                     type: 'error',
-                    text1: 'You were unable to like this message',
+                    text1: 'You were unable to like/unlike this message',
                 });
             }
         } catch (error) {
             // Display feedback to the user when failing to like question
             Toast.show({
                 type: 'error',
-                text1: 'Your like attempt encountered an error: ',
+                text1: 'Your like/unlike attempt encountered an error: ',
                 text2: error instanceof Error ? error.message : JSON.stringify(error), // Include the error details
             });
         }

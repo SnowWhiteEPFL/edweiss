@@ -21,10 +21,11 @@ export const updateQuestion = onAuthentifiedCall(LectureDisplay.Functions.update
         username: question.username
     };
     try {
+        console.log(updateQuestion);
         await ref.update(updatedQuestion);
     } catch (error) {
         return fail('error_firebase2');
     }
 
-    return ok({});
+    return ok({ id: ref.id });
 });
