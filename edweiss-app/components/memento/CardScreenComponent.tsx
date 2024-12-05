@@ -26,6 +26,7 @@ import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming
 import TView from '../core/containers/TView';
 import RouteHeader from '../core/header/RouteHeader';
 import Icon from '../core/Icon';
+import RichText from '../core/rich-text/RichText';
 import TText from '../core/TText';
 import FancyButton from '../input/FancyButton';
 import { OptionCardModalDisplay } from './OptionCardModalAction';
@@ -156,9 +157,12 @@ const CardScreenComponent: ReactComponent<{
                     }
                 }}>
                 <Animated.View style={[isModal ? styles.modalCard : styles.cardContainer, fronCardStyle]}>
-                    <TText mr={10} ml={10} size={20} ellipsizeMode='tail' style={{ textAlign: 'center', fontSize: calculateFontSize(card?.question ?? ""), lineHeight: calculateFontSize(card?.question ?? "") * 1.2 }}>
+                    {/*<TText mr={10} ml={10} size={20} ellipsizeMode='tail' style={{ textAlign: 'center', fontSize: calculateFontSize(card?.question ?? ""), lineHeight: calculateFontSize(card?.question ?? "") * 1.2 }}>
                         {card.question}
-                    </TText>
+                    </TText>*/}
+                    <RichText color='text' px={'sm'} >
+                        {card.question}
+                    </RichText>
                     <TText style={{ position: 'absolute', top: '2%', right: '2%' }} >
                         <Icon name={mementoStatusIconMap[card.learning_status]} color={mementoStatusColorMap[card.learning_status]} size={'lg'} />
                     </TText>
@@ -173,9 +177,12 @@ const CardScreenComponent: ReactComponent<{
                     }
                 }}>
                 <Animated.View style={[styles.cardContainer, backCardStyle]}>
-                    <TText mr={10} ml={10} size={20} ellipsizeMode='tail' style={{ textAlign: 'center', fontSize: calculateFontSize(card?.answer ?? ""), lineHeight: calculateFontSize(card?.answer ?? "") * 1.2 }}>
+                    {/*<TText mr={10} ml={10} size={20} ellipsizeMode='tail' style={{ textAlign: 'center', fontSize: calculateFontSize(card?.answer ?? ""), lineHeight: calculateFontSize(card?.answer ?? "") * 1.2 }}>
                         {card.answer}
-                    </TText>
+                    </TText>*/}
+                    <RichText color='text' px={'sm'} >
+                        {card.answer}
+                    </RichText>
                     <TText style={{ position: 'absolute', top: '2%', right: '2%' }} >
                         <Icon name={mementoStatusIconMap[card.learning_status]} color={mementoStatusColorMap[card.learning_status]} size={'lg'} />
                     </TText>

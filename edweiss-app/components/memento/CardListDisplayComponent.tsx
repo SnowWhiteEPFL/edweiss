@@ -18,6 +18,7 @@ import React from 'react';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import TView from '../core/containers/TView';
 import Icon from '../core/Icon';
+import RichText from '../core/rich-text/RichText';
 import TText from '../core/TText';
 
 /**
@@ -80,12 +81,12 @@ export const CardListDisplay: React.FC<{
         >
             <TView flexDirection='row' justifyContent='space-between'>
                 <TView flex={1} mr='md'>
-                    <TText bold color='text' ellipsizeMode='tail' numberOfLines={1}>
+                    {/*<TText bold color='text' ellipsizeMode='tail' numberOfLines={1}>
                         {card.question}
-                    </TText>
-                    <TText mb='md' color='subtext0' size={'sm'}>
-                        2h
-                    </TText>
+                    </TText>*/}
+                    <RichText px={'sm'} color='text'>
+                        {card.question}
+                    </RichText>
                 </TView>
 
                 <TTouchableOpacity

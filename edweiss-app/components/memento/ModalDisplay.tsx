@@ -18,6 +18,7 @@ import { useEffect, useState } from 'react';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import TView from '../core/containers/TView';
 import ModalContainer from '../core/modal/ModalContainer';
+import RichText from '../core/rich-text/RichText';
 import TText from '../core/TText';
 import FancyButton from '../input/FancyButton';
 
@@ -102,7 +103,10 @@ export const CardModalDisplay: ReactComponent<{
                 {/* Box for card.question */}
                 <TView m="md" p="md" borderColor="crust" style={{ borderWidth: 1 }} radius="lg" mb="sm">
                     <TText bold mb="sm">Question:</TText>
-                    <TText>{card.question}</TText>
+                    {/*<TText>{card.question}</TText>*/}
+                    <RichText>
+                        {card.question}
+                    </RichText>
                 </TView>
 
                 {/* Box for card.answer */}
@@ -113,7 +117,10 @@ export const CardModalDisplay: ReactComponent<{
                     }} >
 
                     <TText bold mb="sm">Answer:</TText>
-                    <TText>{isAnswerVisible ? card.answer : 'Click to reveal the answer'}</TText>
+                    {/*<TText>{isAnswerVisible ? card.answer : 'Click to reveal the answer'}</TText>*/}
+                    <RichText>
+                        {isAnswerVisible ? card.answer : 'Click to reveal the answer'}
+                    </RichText>
 
                 </TTouchableOpacity>
 
