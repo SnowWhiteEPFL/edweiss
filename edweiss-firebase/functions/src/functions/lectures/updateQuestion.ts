@@ -1,6 +1,6 @@
 import LectureDisplay from 'model/lectures/lectureDoc';
 import { onAuthentifiedCall } from 'utils/firebase';
-import { CollectionOf, getDocumentAndRef } from 'utils/firestore';
+import { clean, CollectionOf, getDocumentAndRef } from 'utils/firestore';
 import { fail, ok } from 'utils/status';
 
 export const updateQuestion = onAuthentifiedCall(LectureDisplay.Functions.updateQuestion, async (userId, args) => {
@@ -22,7 +22,7 @@ export const updateQuestion = onAuthentifiedCall(LectureDisplay.Functions.update
     };
     try {
         console.log(updateQuestion);
-        await ref.update(updatedQuestion);
+        await ref.update(clean(updatedQuestion))
     } catch (error) {
         return fail('error_firebase2');
     }

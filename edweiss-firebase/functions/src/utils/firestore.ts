@@ -141,3 +141,13 @@ export async function getRequiredDocument<Type extends DocumentData>(collection:
 		throw errorCode;
 	return doc;
 }
+
+/**
+ * Cleans the document data before adding it to a collection
+ * @param obj Object to clean 
+ * @returns Cleaned version of the object
+ */
+export function clean<T extends DocumentData>(obj: T): T {
+	Object.keys(obj).forEach(key => obj[key as keyof T] === undefined ? delete obj[key as keyof T] : {});
+	return obj;
+}
