@@ -57,7 +57,7 @@ export const updateMaterial = onSanitizedCall(Functions.updateMaterial, {
     // Prepare updated fields
     const updatedFields: Partial<Material> = {};
     if (materialData.title) updatedFields.title = materialData.title;
-    if (materialData.description || materialData.description == '') updatedFields.description = materialData.description;
+    if (materialData.description || materialData.description === '') updatedFields.description = materialData.description;
     if (materialData.from) updatedFields.from = materialData.from;
     if (materialData.to) updatedFields.to = materialData.to;
     if (materialData.docs) {
