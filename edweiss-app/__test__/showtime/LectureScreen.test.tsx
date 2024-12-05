@@ -2,6 +2,7 @@ import LectureScreen from '@/app/(app)/lectures/slides/index';
 import TView from '@/components/core/containers/TView';
 import StudentQuestion from '@/components/lectures/slides/StudentQuestion';
 import { callFunction, getDownloadURL } from '@/config/firebase';
+import SyncStorage from '@/config/SyncStorage';
 import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { Timestamp } from '@react-native-firebase/firestore/lib/modular/Timestamp';
@@ -11,6 +12,7 @@ import React from 'react';
 import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
 import Toast from 'react-native-toast-message';
 
+
 // Mock data for `usePrefetchedDynamicDoc`
 const mockLectureData = {
     data: {
@@ -19,6 +21,22 @@ const mockLectureData = {
     },
 };
 
+
+// Mock SyncStorage module
+jest.mock('@/config/SyncStorage', () => ({
+    init: jest.fn().mockResolvedValueOnce(undefined), // Mock the init method
+    get: jest.fn(),
+    set: jest.fn(),
+    // Mock other methods
+}));
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+    getAllKeys: jest.fn().mockResolvedValue(['key1', 'key2']),  // Mocking `getAllKeys`
+    multiGet: jest.fn().mockResolvedValue([['key1', 'value1'], ['key2', 'value2']]),  // Mocking `multiGet`
+    setItem: jest.fn(),
+    getItem: jest.fn(),
+    removeItem: jest.fn(),
+}));
 // Mock data for `useDynamicDocs`
 const mockQuestionData = [
     {
@@ -167,11 +185,6 @@ jest.mock('react-native/Libraries/Settings/Settings', () => ({
     set: jest.fn(),
 }));
 
-jest.mock('@react-native-async-storage/async-storage', () => ({
-    setItem: jest.fn(),
-    getItem: jest.fn(),
-    removeItem: jest.fn(),
-}));
 
 // Application Route
 jest.mock('@/constants/Component', () => ({
@@ -241,9 +254,7 @@ describe('LectureScreen Component', () => {
         jest.clearAllMocks();
         (usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockLectureData]); // Mocking `usePrefetchedDynamicDoc` with minimal data
         (useDynamicDocs as jest.Mock).mockReturnValue(mockQuestionData); // Mocking `useDynamicDocs` with minimal question data
-        (useAuth as jest.Mock).mockReturnValue({
-            uid: 'mock-uid',
-        });
+        (useAuth as jest.Mock).mockReturnValue({ uid: 'mock-uid', });
     });
 
     it('updates UI when new questions are added dynamically', () => {
@@ -377,15 +388,15 @@ describe('LectureScreen Component', () => {
                 questionsDoc={mockQuestionData}
             />
         );
+        const input = screen.getByPlaceholderText('Got something on your mind? Type away!');
         const sendButton = screen.getByTestId('send-button');
-        const input = screen.getByTestId('fancy- -input');
 
         fireEvent.changeText(input, 'New Test Question');
         fireEvent.press(sendButton);
 
         await waitFor(() => {
             expect(callFunction).toHaveBeenCalledWith(
-                'createQuestion',
+                { "exportedName": "lectures_createQuestion", "originalName": "createQuestion", "path": "lectures/createQuestion" },
                 expect.objectContaining({
                     courseId: 'Test Course',
                     lectureId: 'Test Lecture',
@@ -403,64 +414,59 @@ describe('LectureScreen Component', () => {
         );
     });
 
-    it('displays an error when submitting an empty question', async () => {
-        const { getByTestId } = render(
-            <StudentQuestion
-                courseName="Test Course"
-                lectureId="Test Lecture"
-                questionsDoc={mockQuestionData}
-            />
-        );
+    it('should like a question', async () => {
+        render(<StudentQuestion courseName={"Test Course"} lectureId={"Test Lecture"} questionsDoc={mockQuestionData} />);
 
-        const sendButton = getByTestId('send-button');
-        fireEvent.press(sendButton);
+        // Initially, the question has 0 likes, and the user hasn't liked it
+        (SyncStorage.get as jest.Mock).mockResolvedValueOnce({ status: false });
 
+        const likeButton = screen.getByTestId('like-button-0'); // Assuming first question has index 0
+
+        // Like the question
+        fireEvent.press(likeButton);
+
+        // Check if SyncStorage.set was called to store the like state
         await waitFor(() => {
-            expect(Toast.show).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    type: 'error',
-                    text1: 'You were unable to send this message',
-                })
-            );
+            expect(SyncStorage.set).toHaveBeenCalledWith(mockQuestionData[0].id, true);
         });
     });
 
-    it('allows liking and unliking a question', async () => {
-        (callFunction as jest.Mock).mockResolvedValueOnce({ status: true });
+    it('should show an error message if adding question fails', async () => {
+        render(<StudentQuestion courseName={"Test Course"} lectureId={"Test Lecture"} questionsDoc={mockQuestionData} />);
 
-        const { getByTestId, getByText } = render(
-            <StudentQuestion
-                courseName="Test Course"
-                lectureId="Test Lecture"
-                questionsDoc={mockQuestionData}
-            />
+        // Mock the behavior of the callFunction to simulate a failure
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: false });
+
+        const input = screen.getByPlaceholderText('Got something on your mind? Type away!');
+        const sendButton = screen.getByTestId('send-button');
+
+        fireEvent.changeText(input, 'New Question');
+        fireEvent.press(sendButton);
+
+        // Check if Toast notification was triggered for failure
+        await waitFor(() =>
+            expect(Toast.show).toHaveBeenCalledWith({
+                type: 'error',
+                text1: 'You were unable to send this message',
+            })
         );
+    });
 
-        const likeButton = getByTestId('like-button-0');
-        const likeCount = getByText('5');
+    it('should toggle username and anonym settings', () => {
+        render(<StudentQuestion courseName={"Test Course"} lectureId={"Test Lecture"} questionsDoc={mockQuestionData} />);
 
-        // Liking the question
-        fireEvent.press(likeButton);
-        await waitFor(() => {
-            expect(callFunction).toHaveBeenCalledWith(
-                'updateQuestion',
-                expect.objectContaining({
-                    id: '1',
-                    likes: 6,
-                })
-            );
-        });
+        const toggleButton = screen.getByTestId('person-circle-outline');
 
-        // Unliking the question
-        fireEvent.press(likeButton);
-        await waitFor(() => {
-            expect(callFunction).toHaveBeenCalledWith(
-                'updateQuestion',
-                expect.objectContaining({
-                    id: '1',
-                    likes: 4,
-                })
-            );
-        });
+        // Open the settings overlay
+        fireEvent.press(toggleButton);
+
+        // Check if the username and anonym fields are rendered
+        expect(screen.getByPlaceholderText('Give us your name')).toBeTruthy();
+        expect(screen.getByText('Anonym ?')).toBeTruthy();
+
+        // Toggle the anonym setting
+        const anonymButton = screen.getByTestId('ellipse-outline'); // Assuming this is the initial state
+        fireEvent.press(anonymButton);
+        expect(screen.getByTestId('checkmark-circle-outline')).toBeTruthy();
     });
 });

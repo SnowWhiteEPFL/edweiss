@@ -5,10 +5,11 @@ import Icon from '@/components/core/Icon';
 import TText from '@/components/core/TText';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { callFunction, Document } from '@/config/firebase';
+import SyncStorage from '@/config/SyncStorage';
 import ReactComponent from '@/constants/Component';
 import { useAuth } from '@/contexts/auth';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import Toast from 'react-native-toast-message';
 
@@ -20,6 +21,14 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
     const [isAnonym, setIsAnonym] = useState<boolean>(false);
     const [enableDisplay, setEnableDisplay] = useState<boolean>(false);
     const { uid } = useAuth();
+
+
+    useEffect(() => {
+        const initializeStorage = async () => {
+            await SyncStorage.init();
+        };
+        initializeStorage();
+    }, []);
 
     // Function for adding new question into the firebase storage
     async function addQuestion(question: string) {
@@ -66,10 +75,6 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                 id: id,
                 likes: likes,
             });
-            console.log(res.status)
-            console.log(courseName)
-            console.log(lectureId)
-            console.log(id)
             if (!res.status) {
                 console.log(res.error)
                 // Display feedback to the user when failure (empty question)
@@ -94,7 +99,7 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
     }> = ({ question, index }) => {
         const { text, anonym, userID, likes, username } = question.data;
         const isUser = uid == userID;
-        const [isLiked, setIsLiked] = useState<boolean>(false);
+        const id = question.id;
 
         return (
             <TView key={index} mb={'sm'} backgroundColor={isUser ? 'sapphire' : 'crust'} borderColor='surface0' radius={'lg'} flex={1} flexDirection='column' ml='sm' style={{ right: isUser ? 0 : 10 }}>
@@ -105,14 +110,20 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                     <TView pr={'sm'} pl={'md'} pb={'sm'} flexDirection='row' alignItems='flex-end'>
                         <TText color='text'>{likes}</TText>
                         {!isUser && <TTouchableOpacity testID={`like-button-${index}`} backgroundColor='transparent' onPress={() => {
-                            setIsLiked(!isLiked)
-                            if (!isLiked) { // For now I had to put it this way since hooks only update after end of function
-                                updateQuestion(question.id, likes + 1);
+                            if (SyncStorage.get(id) !== undefined) {
+                                SyncStorage.set(id, !SyncStorage.get(id));
+                                if (SyncStorage.get(id)) {
+                                    console.log(SyncStorage.get(id))
+                                    updateQuestion(id, likes + 1);
+                                } else {
+                                    console.log(SyncStorage.get(id))
+                                    updateQuestion(id, likes - 1);
+                                }
                             } else {
-                                updateQuestion(question.id, likes - 1);
+                                SyncStorage.set(id, true);
                             }
                         }}>
-                            <Icon size={'md'} name={(!isLiked || isUser) ? 'heart-outline' : 'heart'} color='text'></Icon>
+                            <Icon size={'md'} name={SyncStorage.get(id) === undefined || !SyncStorage.get(id) ? 'heart-outline' : 'heart'} color='text'></Icon>
                         </TTouchableOpacity>}
                     </TView>
                 </TView>
@@ -134,7 +145,6 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
             {/* Input for new question */}
             <TView>
                 <FancyTextInput
-                    testID='fancy-text-input'
                     value={question}
                     onChangeText={setQuestion}
                     mb="sm"
@@ -157,7 +167,7 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                         <Icon size="xl" name="send-outline" color="text" />
                     )}
                 </TTouchableOpacity>
-                <TTouchableOpacity style={{ position: 'absolute', right: 20, bottom: 60, }} backgroundColor="transparent" onPress={() => { setEnableDisplay(!enableDisplay) }} pl="md">
+                <TTouchableOpacity style={{ position: 'absolute', right: 20, bottom: 60, }} backgroundColor="transparent" onPress={() => { setEnableDisplay(!enableDisplay) }} pl="md" testID='person-circle-outline'>
                     <Icon size="xl" name="person-circle-outline" color="text" />
                 </TTouchableOpacity>
 
@@ -171,7 +181,7 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
 
                     <TView flexDirection='row' justifyContent='center'>
                         <TText color='cherry'>Anonym ? </TText>
-                        <TTouchableOpacity backgroundColor="transparent" onPress={() => { setIsAnonym(!isAnonym) }} pl="md">
+                        <TTouchableOpacity backgroundColor="transparent" onPress={() => { setIsAnonym(!isAnonym) }} pl="md" testID={isAnonym ? "checkmark-circle-outline" : "ellipse-outline"}>
                             <Icon size="xl" name={isAnonym ? "checkmark-circle-outline" : "ellipse-outline"} color="cherry" />
                         </TTouchableOpacity>
                     </TView>

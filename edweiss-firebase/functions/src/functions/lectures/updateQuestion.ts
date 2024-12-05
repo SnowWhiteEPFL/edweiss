@@ -10,7 +10,7 @@ export const updateQuestion = onAuthentifiedCall(LectureDisplay.Functions.update
     const [question, ref] = await getDocumentAndRef(CollectionOf<LectureDisplay.Question>(`courses/${args.courseId}/lectures/${args.lectureId}/questions`), args.id);
 
     if (question == undefined)
-        return fail("error_firebase1");
+        return fail("error_firebase");
 
     const updatedQuestion: Partial<LectureDisplay.Question> = {
         anonym: question.anonym,
@@ -24,7 +24,7 @@ export const updateQuestion = onAuthentifiedCall(LectureDisplay.Functions.update
         console.log(updateQuestion);
         await ref.update(clean(updatedQuestion))
     } catch (error) {
-        return fail('error_firebase2');
+        return fail('error_firebase');
     }
 
     return ok({ id: ref.id });
