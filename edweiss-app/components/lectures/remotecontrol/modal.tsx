@@ -181,29 +181,16 @@ export const TimerSettingModal: ReactComponent<{
 
 
     // Pretty Printers
-    const getTimerSeconds = (seconds: number) => {
+    const ppSeconds = (seconds: number) => {
         return `0${seconds % 60}`.slice(-2);
     }
 
-    const getTimerMinute = (seconds: number) => {
+    const ppMinute = (seconds: number) => {
         const minutes = Math.floor(seconds / 60);
         return `0${minutes % 60}`.slice(-2);
     }
 
-    const getTimerHour = (seconds: number) => {
-        return `0${Math.floor(seconds / 3600)}`.slice(-1);
-    }
-
-    const getRecallSeconds = (seconds: number) => {
-        return `0${seconds % 60}`.slice(-2);
-    }
-
-    const getRecallMinute = (seconds: number) => {
-        const minutes = Math.floor(seconds / 60);
-        return `0${minutes % 60}`.slice(-2);
-    }
-
-    const getRecallHour = (seconds: number) => {
+    const ppHour = (seconds: number) => {
         return `0${Math.floor(seconds / 3600)}`.slice(-1);
     }
 
@@ -240,21 +227,21 @@ export const TimerSettingModal: ReactComponent<{
 
                             {/* Timer Hours */}
                             <TTouchableOpacity ml={'lg'} radius={'md'} borderColor={butSelcted === 0 ? 'blue' : 'surface2'} b={1} justifyContent='center' pr={'md'} pl={'md'} onPress={() => { setButSelcted(0); setCurCoef(hoursCoef); }} testID='hours-timer'>
-                                <TText size={'lg'} color={butSelcted === 0 ? 'blue' : 'surface1'} testID='tmp-timer-hours'>{getTimerHour(tmpTimer)}</TText>
+                                <TText size={'lg'} color={butSelcted === 0 ? 'blue' : 'surface1'} testID='tmp-timer-hours'>{ppHour(tmpTimer)}</TText>
                             </TTouchableOpacity>
 
                             <TText size={'xl'} pt={'lg'}>:</TText>
 
                             {/* Timer Minutes */}
                             <TTouchableOpacity radius={'md'} borderColor={butSelcted === 1 ? 'blue' : 'surface2'} b={1} justifyContent='center' pr={'md'} pl={'md'} onPress={() => { setButSelcted(1); setCurCoef(minutesCoef); }} testID='minutes-timer'>
-                                <TText size={'lg'} color={butSelcted === 1 ? 'blue' : 'surface1'} testID='tmp-timer-minutes'>{getTimerMinute(tmpTimer)}</TText>
+                                <TText size={'lg'} color={butSelcted === 1 ? 'blue' : 'surface1'} testID='tmp-timer-minutes'>{ppMinute(tmpTimer)}</TText>
                             </TTouchableOpacity>
 
                             <TText size={'xl'} pt={'lg'} >:</TText>
 
                             {/* Timer Seconds */}
                             <TTouchableOpacity mr={'lg'} radius={'md'} borderColor={butSelcted === 2 ? 'blue' : 'surface1'} b={1} justifyContent='center' pr={'md'} pl={'md'} onPress={() => { setButSelcted(2); setCurCoef(secondsCoef); }} testID='seconds-timer'>
-                                <TText size={'lg'} color={butSelcted === 2 ? 'blue' : 'surface1'} testID='tmp-timer-seconds'>{getTimerSeconds(tmpTimer)}</TText>
+                                <TText size={'lg'} color={butSelcted === 2 ? 'blue' : 'surface1'} testID='tmp-timer-seconds'>{ppSeconds(tmpTimer)}</TText>
                             </TTouchableOpacity>
                         </TView>
 
@@ -269,21 +256,21 @@ export const TimerSettingModal: ReactComponent<{
 
                             {/* Recall  Hours*/}
                             <TTouchableOpacity ml={'lg'} radius={'md'} borderColor={butSelcted === 3 ? 'blue' : 'surface2'} b={1} justifyContent='center' pr={'md'} pl={'md'} onPress={() => { setButSelcted(3); setCurCoef(hoursCoef); }} testID='hours-recall'>
-                                <TText size={'lg'} color={butSelcted === 3 ? 'blue' : 'surface1'} testID='tmp-recall-hours'>{getRecallHour(tmpRecall)}</TText>
+                                <TText size={'lg'} color={butSelcted === 3 ? 'blue' : 'surface1'} testID='tmp-recall-hours'>{ppHour(tmpRecall)}</TText>
                             </TTouchableOpacity>
 
                             <TText size={'xl'} pt={'lg'}>:</TText>
 
                             {/* Recall Minutes */}
                             <TTouchableOpacity radius={'md'} borderColor={butSelcted === 4 ? 'blue' : 'surface2'} b={1} justifyContent='center' pr={'md'} pl={'md'} onPress={() => { setButSelcted(4); setCurCoef(minutesCoef); }} testID='minutes-recall'>
-                                <TText size={'lg'} color={butSelcted === 4 ? 'blue' : 'surface1'} testID='tmp-recall-minutes'>{getRecallMinute(tmpRecall)}</TText>
+                                <TText size={'lg'} color={butSelcted === 4 ? 'blue' : 'surface1'} testID='tmp-recall-minutes'>{ppMinute(tmpRecall)}</TText>
                             </TTouchableOpacity>
 
                             <TText size={'xl'} pt={'lg'} >:</TText>
 
                             {/* Recall Seconds */}
                             <TTouchableOpacity mr={'lg'} radius={'md'} borderColor={butSelcted === 5 ? 'blue' : 'surface2'} b={1} justifyContent='center' pr={'md'} pl={'md'} onPress={() => { setButSelcted(5); setCurCoef(secondsCoef); }} testID='seconds-recall'>
-                                <TText size={'lg'} color={butSelcted === 5 ? 'blue' : 'surface1'} testID='tmp-recall-seconds'>{getRecallSeconds(tmpRecall)}</TText>
+                                <TText size={'lg'} color={butSelcted === 5 ? 'blue' : 'surface1'} testID='tmp-recall-seconds'>{ppSeconds(tmpRecall)}</TText>
                             </TTouchableOpacity>
                         </TView>
 
