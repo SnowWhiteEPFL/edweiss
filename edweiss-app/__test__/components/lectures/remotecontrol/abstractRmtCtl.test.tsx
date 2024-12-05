@@ -17,6 +17,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { fireEvent, render } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import React from 'react';
+import { Vibration } from 'react-native';
 import Toast from 'react-native-toast-message';
 
 
@@ -121,6 +122,9 @@ jest.mock('react-native-toast-message', () => ({
 }));
 
 
+
+
+
 // ------------------------------------------------------------
 // ---------     Abstract Remote Control Test Suite     -------
 // ------------------------------------------------------------
@@ -132,9 +136,7 @@ describe('AbstractRmtCrl Component', () => {
     const langMock: LectureDisplay.AvailableLangs = 'english';
     const setLangMock = jest.fn();
 
-
     let modalRef: React.RefObject<BottomSheetModal>;
-
 
     beforeEach(() => {
         modalRef = {
@@ -229,6 +231,7 @@ describe('AbstractRmtCrl Component', () => {
                 totPageProvided={totPageProvided}
                 courseNameString={courseNameString}
                 lectureIdString={lectureIdString}
+
             />
         );
 
@@ -252,6 +255,7 @@ describe('AbstractRmtCrl Component', () => {
                 totPageProvided={totPageProvided}
                 courseNameString={courseNameString}
                 lectureIdString={lectureIdString}
+
             />
         );
 
@@ -277,6 +281,7 @@ describe('AbstractRmtCrl Component', () => {
                 totPageProvided={totPageProvided}
                 courseNameString={courseNameString}
                 lectureIdString={lectureIdString}
+
             />
         );
 
@@ -300,6 +305,7 @@ describe('AbstractRmtCrl Component', () => {
                 totPageProvided={totPageProvided}
                 courseNameString={courseNameString}
                 lectureIdString={lectureIdString}
+
             />
         );
 
@@ -325,6 +331,7 @@ describe('AbstractRmtCrl Component', () => {
                 totPageProvided={totPageProvided}
                 courseNameString={courseNameString}
                 lectureIdString={lectureIdString}
+
             />
         );
 
@@ -345,6 +352,7 @@ describe('AbstractRmtCrl Component', () => {
                 totPageProvided={totPageProvided}
                 courseNameString={courseNameString}
                 lectureIdString={lectureIdString}
+
             />
         );
 
@@ -365,6 +373,7 @@ describe('AbstractRmtCrl Component', () => {
                 totPageProvided={totPageProvided}
                 courseNameString={courseNameString}
                 lectureIdString={lectureIdString}
+
             />
         );
 
@@ -387,6 +396,7 @@ describe('AbstractRmtCrl Component', () => {
                 totPageProvided={totPageProvided}
                 courseNameString={courseNameString}
                 lectureIdString={lectureIdString}
+
             />
         );
 
@@ -415,6 +425,7 @@ describe('AbstractRmtCrl Component', () => {
                 totPageProvided={totPageProvided}
                 courseNameString={courseNameString}
                 lectureIdString={lectureIdString}
+
             />
         );
 
@@ -439,6 +450,7 @@ describe('AbstractRmtCrl Component', () => {
                 totPageProvided={totPageProvided}
                 courseNameString={courseNameString}
                 lectureIdString={lectureIdString}
+
             />
         );
 
@@ -463,6 +475,7 @@ describe('AbstractRmtCrl Component', () => {
                 totPageProvided={totPageProvided}
                 courseNameString={courseNameString}
                 lectureIdString={lectureIdString}
+
             />
         );
 
@@ -489,5 +502,78 @@ describe('AbstractRmtCrl Component', () => {
 
         fireEvent.press(getByTestId('strc-lang-button'));
         expect(modalRef.current?.close).not.toHaveBeenCalled();
+    });
+
+    test('do not close the timer selection modal when language button is pressed', () => {
+        const { getByTestId } = render(
+            <AbstractRmtCrl
+                handleRight={handleRightMock}
+                handleLeft={handleLeftMock}
+                handleMic={handleMicMock}
+                isRecording={false}
+                lang={langMock}
+                setLang={setLangMock}
+                curPageProvided={curPageProvided}
+                totPageProvided={totPageProvided}
+                courseNameString={courseNameString}
+                lectureIdString={lectureIdString}
+            />
+        );
+
+        fireEvent(getByTestId('timer-but'), 'longPress');
+        expect(modalRef.current?.close).not.toHaveBeenCalled();
+    });
+
+    test('stop watch stop at 0:00:00 ', () => {
+        const { getByTestId } = render(
+            <AbstractRmtCrl
+                handleRight={handleRightMock}
+                handleLeft={handleLeftMock}
+                handleMic={handleMicMock}
+                isRecording={false}
+                lang={langMock}
+                setLang={setLangMock}
+                curPageProvided={curPageProvided}
+                totPageProvided={totPageProvided}
+                courseNameString={courseNameString}
+                lectureIdString={lectureIdString}
+            />
+        );
+
+        fireEvent.press(getByTestId('timer-but'));
+        const timerText = getByTestId('timer-txt');
+        expect(timerText.props.children).toBe('0:00:00');
+    });
+
+    test('starts and stops the timer correctly', () => {
+        jest.useFakeTimers();
+        jest.mock('react-native', () => {
+            const actualReactNative = jest.requireActual('react-native');
+            return {
+                ...actualReactNative,
+                Vibration: {
+                    vibrate: jest.fn(),
+                },
+            };
+        });
+
+        const { getByTestId } = render(
+            <AbstractRmtCrl
+                handleRight={handleRightMock}
+                handleLeft={handleLeftMock}
+                handleMic={handleMicMock}
+                isRecording={false}
+                lang={langMock}
+                setLang={setLangMock}
+                curPageProvided={curPageProvided}
+                totPageProvided={totPageProvided}
+                courseNameString={courseNameString}
+                lectureIdString={lectureIdString}
+            />
+        );
+
+        const timerButton = getByTestId('timer-but');
+        fireEvent.press(timerButton);
+        expect(Vibration.vibrate).toHaveBeenCalledWith([50, 300, 50, 300, 50, 300]);
     });
 });
