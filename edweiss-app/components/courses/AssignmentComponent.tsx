@@ -7,7 +7,7 @@ import { IconType } from '@/constants/Style';
 import { Assignment, AssignmentID, AssignmentType, MAX_ASSIGNMENT_NAME_LENGTH } from '@/model/school/courses';
 import { Time } from '@/utils/time';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TScrollView from '../core/containers/TScrollView';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
@@ -90,6 +90,17 @@ const AssignmentComponent: ReactComponent<EditAssignmentProps> = ({ mode, onSubm
     const [timeChanged, setTimeChanged] = useState<boolean>(false);
     const [showPickerDate, setShowPickerDate] = useState<boolean>(false);
     const [showPickerTime, setShowPickerTime] = useState<boolean>(false);
+
+    const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
+    useEffect(() => {
+        const isInvalid =
+            (mode === 'add' && (!dateChanged || !timeChanged)) ||
+            name === "" ||
+            name.length > MAX_ASSIGNMENT_NAME_LENGTH;
+
+        setIsButtonDisabled(isInvalid);
+    }, [mode, dateChanged, timeChanged, name, MAX_ASSIGNMENT_NAME_LENGTH]);
 
 
     const onChangeDate = (event: any, selectedDate: Date | undefined) => {
@@ -221,8 +232,8 @@ const AssignmentComponent: ReactComponent<EditAssignmentProps> = ({ mode, onSubm
                 {/* Bouton Submit */}
                 <TTouchableOpacity
                     testID={testIDs.submitTouchableOpacity}
-                    backgroundColor={(mode == 'add' && (!dateChanged || !timeChanged)) || name === "" || name.length > MAX_ASSIGNMENT_NAME_LENGTH ? 'text' : 'blue'}
-                    disabled={(mode == 'add' && (!dateChanged || !timeChanged)) || name === "" || name.length > MAX_ASSIGNMENT_NAME_LENGTH}
+                    backgroundColor={isButtonDisabled ? 'text' : 'blue'}
+                    disabled={isButtonDisabled}
                     onPress={() => assignment ? onSubmit({ name, type, dueDate: Time.fromDate(dueDate) }, assignment.id) : onSubmit({ name, type, dueDate: Time.fromDate(dueDate) })}
                     flex={1} mx={10} p={12} radius={'xl'}
                 >

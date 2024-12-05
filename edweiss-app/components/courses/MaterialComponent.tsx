@@ -7,7 +7,7 @@ import { IconType } from '@/constants/Style';
 import { Material, MaterialID, MAX_MATERIAL_DESCRIPTION_LENGTH, MAX_MATERIAL_TITLE_LENGTH } from '@/model/school/courses';
 import { Time } from '@/utils/time';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TScrollView from '../core/containers/TScrollView';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
@@ -108,6 +108,37 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
     const [showPickerFromTime, setShowPickerFromTime] = useState<boolean>(false);
     const [showPickerToDate, setShowPickerToDate] = useState<boolean>(false);
     const [showPickerToTime, setShowPickerToTime] = useState<boolean>(false);
+
+    const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
+    useEffect(() => {
+        const isInvalid =
+            mode === 'add' &&
+            (
+                !fromDateChanged ||
+                !fromTimeChanged ||
+                !toDateChanged ||
+                !toTimeChanged ||
+                (toDateChanged && fromDateChanged && toDate.getTime() < fromDate.getTime())
+            ) ||
+            title === "" ||
+            title.length > MAX_MATERIAL_TITLE_LENGTH ||
+            description.length > MAX_MATERIAL_DESCRIPTION_LENGTH;
+
+        setIsButtonDisabled(isInvalid);
+    }, [
+        mode,
+        fromDateChanged,
+        fromTimeChanged,
+        toDateChanged,
+        toTimeChanged,
+        fromDate,
+        toDate,
+        title,
+        description,
+        MAX_MATERIAL_TITLE_LENGTH,
+        MAX_MATERIAL_DESCRIPTION_LENGTH
+    ]);
 
     const onChangeTitle = (text: string) => {
         setTitleChanged(true);
@@ -329,8 +360,8 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
             >
                 <TTouchableOpacity
                     testID={testIDs.submitTouchableOpacity}
-                    backgroundColor={(mode == 'add' && (!fromDateChanged || !fromTimeChanged || !toDateChanged || !toTimeChanged || (toDateChanged && fromDateChanged && toDate.getTime() < fromDate.getTime())) || toDate.getTime() < fromDate.getTime() || title === "" || title.length > MAX_MATERIAL_TITLE_LENGTH || description.length > MAX_MATERIAL_DESCRIPTION_LENGTH) ? 'text' : 'blue'}
-                    disabled={(mode == 'add' && (!fromDateChanged || !fromTimeChanged || !toDateChanged || !toTimeChanged || (toDateChanged && fromDateChanged && toDate.getTime() < fromDate.getTime())) || toDate.getTime() < fromDate.getTime() || title === "" || title.length > MAX_MATERIAL_TITLE_LENGTH || description.length > MAX_MATERIAL_DESCRIPTION_LENGTH)}
+                    backgroundColor={isButtonDisabled ? 'text' : 'blue'}
+                    disabled={isButtonDisabled}
                     onPress={() => material ? onSubmit({ title: title, description: description, from: Time.fromDate(fromDate), to: Time.fromDate(toDate), docs: [] }, material.id) : onSubmit({ title: title, description: description, from: Time.fromDate(fromDate), to: Time.fromDate(toDate), docs: [] })}
                     flex={1} mx={10} p={12} radius={'xl'}
                 >
