@@ -9,5 +9,40 @@
     "toast_added_to_todo_text2": "Maintenant, tu as une nouvelle raison de procrastiner ! 🎉",
 
     "archived_assignments": "Devoirs archivés",
-    "no_past_assignment": "Aucun devoir passé pour le moment"
+    "no_past_assignment": "Aucun devoir passé pour le moment",
+
+    "materials_title": "Contenu du cours",
+    "hide_future_materials": "Cacher les futurs contenus",
+    "show_future_materials": "Afficher les futurs contenus",
+
+    "add_assignment": "Ajouter un devoir",
+    "add_assignment_title": "Entrez les détails pour le nouveau devoir",
+    "name_label": "Nom",
+    "name_placeholder": "Devoir hebdomadaire",
+    "type_label": "Type",
+    "type_placeholder": "Quiz",
+    "due_date_label": "Date de rendu",
+    "due_time_label": "Heure de rendu",
+    "upload_assignment": "Télécharger le devoir",
+
+    "add_material": "Ajouter du contenu",
+    "add_material_title": "Entrez les détails pour le nouveau contenu",
+    "material_title_label": "Titre",
+    "material_title_placeholder": "Numéro de la semaine",
+    "material_description_label": "Description",
+    "material_description_placeholder": "Les diapositives de cette semaine",
+    "from_date_label": "Date de début",
+    "from_time_label": "Heure de début",
+    "to_date_label": "Date de fin",
+    "to_time_label": "Heure de fin",
+    "upload_material": "Télécharger le contenu",
+
+    "course_params": "Paramètres du cours",
+    "course_params_title": "Entrez/Modifiez les détails pour le cours",
+    "title_label": "Titre",
+    "title_placeholder": "Introduction à l'informatique",
+    "description_label": "Description",
+    "description_placeholder": "Ce cours est une introduction au monde de l'informatique",
+    "credits_label": "Crédits",
+    "update_changes": "Mettre à jour les changements"
 }

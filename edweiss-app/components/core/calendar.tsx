@@ -193,11 +193,11 @@ export const Calendar = ({
                     {weekDates.map(weekDate => (
                         <TText
                             pt={20}
-                            key={weekDate.toISOString()}
+                            key={weekDate.date.toISOString()}
                             align="center"
                             style={{ width: '13.3%' }}
                         >
-                            {weekDate.toLocaleDateString('fr-FR', {
+                            {weekDate.date.toLocaleDateString('fr-FR', {
                                 weekday: 'short',
                                 day: 'numeric',
                                 month: 'short',
@@ -236,8 +236,8 @@ export const Calendar = ({
                     {format === 'week' && (
                         <TView flexDirection="row" style={{ flex: 1 }}>
                             {weekDates.map(weekDate => (
-                                <TView key={weekDate.toISOString()} style={{ width: '14.28%' }}>
-                                    {renderDay(weekDate)}
+                                <TView key={weekDate.date.toISOString()} style={{ width: '14.28%' }}>
+                                    {renderDay(weekDate.date)}
                                 </TView>
                             ))}
                         </TView>

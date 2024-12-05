@@ -5,24 +5,13 @@
  */
 
 
-import { Course, Course_functions, Credits, Section } from 'model/school/courses';
+import { Course, Course_functions, MAX_COURSE_CREDITS, MAX_COURSE_DESCRIPTION_LENGTH, MAX_COURSE_NAME_LENGTH, UpdateCourseArgs } from 'model/school/courses';
 import { AppUser } from 'model/users';
 import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocumentAndRef, getRequiredDocument } from 'utils/firestore';
-import { assertIsBetween, assertNonEmptyString, assertThatFields, Predicate } from 'utils/sanitizer';
+import { assertIsBetween, assertNonEmptyString, assertNumber, assertString, assertThatFields, Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
-
-const MAX_NAME_LENGTH = 30;
-const MAX_DESCRIPTION_LENGTH = 100;
-const MAX_CREDITS = 30;
-
-type UpdateCourseArgs = {
-    name: string,
-    description: string,
-    credits: Credits,
-    section: Section,
-}
 
 /**
  * Update course information
@@ -43,15 +32,18 @@ export const updateCourse = onSanitizedCall(Functions.updateCourse, {
     let courseData: UpdateCourseArgs;
     courseData = JSON.parse(args.courseJSON);
     assertThatFields(courseData, {
-        name: Predicate.isBetweenLength(1, MAX_NAME_LENGTH),
-        description: Predicate.isBetweenLength(0, MAX_DESCRIPTION_LENGTH),
-        credits: Predicate.isBetween(0, MAX_CREDITS),
+        name: Predicate.isBetweenLength(1, MAX_COURSE_NAME_LENGTH),
+        description: Predicate.isBetweenLength(0, MAX_COURSE_DESCRIPTION_LENGTH),
+        credits: Predicate.isBetween(0, MAX_COURSE_CREDITS),
         section: Predicate.isString,
     });
-    assertIsBetween(courseData.name.length, 0, MAX_NAME_LENGTH, "invalid_name");
-    assertIsBetween(courseData.description.length, 0, MAX_DESCRIPTION_LENGTH, "invalid_description");
+    assertNonEmptyString(courseData.name, "invalid_name");
+    assertString(courseData.description, "invalid_description");
+    assertNumber(courseData.credits, "invalid_credits");
+    assertIsBetween(courseData.name.length, 0, MAX_COURSE_NAME_LENGTH, "name_too_long");
+    assertIsBetween(courseData.description.length, 0, MAX_COURSE_DESCRIPTION_LENGTH, "description_too_long");
     assertNonEmptyString(courseData.section, "invalid_section");
-    assertIsBetween(courseData.credits, 0, MAX_CREDITS, "invalid_credits");
+    assertIsBetween(courseData.credits, 0, MAX_COURSE_CREDITS, "credits_out_of_range");
 
     // Fetch the course document and its reference
     const [course, courseRef] = await getDocumentAndRef(CollectionOf<Course>(`courses/`), args.courseID);

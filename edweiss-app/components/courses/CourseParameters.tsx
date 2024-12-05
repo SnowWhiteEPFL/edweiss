@@ -2,11 +2,12 @@ import ReactComponent from '@/constants/Component';
 
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
+import t from '@/config/i18config';
 import { Color } from '@/constants/Colors';
 import { iconSizes } from '@/constants/Sizes';
-import { Course, Section } from '@/model/school/courses';
+import { IconType } from '@/constants/Style';
+import { Course, MAX_COURSE_DESCRIPTION_LENGTH, MAX_COURSE_NAME_LENGTH, Section, UpdateCourseArgs } from '@/model/school/courses';
 import { ProfessorID, StudentID } from '@/model/users';
-import { t } from 'i18next';
 import React from 'react';
 import TScrollView from '../core/containers/TScrollView';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
@@ -16,31 +17,53 @@ import FancyTextInput from '../input/FancyTextInput';
 
 
 // Icons
-const nameIcon = 'text-outline';
-const descriptionIcon = 'create-outline';
+export const icons: { [key: string]: IconType } = {
+    nameIcon: 'text-outline',
+    descriptionIcon: 'create-outline',
+};
 
 // Tests Tags
-export const testIDs = {
-
+export const testIDs: { [key: string]: string } = {
+    globalView: 'global-view',
+    goBackOpacity: 'go-back-opacity',
+    closeIcon: 'close-icon',
+    title: 'title',
+    message: 'message',
+    scrollView: 'scroll-view',
+    nameDescriptionSectionView: 'name-description-section-view',
+    nameInput: 'name-input',
+    descriptionInput: 'description-input',
+    sectionInput: 'section-input',
+    creditsComponentView: 'credits-component-view',
+    descreaseCreidtsButton: 'descrease-credits-button',
+    creditsView: 'credits-view',
+    creditsTitle: 'credits-title',
+    creditsIcon: 'credits-icon',
+    creditsText: 'credits-text',
+    increaseCreidtsButton: 'increase-credits-button',
+    finishTouchableOpacity: 'finish-touchable-opacity',
+    finishView: 'finish-view',
+    finishIcon: 'finish-icon',
+    finishText: 'finish-text',
 };
 
 
-interface SelectActionsAnimatedProps {
+interface CourseParamsProps {
     course: { id: string, data: Course };
-    onFinish: () => void;
+    onGiveUp: () => void;
+    onFinish: (course: UpdateCourseArgs) => void;
 }
 
 
 /**
- * AddMaterial Component
+ * CourseParameters Component
  * 
- * This component is responsible for displaying actions options to be selected when the teacher 
- * wants to add assignments or materials to the course.
+ * This component is responsible for editing the course parameters in the course page.
  * 
  * 
  * @returns JSX.Element - The rendered component for the actions selection animation.
  */
-const CourseParameters: ReactComponent<SelectActionsAnimatedProps> = ({ course, onFinish }) => {
+const CourseParameters: ReactComponent<CourseParamsProps> = ({ course, onGiveUp, onFinish }) => {
 
     const [name, setName] = React.useState<string>(course.data.name);
     const [description, setDescription] = React.useState<string>(course.data.description);
@@ -66,35 +89,40 @@ const CourseParameters: ReactComponent<SelectActionsAnimatedProps> = ({ course, 
     ];
 
     return (
-        <TView flex={1} p={20} backgroundColor='mantle'>
-            <TTouchableOpacity alignItems="flex-start" onPress={() => { onFinish() }}>
-                <Icon name={'close'} size={iconSizes.lg} color="blue" mr={8} />
+        <TView testID={testIDs.globalView} flex={1} p={20} backgroundColor='mantle'>
+            <TTouchableOpacity testID={testIDs.goBackOpacity} alignItems="flex-start" onPress={() => { onGiveUp() }}>
+                <Icon testID={testIDs.closeIcon} name={'close'} size={iconSizes.lg} color="blue" mr={8} />
             </TTouchableOpacity>
 
-            <TText size={24} bold mb={20} mx='md' pt={20}>{t(`course:course_params`)}</TText>
-            <TText mx='md' mb={15}>{t(`course:course_params_title`)}</TText>
+            <TText testID={testIDs.title} size={24} bold mb={20} mx='md' pt={20}>{t(`course:course_params`)}</TText>
+            <TText testID={testIDs.message} mx='md' mb={15}>{t(`course:course_params_title`)}</TText>
 
-            <TScrollView>
-                <TView>
+            <TScrollView testID={testIDs.scrollView}>
+                <TView testID={testIDs.nameDescriptionSectionView}>
                     <FancyTextInput
-                        label={t(`course:material_title_label`)}
+                        testID={testIDs.nameInput}
+                        label={t(`course:title_label`)}
                         value={name}
                         onChangeText={n => setName(n)}
-                        placeholder={t(`course:material_title_placeholder`)}
-                        icon={nameIcon}
+                        placeholder={t(`course:title_placeholder`)}
+                        icon={icons.nameIcon}
+                        error={name.length > MAX_COURSE_NAME_LENGTH ? t(`course:name_too_long`) : name == "" ? t(`course:field_required`) : undefined}
                     />
                     <FancyTextInput
-                        label={t(`course:material_description_label`)}
+                        testID={testIDs.descriptionInput}
+                        label={t(`course:description_label`)}
                         value={description}
                         onChangeText={n => setDescription(n)}
-                        placeholder={t(`course:material_description_placeholder`)}
-                        icon={descriptionIcon}
+                        placeholder={t(`course:description_placeholder`)}
+                        icon={icons.descriptionIcon}
                         multiline
                         numberOfLines={4}
                         mt={'md'}
                         mb={'sm'}
+                        error={description.length > MAX_COURSE_DESCRIPTION_LENGTH ? t(`course:description_too_long`) : undefined}
                     />
                     <FancyButton
+                        testID={testIDs.sectionInput}
                         onPress={() => {
                             setSection(sectionOptions[(sectionOptions.findIndex(option => option.section === section) + 1) % sectionOptions.length].section);
                         }}
@@ -109,8 +137,9 @@ const CourseParameters: ReactComponent<SelectActionsAnimatedProps> = ({ course, 
                 </TView>
 
 
-                <TView flexDirection='row' justifyContent='center'>
+                <TView testID={testIDs.creditsComponentView} flexDirection='row' justifyContent='center' pb={200}>
                     <FancyButton
+                        testID={testIDs.descreaseCreidtsButton}
                         onPress={() => {
                             credits > 0 ? setCredits(credits - 1) : setCredits(0);
                         }}
@@ -123,8 +152,8 @@ const CourseParameters: ReactComponent<SelectActionsAnimatedProps> = ({ course, 
                         disabled={credits <= 0}
                     />
                     <TView
+                        testID={testIDs.creditsView}
                         flexDirection='row'
-                        b={1}
                         backgroundColor='crust'
                         radius={14}
                         alignItems='center'
@@ -135,13 +164,14 @@ const CourseParameters: ReactComponent<SelectActionsAnimatedProps> = ({ course, 
                         px={20}
                         py={12}
                     >
-                        <TText mr={8} size={'sm'} color='overlay2'>
+                        <TText testID={testIDs.creditsTitle} mr={8} size={'sm'} color='overlay2'>
                             {t(`course:credits_label`)}
                         </TText>
-                        <Icon name='pricetag' size={20} color='overlay0' mr={8} />
-                        <TText ml={14} color='text'>{credits}</TText>
+                        <Icon testID={testIDs.creditsIcon} name='pricetag' size={20} color='overlay0' mr={8} />
+                        <TText testID={testIDs.creditsText} ml={14} color='text'>{credits}</TText>
                     </TView>
                     <FancyButton
+                        testID={testIDs.increaseCreidtsButton}
                         onPress={() => {
                             credits < 30 ? setCredits(credits + 1) : setCredits(30);
                         }}
@@ -155,6 +185,19 @@ const CourseParameters: ReactComponent<SelectActionsAnimatedProps> = ({ course, 
                     />
                 </TView>
             </TScrollView>
+
+            <TTouchableOpacity
+                testID={testIDs.finishTouchableOpacity}
+                backgroundColor={(name === "" || name.length > MAX_COURSE_NAME_LENGTH || description.length > MAX_COURSE_DESCRIPTION_LENGTH) ? 'text' : 'blue'}
+                disabled={name === "" || name.length > MAX_COURSE_NAME_LENGTH || description.length > MAX_COURSE_DESCRIPTION_LENGTH}
+                onPress={() => { onFinish({ name, description, credits, section }); }}
+                ml={100} mr={100} p={12} radius={'xl'}
+                style={{ position: 'absolute', bottom: 60, left: 0, right: 0, zIndex: 100, borderRadius: 9999 }}>
+                <TView testID={testIDs.finishView} flexDirection='row' justifyContent='center' alignItems='center'>
+                    <Icon testID={testIDs.finishIcon} name={icons.finishIcon} color='base' size={'md'} />
+                    <TText testID={testIDs.finishText} color='base' ml={10}>{t(`course:update_changes`)}</TText>
+                </TView>
+            </TTouchableOpacity >
         </TView>
     );
 };

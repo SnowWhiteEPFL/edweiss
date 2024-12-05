@@ -29,10 +29,11 @@ const mockLectureData = {
     },
 };
 
+// Increase / Decrease handler functions
 const incPageCount = jest.fn();
 const decPageCount = jest.fn();
 
-
+// Mock expo router.back + provide default args
 jest.mock('expo-router', () => ({
     router: { back: jest.fn() },
     Stack: {
@@ -55,6 +56,7 @@ jest.mock('@/config/i18config', () => ({
     default: jest.fn((key) => key),
 }));
 
+// Mock useListToMessage
 jest.mock('@/hooks/useListenToMessages', () => jest.fn());
 
 // Firebase Messaging to avoid NativeEventEmitter errors
@@ -85,6 +87,7 @@ jest.mock('react-native-blob-util', () => ({
     session: jest.fn(),
 }));
 
+// Mock firebase cloud storage
 jest.mock('@react-native-firebase/storage', () => ({
     ref: jest.fn(() => ({
         getDownloadURL: jest.fn(() => Promise.resolve('https://example.com/test.pdf')), // Ensure it's here
@@ -92,35 +95,20 @@ jest.mock('@react-native-firebase/storage', () => ({
     })),
 }));
 
-// Firebase mock
+// Mock firebase callfunctions + collection
 jest.mock('@/config/firebase', () => ({
     callFunction: jest.fn(),
     CollectionOf: jest.fn((path: string) => `MockedCollection(${path})`), // Mocking CollectionOf to return a simple string or mock object
     getDownloadURL: jest.fn(),
 }));
 
+// Mock firestore
 jest.mock('@/hooks/firebase/firestore', () => ({
     usePrefetchedDynamicDoc: jest.fn(),
     useDynamicDocs: jest.fn(),
 }));
 
-jest.mock('expo-screen-orientation', () => ({
-    unlockAsync: jest.fn(),
-    lockAsync: jest.fn(),
-    addOrientationChangeListener: jest.fn(),
-    removeOrientationChangeListener: jest.fn(),
-    Orientation: {
-        PORTRAIT_UP: 'PORTRAIT_UP',  // Correctly mock the values for portrait
-        LANDSCAPE_LEFT: 'LANDSCAPE_LEFT',
-        LANDSCAPE_RIGHT: 'LANDSCAPE_RIGHT',
-        PORTRAIT_DOWN: 'PORTRAIT_DOWN',
-    },
-    OrientationLock: {
-        LANDSCAPE: 'LANDSCAPE',  // Define the LANDSCAPE value here
-        PORTRAIT: 'PORTRAIT',    // Mock other necessary values if needed
-    },
-}));
-
+// Mock Firebase Authentication libs
 jest.mock('@react-native-firebase/auth', () => ({
     // Mock Firebase auth methods you use in your component
     signInWithCredential: jest.fn(() => Promise.resolve({ user: { uid: 'firebase-test-uid', email: 'firebase-test@example.com' } })),
@@ -128,6 +116,7 @@ jest.mock('@react-native-firebase/auth', () => ({
     currentUser: { uid: 'firebase-test-uid', email: 'firebase-test@example.com' },
 }));
 
+// Mock firebase document
 jest.mock('@react-native-firebase/firestore', () => {
     const mockCollection = jest.fn(() => ({
         doc: jest.fn(() => ({
@@ -151,40 +140,50 @@ jest.mock('@react-native-firebase/functions', () => ({
     httpsCallable: jest.fn(() => () => Promise.resolve({ data: 'function response' })),
 }));
 
+// Mock auth
 jest.mock('@/contexts/auth', () => ({
     useAuth: jest.fn(),                 // mock authentication
 }));
 
+// Mock the get/set from Settings lib
 jest.mock('react-native/Libraries/Settings/Settings', () => ({
     get: jest.fn(),
     set: jest.fn(),
 }));
 
+// Mock async storage
 jest.mock('@react-native-async-storage/async-storage', () => ({
     setItem: jest.fn(),
     getItem: jest.fn(),
     removeItem: jest.fn(),
 }));
 
-// Application Route
+// Application Route mock
 jest.mock('@/constants/Component', () => ({
     ApplicationRoute: jest.fn(),
 }));
 
+// Time framework mock
 jest.mock('@/utils/time', () => ({
     Time: {
         fromDate: jest.fn(),
     },
 }));
 
+
+// Custum TView mock
 jest.mock('@/components/core/containers/TView.tsx', () => {
     const { View } = require('react-native');
     return (props: ViewProps) => <View {...props} />;
 });
+
+// Custum TText mock
 jest.mock('@/components/core/TText.tsx', () => {
     const { Text } = require('react-native');
     return (props: TextProps) => <Text {...props} />;
 });
+
+// Custum TTouchableOpacity mock
 jest.mock('@/components/core/containers/TTouchableOpacity.tsx', () => {
     const { TouchableOpacity, View } = require('react-native');
     return (props: React.PropsWithChildren<TouchableOpacityProps>) => (
@@ -194,6 +193,7 @@ jest.mock('@/components/core/containers/TTouchableOpacity.tsx', () => {
     );
 });
 
+// Mock gesture handler
 jest.doMock('react-native-gesture-handler', () => {
     return {
         Swipeable: ({ onSwipeableOpen, children }: { onSwipeableOpen: Function, children: React.ReactNode; }) => {
@@ -223,8 +223,7 @@ jest.mock('@expo/vector-icons', () => {
     };
 });
 
-
-// Toast message
+// Mock Toast message
 jest.mock('react-native-toast-message', () => ({
     show: jest.fn(),
 }));
