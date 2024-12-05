@@ -16,7 +16,7 @@ import { useCourses } from '@/contexts/courses';
 import { useDocs } from '@/hooks/firebase/firestore';
 import { Assignment, Course } from '@/model/school/courses';
 import { Time } from '@/utils/time';
-import { router } from 'expo-router';
+import { Href, router } from 'expo-router';
 import React from 'react';
 
 const HomeTab: ApplicationRoute = () => {
@@ -29,7 +29,7 @@ const HomeTab: ApplicationRoute = () => {
 		<>
 			<RouteHeader title='Home' right={
 				<HeaderButtons>
-					<HeaderButton onPress={() => router.push("/notifications" as any)} icon='notifications-outline' />
+					<HeaderButton onPress={() => router.push("/notifs/notifications" as Href<string>)} icon='notifications-outline' />
 				</HeaderButtons>
 			} />
 
@@ -104,43 +104,26 @@ const SchedulePoint: ReactComponent<{ color: Color, time: string, name: string, 
 const CourseDisplay: ReactComponent<{ course: Document<Course> }> = ({ course }) => {
 	const assignments = useDocs(CollectionOf<Assignment>(`courses/${course.id}/assignments`));
 
+	const validAssignment = assignments && assignments.length > 0 ? assignments : undefined
+
 	return (
 		<TTouchableOpacity onPress={() => router.push(`/courses/${course.id}`)} radius={'md'} backgroundColor='base' mx={'md'} p={'md'} mb={"md"}>
 			<TText>
 				{course.data.name}
 			</TText>
-			<For each={assignments}>
+			<For each={validAssignment}
+				fallback={<TText size={'sm'} color='overlay1'>{t("home:no_assignments")}</TText>}
+			>
 				{assignment => <AssignmentDisplay key={assignment.id} assignment={assignment} />}
 			</For>
-			<TText size={'sm'} color='overlay1'>
-				{t("home:no_assignments")}
-			</TText>
 		</TTouchableOpacity>
-		// <TTouchableOpacity onPress={() => router.push(`/courses/${course.id}`)} radius={'md'} flexDirection='row' p={5} borderColor='overlay2' backgroundColor='surface0' mb={8} >
-		// 	<TView flexDirection='column'>
-		// 		<TView flexDirection='row'>
-		// 			<TText color='subtext1' p={10}>{course.data.name}</TText>
-		// 			{course.data.newAssignments && <TText color='green' pt={10} pb={0} size={25}>New!</TText>}
-		// 		</TView>
-		// 		<TView p={5} flexDirection='row'>
-		// 			<TText p={5} pr={70}>Crédits: {course.data.credits}</TText>
-		// 			<TView >
-		// 				{course.data.assignments &&
-		// 					<TView borderColor='red' radius={3} >
-		// 						{course.data.assignments.length > 0 && <TText color='subtext1' p={10} >assignements : {course.data.assignments.length}</TText>}
-		// 					</TView>
-		// 				}
-		// 			</TView>
-		// 		</TView>
-		// 	</TView>
-		// </TTouchableOpacity>
 	);
 };
 
 const AssignmentDisplay: ReactComponent<{ assignment: Document<Assignment> }> = ({ assignment }) => {
 	return (
-		<TView flexDirection='row' justifyContent='space-between'>
-			<TText>
+		<TView flexColumnGap={'md'} flexDirection='row' justifyContent='space-between'>
+			<TText numberOfLines={1} style={{ flex: 1 }}>
 				{assignment.data.name}
 			</TText>
 			<TText color='subtext0'>

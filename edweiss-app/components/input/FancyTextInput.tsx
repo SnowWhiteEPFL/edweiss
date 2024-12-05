@@ -23,9 +23,10 @@ type FancyTextInputProps = MarginProps & Testable & {
 	readOnly?: boolean;
 	label?: string;
 	error?: string;
+	numeric?: boolean;
 };
 
-const FancyTextInput: ReactComponent<FancyTextInputProps> = ({ backgroundColor = 'crust', textColor = 'text', placeholderColor = 'overlay0', multiline, ...props }) => {
+const FancyTextInput: ReactComponent<FancyTextInputProps> = ({ backgroundColor = 'crust', textColor = 'text', placeholderColor = 'overlay0', multiline, numeric, ...props }) => {
 	const computedTextColor = useColor(textColor);
 	const computedPlaceholderColor = useColor(placeholderColor);
 	const hasError = props.error != undefined;
@@ -78,6 +79,8 @@ const FancyTextInput: ReactComponent<FancyTextInputProps> = ({ backgroundColor =
 						numberOfLines={props.numberOfLines}
 						readOnly={props.readOnly}
 						textAlignVertical={multiline ? 'top' : 'center'}
+						testID={props.testID}
+						keyboardType={numeric ? 'number-pad' : 'default'}
 					/>
 				</TView>
 			</TView>

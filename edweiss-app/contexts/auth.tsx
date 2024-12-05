@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from 'react'
 
 type User = FirebaseAuthTypes.User
 
-interface AuthInterface {
+export interface AuthInterface {
 	readonly authUser: User,
 	readonly uid: string,
 	readonly isUserLoggedIn: boolean,

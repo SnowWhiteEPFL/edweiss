@@ -10,7 +10,7 @@
 // ------------------------------------------------------------
 
 import { callFunction } from '@/config/firebase';
-import { handleLeft, handleMic, handleRight, updateSlideAudioRecording } from '@/utils/lectures/remotecontrol/utilsFunctions';
+import { handleGoTo, handleLeft, handleMic, handleRight, langCodeMap, langIconMap, langNameMap, updateSlideAudioRecording } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { Vibration } from 'react-native';
 
 
@@ -208,4 +208,99 @@ describe('Utils Functions', () => {
             expect(Vibration.vibrate).toHaveBeenCalledWith(100);
         });
     });
+
+    describe('Language Maps', () => {
+        describe('langIconMap', () => {
+            it('should return correct icon for each language', () => {
+                expect(langIconMap.english).toBe('🇬🇧');
+                expect(langIconMap.french).toBe('🇫🇷');
+                expect(langIconMap.spanish).toBe('🇪🇸');
+                expect(langIconMap.italian).toBe('🇮🇹');
+                expect(langIconMap.german).toBe('🇩🇪');
+                expect(langIconMap.brazilian).toBe('🇧🇷');
+                expect(langIconMap.arabic).toBe('🇸🇦');
+                expect(langIconMap.chinese).toBe('🇨🇳');
+                expect(langIconMap.vietanames).toBe('🇻🇳');
+                expect(langIconMap.hindi).toBe('🇮🇳');
+            });
+        });
+
+        describe('langNameMap', () => {
+            it('should return correct name for each language', () => {
+                expect(langNameMap.english).toBe('English');
+                expect(langNameMap.french).toBe('Français');
+                expect(langNameMap.spanish).toBe('Español');
+                expect(langNameMap.italian).toBe('Italiano');
+                expect(langNameMap.german).toBe('Deutsch');
+                expect(langNameMap.brazilian).toBe('Português');
+                expect(langNameMap.arabic).toBe('العربية');
+                expect(langNameMap.chinese).toBe('中文');
+                expect(langNameMap.vietanames).toBe('Tiếng Việt');
+                expect(langNameMap.hindi).toBe('हिन्दी');
+            });
+        });
+
+        describe('langCodeMap', () => {
+            it('should return correct code for each language', () => {
+                expect(langCodeMap.english).toBe('en-US');
+                expect(langCodeMap.french).toBe('fr-FR');
+                expect(langCodeMap.spanish).toBe('es-ES');
+                expect(langCodeMap.italian).toBe('it-IT');
+                expect(langCodeMap.german).toBe('de-DE');
+                expect(langCodeMap.brazilian).toBe('pt-BR');
+                expect(langCodeMap.arabic).toBe('ar-SA');
+                expect(langCodeMap.chinese).toBe('zh-CN');
+                expect(langCodeMap.vietanames).toBe('vi-VN');
+                expect(langCodeMap.hindi).toBe('hi-IN');
+            });
+        });
+    });
 });
+
+
+describe('handleGoTo Test Suites', () => {
+    let mockSetCurrentPage: jest.Mock;
+
+    beforeEach(() => {
+        mockSetCurrentPage = jest.fn();
+        jest.clearAllMocks();
+    });
+
+    it('should call callFunction, log success message, and update page when targetPage is less than totalPages', async () => {
+        const targetPage = 2;
+        const totalPages = 3;
+
+        await handleGoTo(targetPage, totalPages, mockSetCurrentPage);
+
+        expect(callFunction).toHaveBeenCalled();
+        expect(mockSetCurrentPage).toHaveBeenCalledWith(targetPage);
+        expect(Vibration.vibrate).toHaveBeenCalledWith(100);
+    });
+
+    it('should log error message if callFunction throws an error', async () => {
+        const targetPage = 2;
+        const totalPages = 3;
+        const error = new Error('Test error');
+        (callFunction as jest.Mock).mockImplementationOnce(() => {
+            throw error;
+        });
+
+        await handleGoTo(targetPage, totalPages, mockSetCurrentPage);
+
+        expect(callFunction).toHaveBeenCalled();
+        expect(mockSetCurrentPage).toHaveBeenCalledWith(targetPage);
+        expect(Vibration.vibrate).toHaveBeenCalledWith(100);
+    });
+
+    it('should not call callFunction or update page when targetPage is not less than totalPages', async () => {
+        const targetPage = 3;
+        const totalPages = 3;
+
+        await handleGoTo(targetPage, totalPages, mockSetCurrentPage);
+
+        expect(callFunction).not.toHaveBeenCalled();
+        expect(mockSetCurrentPage).not.toHaveBeenCalled();
+        expect(Vibration.vibrate).toHaveBeenCalledWith(100);
+    });
+});
+

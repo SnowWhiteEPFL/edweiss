@@ -11,25 +11,25 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
-import ReactComponent, { ApplicationRoute } from '@/constants/Component';
+import { ApplicationRoute } from '@/constants/Component';
 
-import For from '@/components/core/For';
-import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
-import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
-import ModalContainer from '@/components/core/modal/ModalContainer';
 import FancyButton from '@/components/input/FancyButton';
-import CardScreenComponent from '@/components/memento/CardScreenComponent';
-import { callFunction, Collections } from '@/config/firebase';
-import { useDynamicDocs } from '@/hooks/firebase/firestore';
+import { CardListDisplay } from '@/components/memento/CardListDisplayComponent';
+import { DeleteOptionModalDisplay } from '@/components/memento/DeleteDeckModalAction';
+import { CardModalDisplay } from '@/components/memento/ModalDisplay';
+import { callFunction } from '@/config/firebase';
+import { useRepositoryDocument } from '@/hooks/repository';
+import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
-import { getStatusColor, handleCardPress, handlePress, sortingCards } from '@/utils/memento/utilsFunctions';
+import { selectedCardIndices_play, sortingCards } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Redirect, router, useLocalSearchParams } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { Button } from 'react-native';
+import { DecksRepository } from '../_layout';
 
 /**
  * CardListScreen
@@ -38,19 +38,28 @@ import { Button } from 'react-native';
  * @returns {ApplicationRoute} Screen to display a list of cards in a deck
  */
 const CardListScreen: ApplicationRoute = () => {
-	const { id } = useLocalSearchParams();
+	const { id } = useStringParameters();
 	const [showDropdown, setShowDropdown] = useState(false); // State for dropdown visibility
 	const [selectedCards, setSelectedCards] = useState<Memento.Card[]>([]);
 	const [selectionMode, setSelectionMode] = useState(false); // Track selection mode
-	const [selectedCardIndex, setSelectedCardIndex] = useState<number | null>(null); // State to hold selected card index
-	const modalRef = useRef<BottomSheetModal>(null); // Reference for the modal
-	const decks = useDynamicDocs(Collections.deck);
+	const [cardToDisplay, setCardToDisplay] = useState<Memento.Card | undefined>(undefined); // State to hold card to display
+	const [isLoading, setIsLoading] = useState(false); // State to track loading status
+	const modalRef_Card_Info = useRef<BottomSheetModal>(null); // Reference for the modal
+	const modalRef_Operation = useRef<BottomSheetModal>(null); // Reference for the modal
+	//const decks = useDynamicDocs(Collections.deck);
 
-	if (typeof id != 'string')
+	if (typeof id != 'string') return <Redirect href={'/'} />;
+
+	const [deck, handler] = useRepositoryDocument(id, DecksRepository);
+
+	if (deck == undefined)
 		return <Redirect href={'/'} />;
 
-	const deck = decks?.find(d => d.id == id);
-	const cards = deck?.data.cards || []; // Ensure cards is an array or empty
+	// const decks = useDynamicDocs(Collections.deck);
+
+	// const deck = decks?.find(d => d.id == id);
+
+	const cards = deck.data.cards;
 
 	const sortedCards = sortingCards(cards);
 
@@ -58,13 +67,11 @@ const CardListScreen: ApplicationRoute = () => {
 	const toggleCardSelection = (card: Memento.Card) => {
 		const index = selectedCards.findIndex(selected => selected.question === card.question);
 		const isAlreadySelected = index !== -1;
-
 		setSelectedCards(prev =>
 			isAlreadySelected
 				? prev.filter(selected => selected.question !== card.question)
 				: [...prev, card]
 		);
-
 		if (isAlreadySelected && selectedCards.length === 1) {
 			setSelectionMode(false); // Exit selection mode when the last card is deselected
 		}
@@ -73,15 +80,17 @@ const CardListScreen: ApplicationRoute = () => {
 	// Delete selected cards
 	const deleteSelectedCards = async () => {
 		if (selectedCards.length === 0) return;
-
 		const selectedCardIndices = selectedCards.map(card => cards.indexOf(card));
 
 		try {
-			await callFunction(Memento.Functions.deleteCards, { deckId: id, cardIndices: selectedCardIndices });
+			handler.modifyDocument(id, { cards: cards.filter((_, i) => !selectedCardIndices.includes(i)) }, (id) => {
+				callFunction(Memento.Functions.deleteCards, { deckId: id, cardIndices: selectedCardIndices });
+			});
 			setSelectedCards([]); // Clear selection after deletion
 			setSelectionMode(false); // Exit selection mode
+			setIsLoading(false);
 		} catch (error) {
-			console.error("Error deleting cards:", error);
+			console.log("Error deleting cards:", error);
 			// Add user feedback here (e.g., alert or toast notification)
 		}
 	};
@@ -90,6 +99,7 @@ const CardListScreen: ApplicationRoute = () => {
 	const cancelCardSelection = () => {
 		setSelectedCards([]); // Clear selection
 		setSelectionMode(false); // Exit selection mode
+		setIsLoading(false);
 	};
 
 	const enterSelectionMode = () => {
@@ -98,34 +108,33 @@ const CardListScreen: ApplicationRoute = () => {
 
 	// Delete deck
 	async function deleteDeck() {
-
-		await callFunction(Memento.Functions.deleteDecks, { deckIds: [id] });
+		handler.deleteDocument(id, async (id) => {
+			await callFunction(Memento.Functions.deleteDecks, { deckIds: [id] });
+			console.log("Deck deleted with id: ", id);
+		});
 		router.back();
 	}
-
-	const toggleDropDown = () => { setShowDropdown(prev => !prev); }; // Open/close dropdown
 
 	return (
 		<>
 			<RouteHeader
 				title={deck?.data.name}
 				right={
-					<Button testID='toggleButton' onPress={toggleDropDown} title='⋮' />
+					<Button color={'black'} testID='toggleButton' onPress={() => { setShowDropdown(true); modalRef_Operation.current?.present() }} title='⋮' />
 				}
 			/>
-			{showDropdown && (
-				<TView testID='dropDownContent' style={{ position: 'absolute', top: -16, right: 0, padding: 0, zIndex: 1000 }}>
-					<FancyButton testID='deleteDeckButton' outlined onPress={deleteDeck} backgroundColor='red' textColor='crust' mt={'md'} mb={'sm'} ml={'md'} mr={'md'} style={{ paddingVertical: 10, paddingHorizontal: 10 }} >
-						Delete deck
-					</FancyButton>
-				</TView>
-			)}
+
+			<DeleteOptionModalDisplay modalRef={modalRef_Operation} toggleDropDown={showDropdown} deleteDeck={deleteDeck} />
 
 			{selectedCards.length > 0 && (
 				<TView mt={'md'} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
 					<FancyButton
 						backgroundColor='red'
-						onPress={deleteSelectedCards}
+						loading={isLoading}
+						onPress={() => {
+							setIsLoading(true);
+							deleteSelectedCards();
+						}}
 						mb={'sm'}
 						style={{ flex: 1 }}
 					>
@@ -134,7 +143,11 @@ const CardListScreen: ApplicationRoute = () => {
 
 					<FancyButton
 						backgroundColor='blue'
-						onPress={cancelCardSelection}
+						loading={isLoading}
+						onPress={() => {
+							setIsLoading(true);
+							cancelCardSelection();
+						}}
 						style={{ flex: 1 }}
 					>
 						Cancel
@@ -143,38 +156,54 @@ const CardListScreen: ApplicationRoute = () => {
 			)}
 
 			< TScrollView >
-
-				<For each={sortedCards}>
-					{(card, index) => (
-						<DisplayCard
-							key={sortedCards.indexOf(card)}
-							card={card}
-							isSelected={selectedCards.some(selected => selected.question === card.question)}
-							toggleSelection={toggleCardSelection}
-							onLongPress={enterSelectionMode}
-							selectionMode={selectionMode}
-							goToPath={() => handleCardPress(index, selectionMode, selectedCardIndex, setSelectedCardIndex, modalRef)}
-						/>
-					)}
-				</For>
+				{sortedCards.map((card) => (
+					<CardListDisplay
+						key={sortedCards.indexOf(card)}
+						deckId={id}
+						card={card}
+						isSelected={selectedCards.some(selected => selected.question === card.question)}
+						toggleSelection={toggleCardSelection}
+						onLongPress={enterSelectionMode}
+						selectionMode={selectionMode}
+						setCardToDisplay={setCardToDisplay}
+						modalRef={modalRef_Card_Info}
+					/>))}
 
 			</TScrollView >
 
-			{/* Modal to display the CardScreenComponent */}
-			<ModalContainer modalRef={modalRef} snapPoints={['60%', '90%']}>
-				{selectedCardIndex !== null &&
-					<CardScreenComponent deckId={id} cardIndex={cards.indexOf(sortedCards[selectedCardIndex])} isModal={true} modalRef={modalRef} />
-				}
-
-			</ModalContainer >
+			<CardModalDisplay handler={handler} cards={cards} id={id} modalRef={modalRef_Card_Info} card={cardToDisplay} isSelectionMode={selectionMode} />
 
 			{/* Buttons for navigation */}
 			< TView >
-				<FancyButton testID='playButton' icon='play' onPress={() => router.push({ pathname: `deck/${id}/playingCards` as any })}>
-					Go to Playing screen
+				<FancyButton
+					testID='playButton'
+					disabled={cards.length === 0}
+					backgroundColor={cards.length === 0 ? 'red' : 'blue'}
+					icon='play'
+					onPress={() => {
+						const selectedCardIndices = selectedCardIndices_play(selectedCards, cards);
+						cancelCardSelection();
+						router.push({
+							pathname: `deck/${id}/playingCards` as any,
+							params: {
+								indices: JSON.stringify(selectedCardIndices)
+							}
+						})
+					}}
+				>
+					{cards.length === 0 ? "No cards to play" :
+						selectedCards.length == 0 ? "Play all cards" : "Play selected cards"}
 				</FancyButton>
 
-				<FancyButton mt={'md'} mb={'sm'} ml={'md'} mr={'md'} textColor='crust' onPress={() => router.push({ pathname: `/deck/${id}/card/creation` as any, params: { deckId: id } })} icon='create-outline' >
+				<FancyButton
+					mt={'md'} mb={'sm'} ml={'md'} mr={'md'}
+					textColor='crust'
+					onPress={() => {
+						setShowDropdown(false);
+						router.push({ pathname: `/deck/${id}/card/creation` as any, params: { deckId: id } })
+					}}
+					icon='create-outline'
+				>
 					Create Card
 				</FancyButton>
 			</TView >
@@ -183,52 +212,3 @@ const CardListScreen: ApplicationRoute = () => {
 };
 
 export default CardListScreen;
-
-/**
- * The DisplayCard component displays a card with the question and learning status
- * 
- * @param Card: Memento.Card 
- * @param isSelected: boolean indicates if the card is selected
- * @param toggleSelection: function to toggle card selection
- * @param onLongPress: function to handle long press
- * @param selectionMode: boolean indicates if the selection mode is active
- * @param goToPath: function to navigate to the handle card press
- * @returns display card component
- */
-const DisplayCard: ReactComponent<{ card: Memento.Card, isSelected: boolean, toggleSelection: (card: Memento.Card) => void; onLongPress: () => void; selectionMode: boolean; goToPath: () => void; }> = ({ card, isSelected, toggleSelection, onLongPress, selectionMode, goToPath }) => {
-	// Determine the text color based on the learning status
-	const statusColor = getStatusColor(card.learning_status ?? "");
-
-	return (
-		<TTouchableOpacity bb={5}
-			onLongPress={() => {
-				onLongPress();
-				toggleSelection(card);
-			}}
-			onPress={() => handlePress(card, selectionMode, goToPath, toggleSelection)}
-			m='md' mt={'sm'} mb={'sm'} p='lg'
-			backgroundColor={isSelected ? 'rosewater' : 'base'}
-			borderColor='crust' radius='lg'
-		>
-			<TText bold>
-				{card.question}
-			</TText>
-			<TText mb='md' color='subtext0' size={'sm'}>
-				2h
-			</TText>
-			{/* Learning Status Display */}
-			<TText style={{
-				position: 'absolute',
-				top: 25,
-				right: 10,
-				backgroundColor: 'lightgray',
-				padding: 8,
-				borderRadius: 5,
-				color: statusColor
-			}} size={'sm'}>
-				{card.learning_status}
-			</TText>
-			{isSelected && <TText color='green'>✓</TText>}
-		</TTouchableOpacity>
-	);
-};

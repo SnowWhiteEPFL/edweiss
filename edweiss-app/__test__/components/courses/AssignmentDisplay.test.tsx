@@ -3,7 +3,8 @@ import AssignmentDisplay, { AssignmentWithColor } from '@/components/courses/Ass
 import { callFunction } from '@/config/firebase';
 import { saveTodo } from '@/utils/courses/saveToDo';
 import { Time } from '@/utils/time';
-import { render } from "@testing-library/react-native";
+import { fireEvent, render } from "@testing-library/react-native";
+import { router } from 'expo-router';
 import React from 'react';
 import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -99,6 +100,15 @@ jest.mock('@/config/i18config', () =>
     })
 );
 
+jest.mock('expo-router', () => ({
+    ...jest.requireActual('expo-router'),
+    useLocalSearchParams: jest.fn(),
+    Redirect: jest.fn(() => null),
+    router: {
+        push: jest.fn(),
+    },
+}));
+
 
 // Mock des valeurs nécessaires
 const mockToast = Toast.show as jest.Mock;
@@ -126,6 +136,8 @@ describe('AssignmentDisplay', () => {
         const screen = render(
             <AssignmentDisplay
                 item={assignment}
+                id='1'
+                courseID='default-course-id'
                 index={0}
                 isSwipeable={true}
                 key={assignment.name}
@@ -145,7 +157,7 @@ describe('AssignmentDisplay', () => {
         expect(screen.getByTestId('assignment-title')).toBeTruthy();
         expect(screen.getByTestId('assignment-date')).toBeTruthy();
 
-        expect(screen.getByTestId('swipe-view')).toBeTruthy();
+        expect(screen.getByTestId('swipe-view-right')).toBeTruthy();
         expect(screen.getByTestId('add-to-todo-text')).toBeTruthy();
     });
 
@@ -160,6 +172,8 @@ describe('AssignmentDisplay', () => {
         const screen = render(
             <AssignmentDisplay
                 item={assignment}
+                id='1'
+                courseID='default-course-id'
                 index={0}
                 isSwipeable={false}
                 key={assignment.name}
@@ -194,5 +208,47 @@ describe('AssignmentDisplay', () => {
             text1: 'Error message title', // Remplace par la valeur correcte dans t()
             text2: 'Could not save todo', // Remplace par la valeur correcte dans t()
         });
+    });
+
+    test('should navigate to the quiz page with correct params when a quiz assignment is clicked', () => {
+
+        const assignment: AssignmentWithColor = {
+            name: "Assignment 1",
+            type: "quiz",
+            dueDate: { seconds: 2000, nanoseconds: 0 },
+            color: "red"
+        };
+
+        const screen = render(
+            <AssignmentDisplay
+                item={assignment}
+                id='1'
+                courseID='default-course-id'
+                index={0}
+                isSwipeable={false}
+                key={assignment.name}
+            />
+        );
+
+        // Spy sur router.push
+        const pushSpy = jest.spyOn(router, 'push');
+
+        // Trouve le bouton TouchableOpacity par testID
+        const button = screen.getByTestId('assignment-touchable');
+
+        // Simule un clic sur le bouton
+        fireEvent.press(button);
+
+        // Vérifie que router.push a bien été appelé avec les bons paramètres
+        expect(pushSpy).toHaveBeenCalledWith({
+            pathname: '/(app)/quiz/temporaryQuizStudentView',
+            params: {
+                quizId: '1',
+                courseId: 'default-course-id',
+            },
+        });
+
+        // Nettoyage après test
+        pushSpy.mockRestore();
     });
 });

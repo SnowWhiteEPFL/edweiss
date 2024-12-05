@@ -13,6 +13,9 @@ import LectureDisplay from '@/model/lectures/lectureDoc';
 import { FCMCommunication } from '@/model/users';
 import { Vibration } from 'react-native';
 
+// types
+import AvailableLangs = LectureDisplay.AvailableLangs;
+
 
 // ------------------------------------------------------------
 // --------------- Update Slide Audio Recording ---------------
@@ -38,9 +41,7 @@ export const updateSlideAudioRecording = function (
                 pageNumber: pageToTranscribe,
                 transcription: talked
             });
-        } catch (error) {
-            console.error("Error adding audio transcript:", error);
-        }
+        } catch (error) { console.error("Error adding audio transcript:", error); }
 
         setPageToTranscribe(currentPage);
         setTalked('');
@@ -74,9 +75,7 @@ export const handleLeft = function (
         // Update the page
         try {
             callFunction(FCMCommunication.Functions.sendFCMPage, { page: currentPage - 1 });
-        } catch (error) {
-            console.error("Error sending FCM page:", error);
-        }
+        } catch (error) { console.error("Error sending FCM page:", error); }
 
         // Start new recording for previous slide
         if (wasRecording) setIsRecording(true);
@@ -147,4 +146,78 @@ export const handleMic = function (
 
     Vibration.vibrate(100);
     setIsRecording(!isRecording);
+}
+
+
+// ------------------------------------------------------------
+// -----------------    Language Selection    -----------------
+// ------------------------------------------------------------
+
+export const langIconMap: Record<AvailableLangs, string> = {
+    "english": "🇬🇧",
+    "french": "🇫🇷",
+    "spanish": "🇪🇸",
+    "italian": "🇮🇹",
+    "german": "🇩🇪",
+    "brazilian": "🇧🇷",
+    "arabic": "🇸🇦",
+    "chinese": "🇨🇳",
+    "vietanames": "🇻🇳",
+    "hindi": "🇮🇳"
+};
+
+export const langNameMap: Record<AvailableLangs, string> = {
+    "english": "English",
+    "french": "Français",
+    "spanish": "Español",
+    "italian": "Italiano",
+    "german": "Deutsch",
+    "brazilian": "Português",
+    "arabic": "العربية",
+    "chinese": "中文",
+    "vietanames": "Tiếng Việt",
+    "hindi": "हिन्दी"
+};
+
+export const langCodeMap: Record<AvailableLangs, string> = {
+    "english": "en-US",
+    "french": "fr-FR",
+    "spanish": "es-ES",
+    "italian": "it-IT",
+    "german": "de-DE",
+    "brazilian": "pt-BR",
+    "arabic": "ar-SA",
+    "chinese": "zh-CN",
+    "vietanames": "vi-VN",
+    "hindi": "hi-IN"
+};
+
+
+// ------------------------------------------------------------
+// -----------------    Jump to Page handler     -----------------
+// ------------------------------------------------------------
+
+
+export const handleGoTo = function (
+    targetPage: number,
+    totalPages: number,
+    setCurrentPage: (page: number) => void,
+) {
+
+    if (targetPage < totalPages) {
+
+
+        // Update the page
+        try {
+            callFunction(FCMCommunication.Functions.sendFCMPage, { page: targetPage });
+            console.log("Go to page " + targetPage);
+        } catch (error) {
+            console.error("Error sending FCM page:", error);
+        }
+
+        // On sucess update hook
+        setCurrentPage(targetPage);
+
+    }
+    Vibration.vibrate(100);
 }

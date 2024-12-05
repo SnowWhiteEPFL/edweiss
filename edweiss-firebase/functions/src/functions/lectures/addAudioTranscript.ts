@@ -13,7 +13,7 @@ import LectureDisplay from 'model/lectures/lectureDoc';
 import { Course } from 'model/school/courses';
 import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, getDocumentAndRef, getRequiredDocument } from 'utils/firestore';
-import { Predicate, assert } from 'utils/sanitizer';
+import { assert, Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 import Functions = LectureDisplay.Functions;
 
@@ -30,12 +30,15 @@ export const addAudioTranscript = onSanitizedCall(Functions.addAudioTranscript, 
 	transcription: Predicate.isNonEmptyString,
 	pageNumber: Predicate.isStrictlyPositive,
 }, async (userId, args) => {
+
 	const course = await getRequiredDocument(CollectionOf<Course>(`courses`), args.courseId, fail("course_not_found"));
+
 	const [lecture, lectureRef] = await getDocumentAndRef(CollectionOf<Lecture>(`courses/${args.courseId}/lectures`), args.lectureId);
 
 	if (lecture == undefined)
 		return fail("error_firebase");
 
+	// Check the correct page bound
 	assert(args.pageNumber > lecture.nbOfPages);
 
 	const pageKey = `audioTranscript.${args.pageNumber}`;
@@ -46,11 +49,12 @@ export const addAudioTranscript = onSanitizedCall(Functions.addAudioTranscript, 
 			Description of the course: ${course.description}.
 
 			You are an audio transcript correcting AI.
-			Correct the following text captured by the microphone during the lecture.
+			Correct the following text captured by the microphone during the lecture. Keep the original language.
 		`,
 		content: args.transcription,
 		fallback: args.transcription
 	});
+
 
 	if (!lecture.audioTranscript || !lecture.audioTranscript[args.pageNumber]) {
 		try {
@@ -60,15 +64,16 @@ export const addAudioTranscript = onSanitizedCall(Functions.addAudioTranscript, 
 		} catch (error) {
 			return fail('error_firebase');
 		}
-	} else if (args.transcription) {
+	} else if (correctedTranscript) {
 		try {
 			await lectureRef.update({
-				[pageKey]: lecture.audioTranscript[args.pageNumber] + correctedTranscript
+				[pageKey]: lecture.audioTranscript[args.pageNumber] + " " + correctedTranscript
 			});
 		} catch (error) {
 			return fail('error_firebase');
 		}
 	}
 
-	return ok('successfully_added'); // Use OK. ("successfully_added" is a useless information)
+
+	return ok('successfully_added');
 });

@@ -1,4 +1,5 @@
 import Quizzes from 'model/quizzes';
+import { Assignment } from 'model/school/courses';
 import { CustomPredicateQuiz } from 'utils/custom-sanitizer/quiz';
 import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, Collections, getDocument } from 'utils/firestore';
@@ -15,9 +16,9 @@ export const createQuiz = onSanitizedCall(Quizzes.Functions.createQuiz, {
 		return fail("not_authorized");
 	}
 
-	const quizCollection = CollectionOf<Quizzes.Quiz>("courses/" + args.courseId + "/quizzes");
+	const assignmentCollection = CollectionOf<Assignment>("courses/" + args.courseId + "/assignments");
 
-	const res = await quizCollection.add(args.quiz);
+	const res = await assignmentCollection.add(args.quiz);
 
 	return ok({ id: res.id });
 });

@@ -160,9 +160,9 @@ export const TodoDisplay: React.FC<{
                         <TTouchableOpacity b={'lg'} m='sm' p='lg' backgroundColor='base' borderColor='surface0' radius='lg'>
                             <TView flexDirection='row' justifyContent='space-between'>
                                 <TView flex={1} mr='md'>
-                                    <TTouchableOpacity onPress={() => { setTodoToDisplay(todo); modalRef.current?.present(); }} onLongPress={() => { Vibration.vibrate(100); router.push({ pathname: "/(app)/todo/edit", params: { idString: id, todoJSON: JSON.stringify(todo) } }); }}>
+                                    <TTouchableOpacity onPress={() => { setTodoToDisplay(todo); modalRef.current?.present(); }} onLongPress={() => { Vibration.vibrate(100); router.push({ pathname: "/(app)/todo/edit", params: { idString: id, todoJSON: JSON.stringify(todo) } }); }} testID='tododisplay-touchable'>
 
-                                        <TText color='text' bold numberOfLines={1} ellipsizeMode='tail'> {todo.name} </TText>
+                                        <TText color='text' bold numberOfLines={1} ellipsizeMode='tail' testID='todo-name-text'> {todo.name} </TText>
                                         {todo.dueDate && (<TText color='subtext0' size={'sm'} bold numberOfLines={1} ellipsizeMode='tail'>{dateString}</TText>)}
                                         <TText size='xs' color={statusColorMap[todo.status]} bold numberOfLines={1} ellipsizeMode='tail'> {t(`todo:status.${todo.status}`)} </TText>
                                     </TTouchableOpacity>

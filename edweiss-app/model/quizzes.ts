@@ -1,5 +1,5 @@
 import { FunctionFolder, FunctionOf } from './functions';
-import { CourseID } from './school/courses';
+import { Assignment, CourseID } from './school/courses';
 
 namespace Quizzes {
 
@@ -31,13 +31,15 @@ namespace Quizzes {
 
     export type Exercise = MCQ | TF;
 
-    export interface Quiz {
-        name: string;
-        deadline?: string;
+    export interface Quiz extends Assignment {
         exercises: Exercise[];
         answers: QuizzesAttempts.Answer[];
         ended: boolean;
         showResultToStudents: boolean;
+        // inherits:
+        // name: string
+        // type: AssignmentType = "quiz"|"submission"
+        // dueDate: TimeStamp
     }
 
     export type Results = "correct" | "wrong" | "unselected" | "missing";
