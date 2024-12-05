@@ -82,40 +82,57 @@ interface EditAssignmentProps {
  */
 const AssignmentComponent: ReactComponent<EditAssignmentProps> = ({ mode, onSubmit, onDelete, assignment }) => {
 
-    const [name, setName] = React.useState<string>(assignment && mode == 'edit' ? assignment.data.name : "");
-    const [type, setType] = React.useState<AssignmentType>(assignment && mode == 'edit' ? assignment.data.type : 'quiz');
-    const [dueDate, setDueDate] = React.useState<Date>(assignment && mode == 'edit' ? Time.toDate(assignment.data.dueDate) : new Date());
-    const [nameChanged, setNameChanged] = useState<boolean>(false);
-    const [dateChanged, setDateChanged] = useState<boolean>(false);
-    const [timeChanged, setTimeChanged] = useState<boolean>(false);
-    const [showPickerDate, setShowPickerDate] = useState<boolean>(false);
-    const [showPickerTime, setShowPickerTime] = useState<boolean>(false);
+    const [state, setState] = useState({
+        name: assignment && mode == 'edit' ? assignment.data.name : "",
+        type: assignment && mode == 'edit' ? assignment.data.type : 'quiz',
+        dueDate: assignment && mode == 'edit' ? Time.toDate(assignment.data.dueDate) : new Date(),
+        nameChanged: false,
+        dateChanged: false,
+        timeChanged: false,
+        showPickerDate: false,
+        showPickerTime: false,
+        isButtonDisabled: true,
+    });
 
-    const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+    type StateType = {
+        name: string;
+        type: AssignmentType;
+        dueDate: Date;
+        nameChanged: boolean;
+        dateChanged: boolean;
+        timeChanged: boolean;
+        showPickerDate: boolean;
+        showPickerTime: boolean;
+        isButtonDisabled: boolean;
+    };
+
+    const updateState = <K extends keyof StateType>(key: K, value: StateType[K]) => {
+        setState((prev) => ({ ...prev, [key]: value }));
+    };
 
     useEffect(() => {
         const isInvalid =
-            (mode === 'add' && (!dateChanged || !timeChanged)) ||
-            name === "" ||
-            name.length > MAX_ASSIGNMENT_NAME_LENGTH;
+            (mode === 'add' && (!state.dateChanged || !state.timeChanged)) ||
+            state.name === "" ||
+            state.name.length > MAX_ASSIGNMENT_NAME_LENGTH;
 
-        setIsButtonDisabled(isInvalid);
-    }, [mode, dateChanged, timeChanged, name, MAX_ASSIGNMENT_NAME_LENGTH]);
+        updateState('isButtonDisabled', isInvalid);
+    }, [mode, state.dateChanged, state.timeChanged, state.name, MAX_ASSIGNMENT_NAME_LENGTH]);
 
 
     const onChangeDate = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
-            setDateChanged(true);
-            setDueDate(selectedDate);
-            setShowPickerDate(false);
+            updateState('dateChanged', true);
+            updateState('dueDate', selectedDate);
+            updateState('showPickerDate', false);
         }
     };
 
     const onChangeTime = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
-            setTimeChanged(true);
-            setDueDate(selectedDate);
-            setShowPickerTime(false);
+            updateState('timeChanged', true);
+            updateState('dueDate', selectedDate);
+            updateState('showPickerTime', false);
         }
     };
 
@@ -140,24 +157,24 @@ const AssignmentComponent: ReactComponent<EditAssignmentProps> = ({ mode, onSubm
                 <TView testID={testIDs.nameAndTypeView}>
                     <FancyTextInput
                         testID={testIDs.nameInput}
-                        value={name}
-                        onChangeText={n => { setNameChanged(true); setName(n) }}
+                        value={state.name}
+                        onChangeText={n => { updateState('nameChanged', true); updateState('name', n); }}
                         placeholder={t(`course:name_placeholder`)}
                         icon={icons.nameIcon}
                         label={t(`course:name_label`)}
-                        error={name.length > MAX_ASSIGNMENT_NAME_LENGTH ? t(`course:name_too_long`) : (name === "" && (nameChanged || mode == 'edit')) ? t(`course:field_required`) : undefined}
+                        error={state.name.length > MAX_ASSIGNMENT_NAME_LENGTH ? t(`course:name_too_long`) : (state.name === "" && (state.nameChanged || mode == 'edit')) ? t(`course:field_required`) : undefined}
                     />
 
                     <FancyButton
                         testID={testIDs.typeInput}
-                        onPress={() => setType(type === 'quiz' ? 'submission' : 'quiz')}
-                        backgroundColor={type === 'quiz' ? 'cherry' : 'yellow'}
+                        onPress={() => updateState('type', state.type === 'quiz' ? 'submission' : 'quiz')}
+                        backgroundColor={state.type === 'quiz' ? 'cherry' : 'yellow'}
                         textColor='constantWhite'
                         radius={'lg'}
                         mt={'md'}
                         mb={'sm'}
                     >
-                        {type}
+                        {state.type}
                     </FancyButton>
                 </TView>
 
@@ -165,37 +182,37 @@ const AssignmentComponent: ReactComponent<EditAssignmentProps> = ({ mode, onSubm
                 <TView testID={testIDs.dueDateView} flexDirection='row' justifyContent='space-between' alignItems='center' mr={'md'} ml={'md'} mt={'sm'} mb={'sm'}>
                     <TView testID={testIDs.dateInput} backgroundColor='crust' borderColor='surface0' radius={14} flex={2} flexDirection='column' mr='sm'>
                         <TText testID={testIDs.dateTitle} ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`course:due_date_label`)}</TText>
-                        <TTouchableOpacity testID={testIDs.dateTouchableOpacity} onPress={() => setShowPickerDate(true)}
+                        <TTouchableOpacity testID={testIDs.dateTouchableOpacity} onPress={() => updateState('showPickerDate', true)}
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'
                         >
                             <Icon testID={testIDs.dateIcon} name={icons.dateIcon} size='md' color='overlay0' />
-                            <TText testID={testIDs.dateText} ml={14} color={!dateChanged && mode == 'add' ? 'overlay0' : 'text'}>{dueDate.toDateString()}</TText>
+                            <TText testID={testIDs.dateText} ml={14} color={!state.dateChanged && mode == 'add' ? 'overlay0' : 'text'}>{state.dueDate.toDateString()}</TText>
                         </TTouchableOpacity>
                     </TView>
 
                     <TView testID={testIDs.timeInput} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
                         <TText testID={testIDs.timeTitle} ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`course:due_time_label`)}</TText>
-                        <TTouchableOpacity testID={testIDs.timeTouchableOpacity} onPress={() => setShowPickerTime(true)}
+                        <TTouchableOpacity testID={testIDs.timeTouchableOpacity} onPress={() => updateState('showPickerTime', true)}
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'>
                             <Icon testID={testIDs.timeIcon} name={icons.timeIcon} size='md' color='overlay0' />
-                            <TText testID={testIDs.timeText} ml={10} color={!timeChanged && mode == 'add' ? 'overlay0' : 'text'}>{dueDate.toTimeString().split(':').slice(0, 2).join(':')}</TText>
+                            <TText testID={testIDs.timeText} ml={10} color={!state.timeChanged && mode == 'add' ? 'overlay0' : 'text'}>{state.dueDate.toTimeString().split(':').slice(0, 2).join(':')}</TText>
                         </TTouchableOpacity>
                     </TView>
                 </TView>
 
 
-                {showPickerDate && (
+                {state.showPickerDate && (
                     <DateTimePicker
                         testID={testIDs.datePicker}
-                        value={dueDate}
+                        value={state.dueDate}
                         mode='date'
                         is24Hour={true}
                         display="default"
                         onChange={(event, selectedDate) => {
                             if (event.type === "dismissed") {
-                                setShowPickerDate(false);
+                                updateState('showPickerDate', false);
                             } else {
                                 onChangeDate(event, selectedDate);
                             }
@@ -203,16 +220,16 @@ const AssignmentComponent: ReactComponent<EditAssignmentProps> = ({ mode, onSubm
                     />
                 )}
 
-                {showPickerTime && (
+                {state.showPickerTime && (
                     <DateTimePicker
                         testID={testIDs.timePicker}
-                        value={dueDate}
+                        value={state.dueDate}
                         mode='time'
                         is24Hour={true}
                         display="default"
                         onChange={(event, selectedDate) => {
                             if (event.type === "dismissed") {
-                                setShowPickerTime(false);
+                                updateState('showPickerTime', false);
                             } else {
                                 onChangeTime(event, selectedDate);
                             }
@@ -232,9 +249,9 @@ const AssignmentComponent: ReactComponent<EditAssignmentProps> = ({ mode, onSubm
                 {/* Bouton Submit */}
                 <TTouchableOpacity
                     testID={testIDs.submitTouchableOpacity}
-                    backgroundColor={isButtonDisabled ? 'text' : 'blue'}
-                    disabled={isButtonDisabled}
-                    onPress={() => assignment ? onSubmit({ name, type, dueDate: Time.fromDate(dueDate) }, assignment.id) : onSubmit({ name, type, dueDate: Time.fromDate(dueDate) })}
+                    backgroundColor={state.isButtonDisabled ? 'text' : 'blue'}
+                    disabled={state.isButtonDisabled}
+                    onPress={() => assignment ? onSubmit({ name: state.name, type: state.type, dueDate: Time.fromDate(state.dueDate) }, assignment.id) : onSubmit({ name: state.name, type: state.type, dueDate: Time.fromDate(state.dueDate) })}
                     flex={1} mx={10} p={12} radius={'xl'}
                 >
                     <TView
