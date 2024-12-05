@@ -95,107 +95,85 @@ interface MaterialProps {
  */
 const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDelete, material }) => {
 
-    const [state, setState] = useState({
-        title: material?.data.title ?? "",
-        description: material?.data.description ?? "",
-        from: material?.data.from ? Time.toDate(material.data.from) : new Date(),
-        to: material?.data.to ? Time.toDate(material.data.to) : new Date(),
-        titleChanged: false,
-        fromDateChanged: false,
-        fromTimeChanged: false,
-        toDateChanged: false,
-        toTimeChanged: false,
-        showPickerFromDate: false,
-        showPickerFromTime: false,
-        showPickerToDate: false,
-        showPickerToTime: false,
-        isButtonDisabled: true
-    });
+    const [title, setTitle] = useState<string>(material?.data.title ?? "");
+    const [description, setDescription] = useState<string>(material?.data.description ?? "");
+    const [fromDate, setFromDate] = useState<Date>(material ? Time.toDate(material.data.from) : new Date());
+    const [toDate, setToDate] = useState<Date>(material ? Time.toDate(material.data.to) : new Date());
+    const [titleChanged, setTitleChanged] = useState<boolean>(false);
+    const [fromDateChanged, setFromDateChanged] = useState<boolean>(false);
+    const [fromTimeChanged, setFromTimeChanged] = useState<boolean>(false);
+    const [toDateChanged, setToDateChanged] = useState<boolean>(false);
+    const [toTimeChanged, setToTimeChanged] = useState<boolean>(false);
+    const [showPickerFromDate, setShowPickerFromDate] = useState<boolean>(false);
+    const [showPickerFromTime, setShowPickerFromTime] = useState<boolean>(false);
+    const [showPickerToDate, setShowPickerToDate] = useState<boolean>(false);
+    const [showPickerToTime, setShowPickerToTime] = useState<boolean>(false);
 
-    type StateType = {
-        title: string;
-        description: string;
-        from: Date;
-        to: Date;
-        titleChanged: boolean;
-        fromDateChanged: boolean;
-        fromTimeChanged: boolean;
-        toDateChanged: boolean;
-        toTimeChanged: boolean;
-        showPickerFromDate: boolean;
-        showPickerFromTime: boolean;
-        showPickerToDate: boolean;
-        showPickerToTime: boolean;
-        isButtonDisabled: boolean;
-    };
-
-    const updateState = <K extends keyof StateType>(key: K, value: StateType[K]) => {
-        setState((prev) => ({ ...prev, [key]: value }));
-    };
+    const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
     useEffect(() => {
         const isInvalid =
             mode === 'add' &&
             (
-                !state.fromDateChanged ||
-                !state.fromTimeChanged ||
-                !state.toDateChanged ||
-                !state.toTimeChanged ||
-                (state.toDateChanged && state.fromDateChanged && state.to.getTime() < state.from.getTime())
+                !fromDateChanged ||
+                !fromTimeChanged ||
+                !toDateChanged ||
+                !toTimeChanged ||
+                (toDateChanged && fromDateChanged && toDate.getTime() < fromDate.getTime())
             ) ||
-            state.title === "" ||
-            state.title.length > MAX_MATERIAL_TITLE_LENGTH ||
-            state.description.length > MAX_MATERIAL_DESCRIPTION_LENGTH;
+            title === "" ||
+            title.length > MAX_MATERIAL_TITLE_LENGTH ||
+            description.length > MAX_MATERIAL_DESCRIPTION_LENGTH;
 
-        updateState('isButtonDisabled', isInvalid);
+        setIsButtonDisabled(isInvalid);
     }, [
         mode,
-        state.fromDateChanged,
-        state.fromTimeChanged,
-        state.toDateChanged,
-        state.toTimeChanged,
-        state.from,
-        state.to,
-        state.title,
-        state.description,
+        fromDateChanged,
+        fromTimeChanged,
+        toDateChanged,
+        toTimeChanged,
+        fromDate,
+        toDate,
+        title,
+        description,
         MAX_MATERIAL_TITLE_LENGTH,
         MAX_MATERIAL_DESCRIPTION_LENGTH
     ]);
 
     const onChangeTitle = (text: string) => {
-        updateState('titleChanged', true);
-        updateState('title', text);
+        setTitleChanged(true);
+        setTitle(text);
     }
 
     const onChangeFromDate = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
-            updateState('fromDateChanged', true);
-            updateState('from', selectedDate);
-            updateState('showPickerFromDate', false);
+            setFromDateChanged(true);
+            setFromDate(selectedDate);
+            setShowPickerFromDate(false);
         }
     };
 
     const onChangeFromTime = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
-            updateState('fromTimeChanged', true);
-            updateState('from', selectedDate);
-            updateState('showPickerFromTime', false);
+            setFromTimeChanged(true);
+            setFromDate(selectedDate);
+            setShowPickerFromTime(false);
         }
     };
 
     const onChangeToDate = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
-            updateState('toDateChanged', true);
-            updateState('to', selectedDate);
-            updateState('showPickerToDate', false);
+            setToDateChanged(true);
+            setToDate(selectedDate);
+            setShowPickerToDate(false);
         }
     };
 
     const onChangeToTime = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
-            updateState('toTimeChanged', true);
-            updateState('to', selectedDate);
-            updateState('showPickerToTime', false);
+            setToTimeChanged(true);
+            setToDate(selectedDate);
+            setShowPickerToTime(false);
         }
     };
 
@@ -221,14 +199,14 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                     <FancyTextInput
                         testID={testIDs.titleInput}
                         label={t('course:material_title_label')}
-                        value={state.title}
+                        value={title}
                         onChangeText={onChangeTitle}
                         placeholder={t('course:material_title_placeholder')}
                         icon={icons.nameIcon}
                         error={
-                            state.title.length > MAX_MATERIAL_TITLE_LENGTH
+                            title.length > MAX_MATERIAL_TITLE_LENGTH
                                 ? t('course:title_too_long')
-                                : state.title === '' && (mode === 'edit' || state.titleChanged)
+                                : title === '' && (mode === 'edit' || titleChanged)
                                     ? t('course:field_required')
                                     : undefined
                         }
@@ -236,8 +214,8 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                     <FancyTextInput
                         testID={testIDs.descriptionInput}
                         label={t('course:material_description_label')}
-                        value={state.description}
-                        onChangeText={(text) => updateState('description', text)}
+                        value={description}
+                        onChangeText={setDescription}
                         placeholder={t('course:material_description_placeholder')}
                         icon={icons.descriptionIcon}
                         multiline
@@ -245,7 +223,7 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                         mt="md"
                         mb="sm"
                         error={
-                            state.description.length > MAX_MATERIAL_DESCRIPTION_LENGTH
+                            description.length > MAX_MATERIAL_DESCRIPTION_LENGTH
                                 ? t('course:description_too_long')
                                 : undefined
                         }
@@ -256,22 +234,22 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                 <TView testID={testIDs.fromDateView} flexDirection='row' justifyContent='space-between' alignItems='center' mr={'md'} ml={'md'} mt={'sm'} mb={'sm'}>
                     <TView testID={testIDs.fromDateInput} backgroundColor='crust' borderColor='surface0' radius={14} flex={2} flexDirection='column' mr='sm'>
                         <TText testID={testIDs.fromDateTitle} ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`course:from_date_label`)}</TText>
-                        <TTouchableOpacity testID={testIDs.fromDateTouchableOpacity} onPress={() => updateState('showPickerFromDate', true)}
+                        <TTouchableOpacity testID={testIDs.fromDateTouchableOpacity} onPress={() => setShowPickerFromDate(true)}
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'
                         >
                             <Icon testID={testIDs.fromDateIcon} name={icons.dateIcon} size='md' color='overlay0' />
-                            <TText testID={testIDs.fromDateText} ml={14} color={!state.fromDateChanged && mode == 'add' ? 'overlay0' : 'text'}>{state.from.toDateString()}</TText>
+                            <TText testID={testIDs.fromDateText} ml={14} color={!fromDateChanged && mode == 'add' ? 'overlay0' : 'text'}>{fromDate.toDateString()}</TText>
                         </TTouchableOpacity>
                     </TView>
 
                     <TView testID={testIDs.fromTimeInput} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
                         <TText testID={testIDs.fromTimeTitle} ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`course:from_time_label`)}</TText>
-                        <TTouchableOpacity testID={testIDs.fromTimeTouchableOpacity} onPress={() => updateState('showPickerFromTime', true)}
+                        <TTouchableOpacity testID={testIDs.fromTimeTouchableOpacity} onPress={() => setShowPickerFromTime(true)}
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'>
                             <Icon testID={testIDs.fromTimeIcon} name={icons.timeIcon} size='md' color='overlay0' />
-                            <TText testID={testIDs.fromTimeText} ml={10} color={!state.fromTimeChanged && mode == 'add' ? 'overlay0' : 'text'}>{state.from.toTimeString().split(':').slice(0, 2).join(':')}</TText>
+                            <TText testID={testIDs.fromTimeText} ml={10} color={!fromTimeChanged && mode == 'add' ? 'overlay0' : 'text'}>{fromDate.toTimeString().split(':').slice(0, 2).join(':')}</TText>
                         </TTouchableOpacity>
                     </TView>
                 </TView>
@@ -279,39 +257,39 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                 <TView testID={testIDs.toDateView} flexDirection='row' justifyContent='space-between' alignItems='center' mr={'md'} ml={'md'} mt={'sm'} mb={'sm'}>
                     <TView testID={testIDs.toDateInput} backgroundColor='crust' borderColor='surface0' radius={14} flex={2} flexDirection='column' mr='sm'>
                         <TText testID={testIDs.toDateTitle} ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`course:to_date_label`)}</TText>
-                        <TTouchableOpacity testID={testIDs.toDateTouchableOpacity} onPress={() => updateState('showPickerToDate', true)}
+                        <TTouchableOpacity testID={testIDs.toDateTouchableOpacity} onPress={() => setShowPickerToDate(true)}
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'
                         >
                             <Icon testID={testIDs.toDateIcon} name={icons.dateIcon} size='md' color='overlay0' />
-                            <TText testID={testIDs.toDateText} ml={14} color={!state.toDateChanged && mode == 'add' ? 'overlay0' : 'text'}>{state.to.toDateString()}</TText>
+                            <TText testID={testIDs.toDateText} ml={14} color={!toDateChanged && mode == 'add' ? 'overlay0' : 'text'}>{toDate.toDateString()}</TText>
                         </TTouchableOpacity>
                     </TView>
 
                     <TView testID={testIDs.toTimeInput} backgroundColor='crust' borderColor='surface0' radius={14} flex={1} flexDirection='column' ml='sm'>
                         <TText testID={testIDs.toTimeTitle} ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{t(`course:to_time_label`)}</TText>
-                        <TTouchableOpacity testID={testIDs.toTimeTouchableOpacity} onPress={() => updateState('showPickerToTime', true)}
+                        <TTouchableOpacity testID={testIDs.toTimeTouchableOpacity} onPress={() => setShowPickerToTime(true)}
                             pr={'sm'} pl={'md'} pb={'sm'}
                             flexDirection='row' justifyContent='flex-start' alignItems='center'>
                             <Icon testID={testIDs.toTimeIcon} name={icons.timeIcon} size='md' color='overlay0' />
-                            <TText testID={testIDs.toTimeText} ml={10} color={!state.toTimeChanged && mode == 'add' ? 'overlay0' : 'text'}>{state.to.toTimeString().split(':').slice(0, 2).join(':')}</TText>
+                            <TText testID={testIDs.toTimeText} ml={10} color={!toTimeChanged && mode == 'add' ? 'overlay0' : 'text'}>{toDate.toTimeString().split(':').slice(0, 2).join(':')}</TText>
                         </TTouchableOpacity>
                     </TView>
                 </TView>
 
-                {state.toDateChanged && state.fromDateChanged && state.to.getTime() < state.from.getTime() && <TText align='center' mx='md' color='red'>{t(`course:to_date_before_from_date`)}</TText>}
+                {toDateChanged && fromDateChanged && toDate.getTime() < fromDate.getTime() && <TText align='center' mx='md' color='red'>{t(`course:to_date_before_from_date`)}</TText>}
 
 
-                {state.showPickerFromDate && (
+                {showPickerFromDate && (
                     <DateTimePicker
                         testID={testIDs.fromDatePicker}
-                        value={state.from}
+                        value={fromDate}
                         mode='date'
                         is24Hour={true}
                         display="default"
                         onChange={(event, selectedDate) => {
                             if (event.type === "dismissed") {
-                                updateState('showPickerFromDate', false);
+                                setShowPickerFromDate(false);
                             } else {
                                 onChangeFromDate(event, selectedDate);
                             }
@@ -319,16 +297,16 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                     />
                 )}
 
-                {state.showPickerFromTime && (
+                {showPickerFromTime && (
                     <DateTimePicker
                         testID={testIDs.fromTimePicker}
-                        value={state.from}
+                        value={fromDate}
                         mode='time'
                         is24Hour={true}
                         display="default"
                         onChange={(event, selectedDate) => {
                             if (event.type === "dismissed") {
-                                updateState('showPickerFromTime', false);
+                                setShowPickerFromTime(false);
                             } else {
                                 onChangeFromTime(event, selectedDate);
                             }
@@ -337,16 +315,16 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                 )}
 
 
-                {state.showPickerToDate && (
+                {showPickerToDate && (
                     <DateTimePicker
                         testID={testIDs.toDatePicker}
-                        value={state.to}
+                        value={toDate}
                         mode='date'
                         is24Hour={true}
                         display="default"
                         onChange={(event, selectedDate) => {
                             if (event.type === "dismissed") {
-                                updateState('showPickerToDate', false);
+                                setShowPickerToDate(false);
                             } else {
                                 onChangeToDate(event, selectedDate);
                             }
@@ -354,16 +332,16 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                     />
                 )}
 
-                {state.showPickerToTime && (
+                {showPickerToTime && (
                     <DateTimePicker
                         testID={testIDs.toTimePicker}
-                        value={state.to}
+                        value={toDate}
                         mode='time'
                         is24Hour={true}
                         display="default"
                         onChange={(event, selectedDate) => {
                             if (event.type === "dismissed") {
-                                updateState('showPickerToTime', false);
+                                setShowPickerToTime(false);
                             } else {
                                 onChangeToTime(event, selectedDate);
                             }
@@ -382,9 +360,9 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
             >
                 <TTouchableOpacity
                     testID={testIDs.submitTouchableOpacity}
-                    backgroundColor={state.isButtonDisabled ? 'text' : 'blue'}
-                    disabled={state.isButtonDisabled}
-                    onPress={() => material ? onSubmit({ title: state.title, description: state.description, from: Time.fromDate(state.from), to: Time.fromDate(state.to), docs: [] }, material.id) : onSubmit({ title: state.title, description: state.description, from: Time.fromDate(state.from), to: Time.fromDate(state.to), docs: [] })}
+                    backgroundColor={isButtonDisabled ? 'text' : 'blue'}
+                    disabled={isButtonDisabled}
+                    onPress={() => material ? onSubmit({ title: title, description: description, from: Time.fromDate(fromDate), to: Time.fromDate(toDate), docs: [] }, material.id) : onSubmit({ title: title, description: description, from: Time.fromDate(fromDate), to: Time.fromDate(toDate), docs: [] })}
                     flex={1} mx={10} p={12} radius={'xl'}
                 >
                     <TView
