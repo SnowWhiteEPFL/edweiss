@@ -1,6 +1,6 @@
 import { Course, CourseTimePeriod } from '@/model/school/courses';
+import { Time } from '@/utils/time';
 import TView from './containers/TView';
-import formatTime from './formatTime';
 import TText from './TText';
 
 /**
@@ -28,6 +28,26 @@ export const PeriodBlock = ({
     const textSizePrimary = format === 'week' ? 12 : 15;
     const textSizeSecondary = format === 'week' ? 9 : 12;
 
+    // Function to render the student action (Join Course)
+    const renderStudentAction = (course: { id: string; data: Course }, period: CourseTimePeriod) => {
+        if (course?.data.started && period.type === 'lecture') {
+            return <TText p={5} size={15} color="red">Join Course</TText>;
+        }
+        return null;
+    };
+
+    // Function to render the professor action (Start/Stop Course)
+    const renderProfessorAction = (course: { id: string; data: Course }, period: CourseTimePeriod) => {
+        if (period.type === 'lecture') {
+            return (
+                <TText p={5} size={15} color={course.data.started ? "red" : "green"}>
+                    {course.data.started ? "Stop Course" : "Start Course"}
+                </TText>
+            );
+        }
+        return null;
+    };
+
     return (
         <TView flexDirection="column" testID='period-block-view'>
             <TView justifyContent="space-between" flexDirection={direction}>
@@ -45,19 +65,13 @@ export const PeriodBlock = ({
 
             <TView flexDirection={direction}>
                 <TText p={3} size={textSizeSecondary} color="overlay2">
-                    {`${formatTime(period.start)} - ${formatTime(period.end)}`}
+                    {`${Time.formatTime(period.start)} - ${Time.formatTime(period.end)}`}
                 </TText>
             </TView>
 
-            {user?.data.type === 'student' && course?.data.started && period.type === 'lecture' && (
-                <TText p={5} size={15} color="red">Join Course</TText>
-            )}
-
-            {user?.data.type === 'professor' && period.type === 'lecture' && (
-                <TText p={5} size={15} color={course.data.started ? "red" : "green"}>
-                    {course.data.started ? "Stop Course" : "Start Course"}
-                </TText>
-            )}
+            {/* Render action based on user type */}
+            {user?.data.type === 'student' && renderStudentAction(course, period)}
+            {user?.data.type === 'professor' && renderProfessorAction(course, period)}
         </TView>
     );
 };
