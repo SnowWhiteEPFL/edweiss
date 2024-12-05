@@ -252,6 +252,7 @@ describe('TimerSettingModal', () => {
         expect(getByTestId('add-timer-button')).toBeTruthy();
         expect(getByTestId('set-it-up-button')).toBeTruthy();
         expect(getByTestId('timer-set-close-button')).toBeTruthy();
+        expect(getByTestId('set-timer-modal-title')).toBeTruthy();
     });
 
     test('increments timer correctly', () => {
