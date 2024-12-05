@@ -39,17 +39,17 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                     text1: 'Your comment was successfully added'
                 });
             } else {
-                // Display feedback to the user when failure
+                // Display feedback to the user when failure (empty question)
                 Toast.show({
                     type: 'error',
                     text1: 'You were unable to send this message',
                 });
             }
         } catch (error) {
-            // Display feedback to the user when failing to add question
+            // Display feedback to the user when error adding question
             Toast.show({
                 type: 'error',
-                text1: 'Your message submition encountered and error: ',
+                text1: 'Your message submition encountered an error: ',
                 text2: error instanceof Error ? error.message : JSON.stringify(error), // Include the error details
             });
         } finally {
@@ -66,29 +66,13 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                 id: id,
                 likes: likes,
             });
-            console.log(res.status)
-            if (res.status) {
-                // Display feedback to the user when success
-                Toast.show({
-                    type: 'success',
-                    text1: 'Your comment was successfully added'
-                });
-            } else {
-                // Display feedback to the user when failure
-                Toast.show({
-                    type: 'error',
-                    text1: 'You were unable to send this message',
-                });
-            }
         } catch (error) {
-            // Display feedback to the user when failing to add question
+            // Display feedback to the user when failing to like question
             Toast.show({
                 type: 'error',
-                text1: 'Your message submition encountered and error: ',
+                text1: 'Your like attempt encountered an error: ',
                 text2: error instanceof Error ? error.message : JSON.stringify(error), // Include the error details
             });
-        } finally {
-            setIsLoading(false);
         }
     }
 
@@ -108,12 +92,12 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                     <TText ml={10} color='overlay0'>{text}</TText>
                     <TView pr={'sm'} pl={'md'} pb={'sm'} flexDirection='row' alignItems='flex-end'>
                         <TText color='text'>{likes}</TText>
-                        {!isUser && <TTouchableOpacity backgroundColor='transparent' onPress={() => {
+                        {!isUser && <TTouchableOpacity testID={`like-button-${index}`} backgroundColor='transparent' onPress={() => {
                             setIsLiked(!isLiked)
                             if (isLiked) {
-                                //updateQuestion(id, likes + 1);
+                                updateQuestion(question.id, likes + 1);
                             } else {
-                                //updateQuestion(id, likes - 1);
+                                updateQuestion(question.id, likes - 1);
                             }
                         }}>
                             <Icon size={'md'} name={(!isLiked || isUser) ? 'heart-outline' : 'heart'} color='text'></Icon>
@@ -145,8 +129,9 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                     label="Ask your questions"
                     icon="chatbubbles-outline"
                     placeholder="Got something on your mind? Type away!"
+                    testID='fancy-text-input'
                 />
-                <TTouchableOpacity backgroundColor="transparent" style={{ position: 'absolute', right: 20, bottom: 10, }} pl="md"
+                <TTouchableOpacity backgroundColor="transparent" style={{ position: 'absolute', right: 20, bottom: 10, }} pl="md" testID="send-button"
                     onPress={() => {
                         if (!isLoading) {
                             addQuestion(question);

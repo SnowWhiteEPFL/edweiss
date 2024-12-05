@@ -1,11 +1,15 @@
 import LectureScreen from '@/app/(app)/lectures/slides/index';
 import TView from '@/components/core/containers/TView';
+import StudentQuestion from '@/components/lectures/slides/StudentQuestion';
 import { callFunction, getDownloadURL } from '@/config/firebase';
+import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { Timestamp } from '@react-native-firebase/firestore/lib/modular/Timestamp';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import React from 'react';
 import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 // Mock data for `usePrefetchedDynamicDoc`
 const mockLectureData = {
@@ -17,7 +21,28 @@ const mockLectureData = {
 
 // Mock data for `useDynamicDocs`
 const mockQuestionData = [
-    { id: '1', data: { text: 'Mock Question' } },
+    {
+        id: '1',
+        data: {
+            text: 'Test Question 1',
+            anonym: false,
+            userID: 'user1',
+            likes: 5,
+            username: 'User1',
+            postedTime: Timestamp.now(), // Include postedTime as an ISO string
+        },
+    },
+    {
+        id: '2',
+        data: {
+            text: 'Test Question 2',
+            anonym: true,
+            userID: 'mock-uid',
+            likes: 3,
+            username: '',
+            postedTime: Timestamp.now(), // Include postedTime as an ISO string
+        },
+    },
 ];
 
 // `t` to return the key as the translation
@@ -204,12 +229,21 @@ jest.mock('@expo/vector-icons', () => {
         ),
     };
 });
+jest.mock('@/contexts/auth', () => ({
+    useAuth: jest.fn(),
+}));
+jest.mock('react-native-toast-message', () => ({
+    show: jest.fn(),
+}));
 
 describe('LectureScreen Component', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         (usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockLectureData]); // Mocking `usePrefetchedDynamicDoc` with minimal data
         (useDynamicDocs as jest.Mock).mockReturnValue(mockQuestionData); // Mocking `useDynamicDocs` with minimal question data
+        (useAuth as jest.Mock).mockReturnValue({
+            uid: 'mock-uid',
+        });
     });
 
     it('updates UI when new questions are added dynamically', () => {
@@ -295,6 +329,7 @@ describe('LectureScreen Component', () => {
                 courseId: 'testCourse',
                 lectureId: 'testLectureId',  // Ensure this is correct
                 question: 'New Question',
+                username: "",
             }
         );
     });
@@ -317,5 +352,116 @@ describe('LectureScreen Component', () => {
 
         fireEvent.press(expandButton);
         expect(ScreenOrientation.lockAsync).toHaveBeenCalledWith(ScreenOrientation.OrientationLock.LANDSCAPE);
+    });
+
+    it('renders the list of questions correctly', () => {
+        const { getByText } = render(
+            <StudentQuestion
+                courseName="Test Course"
+                lectureId="Test Lecture"
+                questionsDoc={mockQuestionData}
+            />
+        );
+
+        expect(getByText('Test Question 1')).toBeTruthy();
+        expect(getByText('Test Question 2')).toBeTruthy();
+    });
+
+    it('allows a user to submit a new question', async () => {
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: true });
+
+        const { getByText, getByTestId } = render(
+            <StudentQuestion
+                courseName="Test Course"
+                lectureId="Test Lecture"
+                questionsDoc={mockQuestionData}
+            />
+        );
+
+        const input = getByTestId('fancy-text-input');
+        const sendButton = getByTestId('send-button');
+
+        fireEvent.changeText(input, 'New Test Question');
+        fireEvent.press(sendButton);
+
+        await waitFor(() => {
+            expect(callFunction).toHaveBeenCalledWith(
+                'createQuestion',
+                expect.objectContaining({
+                    courseId: 'Test Course',
+                    lectureId: 'Test Lecture',
+                    question: 'New Test Question',
+                    username: '',
+                })
+            );
+        });
+
+        expect(Toast.show).toHaveBeenCalledWith(
+            expect.objectContaining({
+                type: 'success',
+                text1: 'Your comment was successfully added',
+            })
+        );
+    });
+
+    it('displays an error when submitting an empty question', async () => {
+        const { getByTestId } = render(
+            <StudentQuestion
+                courseName="Test Course"
+                lectureId="Test Lecture"
+                questionsDoc={mockQuestionData}
+            />
+        );
+
+        const sendButton = getByTestId('send-button');
+        fireEvent.press(sendButton);
+
+        await waitFor(() => {
+            expect(Toast.show).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    type: 'error',
+                    text1: 'You were unable to send this message',
+                })
+            );
+        });
+    });
+
+    it('allows liking and unliking a question', async () => {
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: true });
+
+        const { getByTestId, getByText } = render(
+            <StudentQuestion
+                courseName="Test Course"
+                lectureId="Test Lecture"
+                questionsDoc={mockQuestionData}
+            />
+        );
+
+        const likeButton = getByTestId('like-button-1');
+        const likeCount = getByText('5');
+
+        // Liking the question
+        fireEvent.press(likeButton);
+        await waitFor(() => {
+            expect(callFunction).toHaveBeenCalledWith(
+                'updateQuestion',
+                expect.objectContaining({
+                    id: '1',
+                    likes: 6,
+                })
+            );
+        });
+
+        // Unliking the question
+        fireEvent.press(likeButton);
+        await waitFor(() => {
+            expect(callFunction).toHaveBeenCalledWith(
+                'updateQuestion',
+                expect.objectContaining({
+                    id: '1',
+                    likes: 4,
+                })
+            );
+        });
     });
 });
