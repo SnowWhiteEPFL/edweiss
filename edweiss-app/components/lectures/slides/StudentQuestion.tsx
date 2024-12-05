@@ -66,6 +66,18 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                 id: id,
                 likes: likes,
             });
+            console.log(res.status)
+            console.log(courseName)
+            console.log(lectureId)
+            console.log(id)
+            if (!res.status) {
+                console.log(res.error)
+                // Display feedback to the user when failure (empty question)
+                Toast.show({
+                    type: 'error',
+                    text1: 'You were unable to like this message',
+                });
+            }
         } catch (error) {
             // Display feedback to the user when failing to like question
             Toast.show({
@@ -94,7 +106,7 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                         <TText color='text'>{likes}</TText>
                         {!isUser && <TTouchableOpacity testID={`like-button-${index}`} backgroundColor='transparent' onPress={() => {
                             setIsLiked(!isLiked)
-                            if (isLiked) {
+                            if (!isLiked) { // For now I had to put it this way since hooks only update after end of function
                                 updateQuestion(question.id, likes + 1);
                             } else {
                                 updateQuestion(question.id, likes - 1);
@@ -122,6 +134,7 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
             {/* Input for new question */}
             <TView>
                 <FancyTextInput
+                    testID='fancy-text-input'
                     value={question}
                     onChangeText={setQuestion}
                     mb="sm"
@@ -129,7 +142,6 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                     label="Ask your questions"
                     icon="chatbubbles-outline"
                     placeholder="Got something on your mind? Type away!"
-                    testID='fancy-text-input'
                 />
                 <TTouchableOpacity backgroundColor="transparent" style={{ position: 'absolute', right: 20, bottom: 10, }} pl="md" testID="send-button"
                     onPress={() => {

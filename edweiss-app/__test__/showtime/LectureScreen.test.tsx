@@ -370,16 +370,15 @@ describe('LectureScreen Component', () => {
     it('allows a user to submit a new question', async () => {
         (callFunction as jest.Mock).mockResolvedValueOnce({ status: true });
 
-        const { getByText, getByTestId } = render(
+        render(
             <StudentQuestion
                 courseName="Test Course"
                 lectureId="Test Lecture"
                 questionsDoc={mockQuestionData}
             />
         );
-
-        const input = getByTestId('fancy-text-input');
-        const sendButton = getByTestId('send-button');
+        const sendButton = screen.getByTestId('send-button');
+        const input = screen.getByTestId('fancy- -input');
 
         fireEvent.changeText(input, 'New Test Question');
         fireEvent.press(sendButton);
@@ -437,7 +436,7 @@ describe('LectureScreen Component', () => {
             />
         );
 
-        const likeButton = getByTestId('like-button-1');
+        const likeButton = getByTestId('like-button-0');
         const likeCount = getByText('5');
 
         // Liking the question
