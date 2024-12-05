@@ -5,7 +5,7 @@
  */
 
 
-import { Assignment, AssignmentType, Course, Course_functions } from 'model/school/courses';
+import { Assignment, AssignmentType, Course, Course_functions, MAX_ASSIGNMENT_NAME_LENGTH } from 'model/school/courses';
 import { Timestamp } from 'model/time';
 import { AppUser } from 'model/users';
 import { onSanitizedCall } from 'utils/firebase';
@@ -15,8 +15,7 @@ import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
 
 
-const validTypes: AssignmentType[] = ["submit", "quiz"]
-const MAX_NAME_LENGTH = 20;
+const validTypes: AssignmentType[] = ["submission", "quiz"];
 
 
 /**
@@ -61,8 +60,7 @@ export const updateAssignment = onSanitizedCall(Functions.updateAssignment, {
     // Build the `updatedFields` object for the assignment
     const updatedFields: Partial<Assignment> = {};
     if (assignmentData.name) {
-        assertNonEmptyString(assignmentData.name, "invalid_name");
-        assertIsBetween(assignmentData.name.length, 1, MAX_NAME_LENGTH, "invalid_name");
+        assertIsBetween(assignmentData.name.length, 1, MAX_ASSIGNMENT_NAME_LENGTH, "invalid_name");
         updatedFields.name = assignmentData.name as string;
     }
     if (assignmentData.type) {
