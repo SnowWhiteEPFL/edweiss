@@ -18,9 +18,9 @@ import t from '@/config/i18config';
 import { LightDarkProps } from '@/constants/Colors';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { langIconMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
-import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Vibration } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { LangSelectModal, TimerSettingModal } from './modal';
@@ -45,33 +45,27 @@ interface AbstractRmtCrlProps {
     totPageProvided: number;
     courseNameString: string;
     lectureIdString: string;
-    modalRefLangSelect: React.RefObject<BottomSheetModalMethods>;
-    modalRefTimer: React.RefObject<BottomSheetModalMethods>;
 
 }
 
-export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, isRecording, lang, setLang, curPageProvided, totPageProvided, courseNameString, lectureIdString, modalRefTimer, modalRefLangSelect }) => {
+export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({ handleRight, handleLeft, handleMic, isRecording, lang, setLang, curPageProvided, totPageProvided, courseNameString, lectureIdString }) => {
 
     // Modal References
-
-    console.log("Lang: " + modalRefLangSelect.current + "Timer: " + modalRefTimer.current);
+    const modalRefTimer = useRef<BottomSheetModal>(null);
+    const modalRefLangSelect = useRef<BottomSheetModal>(null);
 
 
     const [timer, setTimer] = useState(0);
     const [recall, setRecall] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
-    const [isCritical, setIsCritical] = useState(timer < recall);
+    const [isCritical, setIsCritical] = useState(false);
 
     useEffect(() => {
-        if (timer > 0) {
+        if (timer >= 0) {
             let interval: NodeJS.Timeout | null = null;
             if (isRunning) {
-                interval = setInterval(() => {
-                    setTimer(prevTimer => prevTimer - 1);
-                }, 1000);
-            } else if (!isRunning && timer !== 0) {
-                clearInterval(interval!);
-            }
+                interval = setInterval(() => { if (timer > 0) setTimer(prevTimer => prevTimer - 1); }, 1000);
+            } else if (!isRunning && timer !== 0) { clearInterval(interval!); }
             return () => clearInterval(interval!);
         }
     }, [isRunning, timer]);
@@ -224,7 +218,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
 
             {/* Modals */}
             < LangSelectModal modalRef={modalRefLangSelect} lang={lang} setLang={setLang} onClose={() => modalRefLangSelect.current?.close()} />
-            <TimerSettingModal modalRef={modalRefTimer} currentTimer={timer} currentRecall={recall} setTimer={setTimer} setRecall={setRecall} onClose={() => modalRefTimer.current?.close()} />
+            <TimerSettingModal modalRef={modalRefTimer} currentTimer={timer} currentRecall={recall} setTimer={setTimer} setIsCritical={setIsCritical} setRecall={setRecall} onClose={() => modalRefTimer.current?.close()} />
         </>
     );
 };

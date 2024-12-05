@@ -15,11 +15,10 @@ import { ApplicationRoute } from '@/constants/Component';
 import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { handleLeft, handleMic, handleRight, langCodeMap, updateSlideAudioRecording } from '@/utils/lectures/remotecontrol/utilsFunctions';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import Voice from '@react-native-voice/voice';
 import { useLocalSearchParams } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import { default as React, useEffect, useRef, useState } from 'react';
+import { default as React, useEffect, useState } from 'react';
 
 
 // Types
@@ -41,8 +40,6 @@ const RemoteControlScreen: ApplicationRoute = () => {
     const [pageToTranscribe, setPageToTranscribe] = useState<number>(1);
     const [talked, setTalked] = useState('');
     const [lang, setLang] = useState<AvailableLangs>('english');
-    const modalRefTimer = useRef<BottomSheetModal>(null);
-    const modalRefLangSelect = useRef<BottomSheetModal>(null);
 
     useEffect(() => { if (lectureDoc) { setPortrait(); } }, [lectureDoc]);
     useEffect(() => { updateSlideAudioRecording(talked, pageToTranscribe, courseName, lectureId, isRecording, currentPage, setPageToTranscribe, setTalked, () => startRecording(langCodeMap[lang])); }, [talked]);
@@ -76,8 +73,6 @@ const RemoteControlScreen: ApplicationRoute = () => {
                 lectureIdString={lectureId}
                 curPageProvided={currentPage}
                 totPageProvided={totalPages}
-                modalRefLangSelect={modalRefLangSelect}
-                modalRefTimer={modalRefTimer}
             />}
         </>
     );

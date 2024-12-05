@@ -164,8 +164,9 @@ export const TimerSettingModal: ReactComponent<{
     currentRecall: number
     setTimer: React.Dispatch<React.SetStateAction<number>>;
     setRecall: React.Dispatch<React.SetStateAction<number>>;
+    setIsCritical: React.Dispatch<React.SetStateAction<boolean>>;
     onClose: () => void;
-}> = ({ modalRef, currentTimer, currentRecall, setTimer, setRecall, onClose }) => {
+}> = ({ modalRef, currentTimer, currentRecall, setTimer, setRecall, setIsCritical, onClose }) => {
 
     // Coefficient Constants
     const secondsCoef = 1;
@@ -349,6 +350,7 @@ export const TimerSettingModal: ReactComponent<{
                     } else {
                         setTimer(tmpTimer);
                         setRecall(tmpRecall);
+                        setIsCritical(false);
                         onClose()
                     }
 
