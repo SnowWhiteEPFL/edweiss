@@ -4,6 +4,7 @@ import StudentQuestion from '@/components/lectures/slides/StudentQuestion';
 import { callFunction, getDownloadURL } from '@/config/firebase';
 import SyncStorage from '@/config/SyncStorage';
 import { useAuth } from '@/contexts/auth';
+import { useUser } from '@/contexts/user';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { Timestamp } from '@react-native-firebase/firestore/lib/modular/Timestamp';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
@@ -249,12 +250,18 @@ jest.mock('react-native-toast-message', () => ({
     show: jest.fn(),
 }));
 
+// Mock the useUser hook
+jest.mock('@/contexts/user', () => ({
+    useUser: jest.fn(), // Mock the hook
+}));
+
 describe('LectureScreen Component', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         (usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockLectureData]); // Mocking `usePrefetchedDynamicDoc` with minimal data
         (useDynamicDocs as jest.Mock).mockReturnValue(mockQuestionData); // Mocking `useDynamicDocs` with minimal question data
         (useAuth as jest.Mock).mockReturnValue({ uid: 'mock-uid', });
+        (useUser as jest.Mock).mockReturnValue({ user: { name: 'Test User', }, });
     });
 
     it('updates UI when new questions are added dynamically', () => {
@@ -329,6 +336,7 @@ describe('LectureScreen Component', () => {
     });
 
     it('calls add question function with correct parameters on question submission', async () => {
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: true });
         // Ensures the correct function is called with expected parameters when submitting a new question
         render(<LectureScreen />);
         const questionInput = screen.getByPlaceholderText('Got something on your mind? Type away!');
@@ -347,7 +355,7 @@ describe('LectureScreen Component', () => {
                 courseId: 'testCourse',
                 lectureId: 'testLectureId',
                 question: 'New Question',
-                username: "",
+                anonym: false,
             }
         );
     });
@@ -410,7 +418,7 @@ describe('LectureScreen Component', () => {
                     courseId: 'Test Course',
                     lectureId: 'Test Lecture',
                     question: 'New Test Question',
-                    username: '',
+                    anonym: false,
                 })
             );
         });
@@ -424,6 +432,7 @@ describe('LectureScreen Component', () => {
     });
 
     it('should like a question', async () => {
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: true });
         render(<StudentQuestion courseName={"Test Course"} lectureId={"Test Lecture"} questionsDoc={mockQuestionData} />);
 
         // Initially, the question has 0 likes, and the user hasn't liked it
@@ -436,7 +445,7 @@ describe('LectureScreen Component', () => {
 
         // Check if SyncStorage.set was called to store the like state
         await waitFor(() => {
-            expect(SyncStorage.set).toHaveBeenCalledWith(mockQuestionData[0].id, true);
+            expect(SyncStorage.set).toHaveBeenCalledWith(`stquestion-${mockQuestionData[0].id}`, true);
         });
     });
 
@@ -470,7 +479,6 @@ describe('LectureScreen Component', () => {
         fireEvent.press(toggleButton);
 
         // Check if the username and anonym fields are rendered
-        expect(screen.getByPlaceholderText('Give us your name')).toBeTruthy();
         expect(screen.getByText('Anonym ?')).toBeTruthy();
 
         // Toggle the anonym setting

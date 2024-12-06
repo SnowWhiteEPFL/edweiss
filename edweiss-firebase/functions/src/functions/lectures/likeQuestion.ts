@@ -3,7 +3,7 @@ import { onAuthentifiedCall } from 'utils/firebase';
 import { clean, CollectionOf, getDocumentAndRef } from 'utils/firestore';
 import { fail, ok } from 'utils/status';
 
-export const updateQuestion = onAuthentifiedCall(LectureDisplay.Functions.updateQuestion, async (userId, args) => {
+export const updateQuestion = onAuthentifiedCall(LectureDisplay.Functions.likeQuestion, async (userId, args) => {
     if (!args.id || args.id.length == 0)
         return fail("invalid_id");
 

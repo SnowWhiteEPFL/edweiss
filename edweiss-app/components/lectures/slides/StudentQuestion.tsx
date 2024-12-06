@@ -9,7 +9,7 @@ import SyncStorage from '@/config/SyncStorage';
 import ReactComponent from '@/constants/Component';
 import { useAuth } from '@/contexts/auth';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import Toast from 'react-native-toast-message';
 
@@ -17,78 +17,49 @@ import Toast from 'react-native-toast-message';
 const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, questionsDoc: Document<LectureDisplay.Question>[] | undefined }> = ({ courseName, lectureId, questionsDoc }) => {
     const [question, setQuestion] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [username, setUsername] = useState<string>('');
     const [isAnonym, setIsAnonym] = useState<boolean>(false);
     const [enableDisplay, setEnableDisplay] = useState<boolean>(false);
     const { uid } = useAuth();
 
-
-    useEffect(() => {
-        const initializeStorage = async () => {
-            await SyncStorage.init();
-        };
-        initializeStorage();
-    }, []);
-
     // Function for adding new question into the firebase storage
     async function addQuestion(question: string) {
-        try {
-            const res = await callFunction(LectureDisplay.Functions.createQuestion, {
-                courseId: courseName,
-                lectureId: lectureId,
-                question: question,
-                username: isAnonym ? '' : username,
+        const res = await callFunction(LectureDisplay.Functions.createQuestion, {
+            courseId: courseName,
+            lectureId: lectureId,
+            question: question,
+            anonym: isAnonym,
+        });
+        setQuestion('');
+        if (res.status) {
+            // Display feedback to the user when success
+            Toast.show({
+                type: 'success',
+                text1: 'Your comment was successfully added'
             });
-            setQuestion('');
-            console.log(res.status)
-            if (res.status) {
-                // Display feedback to the user when success
-                Toast.show({
-                    type: 'success',
-                    text1: 'Your comment was successfully added'
-                });
-            } else {
-                // Display feedback to the user when failure (empty question)
-                Toast.show({
-                    type: 'error',
-                    text1: 'You were unable to send this message',
-                });
-            }
-        } catch (error) {
-            // Display feedback to the user when error adding question
+        } else {
+            // Display feedback to the user when failure (empty question)
             Toast.show({
                 type: 'error',
-                text1: 'Your message submition encountered an error: ',
-                text2: error instanceof Error ? error.message : JSON.stringify(error), // Include the error details
+                text1: 'You were unable to send this message',
             });
-        } finally {
-            setIsLoading(false);
         }
+        setIsLoading(false);
     }
 
-    // Function for updating a question 
-    async function updateQuestion(id: string, likes: number) {
-        try {
-            const res = await callFunction(LectureDisplay.Functions.updateQuestion, {
-                courseId: courseName,
-                lectureId: lectureId,
-                id: id,
-                likes: likes,
-            });
-            if (!res.status) {
-                console.log(res.error)
-                // Display feedback to the user when failure (empty question)
-                Toast.show({
-                    type: 'error',
-                    text1: 'You were unable to like/unlike this message',
-                });
-            }
-        } catch (error) {
-            // Display feedback to the user when failing to like question
+    // Function for updating a question with new like values
+    async function likeQuestion(id: string, likes: number) {
+        const res = await callFunction(LectureDisplay.Functions.likeQuestion, {
+            courseId: courseName,
+            lectureId: lectureId,
+            id: id,
+            likes: likes,
+        });
+        if (!res.status) {
+            console.log(res.error)
+            // Display feedback to the user when failure (empty question)
             Toast.show({
                 type: 'error',
-                text1: 'Your like/unlike attempt encountered an error: ',
-                text2: error instanceof Error ? error.message : JSON.stringify(error), // Include the error details
+                text1: 'You were unable to like/unlike this message',
             });
         }
     }
@@ -110,20 +81,20 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                     <TView pr={'sm'} pl={'md'} pb={'sm'} flexDirection='row' alignItems='flex-end'>
                         <TText color='text'>{likes}</TText>
                         {!isUser && <TTouchableOpacity testID={`like-button-${index}`} backgroundColor='transparent' onPress={() => {
-                            if (SyncStorage.get(id) !== undefined) {
-                                SyncStorage.set(id, !SyncStorage.get(id));
-                                if (SyncStorage.get(id)) {
-                                    console.log(SyncStorage.get(id))
-                                    updateQuestion(id, likes + 1);
+                            if (SyncStorage.get(`stquestion-${id}`) !== undefined) {
+                                SyncStorage.set(`stquestion-${id}`, !SyncStorage.get(`stquestion-${id}`));
+                                if (SyncStorage.get(`stquestion-${id}`)) {
+                                    console.log(SyncStorage.get(`stquestion-${id}`))
+                                    likeQuestion(id, likes + 1);
                                 } else {
-                                    console.log(SyncStorage.get(id))
-                                    updateQuestion(id, likes - 1);
+                                    console.log(SyncStorage.get(`stquestion-${id}`))
+                                    likeQuestion(id, likes - 1);
                                 }
                             } else {
-                                SyncStorage.set(id, true);
+                                SyncStorage.set(`stquestion-${id}`, true);
                             }
                         }}>
-                            <Icon size={'md'} name={SyncStorage.get(id) === undefined || !SyncStorage.get(id) ? 'heart-outline' : 'heart'} color='text'></Icon>
+                            <Icon size={'md'} name={SyncStorage.get(`stquestion-${id}`) === undefined || !SyncStorage.get(`stquestion-${id}`) ? 'heart-outline' : 'heart'} color='text'></Icon>
                         </TTouchableOpacity>}
                     </TView>
                 </TView>
@@ -176,8 +147,6 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
             {/* Overlay for anonimity and username configuration */}
             {enableDisplay && (
                 <TView radius={'lg'} flex={1} justifyContent='center' style={{ position: 'absolute', bottom: 0, right: 0, left: 0 }} backgroundColor='overlay0' pt={"md"} pb={"sm"} mr={"md"} ml={"md"} mb={"md"}>
-
-                    <FancyTextInput backgroundColor='crust' value={username} onChangeText={setUsername} mb="sm" label="Username" placeholder='Give us your name' icon="pencil-outline" />
 
                     <TView flexDirection='row' justifyContent='center'>
                         <TText color='cherry'>Anonym ? </TText>
