@@ -2,6 +2,7 @@
 import admin = require('firebase-admin');
 
 import { DocumentData, OrderByDirection, WhereFilterOp } from 'firebase-admin/firestore';
+import { Course } from 'model/school/courses';
 import { AppUser } from 'model/users';
 
 export interface Document<Type> {
@@ -43,7 +44,8 @@ export function CollectionOf<Type extends DocumentData>(path: string): Collectio
 }
 
 export const Collections = {
-	users: CollectionOf<AppUser>("users")
+	users: CollectionOf<AppUser>("users"),
+	courses: CollectionOf<Course>("courses")
 };
 
 export function query<Type extends DocumentData>(collection: Collection<Type>, ...constraints: QueryConstraint<Type>[]) {
@@ -140,4 +142,14 @@ export async function getRequiredDocument<Type extends DocumentData>(collection:
 	if (!doc)
 		throw errorCode;
 	return doc;
+}
+
+/**
+ * Cleans the document data before adding it to a collection
+ * @param obj Object to clean 
+ * @returns Cleaned version of the object
+ */
+export function clean<T extends DocumentData>(obj: T): T {
+	Object.keys(obj).forEach(key => obj[key as keyof T] === undefined ? delete obj[key as keyof T] : {});
+	return obj;
 }
