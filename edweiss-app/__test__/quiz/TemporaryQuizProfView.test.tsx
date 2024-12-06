@@ -2,7 +2,7 @@ import TemporaryQuizProfView from '@/app/(app)/quiz/temporaryQuizProfView';
 import { Document } from '@/config/firebase';
 import { useDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import Quizzes, { QuizzesAttempts } from '@/model/quizzes';
-import { Timestamp } from '@react-native-firebase/firestore';
+import { Time } from '@/utils/time';
 import { render } from '@testing-library/react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ActivityIndicatorProperties, ScrollViewProps, ViewProps } from 'react-native';
@@ -258,7 +258,7 @@ const mockQuiz: Quizzes.Quiz = {
 	exercises: mockExercises,
 	name: 'thisMockQuiz',
 	type: 'quiz',
-	dueDate: Timestamp.now()
+	dueDate: Time.fromDate(new Date),
 }
 const mockAttemptsData: QuizzesAttempts.QuizAttempt[] = [
 	{ attempts: 2, answers: mockStudentAnswers1 },

@@ -1,16 +1,35 @@
-import LangSelectModal from '@/components/lectures/remotecontrol/modal';
+/**
+ * @file modal.test.tsx
+ * @description Test suite for the modals that get plugged into 
+ *              the AbstractRmtCtl component
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
+import { LangSelectModal, TimerSettingModal } from '@/components/lectures/remotecontrol/modal';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
+import Toast from 'react-native-toast-message';
 
-const mockSetLang = jest.fn();
-const mockOnClose = jest.fn();
 
+// ------------------------------------------------------------
+// -----------------  Mocking dependencies    -----------------
+// ------------------------------------------------------------
+
+// Global constants
 const availableLangs: LectureDisplay.AvailableLangs[] = [
     'english', 'french', 'german', 'spanish', 'italian', 'brazilian', 'arabic', 'chinese', 'vietanames', 'hindi'
 ];
 
+
+// Mock the setLang and onClose lambda
+const mockSetLang = jest.fn();
+const mockOnClose = jest.fn();
 
 
 // Mock translation function
@@ -100,6 +119,9 @@ jest.mock('@/hooks/firebase/firestore', () => ({
 }));
 
 
+// ------------------------------------------------------------
+// -------------     LangSelectModal Tests suites     ---------
+// ------------------------------------------------------------
 
 describe('LangSelectModal', () => {
     it('renders all language buttons', () => {
@@ -164,5 +186,210 @@ describe('LangSelectModal', () => {
 
         fireEvent.press(getByTestId('lang-sel-close-button'));
         expect(mockOnClose).toHaveBeenCalled();
+    });
+});
+
+
+// Mock Toast message
+jest.mock('react-native-toast-message', () => ({
+    show: jest.fn(),
+}));
+
+
+
+// ------------------------------------------------------------
+// ----------      Timer Settig Modal Tests suites      -------
+// ------------------------------------------------------------
+
+describe('TimerSettingModal', () => {
+    const mockModalRef = { current: null };
+    const mockSetTimer = jest.fn();
+    const mockSetRecall = jest.fn();
+    const mockSetIsCritical = jest.fn();
+    const mockOnClose = jest.fn();
+
+    const renderModal = (props = {}) =>
+        render(
+            <TimerSettingModal
+                modalRef={mockModalRef}
+                currentTimer={300}
+                currentRecall={200}
+                setTimer={mockSetTimer}
+                setRecall={mockSetRecall}
+                setIsCritical={mockSetIsCritical}
+                onClose={mockOnClose}
+                {...props}
+            />
+        );
+
+    const renderModalSetToZero = (props = {}) =>
+        render(
+            <TimerSettingModal
+                modalRef={mockModalRef}
+                currentTimer={0}
+                currentRecall={0}
+                setTimer={mockSetTimer}
+                setRecall={mockSetRecall}
+                setIsCritical={mockSetIsCritical}
+                onClose={mockOnClose}
+                {...props}
+            />
+        );
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('renders correctly', () => {
+        const { getByTestId } = renderModal();
+        expect(getByTestId('hours-timer')).toBeTruthy();
+        expect(getByTestId('minutes-timer')).toBeTruthy();
+        expect(getByTestId('seconds-timer')).toBeTruthy();
+        expect(getByTestId('hours-recall')).toBeTruthy();
+        expect(getByTestId('minutes-recall')).toBeTruthy();
+        expect(getByTestId('seconds-recall')).toBeTruthy();
+        expect(getByTestId('dec-timer-button')).toBeTruthy();
+        expect(getByTestId('add-timer-button')).toBeTruthy();
+        expect(getByTestId('set-it-up-button')).toBeTruthy();
+        expect(getByTestId('timer-set-close-button')).toBeTruthy();
+        expect(getByTestId('set-timer-modal-title')).toBeTruthy();
+    });
+
+    test('increments timer correctly', () => {
+        const { getByTestId } = renderModal();
+        const addButton = getByTestId('add-timer-button');
+        fireEvent.press(addButton);
+        expect(mockSetTimer).not.toHaveBeenCalled(); // Temp state, not committed
+    });
+
+    test('decrements timer correctly', () => {
+        const { getByTestId } = renderModal();
+        const decButton = getByTestId('dec-timer-button');
+        fireEvent.press(decButton);
+        expect(mockSetTimer).not.toHaveBeenCalled(); // Temp state, not committed
+    });
+
+    test('updates hours timer when buttons are pressed', () => {
+        const { getByTestId, getByText } = renderModal();
+        fireEvent.press(getByTestId('hours-timer'));
+        fireEvent.press(getByTestId('add-timer-button'));
+        expect(getByText('1')).toBeTruthy();
+
+        fireEvent.press(getByTestId('add-timer-button'));
+        expect(getByText('2')).toBeTruthy();
+
+        fireEvent.press(getByTestId('dec-timer-button'));
+        expect(getByText('1')).toBeTruthy();
+
+    });
+
+
+    test('updates hours recall when buttons are pressed', () => {
+        const { getByTestId, getByText } = renderModalSetToZero();
+        fireEvent.press(getByTestId('hours-recall'));
+        fireEvent.press(getByTestId('add-timer-button'));
+        expect(getByText('1')).toBeTruthy();
+
+        fireEvent.press(getByTestId('add-timer-button'));
+        expect(getByText('2')).toBeTruthy();
+
+        fireEvent.press(getByTestId('dec-timer-button'));
+        expect(getByText('1')).toBeTruthy();
+    });
+
+    test('updates minutes timer when buttons are pressed', () => {
+        const { getByTestId, getByText } = renderModalSetToZero();
+        fireEvent.press(getByTestId('minutes-timer'));
+        fireEvent.press(getByTestId('add-timer-button'));
+        expect(getByText('01')).toBeTruthy();
+
+        fireEvent.press(getByTestId('add-timer-button'));
+        expect(getByText('02')).toBeTruthy();
+
+        fireEvent.press(getByTestId('dec-timer-button'));
+        expect(getByText('01')).toBeTruthy();
+
+    });
+
+
+    test('updates minutes recall when buttons are pressed', () => {
+        const { getByTestId, getByText } = renderModalSetToZero();
+        fireEvent.press(getByTestId('minutes-recall'));
+        fireEvent.press(getByTestId('add-timer-button'));
+        expect(getByText('01')).toBeTruthy();
+
+        fireEvent.press(getByTestId('add-timer-button'));
+        expect(getByText('02')).toBeTruthy();
+
+        fireEvent.press(getByTestId('dec-timer-button'));
+        expect(getByText('01')).toBeTruthy();
+
+    });
+
+    test('updates seconds timer when buttons are pressed', () => {
+        const { getByTestId, getByText } = renderModalSetToZero();
+        fireEvent.press(getByTestId('seconds-timer'));
+        fireEvent.press(getByTestId('add-timer-button'));
+        expect(getByText('01')).toBeTruthy();
+
+        fireEvent.press(getByTestId('add-timer-button'));
+        expect(getByText('02')).toBeTruthy();
+
+        fireEvent.press(getByTestId('dec-timer-button'));
+        expect(getByText('01')).toBeTruthy();
+
+    });
+
+    test('updates seconds recall when buttons are pressed', () => {
+        const { getByTestId, getByText } = renderModalSetToZero();
+        fireEvent.press(getByTestId('seconds-recall'));
+        fireEvent.press(getByTestId('add-timer-button'));
+        expect(getByText('01')).toBeTruthy();
+
+        fireEvent.press(getByTestId('add-timer-button'));
+        expect(getByText('02')).toBeTruthy();
+
+        fireEvent.press(getByTestId('dec-timer-button'));
+        expect(getByText('01')).toBeTruthy();
+
+    });
+
+    test('sets timer and recall correctly on confirmation', () => {
+        const { getByTestId } = renderModal();
+        const setItUpButton = getByTestId('set-it-up-button');
+        fireEvent.press(setItUpButton);
+        expect(mockSetTimer).toHaveBeenCalledWith(300);
+        expect(mockSetRecall).toHaveBeenCalledWith(200);
+        expect(mockSetIsCritical).toHaveBeenCalledWith(false);
+        expect(mockOnClose).toHaveBeenCalled();
+    });
+
+    test('shows error toast if recall is greater than timer', () => {
+
+
+        const { getByTestId } = renderModal({ currentTimer: 100, currentRecall: 200 });
+        const setItUpButton = getByTestId('set-it-up-button');
+        fireEvent.press(setItUpButton);
+
+        expect(Toast.show).toHaveBeenCalled();
+    });
+
+    test('closes modal on close button press', () => {
+        const { getByTestId } = renderModal();
+        const closeButton = getByTestId('timer-set-close-button');
+        fireEvent.press(closeButton);
+        expect(mockOnClose).toHaveBeenCalled();
+    });
+
+    test('does not allow timer to go below 0 or above 35999', () => {
+        const { getByTestId } = renderModal({ currentTimer: 0 });
+        const decButton = getByTestId('dec-timer-button');
+        fireEvent.press(decButton);
+        expect(mockSetTimer).not.toHaveBeenCalled();
+
+        const { getByTestId: getByTestIdMax } = renderModal({ currentTimer: 35999 });
+        const addButton = getByTestIdMax('add-timer-button');
+        fireEvent.press(addButton);
+        expect(mockSetTimer).not.toHaveBeenCalled();
     });
 });

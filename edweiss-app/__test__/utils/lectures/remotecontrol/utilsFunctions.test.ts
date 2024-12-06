@@ -10,7 +10,7 @@
 // ------------------------------------------------------------
 
 import { callFunction } from '@/config/firebase';
-import { handleLeft, handleMic, handleRight, langCodeMap, langIconMap, langNameMap, updateSlideAudioRecording } from '@/utils/lectures/remotecontrol/utilsFunctions';
+import { handleGoTo, handleLeft, handleMic, handleRight, langCodeMap, langIconMap, langNameMap, updateSlideAudioRecording } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { Vibration } from 'react-native';
 
 
@@ -256,3 +256,51 @@ describe('Utils Functions', () => {
         });
     });
 });
+
+
+describe('handleGoTo Test Suites', () => {
+    let mockSetCurrentPage: jest.Mock;
+
+    beforeEach(() => {
+        mockSetCurrentPage = jest.fn();
+        jest.clearAllMocks();
+    });
+
+    it('should call callFunction, log success message, and update page when targetPage is less than totalPages', async () => {
+        const targetPage = 2;
+        const totalPages = 3;
+
+        await handleGoTo(targetPage, totalPages, mockSetCurrentPage);
+
+        expect(callFunction).toHaveBeenCalled();
+        expect(mockSetCurrentPage).toHaveBeenCalledWith(targetPage);
+        expect(Vibration.vibrate).toHaveBeenCalledWith(100);
+    });
+
+    it('should log error message if callFunction throws an error', async () => {
+        const targetPage = 2;
+        const totalPages = 3;
+        const error = new Error('Test error');
+        (callFunction as jest.Mock).mockImplementationOnce(() => {
+            throw error;
+        });
+
+        await handleGoTo(targetPage, totalPages, mockSetCurrentPage);
+
+        expect(callFunction).toHaveBeenCalled();
+        expect(mockSetCurrentPage).toHaveBeenCalledWith(targetPage);
+        expect(Vibration.vibrate).toHaveBeenCalledWith(100);
+    });
+
+    it('should not call callFunction or update page when targetPage is not less than totalPages', async () => {
+        const targetPage = 3;
+        const totalPages = 3;
+
+        await handleGoTo(targetPage, totalPages, mockSetCurrentPage);
+
+        expect(callFunction).not.toHaveBeenCalled();
+        expect(mockSetCurrentPage).not.toHaveBeenCalled();
+        expect(Vibration.vibrate).toHaveBeenCalledWith(100);
+    });
+});
+

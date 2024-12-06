@@ -157,7 +157,7 @@ describe('AssignmentDisplay', () => {
         expect(screen.getByTestId('assignment-title')).toBeTruthy();
         expect(screen.getByTestId('assignment-date')).toBeTruthy();
 
-        expect(screen.getByTestId('swipe-view')).toBeTruthy();
+        expect(screen.getByTestId('swipe-view-right')).toBeTruthy();
         expect(screen.getByTestId('add-to-todo-text')).toBeTruthy();
     });
 

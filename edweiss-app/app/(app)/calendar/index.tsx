@@ -6,84 +6,118 @@ import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { Course } from '@/model/school/courses';
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Dimensions, FlatList, View } from 'react-native';
+import { ActivityIndicator, Animated, Dimensions, FlatList, ScaledSize, View } from 'react-native';
+export type CourseWithId = Course & { id: string };
 
-const InfinitePaginatedCounterScreen = () => {
-  const auth = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [pages, setPages] = useState(Array.from({ length: 10 }, (_, index) => index - 3)); // From -7 to +7
-  const scrollRef = useRef<FlatList>(null);
-  const [dimensions, setDimensions] = useState(Dimensions.get('window'));
+const useWindowDimensions = () => {
+  const [dimensions, setDimensions] = useState(() => Dimensions.get('window'));
 
-  // Global listener for dimension changes
   useEffect(() => {
-    const handleResize = ({ window }: { window: { width: number; height: number; scale: number; fontScale: number } }) => setDimensions(window);
+    const handleResize = ({ window }: { window: ScaledSize }) =>
+      setDimensions(window);
+
     const subscription = Dimensions.addEventListener('change', handleResize);
     return () => subscription?.remove();
   }, []);
 
-  // Loading courses and tasks
+  return dimensions;
+};
+
+const useCourseData = (authUserId: string) => {
+  const courses: CourseWithId[] = useDynamicDocs(CollectionOf('courses'))?.map(doc => ({ ...doc.data as unknown as Course, id: doc.id })) ?? [];
+
+
   const myCourses = useDynamicDocs(
-    CollectionOf(`users/${auth.authUser?.uid ?? 'default-uid'}/courses`)
-  )?.map(doc => ({ id: doc.id, data: doc.data })) ?? [];
+    CollectionOf(`users/${authUserId}/courses`)
+  )?.map((doc) => ({ id: doc.id, data: doc.data })) ?? [];
 
-  const courses = useDynamicDocs(CollectionOf('courses'))?.map(doc => ({
-    id: doc.id,
-    data: doc.data as unknown as Course
-  })) ?? [];
+  const myCourseIds = myCourses.map((course) => course.id);
+  const filteredCourses = courses.filter((course) => myCourseIds.includes(course.id));
 
+  return { courses, filteredCourses };
+};
+
+const useAssignmentsAndTodos = (authUserId: string, courses: Course[]) => {
+  const [loading, setLoading] = useState(true);
   const [assignmentsByCourse, setAssignmentsByCourse] = useState<{ [key: string]: any[] }>({});
   const [todoByCourse, setTodoByCourse] = useState<{ [key: string]: any[] }>({});
 
-  // Fetch assignments and todos
   useEffect(() => {
     const fetchData = async () => {
-      const assignmentsData: { [key: string]: any[] } = {};
-      const todoData: { [key: string]: any[] } = {};
+      if ((courses as unknown as CourseWithId[]).length === 0) return;
 
-      for (const course of courses) {
-        const assignmentsRef = CollectionOf(`courses/${course.id}/assignments`);
-        const todoRef = CollectionOf(`users/${auth.authUser?.uid ?? 'default-uid'}/todos`);
+      try {
+        const assignmentsData: { [key: string]: any[] } = {};
+        const todoData: { [key: string]: any[] } = {};
 
-        const [assignmentsSnapshot, todoSnapshot] = await Promise.all([
-          assignmentsRef.get(),
-          todoRef.get(),
-        ]);
+        await Promise.all(
+          courses.map(async (course) => {
+            const assignmentsRef = CollectionOf(`courses/${(courses as unknown as CourseWithId).id}/assignments`);
+            const todoRef = CollectionOf(`users/${authUserId}/todos`);
 
-        assignmentsData[course.id] = assignmentsSnapshot.docs.map(doc => doc.data());
-        todoData[course.id] = todoSnapshot.docs.map(doc => doc.data());
+            const [assignmentsSnapshot, todoSnapshot] = await Promise.all([
+              assignmentsRef.get(),
+              todoRef.get(),
+            ]);
+
+            assignmentsData[(courses as unknown as CourseWithId).id] = assignmentsSnapshot.docs.map((doc) => doc.data());
+            todoData[(courses as unknown as CourseWithId).id] = todoSnapshot.docs.map((doc) => doc.data());
+          })
+        );
+
+        setAssignmentsByCourse(assignmentsData);
+        setTodoByCourse(todoData);
+        setLoading(false);
+      } catch (error) {
+        console.error('Erreur lors du chargement des données Firebase:', error);
       }
-
-      setAssignmentsByCourse(assignmentsData);
-      setTodoByCourse(todoData);
-      setLoading(false);
     };
 
-    if (courses.length > 0) {
-      fetchData();
-    }
-  }, [courses]);
+    fetchData();
+  }, [authUserId, courses]);
 
-  const myCourseIds = myCourses.map(course => course.id);
-  const filteredCourses = courses.filter(course => myCourseIds.includes(course.id));
+  return { loading, assignmentsByCourse, todoByCourse };
+};
 
-  // Add more pages for infinite scrolling
+const InfinitePaginatedCounterScreen = () => {
+  const auth = useAuth();
+  const dimensions = useWindowDimensions();
+  const { width, height } = dimensions;
+
+  const { courses, filteredCourses } = useCourseData(auth.authUser?.uid ?? 'default-uid');
+  const { loading, assignmentsByCourse, todoByCourse } = useAssignmentsAndTodos(
+    auth.authUser?.uid ?? 'default-uid',
+    courses
+  );
+
+  const [pages, setPages] = useState(Array.from({ length: 10 }, (_, index) => index - 3));
+  const scrollRef = useRef<FlatList>(null);
+
+  const todos = filteredCourses.flatMap((course) =>
+    (todoByCourse[course.id] || []).map((todo) => ({ id: course.id, data: todo }))
+  );
+
+  const assignments = filteredCourses.flatMap((course) =>
+    (assignmentsByCourse[course.id] || []).map((assignment) => ({
+      id: course.id,
+      data: assignment,
+    }))
+  );
+
   const loadMorePages = () => {
-    setPages(prevPages => [...prevPages, prevPages[prevPages.length - 1] + 1]);
+    setPages((prevPages) => [...prevPages, prevPages[prevPages.length - 1] + 1]);
   };
 
-  // Calculate the date based on the offset
   const getDateWithOffset = (offset: number): Date => {
     const date = new Date();
     date.setDate(date.getDate() + offset);
     return date;
   };
 
-  // Memoize rendering of each item
   const renderItem = ({ item }: { item: number }) => {
-    const { width, height } = dimensions;
-    const adjustedItem = width > height ? item * 7 : item;
+    const adjustedItem = width > height ? item * 7 : item; // Mode paysage ou portrait
     const currentDate = getDateWithOffset(adjustedItem);
+
 
     return (
       <View style={{ width, height }}>
@@ -94,21 +128,11 @@ const InfinitePaginatedCounterScreen = () => {
         ) : (
           <Animated.View style={{ height }}>
             <Calendar
-              courses={filteredCourses}
-              assignments={filteredCourses.flatMap(course =>
-                (assignmentsByCourse[course.id] || []).map(assignment => ({
-                  id: course.id,
-                  data: assignment,
-                }))
-              )}
-              todos={filteredCourses.flatMap(course =>
-                (todoByCourse[course.id] || []).map(todo => ({
-                  id: course.id,
-                  data: todo,
-                }))
-              )}
-              type={undefined}
+              courses={filteredCourses.map(course => ({ id: course.id, data: course }))}
+              assignments={assignments}
+              todos={todos}
               date={currentDate}
+              type={undefined}
             />
           </Animated.View>
         )}
@@ -118,10 +142,7 @@ const InfinitePaginatedCounterScreen = () => {
 
   return (
     <TView>
-      <RouteHeader
-        disabled={true}
-        title="Calendar"
-      />
+      <RouteHeader title="Calendar" disabled />
       <TView>
         <FlatList
           initialScrollIndex={3}
@@ -129,7 +150,7 @@ const InfinitePaginatedCounterScreen = () => {
           data={pages}
           horizontal
           pagingEnabled
-          keyExtractor={item => item.toString()}
+          keyExtractor={(item) => item.toString()}
           onEndReached={loadMorePages}
           onEndReachedThreshold={0.1}
           showsHorizontalScrollIndicator={false}

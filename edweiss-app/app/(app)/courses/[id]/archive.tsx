@@ -44,7 +44,6 @@ export const ArchiveRouteSignature: ApplicationRouteSignature<{
  * This component is responsible for displaying the previous assignments of a course.
  * It fetches the assignments data from the URL and displays them in a scrollable list.
  * 
- * @param rawAssignments - The extra information passed in the URL.
  * 
  * @returns JSX.Element - The rendered component for the previous assignments page.
  */
@@ -68,8 +67,8 @@ const ArchiveScreen: ApplicationRoute = () => {
                 {/* Liste des assignments avec map */}
 
                 {assignments.length > 0 ?
-                    assignments.map((assignment) => (
-                        <AssignmentDisplay item={assignment.data} id={assignment.id} courseID={courseId} index={assignments.indexOf(assignment)} isSwipeable={false} key={assignment.data.name} />
+                    assignments.map((assignment, index) => (
+                        <AssignmentDisplay item={assignment.data} id={assignment.id} courseID={courseId} index={index} key={assignment.data.name} />
                     ))
                     : <TView flex={1} testID={testIDs.noArchive}><TText size={16}>{t('course:no_past_assignment')}</TText></TView>
                 }

@@ -48,7 +48,7 @@ export const testIDs = {
  * 
  * @returns JSX.Element - The rendered component for the assignment display.
  */
-const MaterialDisplay: ReactComponent<{ item: Material; }> = ({ item }) => {
+const MaterialDisplay: ReactComponent<{ item: Material, isTeacher?: boolean, onTeacherClick?: () => void; }> = ({ item, isTeacher = false, onTeacherClick }) => {
 
     const formatDateRange = (fromSeconds: number, toSeconds: number) => {
 
@@ -81,7 +81,12 @@ const MaterialDisplay: ReactComponent<{ item: Material; }> = ({ item }) => {
 
     return (
         <TView mt={10} mb={10}>
-            <TText testID={testIDs.materialTitle} mb={10} size={18} color='darkBlue' bold>{item.title}</TText>
+            <TView flexDirection='row' justifyContent='space-between'>
+                <TText testID={testIDs.materialTitle} mb={10} size={18} color='darkBlue' bold>{item.title}</TText>
+                {isTeacher && <TTouchableOpacity onPress={onTeacherClick}>
+                    <Icon name='create' size={iconSizes.md} color='blue' />
+                </TTouchableOpacity>}
+            </TView>
             <TText testID={testIDs.materialTitle} mb={4} size={14} color='darkBlue' bold>{formatDateRange(item.from.seconds, item.to.seconds)}</TText>
             <TText testID={testIDs.materialDescription} lineHeight='md' align='auto' size={15} color='darkNight' py={12} textBreakStrategy='highQuality'>{item.description}</TText>
 
