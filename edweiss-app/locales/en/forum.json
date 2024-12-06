@@ -1,0 +1,25 @@
+{
+	"forum-name": "{{course}}'s forum",
+	"anonymous": "Anonymous",
+	"creation": {
+		"title": {
+			"label": "Title",
+			"placeholder": "An interesting title"
+		},
+		"content": {
+			"label": "Content",
+			"placeholder": "Use #markdown# and $LaTeX$ !"
+		},
+		"anonymous": {
+			"label": "Anonymous post",
+			"description": "Your name will only be visible to professors and assistants."
+		},
+		"no-title-yet": "No title yet",
+		"post": "Post"
+	},
+	"preview": "Preview",
+	"submit-answer": "Submit an answer",
+	"tags": {
+		"project": "Project"
+	}
+}

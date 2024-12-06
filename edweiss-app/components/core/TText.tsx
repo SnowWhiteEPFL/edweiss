@@ -24,10 +24,10 @@ const TText: ReactComponent<TTextProps> = ({ style, light, dark, size = 'md', bo
 					color: computedColor,
 					fontSize: computeSize(size, textSizes),
 					lineHeight: computeSize(lineHeight, lineHeightSizes),
-					fontWeight: bold ? 'bold' : 'normal',
+					// fontWeight: bold ? 'bold' : 'normal',
 					textDecorationLine: underlined ? 'underline' : 'none',
 					textAlign: align,
-					fontFamily: "Inter",
+					fontFamily: bold ? "Inter-SemiBold" : "Inter-Regular",
 				},
 				computeBoxModelSize(props),
 				style

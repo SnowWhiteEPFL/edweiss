@@ -133,6 +133,29 @@ export function useCachedDocs<Type extends DocumentData>(key: string, query: Que
 	return documents;
 }
 
+export function useCachedDynamicDocs<Type extends DocumentData>(key: string, query: Query<Type>) {
+	const [documents, setDocuments] = useStoredState<Document<Type>[] | undefined>(key, undefined);
+
+	useEffect(() => {
+		getDocuments(query).then(docs => setDocuments(docs));
+
+		let firstTime = true;
+		const unsubscribe = query.onSnapshot(querySnapshot => {
+			if (firstTime == true) {
+				firstTime = false;
+				return;
+			}
+
+			setDocuments(querySnapshot.docs.map(DocumentOf<Type>));
+		}, error => {
+			console.log(`Snapshot Error: ${error}`)
+		})
+		return unsubscribe
+	}, [])
+
+	return documents;
+}
+
 // type SyncCallback = (id: string) => void;
 
 // export interface RepositoryHandler<T extends DocumentData> {

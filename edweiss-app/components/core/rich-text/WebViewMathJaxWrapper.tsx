@@ -33,7 +33,7 @@ const WebViewMathJaxWrapper: ReactComponent<WebViewJaxWrapperProps> = (props) =>
 			<script type="text/javascript">
 				setTimeout(() => {
 					window.ReactNativeWebView.postMessage(String(document.documentElement.scrollHeight));
-				}, 16);
+				}, 48);
 			</script>
 			<div id="jax-content">${props.source}</div>
 		` : `
@@ -55,7 +55,7 @@ const WebViewMathJaxWrapper: ReactComponent<WebViewJaxWrapperProps> = (props) =>
 				source={{ html }}
 				onMessage={message => setHeight(Number(message.nativeEvent.data))}
 				cacheEnabled
-				cacheMode='LOAD_CACHE_ELSE_NETWORK'
+				// cacheMode='LOAD_CACHE_ELSE_NETWORK'
 				{...props.webview}
 			/>
 		</View>
