@@ -1,4 +1,21 @@
 {
 	"yes": "Yes",
-	"no": "No"
+	"no": "No",
+
+	"time-since-display": {
+		"year": "year",
+		"years": "years",
+		"month": "month",
+		"months": "months",
+		"day": "day",
+		"days": "days",
+		"hour": "hour",
+		"hours": "hours",
+		"minute": "minute",
+		"minutes": "minutes",
+		"second": "second",
+		"seconds": "seconds",
+
+		"ago": "{{time}} ago"
+	}
 }

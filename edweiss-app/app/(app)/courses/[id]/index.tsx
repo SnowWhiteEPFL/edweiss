@@ -29,6 +29,7 @@ import CourseParameters from '@/components/courses/CourseParameters';
 import MaterialComponent from '@/components/courses/MaterialComponent';
 import MaterialDisplay from '@/components/courses/MaterialDisplay';
 import SelectActions from '@/components/courses/SelectActionsCourse';
+import FancyButton from '@/components/input/FancyButton';
 import { CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import { Color } from '@/constants/Colors';
@@ -42,10 +43,9 @@ import { Assignment, AssignmentID, Course, CourseID, Material, MaterialID, Updat
 import { AppUser } from '@/model/users';
 import { addAssignmentAction, addMaterialAction, removeAssignmentAction, removeMaterialAction, updateAssignmentAction, updateCourseAction, updateMaterialAction } from '@/utils/courses/coursesActionsFunctions';
 import { Time } from '@/utils/time'; // Adjust the import path as necessary
-import { Redirect, useLocalSearchParams } from 'expo-router';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
 import { Animated, Modal } from 'react-native';
-
 
 // Tests Tags
 export const testIDs = {
@@ -290,6 +290,10 @@ const CoursePage: ApplicationRoute = () => {
 
 			{/* ScrollView pour permettre le défilement */}
 			<TScrollView testID={testIDs.scrollView} p={16} backgroundColor="mantle" >
+
+				<FancyButton mb={'sm'} icon='chatbubbles-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/forum` as any)}>
+					Forum
+				</FancyButton>
 
 				<TText testID={testIDs.courseDescription} size={16} color='text' mb={10} >{course.data.description}</TText>
 
