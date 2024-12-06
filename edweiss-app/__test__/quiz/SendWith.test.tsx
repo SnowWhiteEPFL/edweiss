@@ -1,4 +1,4 @@
-import { sendWith } from '@/app/(app)/quiz/temporaryQuizStudentView';
+import { sendWith } from '@/app/(app)/quiz/quizStudentView';
 import { callFunction } from '@/config/firebase';
 import Quizzes, { QuizzesAttempts } from '@/model/quizzes';
 
