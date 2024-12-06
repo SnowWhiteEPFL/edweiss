@@ -25,6 +25,7 @@ import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import AssignmentDisplay from '@/components/courses/AssignmentDisplay';
 import MaterialDisplay from '@/components/courses/MaterialDisplay';
+import FancyButton from '@/components/input/FancyButton';
 import { CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import { Color } from '@/constants/Colors';
@@ -35,7 +36,7 @@ import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firest
 import { pushWithParameters } from '@/hooks/routeParameters';
 import { Assignment, Course, Material } from '@/model/school/courses';
 import { Time } from '@/utils/time'; // Adjust the import path as necessary
-import { Redirect, useLocalSearchParams } from 'expo-router';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import React, { useMemo, useState } from 'react';
 
 
@@ -170,6 +171,10 @@ const CoursePage: ApplicationRoute = () => {
 
 			{/* ScrollView pour permettre le défilement */}
 			<TScrollView testID={testIDs.scrollView} p={16} backgroundColor="mantle" >
+
+				<FancyButton icon='chatbubbles-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/forum` as any)}>
+					Forum
+				</FancyButton>
 
 				<TText testID={testIDs.courseDescription} size={16} color='text' mb={10} >{course.data.description}</TText>
 
