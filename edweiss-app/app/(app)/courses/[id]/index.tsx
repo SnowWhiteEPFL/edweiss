@@ -28,8 +28,8 @@ import AssignmentDisplay from '@/components/courses/AssignmentDisplay';
 import CourseParameters from '@/components/courses/CourseParameters';
 import MaterialComponent from '@/components/courses/MaterialComponent';
 import MaterialDisplay from '@/components/courses/MaterialDisplay';
-import FancyButton from '@/components/input/FancyButton';
 import SelectActions from '@/components/courses/SelectActionsCourse';
+import FancyButton from '@/components/input/FancyButton';
 import { CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import { Color } from '@/constants/Colors';
@@ -291,7 +291,7 @@ const CoursePage: ApplicationRoute = () => {
 			{/* ScrollView pour permettre le défilement */}
 			<TScrollView testID={testIDs.scrollView} p={16} backgroundColor="mantle" >
 
-				<FancyButton icon='chatbubbles-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/forum` as any)}>
+				<FancyButton mb={'sm'} icon='chatbubbles-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/forum` as any)}>
 					Forum
 				</FancyButton>
 
