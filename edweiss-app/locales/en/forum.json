@@ -21,5 +21,9 @@
 	"submit-answer": "Submit an answer",
 	"tags": {
 		"project": "Project"
+	},
+	"answer-box": {
+		"label": "Answer",
+		"placeholder": "Type your answer here!"
 	}
 }

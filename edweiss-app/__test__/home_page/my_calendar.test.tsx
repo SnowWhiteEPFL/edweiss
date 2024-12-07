@@ -95,6 +95,10 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
     },
 }));
 
+jest.mock('@/config/i18config', () =>
+    jest.fn((str: string, args: { [arg in string]: string }) => str)
+);
+
 const mockTodos = [
     { id: 'todo1', data: { title: 'Test Todo', completed: false, name: 'Todo 1', status: 'incomplete' as Todolist.TodoStatus, } },
 
