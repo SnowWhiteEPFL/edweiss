@@ -18,7 +18,7 @@ import ReactComponent, { ApplicationRoute } from '@/constants/Component';
 import { useAuth } from '@/contexts/auth';
 import { ActivityIndicator } from 'react-native';
 
-const TempQuizStudentViewPage: ApplicationRoute = () => {
+const QuizStudentViewPage: ApplicationRoute = () => {
 
     const { quizId, courseId } = useLocalSearchParams();
     const pathToAssignments = "courses/" + courseId + "/assignments"
@@ -75,10 +75,17 @@ const TempQuizStudentViewPage: ApplicationRoute = () => {
     }
 
     if (quiz.data.showResultToStudents && previousAttempt != undefined) {
-        return <QuizResultDisplay key={quiz.id + "result"} studentAnswers={previousAttempt.data.answers} exercises={exercises} results={quiz.data.answers} testId='quiz-result-display'></QuizResultDisplay>;
+        return (
+            <>
+                <RouteHeader title={quiz.data.name} />
+                <QuizResultDisplay key={quiz.id + "result"} studentAnswers={previousAttempt.data.answers} exercises={exercises} results={quiz.data.answers} testId='quiz-result-display'></QuizResultDisplay>
+            </>);
     }
     else if (!quiz.data.showResultToStudents) {
-        return <QuizDisplay key={quiz.id + "display"} studentAnswers={studentAnswers} exercises={exercises} onUpdate={onUpdate} send={send} testId='quiz-display'></QuizDisplay>;
+        return (<>
+            <RouteHeader title={quiz.data.name} />
+            <QuizDisplay key={quiz.id + "display"} studentAnswers={studentAnswers} exercises={exercises} onUpdate={onUpdate} send={send} testId='quiz-display'></QuizDisplay>
+        </>);
     }
     else {
         return (<TActivityIndicator />);
@@ -86,12 +93,11 @@ const TempQuizStudentViewPage: ApplicationRoute = () => {
 
 };
 
-export default TempQuizStudentViewPage;
+export default QuizStudentViewPage;
 
 export const QuizDisplay: ReactComponent<{ studentAnswers: QuizzesAttempts.Answer[], exercises: Quizzes.Exercise[], onUpdate: (answer: number[] | boolean | undefined, id: number) => void, send: () => void, testId: string }> = ({ studentAnswers, exercises, onUpdate, send, testId }) => {
     return ( // for now, returns a scroll view instead of the "tiktok" format
         <>
-            <RouteHeader disabled />
             <TSafeArea>
                 <TScrollView testID={testId}>
                     <TText>
@@ -210,7 +216,7 @@ export async function sendWith(
     courseId: string,
     pathToAttempts: string,
     quizId: string | undefined
-): Promise<void> {
+) {
     const numberOfAttempts = previousAttempt == undefined ? 1 : previousAttempt.attempts + 1;
 
     const res = await callFunction(QuizzesAttempts.Functions.createQuizAttempt, {
