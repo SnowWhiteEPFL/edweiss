@@ -32,7 +32,7 @@ export const PostRouteSignature: ApplicationRouteSignature<{
 	path: "/courses/[id]/forum/[postId]"
 }
 
-const Route: ApplicationRoute = () => {
+const ForumPostRoute: ApplicationRoute = () => {
 	const { courseId, postId, prefetchedPost } = useRouteParameters(PostRouteSignature);
 
 	const likedStorageKey = `post-liked-${postId}`;
@@ -143,11 +143,6 @@ const Route: ApplicationRoute = () => {
 					</>
 				}
 
-				{/* {
-					(answers && answers.length != 0) &&
-					<TView m={'md'} mx={'sm'} backgroundColor='surface0' style={{ height: 1 }}></TView>
-				} */}
-
 				<For each={answers}>
 					{
 						answer => <AnswerDisplay key={answer.id} rkey={answer.id} answer={answer} />
@@ -159,7 +154,7 @@ const Route: ApplicationRoute = () => {
 	);
 };
 
-export default Route;
+export default ForumPostRoute;
 
 const AnswerDisplay: ReactComponent<{ answer: Document<Forum.Answer>, rkey: Key }> = ({ answer, rkey }) => {
 	return (
@@ -183,23 +178,3 @@ const AnswerDisplay: ReactComponent<{ answer: Document<Forum.Answer>, rkey: Key 
 		</TView>
 	);
 };
-
-{/* <TView flexDirection='row' flexColumnGap={10} alignItems='center' mb={'sm'}>
-						<Avatar size={40} name={post.data.anonymous ? undefined : post.data.byName} uid={post.data.anonymous ? undefined : post.data.byId} />
-
-						<TView flex={1}>
-							<TText size={16} bold>
-								{post.data.title}
-							</TText>
-							<TText mt={-2} size={'xs'} color='overlay0'>
-								{post.data.anonymous ? "Anonymous" : post.data.byName}, 3 weeks ago
-							</TText>
-						</TView>
-
-						<TTouchableOpacity mx={'sm'} onPress={toggleLike} flexDirection='column' justifyContent='center' alignItems='center'>
-							<Icon name={liked ? 'heart' : 'heart-outline'} color='red' size={28} />
-							<TText color='red' size={'xs'} bold lineHeight={14}>
-								{likeCount}
-							</TText>
-						</TTouchableOpacity>
-					</TView> */}

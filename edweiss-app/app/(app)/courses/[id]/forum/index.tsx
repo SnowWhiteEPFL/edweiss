@@ -20,7 +20,7 @@ import { Time } from '@/utils/time';
 import { router } from 'expo-router';
 import { PostRouteSignature } from './[postId]';
 
-const Route: ApplicationRoute = () => {
+const ForumRoute: ApplicationRoute = () => {
 	const { id: courseId } = useStringParameters();
 
 	const course = useCourse(courseId);
@@ -42,7 +42,7 @@ const Route: ApplicationRoute = () => {
 				}
 			/>
 
-			<TScrollView>
+			<TScrollView testID='posts'>
 				<For each={posts}>
 					{post => <PostDisplay key={post.id} post={post} courseId={courseId} />}
 				</For>
@@ -51,7 +51,7 @@ const Route: ApplicationRoute = () => {
 	);
 };
 
-export default Route;
+export default ForumRoute;
 
 const PostDisplay: ReactComponent<{ post: Document<Forum.Post>, courseId: CourseID }> = ({ post, courseId }) => {
 	return (
