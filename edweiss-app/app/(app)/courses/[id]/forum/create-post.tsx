@@ -111,7 +111,7 @@ const ForumCreatePostRoute: ApplicationRoute = () => {
 					</RichText>
 				</TView>
 
-				<FancyButton onPress={submit} loading={loading} backgroundColor={canSubmit() ? undefined : 'overlay0'} outlined={!canSubmit()} disabled={!canSubmit()}>
+				<FancyButton testID='submit-button' onPress={submit} loading={loading} backgroundColor={canSubmit() ? undefined : 'overlay0'} outlined={!canSubmit()} disabled={!canSubmit()}>
 					{t("forum:creation.post")}
 				</FancyButton>
 			</TScrollView>
