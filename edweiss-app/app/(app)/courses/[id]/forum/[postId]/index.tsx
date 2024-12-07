@@ -115,7 +115,7 @@ const ForumPostRoute: ApplicationRoute = () => {
 					</RichText>
 
 					<TView flexDirection='row' justifyContent='flex-end'>
-						<TTouchableOpacity onPress={toggleLike} flexDirection='row' justifyContent='flex-start' alignItems='center' flexColumnGap={8}>
+						<TTouchableOpacity testID='like' onPress={toggleLike} flexDirection='row' justifyContent='flex-start' alignItems='center' flexColumnGap={8}>
 							<Icon name={liked ? 'heart' : 'heart-outline'} color='red' size={24} />
 							<TText color='red' size={'xs'} bold lineHeight={14}>
 								{likeCount}
@@ -124,7 +124,7 @@ const ForumPostRoute: ApplicationRoute = () => {
 					</TView>
 				</TView>
 
-				<FancyTextInput value={answer} onChangeText={setAnswer} multiline icon='chatbox' label='Answer' placeholder='Type your answer here!' numberOfLines={3} />
+				<FancyTextInput value={answer} onChangeText={setAnswer} multiline icon='chatbox' label={t("forum:answer-box.label")} placeholder={t("forum:answer-box.placeholder")} numberOfLines={3} />
 
 				{
 					answer.length > 0 && <>
@@ -137,7 +137,7 @@ const ForumPostRoute: ApplicationRoute = () => {
 							</RichText>
 						</TView>
 
-						<FancyButton loading={loading} onPress={submitAnswer}>
+						<FancyButton testID='submit-answer' loading={loading} onPress={submitAnswer}>
 							{t("forum:submit-answer")}
 						</FancyButton>
 					</>
@@ -158,7 +158,7 @@ export default ForumPostRoute;
 
 const AnswerDisplay: ReactComponent<{ answer: Document<Forum.Answer>, rkey: Key }> = ({ answer, rkey }) => {
 	return (
-		<TView m={'md'} pt={'md'} bt={1} borderColor='surface0'>
+		<TView testID={`answer-${answer.id}`} m={'md'} pt={'md'} bt={1} borderColor='surface0'>
 			<TView backgroundColor='mantle' flexDirection='row' flexColumnGap={10} alignItems='center' mb={'sm'}>
 				<Avatar size={40} name={answer.data.anonymous ? undefined : answer.data.byName} uid={answer.data.anonymous ? undefined : answer.data.byId} />
 
