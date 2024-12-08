@@ -92,17 +92,6 @@ const CardScreenComponent: ReactComponent<{
 
     const toggleDropDown = () => { setShowDropdown(prev => !prev); }; // Open/close dropdown
 
-    // Function to calculate font size based on text length
-    /*const calculateFontSize = (text: string) => {
-        const baseSize = 30; // Base font size for short text
-        const minSize = 11; // Minimum font size
-        const lengthFactor = text.length; // Length factor to reduce font size
-
-        // Calculate font size
-        const fontSize = Math.max(minSize, baseSize - (lengthFactor / 18)); // Decrease size as text gets longer
-        return fontSize;
-    };*/
-
     // Flip card animation
     const toggleFlip = () => {
         rotation.value = withTiming(

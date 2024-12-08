@@ -49,13 +49,13 @@ const CardListScreen: ApplicationRoute = () => {
 	const modalRef_Card_Info = useRef<BottomSheetModal>(null); // Reference for the modal
 	const modalRef_Operation = useRef<BottomSheetModal>(null); // Reference for the modal
 
-	if (typeof id != 'string') return <Redirect href={'/'} />;
-
 	useEffect(() => {
 		if (refresh) {
 			setRefresh(false)
 		}
 	}, [refresh]);
+
+	if (typeof id != 'string') return <Redirect href={'/'} />;
 
 	const [deck, handler] = useRepositoryDocument(id, DecksRepository);
 

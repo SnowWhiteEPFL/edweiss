@@ -58,6 +58,8 @@ const CreateEditCardScreen: ApplicationRoute = () => {
 
     const card = deck?.data.cards[cardIndexInt];
 
+    const error_selected = existedQuestion ? 'Question already exists' : emptyField ? 'Please fill in all fields' : undefined;
+
     // Create a new card
     async function createCard() {
         if (!deck) return
@@ -131,7 +133,7 @@ const CreateEditCardScreen: ApplicationRoute = () => {
                         placeholder='My amazing question'
                         icon='help-sharp'
                         label='Question'
-                        error={existedQuestion ? 'Question already exists' : emptyField ? 'Please fill in all fields' : undefined}
+                        error={error_selected}
                         multiline
                         numberOfLines={3}
                     />

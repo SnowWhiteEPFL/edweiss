@@ -53,8 +53,6 @@ export const CardListDisplay: React.FC<{
         if (deck == undefined || cardIndex == undefined)
             return;
 
-        //const cardIndex = deck.data.cards.findIndex(c => c.question == card.question);
-
         const newCards = deck.data.cards;
         newCards[cardIndex] = { ...card, learning_status: new_status };
 

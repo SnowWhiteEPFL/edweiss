@@ -44,7 +44,6 @@ export const CardModalDisplay: ReactComponent<{
 }> = ({ handler, cards, id, modalRef, card, isSelectionMode }) => {
 
     const [isAnswerVisible, setIsAnswerVisible] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
 
     const absolute_index = cards.indexOf(card as Memento.Card);
 
@@ -63,7 +62,6 @@ export const CardModalDisplay: ReactComponent<{
         handler.modifyDocument(id, { cards: cards.filter((_, index) => index !== absolute_index) }, (deckId) => {
             callFunction(Memento.Functions.deleteCards, { deckId: id, cardIndices: [absolute_index] });
             console.log(`Card deleted with index ${absolute_index}`);
-            setIsLoading(false);
             modalRef.current?.dismiss();
         });
 
@@ -90,7 +88,6 @@ export const CardModalDisplay: ReactComponent<{
                         testID='delete-card'
                         style={{ position: 'absolute', alignSelf: 'flex-start' }}
                         onPress={() => {
-                            setIsLoading(true);
                             deleteCard();
                         }}
                     >

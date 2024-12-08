@@ -53,6 +53,17 @@ const TestYourMightScreen: ApplicationRoute = () => {
 
 	const sanitizedCardIndices = currentCardIndices
 
+	useEffect(() => {
+		// Lock the screen orientation to portrait
+		ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+
+		// Unlock orientation when the component unmounts
+		return () => {
+			ScreenOrientation.unlockAsync();
+		};
+	}, []);
+
+
 	if (sanitizedCardIndices.length === 0) {
 		return (
 			<TView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -72,16 +83,6 @@ const TestYourMightScreen: ApplicationRoute = () => {
 			</TView>
 		);
 	}
-
-	useEffect(() => {
-		// Lock the screen orientation to portrait
-		ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-
-		// Unlock orientation when the component unmounts
-		return () => {
-			ScreenOrientation.unlockAsync();
-		};
-	}, []);
 
 	if (cards && currentCardIndex == sanitizedCardIndices.length) {
 		setCurrentCardIndex((prevIndex) => prevIndex - 1);
