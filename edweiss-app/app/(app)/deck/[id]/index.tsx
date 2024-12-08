@@ -14,8 +14,10 @@
 import { ApplicationRoute } from '@/constants/Component';
 
 import TScrollView from '@/components/core/containers/TScrollView';
+import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
+import Icon from '@/components/core/Icon';
 import FancyButton from '@/components/input/FancyButton';
 import { CardListDisplay } from '@/components/memento/CardListDisplayComponent';
 import { DeleteOptionModalDisplay } from '@/components/memento/DeleteDeckModalAction';
@@ -27,8 +29,7 @@ import Memento from '@/model/memento';
 import { selectedCardIndices_play, sortingCards } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Redirect, router } from 'expo-router';
-import React, { useRef, useState } from 'react';
-import { Button } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
 import { DecksRepository } from '../_layout';
 
 /**
@@ -44,20 +45,22 @@ const CardListScreen: ApplicationRoute = () => {
 	const [selectionMode, setSelectionMode] = useState(false); // Track selection mode
 	const [cardToDisplay, setCardToDisplay] = useState<Memento.Card | undefined>(undefined); // State to hold card to display
 	const [isLoading, setIsLoading] = useState(false); // State to track loading status
+	const [refresh, setRefresh] = useState(false);
 	const modalRef_Card_Info = useRef<BottomSheetModal>(null); // Reference for the modal
 	const modalRef_Operation = useRef<BottomSheetModal>(null); // Reference for the modal
-	//const decks = useDynamicDocs(Collections.deck);
 
 	if (typeof id != 'string') return <Redirect href={'/'} />;
+
+	useEffect(() => {
+		if (refresh) {
+			setRefresh(false)
+		}
+	}, [refresh]);
 
 	const [deck, handler] = useRepositoryDocument(id, DecksRepository);
 
 	if (deck == undefined)
 		return <Redirect href={'/'} />;
-
-	// const decks = useDynamicDocs(Collections.deck);
-
-	// const deck = decks?.find(d => d.id == id);
 
 	const cards = deck.data.cards;
 
@@ -115,12 +118,37 @@ const CardListScreen: ApplicationRoute = () => {
 		router.back();
 	}
 
+	const handleRefresh = () => {
+		setRefresh(true);
+	};
+
 	return (
 		<>
 			<RouteHeader
 				title={deck?.data.name}
 				right={
-					<Button color={'black'} testID='toggleButton' onPress={() => { setShowDropdown(true); modalRef_Operation.current?.present() }} title='⋮' />
+					<>
+						<TTouchableOpacity
+							testID='refreshButton'
+							onPress={handleRefresh}
+							activeOpacity={0.2}
+							backgroundColor={'transparent'}
+							mr={'md'}
+						>
+							<Icon name={'refresh'} size={30} />
+						</TTouchableOpacity>
+
+						<TTouchableOpacity
+							testID='toggleButton'
+							onPress={() => { setShowDropdown(true); modalRef_Operation.current?.present() }}
+							activeOpacity={0.2}
+							backgroundColor={'transparent'}
+						>
+							<Icon name={'trash'} size={30} />
+						</TTouchableOpacity>
+
+						{/*<Button color={'black'} testID='toggleButton' onPress={() => { setShowDropdown(true); modalRef_Operation.current?.present() }} title='⋮' />*/}
+					</>
 				}
 			/>
 
@@ -155,7 +183,7 @@ const CardListScreen: ApplicationRoute = () => {
 				</TView>
 			)}
 
-			< TScrollView >
+			< TScrollView>
 				{sortedCards.map((card) => (
 					<CardListDisplay
 						key={sortedCards.indexOf(card)}
@@ -200,7 +228,8 @@ const CardListScreen: ApplicationRoute = () => {
 					textColor='crust'
 					onPress={() => {
 						setShowDropdown(false);
-						router.push({ pathname: `/deck/${id}/card/creation` as any, params: { deckId: id } })
+						//router.push({ pathname: `/deck/${id}/card/creation` as any, params: { deckId: id } })
+						router.push({ pathname: `/deck/${id}/card/` as any, params: { deckId: id, mode: "Create", prev_question: "", prev_answer: "", cardIndex: "None" } })
 					}}
 					icon='create-outline'
 				>
