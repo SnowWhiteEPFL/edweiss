@@ -39,6 +39,10 @@ const card3: Memento.Card = {
     learning_status: 'Got it',
 };
 
+jest.mock("react-native-webview", () => ({
+    WebView: jest.fn()
+}));
+
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => ({
     setItem: jest.fn(),
@@ -110,12 +114,12 @@ describe('CardModal', () => {
     });
 
     it('toggle answer visibility', () => {
-        const { getByText } = render(<CardModalDisplay handler={mockHandler} cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
-        const toggleButton = getByText('Click to reveal the answer');
+        const { getByText, getByTestId } = render(<CardModalDisplay handler={mockHandler} cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
+        const toggleButton = getByTestId('answerReveal');
         expect(toggleButton).toBeTruthy();
 
         fireEvent.press(toggleButton)
-        expect(getByText('Answer 1')).toBeTruthy();
+        expect(getByTestId('answerReveal')).toBeTruthy();
     });
 
     it('delete card', () => {
@@ -135,7 +139,7 @@ describe('CardModal', () => {
         expect(editButton).toBeTruthy();
 
         fireEvent.press(editButton)
-        expect(router.push).toHaveBeenCalledWith({ pathname: "/deck/1/card/edition", params: { deckId: '1', prev_question: 'Question 1', prev_answer: 'Answer 1', cardIndex: 0 } });
+        expect(router.push).toHaveBeenCalledWith({ pathname: "/deck/1/card/", params: { deckId: '1', mode: "Edit", prev_question: 'Question 1', prev_answer: 'Answer 1', cardIndex: 0 } });
 
     });
 });

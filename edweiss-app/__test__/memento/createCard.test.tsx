@@ -1,4 +1,4 @@
-import CreateCardScreen from '@/app/(app)/deck/[id]/card/creation';
+import CreateEditCardScreen from '@/app/(app)/deck/[id]/card';
 import { callFunction } from '@/config/firebase';
 import Memento from '@/model/memento';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
@@ -17,6 +17,11 @@ const card2: Memento.Card = {
     answer: 'Answer 2',
     learning_status: 'Not yet',
 };
+
+jest.mock("react-native-webview", () => ({
+    WebView: jest.fn()
+}));
+
 
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -53,7 +58,7 @@ jest.mock('expo-router', () => ({
         )),
     },
     //useLocalSearchParams: jest.fn(),
-    useLocalSearchParams: jest.fn(() => ({ id: '1' })),
+    useLocalSearchParams: jest.fn(() => ({ deckId: '1', mode: 'Create', prev_question: '', prev_answer: '', cardIndex: 'None' })),
 }));
 
 RepositoryMock.mockRepository<Memento.Deck>([{ name: 'Deck 1', cards: [card1, card2] }]);
@@ -74,14 +79,14 @@ describe('CreateCardScreen', () => {
     });
 
     it('should render correctly', () => {
-        const { getByText, getByTestId } = render(<CreateCardScreen />);
+        const { getByText, getByTestId } = render(<CreateEditCardScreen />);
         expect(getByText('Question')).toBeTruthy();
         expect(getByText('Answer')).toBeTruthy();
         expect(getByTestId('createCardButton')).toBeTruthy();
     });
 
     it('should not create a card when the fields are not filled', async () => {
-        const { getByTestId } = render(<CreateCardScreen />);
+        const { getByTestId } = render(<CreateEditCardScreen />);
         const createButton = getByTestId('createCardButton');
 
         fireEvent.press(createButton);
@@ -90,7 +95,7 @@ describe('CreateCardScreen', () => {
 
     it('should create a card when the fields are filled', async () => {
 
-        const { getByTestId, getByText } = render(<CreateCardScreen />);
+        const { getByTestId, getByText } = render(<CreateEditCardScreen />);
 
         // Mock successful response for creating a card
         (callFunction as jest.Mock).mockResolvedValueOnce({ status: 1, data: { id: '1' } });
@@ -103,7 +108,7 @@ describe('CreateCardScreen', () => {
         fireEvent.press(createButton);
         await waitFor(() => {
             expect(callFunction).toHaveBeenCalledWith(Memento.Functions.createCard, {
-                deckId: undefined,
+                deckId: '1',
                 card: {
                     question: 'Test Question',
                     answer: 'Test Answer',
@@ -116,7 +121,7 @@ describe('CreateCardScreen', () => {
     });
 
     it('should not create a card when there is a duplicate question', async () => {
-        const { getByTestId, getByText } = render(<CreateCardScreen />);
+        const { getByTestId, getByText } = render(<CreateEditCardScreen />);
 
         // Mock a duplicate question
         (callFunction as jest.Mock).mockResolvedValueOnce({ status: 0 });
