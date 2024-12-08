@@ -18,6 +18,7 @@ import React from 'react';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import TView from '../core/containers/TView';
 import Icon from '../core/Icon';
+import RichText from '../core/rich-text/RichText';
 import TText from '../core/TText';
 
 /**
@@ -46,11 +47,11 @@ export const CardListDisplay: React.FC<{
 
     const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
 
-    async function updateCard(new_status: Memento.LearningStatus) {
-        if (deck == undefined)
-            return;
+    const cardIndex = deck?.data.cards.findIndex(c => c.question == card.question);
 
-        const cardIndex = deck.data.cards.findIndex(c => c.question == card.question);
+    async function updateCard(new_status: Memento.LearningStatus) {
+        if (deck == undefined || cardIndex == undefined)
+            return;
 
         const newCards = deck.data.cards;
         newCards[cardIndex] = { ...card, learning_status: new_status };
@@ -77,24 +78,24 @@ export const CardListDisplay: React.FC<{
             m='md' mt={'sm'} mb={'sm'} p='lg'
             backgroundColor={isSelected ? 'rosewater' : 'base'}
             borderColor='crust' radius='lg'
+            b={'xl'}
         >
             <TView flexDirection='row' justifyContent='space-between'>
-                <TView flex={1} mr='md'>
-                    <TText bold color='text' ellipsizeMode='tail' numberOfLines={1}>
+                <TView testID={`cardQuestionIndex_${cardIndex}`} flex={1} mr='md'>
+                    {/*<TText bold color='text' ellipsizeMode='tail' numberOfLines={1}>
                         {card.question}
-                    </TText>
-                    <TText mb='md' color='subtext0' size={'sm'}>
-                        2h
-                    </TText>
+                    </TText>*/}
+                    <RichText px={'sm'} color='text'>
+                        {card.question}
+                    </RichText>
                 </TView>
 
                 <TTouchableOpacity
                     onPress={() => updateCard(card.learning_status === "Not yet" ? "Got it" : "Not yet")}
                     activeOpacity={0.2}
                     backgroundColor={'transparent'}
-                    borderColor='overlay0'
-                    b={'md'} radius={'xl'} pl={'md'} pr={'md'} pt={'md'} pb={'md'}>
-                    <Icon testID={`status_icon ${card.question}`} name={mementoStatusIconMap[card.learning_status]} color={mementoStatusColorMap[card.learning_status]} size={'xl'} />
+                >
+                    <Icon testID={`status_icon ${card.question}`} name={mementoStatusIconMap[card.learning_status]} color={mementoStatusColorMap[card.learning_status]} size={30} />
                 </TTouchableOpacity>
             </TView>
 
