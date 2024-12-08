@@ -22,7 +22,8 @@ import { useRepositoryDocument } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
-import React, { forwardRef, useRef, useState } from 'react';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { View, ViewProps } from 'react-native';
 import { PanGestureHandler, PanGestureHandlerStateChangeEvent, State } from 'react-native-gesture-handler';
 import { DecksRepository } from '../_layout';
@@ -71,6 +72,16 @@ const TestYourMightScreen: ApplicationRoute = () => {
 			</TView>
 		);
 	}
+
+	useEffect(() => {
+		// Lock the screen orientation to portrait
+		ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+
+		// Unlock orientation when the component unmounts
+		return () => {
+			ScreenOrientation.unlockAsync();
+		};
+	}, []);
 
 	if (cards && currentCardIndex == sanitizedCardIndices.length) {
 		setCurrentCardIndex((prevIndex) => prevIndex - 1);
