@@ -20,9 +20,10 @@ import { mementoStatusColorMap, mementoStatusIconMap } from '@/utils/memento/uti
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { State, TapGestureHandler } from 'react-native-gesture-handler';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import TView from '../core/containers/TView';
 import RouteHeader from '../core/header/RouteHeader';
 import Icon from '../core/Icon';
@@ -92,7 +93,7 @@ const CardScreenComponent: ReactComponent<{
     const toggleDropDown = () => { setShowDropdown(prev => !prev); }; // Open/close dropdown
 
     // Function to calculate font size based on text length
-    const calculateFontSize = (text: string) => {
+    /*const calculateFontSize = (text: string) => {
         const baseSize = 30; // Base font size for short text
         const minSize = 11; // Minimum font size
         const lengthFactor = text.length; // Length factor to reduce font size
@@ -100,7 +101,7 @@ const CardScreenComponent: ReactComponent<{
         // Calculate font size
         const fontSize = Math.max(minSize, baseSize - (lengthFactor / 18)); // Decrease size as text gets longer
         return fontSize;
-    };
+    };*/
 
     // Flip card animation
     const toggleFlip = () => {
@@ -127,7 +128,8 @@ const CardScreenComponent: ReactComponent<{
         })
     }
 
-    const editCard = () => { router.push({ pathname: `/deck/${deckId}/card/edition` as any, params: { deckId: deckId, prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex } }) }
+    //const editCard = () => { router.push({ pathname: `/deck/${deckId}/card/edition` as any, params: { deckId: deckId, prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex } }) }
+    const editCard = () => { router.push({ pathname: `/deck/${deckId}/card/` as any, params: { deckId: deckId, mode: "Edit", prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex, currentCardIndices: currentCardIndices } }) }
 
     // Update card
     async function updateCard(new_learning_status: Memento.LearningStatus) {
@@ -143,7 +145,12 @@ const CardScreenComponent: ReactComponent<{
             {!isModal && <RouteHeader
                 title='Test Your Might!'
                 right={
-                    <Button color={'black'} testID='toggleButton' onPress={() => { setShowDropdown(true); modalRef_Operation.current?.present() }} title='⋮' />
+                    <>
+                        <TTouchableOpacity testID='toggleButton' onPress={() => { setShowDropdown(true); modalRef_Operation.current?.present() }}>
+                            <Icon name='settings' color='darkBlue' size={25} />
+                        </TTouchableOpacity>
+                        {/*<Button color={'black'} testID='toggleButton' onPress={() => { setShowDropdown(true); modalRef_Operation.current?.present() }} title='⋮' />*/}
+                    </>
                 }
             />}
 
@@ -156,7 +163,7 @@ const CardScreenComponent: ReactComponent<{
                         toggleFlip();
                     }
                 }}>
-                <Animated.View style={[isModal ? styles.modalCard : styles.cardContainer, fronCardStyle]}>
+                <Animated.View testID={'cardQuestionFace'} style={[isModal ? styles.modalCard : styles.cardContainer, fronCardStyle]}>
                     {/*<TText mr={10} ml={10} size={20} ellipsizeMode='tail' style={{ textAlign: 'center', fontSize: calculateFontSize(card?.question ?? ""), lineHeight: calculateFontSize(card?.question ?? "") * 1.2 }}>
                         {card.question}
                     </TText>*/}
@@ -164,7 +171,7 @@ const CardScreenComponent: ReactComponent<{
                         {card.question}
                     </RichText>
                     <TText style={{ position: 'absolute', top: '2%', right: '2%' }} >
-                        <Icon name={mementoStatusIconMap[card.learning_status]} color={mementoStatusColorMap[card.learning_status]} size={'lg'} />
+                        <Icon name={mementoStatusIconMap[card.learning_status]} color={mementoStatusColorMap[card.learning_status]} size={25} />
                     </TText>
                 </Animated.View>
             </TapGestureHandler>
@@ -176,15 +183,15 @@ const CardScreenComponent: ReactComponent<{
                         toggleFlip();
                     }
                 }}>
-                <Animated.View style={[styles.cardContainer, backCardStyle]}>
+                <Animated.View testID='cardAnswerFace' style={[styles.cardContainer, backCardStyle]}>
                     {/*<TText mr={10} ml={10} size={20} ellipsizeMode='tail' style={{ textAlign: 'center', fontSize: calculateFontSize(card?.answer ?? ""), lineHeight: calculateFontSize(card?.answer ?? "") * 1.2 }}>
                         {card.answer}
                     </TText>*/}
-                    <RichText color='text' px={'sm'} >
+                    {<RichText color='text' px={'sm'} >
                         {card.answer}
-                    </RichText>
+                    </RichText>}
                     <TText style={{ position: 'absolute', top: '2%', right: '2%' }} >
-                        <Icon name={mementoStatusIconMap[card.learning_status]} color={mementoStatusColorMap[card.learning_status]} size={'lg'} />
+                        <Icon name={mementoStatusIconMap[card.learning_status]} color={mementoStatusColorMap[card.learning_status]} size={25} />
                     </TText>
                 </Animated.View>
             </TapGestureHandler>
