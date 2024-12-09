@@ -22,6 +22,7 @@ import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { callFunction } from '@/config/firebase';
+import t from '@/config/i18config';
 import { iconSizes } from '@/constants/Sizes';
 import { useRepositoryDocument } from '@/hooks/repository';
 import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
@@ -66,7 +67,7 @@ const CreateEditCardScreen: ApplicationRoute = () => {
 
     const card = deck?.data.cards[cardIndex]; // changed
 
-    const error_selected = existedQuestion ? 'Question already exists' : emptyField ? 'Please fill in all fields' : undefined;
+    const error_selected = existedQuestion ? t("memento:card-creation-edition.question-existed-announcement") : emptyField ? t("memento:card-creation-edition.empty-fields-announcement") : undefined;
 
     // Create a new card
     async function createCard() {
@@ -138,9 +139,9 @@ const CreateEditCardScreen: ApplicationRoute = () => {
                             setExistedQuestion(false);
                             setEmptyField(false);
                         }}
-                        placeholder='My amazing question'
+                        placeholder={t("memento:card-creation-edition.content.question.placeholder")}
                         icon='help-sharp'
-                        label='Question'
+                        label={t("memento:card-creation-edition.content.question.label")}
                         error={error_selected}
                         multiline
                         numberOfLines={3}
@@ -154,10 +155,10 @@ const CreateEditCardScreen: ApplicationRoute = () => {
                             setAnswer(n)
                             setEmptyField(false)
                         }}
-                        placeholder='My amazing answer'
+                        placeholder={t("memento:card-creation-edition.content.answer.placeholder")}
                         icon='bulb-outline'
-                        label='Answer'
-                        error={emptyField ? 'Please fill in all fields' : undefined}
+                        label={t("memento:card-creation-edition.content.answer.label")}
+                        error={emptyField ? t("memento:card-creation-edition.empty-fields-announcement") : undefined}
                         multiline
                         numberOfLines={3}
                     />
