@@ -139,7 +139,7 @@ describe('CreateCardScreen', () => {
 
         await waitFor(() => {
             expect(callFunction).toHaveBeenCalled();
-            expect(getByText('Question already exists')).toBeTruthy();
+            expect(getByText('Question already existed')).toBeTruthy();
         });
     });
 });
