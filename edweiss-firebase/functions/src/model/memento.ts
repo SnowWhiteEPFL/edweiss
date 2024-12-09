@@ -46,7 +46,7 @@ namespace Memento {
 		createDeck: FunctionOf<{ deck: Memento.Deck; }, { id: string; }, 'empty_deck'>("createDeck"),
 		deleteDecks: FunctionOf<{ deckIds: string[]; }, { id: string; }, 'deck_not_found'>("deleteDecks"),
 		createCard: FunctionOf<{ deckId: any; card: Memento.Card; }, { id: string; }, 'deck_not_found'>("createCard"),
-		updateDeck: FunctionOf<{ deckId: any; card: Memento.Card; }, { id: string; }, 'deck_not_found'>("updateDeck"),
+		updateDeck: FunctionOf<{ deckId: any; name: string; }, { id: string; }, 'deck_not_found'>("updateDeck"),
 		updateCard: FunctionOf<{ deckId: any; newCard: Memento.Card; cardIndex: number; }, { id: string; }, {}>("updateCard"),
 		deleteCards: FunctionOf<{ deckId: any; cardIndices: number[]; }, { id: string; }, 'card_not_found'>("deleteCards"),
 	});
