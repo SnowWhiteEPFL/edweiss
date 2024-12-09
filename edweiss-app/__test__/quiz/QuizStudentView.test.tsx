@@ -1,4 +1,4 @@
-import { QuizDisplay, QuizResultDisplay, default as TemporaryQuizStudentView } from '@/app/(app)/quiz/temporaryQuizStudentView';
+import { QuizDisplay, QuizResultDisplay, default as QuizStudentView } from '@/app/(app)/quiz/quizStudentView';
 import { useAuth } from '@/contexts/auth';
 import { useDoc, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 //import { useDoc } from '@/hooks/firebase/firestore';
@@ -228,7 +228,7 @@ const mockResultTF: QuizzesAttempts.TFAnswer = {
 
 const mockResults = [mockResultMCQ, mockResultTF]
 
-describe('TemporaryQuizStudentView', () => {
+describe('QuizStudentView', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 	});
@@ -241,7 +241,7 @@ describe('TemporaryQuizStudentView', () => {
 		(useAuth as jest.Mock).mockReturnValue({ uid: 'test-uid' });
 		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([undefined, true]); // Mock loading state
 
-		const { getByTestId } = render(<TemporaryQuizStudentView />);
+		const { getByTestId } = render(<QuizStudentView />);
 		await waitFor(async () => {
 			// Perform assertions after state update
 			expect(getByTestId('undefined-quiz-loading')).toBeTruthy();
@@ -263,7 +263,7 @@ describe('TemporaryQuizStudentView', () => {
 		]);
 		(useDoc as jest.Mock).mockReturnValue(null);
 
-		const { getByTestId } = render(<TemporaryQuizStudentView />);
+		const { getByTestId } = render(<QuizStudentView />);
 		expect(getByTestId('quiz-display')).toBeTruthy();
 	});
 
@@ -281,7 +281,7 @@ describe('TemporaryQuizStudentView', () => {
 		]);
 		(useDoc as jest.Mock).mockReturnValue({ data: { answers: [{ value: [1] }] } });
 
-		const { getByTestId } = render(<TemporaryQuizStudentView />);
+		const { getByTestId } = render(<QuizStudentView />);
 		expect(getByTestId('quiz-result-display')).toBeTruthy();
 	});
 

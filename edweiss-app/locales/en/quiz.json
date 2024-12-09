@@ -6,7 +6,8 @@
 	"max_propositions": "Reached max number of propositions!",
 	"not_enough_correct": "Select at least one correct choice!",
 	"date_invalid": "Due date is invalid!",
-	"quiz_name_empty": "Quiz does not have a name!"
+	"quiz_name_empty": "Quiz does not have a name!",
+	"too_much_exercises_temp": "Lecture quizzes can contain only one exercise!"
 
 
 }
