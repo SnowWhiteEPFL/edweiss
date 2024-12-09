@@ -21,7 +21,7 @@ import React, { useState } from 'react';
 import { Alert } from 'react-native';
 import { PostRouteSignature } from './[postId]';
 
-const Route: ApplicationRoute = () => {
+const ForumCreatePostRoute: ApplicationRoute = () => {
 	const { id: courseId } = useStringParameters();
 
 	const { uid } = useAuth();
@@ -111,7 +111,7 @@ const Route: ApplicationRoute = () => {
 					</RichText>
 				</TView>
 
-				<FancyButton onPress={submit} loading={loading} backgroundColor={canSubmit() ? undefined : 'overlay0'} outlined={!canSubmit()} disabled={!canSubmit()}>
+				<FancyButton testID='submit-button' onPress={submit} loading={loading} backgroundColor={canSubmit() ? undefined : 'overlay0'} outlined={!canSubmit()} disabled={!canSubmit()}>
 					{t("forum:creation.post")}
 				</FancyButton>
 			</TScrollView>
@@ -119,4 +119,4 @@ const Route: ApplicationRoute = () => {
 	);
 };
 
-export default Route;
+export default ForumCreatePostRoute;

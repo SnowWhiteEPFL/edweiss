@@ -6,7 +6,6 @@ import { act, render, screen } from '@testing-library/react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { initCourse, initPeriod } from './helper_functions';
 
-
 // Mocking Firebase Firestore Timestamp with Jest
 const Timestamp = {
     fromDate: jest.fn((date) => {
@@ -43,6 +42,9 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
         getCurrentUser: jest.fn(),
     },
 }));
+jest.mock('@/config/i18config', () =>
+    jest.fn((str: string, args: { [arg in string]: string }) => str)
+);
 module.exports = { firestore: { Timestamp } };
 
 // Convert a date string to a Date object

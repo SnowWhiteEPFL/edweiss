@@ -47,6 +47,10 @@ const mockUserProfessor = {
     },
 };
 
+jest.mock('@/config/i18config', () =>
+    jest.fn((str: string, args: { [arg in string]: string }) => str)
+);
+
 describe('PeriodBlock Component', () => {
     it('renders period information correctly', () => {
         render(

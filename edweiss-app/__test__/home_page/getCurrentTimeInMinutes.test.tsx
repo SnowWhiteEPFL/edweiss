@@ -10,6 +10,10 @@ jest.mock('@react-native-firebase/firestore', () => ({
     })),
 }));
 
+jest.mock('@/config/i18config', () =>
+    jest.fn((str: string, args: { [arg in string]: string }) => str)
+);
+
 describe('getCurrentTimeInMinutes', () => {
     it('should return the correct number of minutes since midnight', () => {
         const now = new Date();

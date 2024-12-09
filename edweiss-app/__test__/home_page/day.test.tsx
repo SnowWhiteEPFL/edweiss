@@ -10,7 +10,9 @@ jest.mock('expo-router', () => ({
     router: { push: jest.fn() }
 }));
 
-
+jest.mock('@/config/i18config', () =>
+    jest.fn((str: string, args: { [arg in string]: string }) => str)
+);
 
 // Mock data
 const mockCourses = [
