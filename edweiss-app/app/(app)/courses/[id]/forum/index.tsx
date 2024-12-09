@@ -20,7 +20,7 @@ import { Time } from '@/utils/time';
 import { router } from 'expo-router';
 import { PostRouteSignature } from './[postId]';
 
-const Route: ApplicationRoute = () => {
+const ForumRoute: ApplicationRoute = () => {
 	const { id: courseId } = useStringParameters();
 
 	const course = useCourse(courseId);
@@ -35,14 +35,14 @@ const Route: ApplicationRoute = () => {
 				align='center'
 				right={
 					<HeaderButtons style={{ marginRight: 0 }}>
-						<HeaderButton icon='add' onPress={() => {
+						<HeaderButton testID='create-post-button' icon='add' onPress={() => {
 							router.push(`/courses/${courseId}/forum/create-post`)
 						}} />
 					</HeaderButtons>
 				}
 			/>
 
-			<TScrollView>
+			<TScrollView testID='posts'>
 				<For each={posts}>
 					{post => <PostDisplay key={post.id} post={post} courseId={courseId} />}
 				</For>
@@ -51,11 +51,11 @@ const Route: ApplicationRoute = () => {
 	);
 };
 
-export default Route;
+export default ForumRoute;
 
 const PostDisplay: ReactComponent<{ post: Document<Forum.Post>, courseId: CourseID }> = ({ post, courseId }) => {
 	return (
-		<TTouchableOpacity borderColor='surface0' bb={1} onPress={() => {
+		<TTouchableOpacity testID={`post-${post.id}`} borderColor='surface0' bb={1} onPress={() => {
 			pushWithParameters(PostRouteSignature, {
 				courseId,
 				postId: post.id,

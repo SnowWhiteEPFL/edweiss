@@ -46,6 +46,9 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
         getCurrentUser: jest.fn(),
     },
 }));
+jest.mock('@/config/i18config', () =>
+    jest.fn((str: string, args: { [arg in string]: string }) => str)
+);
 module.exports = { firestore: { Timestamp } };
 
 // Convert a date string to a Date object
