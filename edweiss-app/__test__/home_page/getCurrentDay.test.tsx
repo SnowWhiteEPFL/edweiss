@@ -1,5 +1,9 @@
 import { Time } from '../../utils/time';
 
+jest.mock('@/config/i18config', () =>
+        jest.fn((str: string, args: { [arg in string]: string }) => str)
+);
+
 jest.mock('@react-native-firebase/firestore', () => ({
         firebase: jest.fn(),
         firestore: jest.fn(() => ({

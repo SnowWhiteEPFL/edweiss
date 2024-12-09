@@ -14,11 +14,12 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import { CardListDisplay } from '@/components/memento/CardListDisplayComponent';
 import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
+import { pushWithParameters, useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
 import { sortingCards } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { fireEvent, render } from '@testing-library/react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import React from 'react';
 import { Button } from 'react-native';
 import { State } from 'react-native-gesture-handler';
@@ -46,6 +47,10 @@ const card3: Memento.Card = {
 	answer: 'Answer 3',
 	learning_status: 'Not yet',
 };
+
+jest.mock("react-native-webview", () => ({
+	WebView: jest.fn()
+}));
 
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -84,6 +89,12 @@ jest.mock('expo-router', () => ({
 	},
 	//useLocalSearchParams: jest.fn(),
 	useLocalSearchParams: jest.fn(() => ({ id: '1' })),
+}));
+
+jest.mock('@/hooks/routeParameters', () => ({
+	useRouteParameters: jest.fn(() => ({ deckId: '1', mode: 'Create', prev_question: '', prev_answer: '', cardIndex: 'None' })),
+	pushWithParameters: jest.fn(),
+	useStringParameters: jest.fn(() => ({ id: '1' }))
 }));
 
 // Mock BottomSheet modal
@@ -134,26 +145,28 @@ describe('CardListScreen', () => {
 	});
 
 	it('renders without crashing', () => {
-		const { getByText } = render(<CardListScreen />);
-		expect(getByText('Question 1')).toBeTruthy();
-		expect(getByText('Question 2')).toBeTruthy();
+		const { getByTestId } = render(<CardListScreen />);
+		expect(getByTestId('cardQuestionIndex_0')).toBeTruthy();
 	});
 
 	it('toggles card selection', () => {
-		const { getByText } = render(<CardListScreen />);
-		const question1 = getByText('Question 1');
-		const question2 = getByText('Question 2');
+		const { getByText, getByTestId } = render(<CardListScreen />);
+		const question1 = getByTestId('cardQuestionIndex_0');
+		const question2 = getByTestId('cardQuestionIndex_1');
 
 		fireEvent(question1, 'onLongPress');
-		expect(getByText('Question 1')).toBeTruthy();
+		expect(question1).toBeTruthy();
 
-		fireEvent(question2, 'onLongPress');
-		expect(getByText('Question 2')).toBeTruthy();
+		fireEvent.press(question2);
+		expect(question2).toBeTruthy();
+
+		fireEvent.press(question1);
+		fireEvent.press(question2);
 	});
 
 	it('can delete selected cards', async () => {
-		const { getByText } = render(<CardListScreen />);
-		const card2 = getByText('Question 2');
+		const { getByText, getByTestId } = render(<CardListScreen />);
+		const card2 = getByTestId('cardQuestionIndex_1');
 
 		// Simulate long press to select the card
 		fireEvent(card2, 'onLongPress');
@@ -166,8 +179,8 @@ describe('CardListScreen', () => {
 	});
 
 	it('can cancel card selection', () => {
-		const { getByText } = render(<CardListScreen />);
-		const card2 = getByText('Question 2');
+		const { getByText, getByTestId } = render(<CardListScreen />);
+		const card2 = getByTestId('cardQuestionIndex_1');
 
 		// Simulate long press to select the card
 		fireEvent(card2, 'onLongPress');
@@ -176,7 +189,7 @@ describe('CardListScreen', () => {
 		const cancelButton = getByText('Cancel');
 		fireEvent.press(cancelButton);
 
-		expect(getByText('Question 2')).toBeTruthy();
+		expect(getByTestId('cardQuestionIndex_1')).toBeTruthy();
 	});
 
 	it('can go to playing screen', () => {
@@ -197,7 +210,7 @@ describe('CardListScreen', () => {
 		const createButton = getByText('Create Card');
 
 		fireEvent.press(createButton);
-		expect(router.push).toHaveBeenCalledWith({ pathname: "/deck/1/card/creation", params: { deckId: '1' } });
+		expect(pushWithParameters).toHaveBeenCalledWith({ path: "/deck/[id]/card" }, { deckId: '1', cardIndex: NaN, mode: 'Create', prev_question: "", prev_answer: "" });
 	});
 
 	it('can delete a deck', () => {
@@ -233,6 +246,14 @@ describe('CardListScreen', () => {
 		expect(sortedCards[1].question).toBe('Question 1');
 	});
 
+	it('refresh the screen', () => {
+		const { getByTestId } = render(<CardListScreen />);
+		const refreshButton = getByTestId('refreshButton');
+
+		fireEvent.press(refreshButton);
+		expect(getByTestId('cardQuestionIndex_0')).toBeTruthy();
+	});
+
 });
 
 // Test suite for the display of card modal
@@ -260,8 +281,8 @@ describe('Modal Display', () => {
 
 	it('can open modal to display card details', () => {
 
-		const { getByText } = render(<CardListDisplay deckId={deckId} card={card1} isSelected={false} toggleSelection={mockToggleSelection} onLongPress={jest.fn()} selectionMode={false} setCardToDisplay={jest.fn()} modalRef={modalRef} />);
-		const question1 = getByText('Question 1');
+		const { getByText, getByTestId } = render(<CardListDisplay deckId={deckId} card={card1} isSelected={false} toggleSelection={mockToggleSelection} onLongPress={jest.fn()} selectionMode={false} setCardToDisplay={jest.fn()} modalRef={modalRef} />);
+		const question1 = getByTestId('cardQuestionIndex_0');
 
 		expect(question1).toBeTruthy();
 
@@ -272,8 +293,8 @@ describe('Modal Display', () => {
 	});
 
 	it('can toggle card selection', () => {
-		const { getByText } = render(<CardListDisplay deckId={deckId} card={card1} isSelected={false} toggleSelection={mockToggleSelection} onLongPress={jest.fn()} selectionMode={true} setCardToDisplay={jest.fn()} modalRef={modalRef} />);
-		const question1 = getByText('Question 1');
+		const { getByText, getByTestId } = render(<CardListDisplay deckId={deckId} card={card1} isSelected={false} toggleSelection={mockToggleSelection} onLongPress={jest.fn()} selectionMode={true} setCardToDisplay={jest.fn()} modalRef={modalRef} />);
+		const question1 = getByTestId('cardQuestionIndex_0');
 
 		// Simulate a long press on the card
 		fireEvent(question1, 'onLongPress');
@@ -282,11 +303,11 @@ describe('Modal Display', () => {
 	});
 
 	it('can displays 2 cards by nesting render', () => {
-		const { getByText } = render(
+		const { getByText, getByTestId } = render(
 			<CardListDisplay deckId={deckId} card={card1} isSelected={false} toggleSelection={mockToggleSelection} onLongPress={jest.fn()} selectionMode={true} setCardToDisplay={jest.fn()} modalRef={modalRef} />
 		);
 
-		const question1 = getByText('Question 1');
+		const question1 = getByTestId('cardQuestionIndex_0');
 		expect(question1).toBeTruthy();
 
 		fireEvent(question1, 'onPress');
@@ -323,7 +344,7 @@ describe('TestYourMightScreen', () => {
 	});
 
 	it('should increment currentCardIndex on left swipe', () => {
-		(useLocalSearchParams as jest.Mock).mockReturnValue({ id: '1', indices: JSON.stringify([0, 1]) });
+		(useStringParameters as jest.Mock).mockReturnValue({ deckId: '1', indices: JSON.stringify([0, 1]) });
 		const { getByTestId, getByText } = render(<TestYourMightScreen />);
 		const panGesture = getByTestId('pan-gesture');
 

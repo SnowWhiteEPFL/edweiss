@@ -1,3 +1,17 @@
 {
-	"create-deck": "Create Deck"
+	"create-deck": "Create Deck",
+	"card-creation-edition": {
+		"question-existed-announcement": "Question already existed",
+		"empty-fields-announcement": "Please fill in all fields",
+		"content": {
+			"question": {
+				"label": "Question",
+				"placeholder": "My amazing question"
+			},
+			"answer": {
+				"label": "Answer",
+				"placeholder": "My amazing answer"
+			}
+		}
+	}
 }

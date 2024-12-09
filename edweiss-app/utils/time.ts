@@ -104,37 +104,37 @@ export namespace Time {
 
 		var interval = seconds / 31536000;
 
-		if (interval > 1) {
+		if (interval >= 1) {
 			const f = Math.floor(interval);
 			return f + ` ${t(`common:time-since-display.year${f == 1 ? "" : "s"}`)}`;
 		}
 		interval = seconds / 2592000;
-		if (interval > 1) {
+		if (interval >= 1) {
 			const f = Math.floor(interval);
 			return f + ` ${t(`common:time-since-display.month${f == 1 ? "" : "s"}`)}`;
 		}
 		interval = seconds / 86400;
-		if (interval > 1) {
+		if (interval >= 1) {
 			const f = Math.floor(interval);
 			return f + ` ${t(`common:time-since-display.day${f == 1 ? "" : "s"}`)}`;
 		}
 		interval = seconds / 3600;
-		if (interval > 1) {
+		if (interval >= 1) {
 			const f = Math.floor(interval);
 			return f + ` ${t(`common:time-since-display.hour${f == 1 ? "" : "s"}`)}`;
 		}
 		interval = seconds / 60;
-		if (interval > 1) {
+		if (interval >= 1) {
 			const f = Math.floor(interval);
 			return f + ` ${t(`common:time-since-display.minute${f == 1 ? "" : "s"}`)}`;
 		}
 
 		const f = Math.floor(interval);
-		return Math.floor(seconds) + t(`common:time-since-display.second${f == 1 ? "" : "s"}`);
+		return Math.floor(seconds) + " " + t(`common:time-since-display.second${f == 1 ? "" : "s"}`);
 	}
 
 	export function ago(date: Date) {
-		return t("time-since-display.ago", { time: Time.timeSinceDisplay(date) })
+		return t("common:time-since-display.ago", { time: Time.timeSinceDisplay(date) })
 	}
 
 	export function agoTimestamp(ts: Timestamp) {

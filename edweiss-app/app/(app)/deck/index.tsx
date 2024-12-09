@@ -41,7 +41,6 @@ const DeckScreen: ApplicationRoute = () => {
 	const [selectedDecks, setSelectedDecks] = useState<Memento.Deck[]>([]);
 	const [selectionMode, setSelectionMode] = useState(false); // Track selection mode
 
-	// const decks = useDynamicDocs(Collections.deck);
 	const [decks, handler] = useRepository(DecksRepository);
 
 	// Create a new deck
@@ -88,15 +87,8 @@ const DeckScreen: ApplicationRoute = () => {
 
 		const deckIds = selectedDecks.map(deck => decks?.filter(d => d.data.name === deck.name)[0].id) as string[];
 
-		/*
-		if (deckIds == undefined)
-			return;*/
-
 		handler.deleteDocuments(deckIds, (ids) => { callFunction(Memento.Functions.deleteDecks, { deckIds: ids }) });
 
-		// await callFunction(Memento.Functions.deleteDecks, {
-		// 	deckIds: deckIds
-		// });
 		setSelectedDecks([]); // Clear selection after deletion
 		setSelectionMode(false); // Exit selection mode
 	};

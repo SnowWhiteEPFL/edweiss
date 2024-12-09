@@ -8,11 +8,12 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
-import EditCardScreen from '@/app/(app)/deck/[id]/card/edition';
+import CreateEditCardScreen from '@/app/(app)/deck/[id]/card';
 import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
 import Memento from '@/model/memento';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import React from 'react';
 import { RepositoryMock } from '../__mocks__/repository';
 
 // ------------------------------------------------------------
@@ -26,17 +27,15 @@ const card1: Memento.Card = {
 	learning_status: 'Got it',
 };
 
-/*const card2: Memento.Card = {
-	question: 'Question 5',
-	answer: 'Answer 5',
-	learning_status: 'Not yet',
-};*/
-
 const card2: Memento.Card = {
 	question: 'Question 1',
 	answer: 'Answer 1',
 	learning_status: 'Got it',
 };
+
+jest.mock("react-native-webview", () => ({
+	WebView: jest.fn()
+}));
 
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -69,7 +68,12 @@ jest.mock('expo-router', () => ({
 			<>{options.headerRight()}, {options.headerLeft()}</>
 		)),
 	},
-	useLocalSearchParams: jest.fn(() => ({ deckId: '1', prev_question: 'Question 0', prev_answer: 'Answer 0', cardIndex: '0' })),
+	useLocalSearchParams: jest.fn(() => ({ deckId: '1', mode: 'Edit', prev_question: 'Question 0', prev_answer: 'Answer 0', cardIndex: '0' })),
+}));
+
+jest.mock('@/hooks/routeParameters', () => ({
+	useRouteParameters: jest.fn(() => ({ deckId: '1', mode: 'Edit', prev_question: 'Question 0', prev_answer: 'Answer 0', cardIndex: 0 })),
+	pushWithParameters: jest.fn(),
 }));
 
 // Mock Firebase functions and firestore
@@ -190,14 +194,14 @@ describe('EditCardScreen', () => {
 	});
 
 	it('should render correctly', () => {
-		const { getByText, getByTestId } = render(<EditCardScreen />);
+		const { getByText, getByTestId } = render(<CreateEditCardScreen />);
 		expect(getByText('Question')).toBeTruthy();
 		expect(getByText('Answer')).toBeTruthy();
-		expect(getByTestId('updateCardButton')).toBeTruthy();
+		expect(getByTestId('createCardButton')).toBeTruthy();
 	});
 
 	it('should display the correct previous question and answer', () => {
-		const { getByDisplayValue } = render(<EditCardScreen />);
+		const { getByDisplayValue } = render(<CreateEditCardScreen />);
 		expect(getByDisplayValue('Question 0')).toBeTruthy();
 		expect(getByDisplayValue('Answer 0')).toBeTruthy();
 	});
@@ -207,9 +211,9 @@ describe('EditCardScreen', () => {
 		// Mock callFunction
 		(callFunction as jest.Mock).mockResolvedValueOnce({ status: 1 });
 
-		const { getByTestId, getByDisplayValue } = render(<EditCardScreen />);
+		const { getByTestId, getByDisplayValue } = render(<CreateEditCardScreen />);
 
-		const updateButton = getByTestId('updateCardButton');
+		const updateButton = getByTestId('createCardButton');
 
 		// Act: Simulate user input and press update button
 		fireEvent.changeText(getByDisplayValue('Question 0'), 'Test Question');
@@ -239,8 +243,8 @@ describe('EditCardScreen', () => {
 
 	it('should not update a card when the fields are empty', async () => {
 
-		const { getByTestId, getByDisplayValue } = render(<EditCardScreen />);
-		const updateButton = getByTestId('updateCardButton');
+		const { getByTestId, getByDisplayValue } = render(<CreateEditCardScreen />);
+		const updateButton = getByTestId('createCardButton');
 
 		fireEvent.changeText(getByDisplayValue('Question 0'), '');
 		fireEvent.changeText(getByDisplayValue('Answer 0'), '');
@@ -258,8 +262,8 @@ describe('EditCardScreen', () => {
 		// Mock useRepositoryDocument to return undefined deck and card
 		(useRepositoryDocument as jest.Mock).mockReturnValueOnce([undefined, { modifyDocument: mockModifyDocument }]);
 
-		const { getByTestId } = render(<EditCardScreen />);
-		const updateButton = getByTestId('updateCardButton');
+		const { getByTestId } = render(<CreateEditCardScreen />);
+		const updateButton = getByTestId('createCardButton');
 
 		fireEvent.press(updateButton);
 
@@ -267,4 +271,18 @@ describe('EditCardScreen', () => {
 			expect(mockModifyDocument).not.toHaveBeenCalled();
 		});
 	});
+
+	it('button to preview should preview the card', () => {
+		const { getByTestId } = render(<CreateEditCardScreen />);
+		const previewButton = getByTestId('previewButton');
+
+		fireEvent.press(previewButton);
+		const modalWebView = getByTestId('previewModal');
+
+		expect(modalWebView).toBeTruthy();
+
+		const closeButton = getByTestId('closeButton');
+		fireEvent.press(closeButton);
+	});
+
 });

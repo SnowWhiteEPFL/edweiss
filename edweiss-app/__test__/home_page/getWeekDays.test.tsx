@@ -1,5 +1,9 @@
 import { getWeekDates } from '@/components/core/getWeekDates';
 
+jest.mock('@/config/i18config', () =>
+    jest.fn((str: string, args: { [arg in string]: string }) => str)
+);
+
 describe('getWeekDates', () => {
 
     // Basic test with a mid-week date (Wednesday)
