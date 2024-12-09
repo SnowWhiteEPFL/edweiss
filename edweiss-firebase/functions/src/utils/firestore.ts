@@ -152,3 +152,4 @@ export async function getRequiredDocument<Type extends DocumentData>(collection:
 export function clean<T extends DocumentData>(obj: T): T {
 	Object.keys(obj).forEach(key => obj[key as keyof T] === undefined ? delete obj[key as keyof T] : {});
 	return obj;
+}
