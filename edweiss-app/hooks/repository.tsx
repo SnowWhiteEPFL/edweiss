@@ -322,8 +322,8 @@ export function useRepositoryDocument<T extends DocumentData>(id: string, reposi
  * @param repository The signature {@link Repository} created with {@link createRepository}.
  * @param collection The Firebase collection for the initial fetch.
  */
-export function RepositoryLayout<T extends DocumentData>(props: { repository: Repository<T>, collection: Query<T> }) {
-	const instance = useInitialRepository(props.repository, props.collection);
+export function RepositoryLayout<T extends DocumentData>(props: { repository: Repository<T>, collection: Query<T>, extender?: string }) {
+	const instance = useInitialRepository(props.repository, props.collection, props.extender);
 
 	return (
 		<RepositoryProvider repository={props.repository} instance={instance}>
