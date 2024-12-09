@@ -128,8 +128,8 @@ const FakeIdLength = 16;
  * @param query The cloud collection/query from which to perform the initial fetch.
  * @returns `[documents, handler]`
  */
-export function useInitialRepository<Type extends DocumentData>(repository: Repository<Type>, query: Query<Type>): RepositoryInstance<Type> {
-	const [documents, setDocuments] = useStoredState<RepositoryDocument<Type>[] | undefined>(repository.key, undefined);
+export function useInitialRepository<Type extends DocumentData>(repository: Repository<Type>, query: Query<Type>, extender?: string): RepositoryInstance<Type> {
+	const [documents, setDocuments] = useStoredState<RepositoryDocument<Type>[] | undefined>(repository.key + (extender ? `-${extender}` : ""), undefined);
 	const yetToSyncEvents = useRef<YetToSyncEvent[]>([]);
 
 	useEffect(() => {
