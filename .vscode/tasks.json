@@ -2,9 +2,10 @@
 	"version": "2.0.0",
     "tasks": [
         {
-            "label": "⟳ Update model on Linux - EdWeiss",
+            "label": "Update model on Linux - EdWeiss",
 			"detail": "Copies the model folder into the application and cloud functions",
             "command": "cd model; ./update.sh",
+			"icon": {"id": "refresh", "color": "terminal.ansiWhite"},
             "type": "shell",
             "problemMatcher": [],
 			"presentation": {
@@ -17,9 +18,26 @@
 			}
         },
 		{
-            "label": "⟳ Update model on Windows - EdWeiss",
+            "label": "Run tscheck everywhere",
+			"detail": "Runs tscheck on app, dashboard and cloud functions.",
+			"command": "cd .vscode; ./tscheck.sh",
+			"icon": {"id": "check-all", "color": "terminal.ansiGreen"},
+            "type": "shell",
+            "problemMatcher": [],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": true
+			}
+        },
+		{
+            "label": "Update model on Windows - EdWeiss",
 			"detail": "Copies the model folder into the application and cloud functions",
             "command": "cd model; ./update-windows.bat",
+			"icon": {"id": "refresh", "color": "terminal.ansiWhite"},
             "type": "shell",
             "problemMatcher": [],
 			"presentation": {
@@ -35,6 +53,7 @@
             "label": "🔥 Deploy functions - EdWeiss",
 			"detail": "Deploys cloud functions",
             "command": "cd edweiss-firebase; firebase deploy --only functions",
+			"icon": {"id": "cloud-upload", "color": "terminal.ansiGreen"},
             "type": "shell",
             "problemMatcher": [],
 			"presentation": {
@@ -50,7 +69,8 @@
             "label": "📱 Start application on device via USB - EdWeiss",
 			"detail": "Starts application using Expo's dev build",
             "command": "cd edweiss-app; npx expo start --dev-client --clear --localhost --android",
-            "type": "shell",
+            "icon": {"id": "code", "color": "terminal.ansiBlue"},
+			"type": "shell",
             "problemMatcher": [],
 			"presentation": {
 				"echo": true,
@@ -65,6 +85,7 @@
             "label": "📱 Start application with QR Code - EdWeiss",
 			"detail": "Starts application using Expo's dev build",
             "command": "cd edweiss-app; npx expo start",
+			"icon": {"id": "code", "color": "terminal.ansiBlue"},
             "type": "shell",
             "problemMatcher": [],
 			"presentation": {
@@ -77,9 +98,10 @@
 			}
         },
 		{
-            "label": "🧪 Run Application Tests - EdWeiss",
+            "label": "Run Application Tests - EdWeiss",
 			"detail": "Starts application using Expo's dev build",
             "command": "cd edweiss-app; npm test",
+			"icon": {"id": "beaker", "color": "terminal.ansiGreen"},
             "type": "shell",
             "problemMatcher": [],
 			"presentation": {
@@ -94,6 +116,7 @@
 		{
             "label": "💻 Start web application using Vite - EdWeiss",
 			"detail": "Starts Vite+React web application on localhost",
+			"icon": {"id": "code", "color": "terminal.ansiBlue"},
             "command": "cd edweiss-web; npm run dev",
             "type": "shell",
             "problemMatcher": [],
