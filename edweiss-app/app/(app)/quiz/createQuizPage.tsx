@@ -391,11 +391,11 @@ export const AddExerciseModal: ReactComponent<{ modalRef: RefObject<BottomSheetM
 
 			<TView mb='lg' flexDirection='row' flexColumnGap='sm' >
 				<TView flex={1}>
-					<FancyButton onPress={() => setIsMCQ(true)} backgroundColor={isMCQ ? "blue" : "base"} icon='checkbox-sharp'> MCQ </FancyButton>
+					<FancyButton onPress={() => setIsMCQ(true)} textColor={isMCQ ? "crust" : "surface2"} backgroundColor={isMCQ ? "blue" : "base"} icon='checkbox-sharp'> MCQ </FancyButton>
 
 				</TView>
 				<TView flex={1}>
-					<FancyButton onPress={() => setIsMCQ(false)} backgroundColor={!isMCQ ? "blue" : "base"} icon='radio-button-on-sharp'> True-False </FancyButton>
+					<FancyButton onPress={() => setIsMCQ(false)} textColor={!isMCQ ? "crust" : "surface2"} backgroundColor={!isMCQ ? "blue" : "base"} icon='radio-button-on-sharp'> True-False </FancyButton>
 				</TView>
 
 			</TView>

@@ -119,17 +119,8 @@ export const DisplayTFProportions: ReactComponent<{ distribution: number[]; exer
 				{exercise.question}
 			</TText>
 
-			<TView backgroundColor={exercise.answer ? 'green' : 'peach'} style={{ width: `${distribution[1]}%` }} radius='xs' p='md' ml='sm'>
-				<TText color='crust'>
-					True : {distribution[1]} %
-				</TText>
-			</TView>
-
-			<TView backgroundColor={exercise.answer ? 'peach' : 'green'} style={{ width: `${distribution[0]}%` }} radius='xs' p='md' ml='sm' mt='sm'>
-				<TText color='crust'>
-					False : {distribution[0]} %
-				</TText>
-			</TView>
+			<DisplayTrue exercise={exercise} percentage={distribution[1]} />
+			<DisplayFalse exercise={exercise} percentage={distribution[0]} />
 
 			<TText>
 				Number of answers : {numberOfAttempts}
@@ -144,6 +135,39 @@ export const DisplayTFProportions: ReactComponent<{ distribution: number[]; exer
 	);
 };
 
+const DisplayTrue: ReactComponent<{ exercise: Quizzes.TF, percentage: number }> = (props) => {
+
+	return (
+		<TView style={{ position: "relative" }}>
+			<TView backgroundColor={props.exercise.answer ? 'green' : 'peach'} style={{ width: `${props.percentage}%` }} radius='xs' p='md' ml='sm'>
+				<TText style={{ position: 'absolute' }} color='overlay0'>
+					True : {props.percentage} %
+				</TText>
+			</TView>
+		</TView>
+
+	);
+
+
+};
+
+const DisplayFalse: ReactComponent<{ exercise: Quizzes.TF, percentage: number }> = (props) => {
+
+	return (
+		<TView style={{ position: "relative" }}>
+
+			<TView backgroundColor={props.exercise.answer ? 'peach' : 'green'} style={{ width: `${props.percentage}%` }} radius='xs' p='md' ml='sm'>
+				<TText style={{ position: 'absolute' }} color='overlay0'>
+					False : {props.percentage} %
+				</TText>
+			</TView>
+		</TView>
+
+	);
+
+
+};
+
 export const DisplayMCQProportions: ReactComponent<{ distribution: number[], exercise: Quizzes.MCQ, numberOfAttempts: number }> = ({ distribution, exercise, numberOfAttempts }) => {
 	return (
 		<TView mb={'md'}>
@@ -151,9 +175,18 @@ export const DisplayMCQProportions: ReactComponent<{ distribution: number[], exe
 				{exercise.question}
 			</TText>
 			<For each={distribution}>
-				{(proposition, propIndex) => {
-					console.log(distribution.length)
-					return (<TText>{`Proposition ${propIndex + 1} : ${proposition} %`}</TText>);
+				{(percentage, propositionIndex) => {
+					//console.log(distribution.length)
+					return (
+						<TView style={{ position: "relative" }}>
+							<TView backgroundColor='blue' style={{ width: `${percentage}%` }} radius='xs' p='md' ml='sm' mb='sm'>
+							</TView>
+
+							<TText style={{ position: 'absolute' }} color='overlay0' mt='sm' ml='sm'>
+								{`Proposition ${propositionIndex + 1} : ${percentage} %`}
+							</TText>
+						</TView>
+					);
 				}}
 			</For>
 			<TText>
@@ -166,6 +199,7 @@ export const DisplayMCQProportions: ReactComponent<{ distribution: number[], exe
 
 export function getMCQDistribution(studentAttempts: QuizzesAttempts.MCQAnswersIndices[], numberOfPropositions: number): number[] {
 	const numberOfAttempts = studentAttempts.length;
+	let numberOfAnswers = 0
 	let propositionDistribution = Array(numberOfPropositions).fill(0);
 	if (studentAttempts == undefined || studentAttempts.length <= 0) {
 		return propositionDistribution
@@ -179,14 +213,15 @@ export function getMCQDistribution(studentAttempts: QuizzesAttempts.MCQAnswersIn
 
 		selectedPropositionIndices.forEach((propositionIndex: number) => {
 			if (propositionIndex >= 0 && propositionIndex < numberOfPropositions) {
-				propositionDistribution[propositionIndex] += 1;
+				propositionDistribution[propositionIndex]++;
+				numberOfAnswers++
 			} else {
 				console.log(`Warning: in MCQ, Invalid proposition index ${propositionIndex} found in attempt`);
 			}
 		});
 
 	}
-	return propositionDistribution.map(p => (p * 100) / numberOfAttempts);
+	return propositionDistribution.map(p => (p * 100) / numberOfAnswers);
 }
 
 export function getTFDistribution(studentAttempts: QuizzesAttempts.TFAnswer[]): number[] {

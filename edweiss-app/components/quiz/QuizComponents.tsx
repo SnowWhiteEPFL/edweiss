@@ -38,18 +38,6 @@ export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: nu
 				</TText>
 			</TView>
 
-			{/* <For each={exercise.propositions} key={exercise.question}>
-				{(proposition, index) =>
-					<TTouchableOpacity key={exercise.question + proposition.id}
-						onPress={() => handleSelection(index)}
-						backgroundColor={handleMCQColor(selectedIds, index)}
-						mb={"md"} mr={"md"} ml={"md"} p={"sm"} px={"md"}
-						radius={"xl"}>
-						<TText color={textColor(handleMCQColor(selectedIds, index))}>
-							{proposition.description}
-						</TText>
-					</TTouchableOpacity>}
-			</For> */}
 			<For each={exercise.propositions} key={exercise.question}>
 				{(proposition, index) =>
 					<CoolCheckBox key={proposition.id} value={selectedIds.includes(index)} onChange={b => {

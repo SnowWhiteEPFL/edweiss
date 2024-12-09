@@ -65,8 +65,10 @@ const LectureQuizStudentView: ApplicationRoute = () => {
 
 	const onUpdate = useCallback((newAnswer: number[] | boolean | undefined) => {
 		const newFormattedAnswer: LectureQuizzesAttempts.LectureQuizAttempt = exercise?.type == "MCQ" ? { type: "MCQAnswersIndices", value: newAnswer as number[] } : { type: "TFAnswer", value: newAnswer as boolean }
+		console.log(JSON.stringify(newFormattedAnswer))
+		console.log(exercise?.type == "MCQ")
 		setStudentAnswer(newFormattedAnswer)
-	}, []);
+	}, [exercise]);
 
 	if (quizEvent == undefined || quiz == undefined || exercise == undefined) {
 		return (<TActivityIndicator testID='undefined-quizEvent-loading' />)

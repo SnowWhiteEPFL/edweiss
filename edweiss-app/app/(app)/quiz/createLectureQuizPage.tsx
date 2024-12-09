@@ -3,14 +3,14 @@ import { ApplicationRoute } from '@/constants/Component';
 
 import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
-import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
-import { callFunction, Collections, getDocument } from '@/config/firebase';
+import { callFunction } from '@/config/firebase';
 import { useAuth } from '@/contexts/auth';
+import { useUser } from '@/contexts/user';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import Quizzes, { LectureQuizzes, QuizzesAttempts } from '@/model/quizzes';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useLocalSearchParams } from 'expo-router';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 import { t } from 'i18next';
 import { useRef, useState } from 'react';
 import Toast from 'react-native-toast-message';
@@ -22,6 +22,7 @@ const CreateLectureQuizPage: ApplicationRoute = () => {
 	const { uid } = useAuth()
 	const [exercise, setExercise] = useState<Quizzes.Exercise | undefined>(undefined);
 	const [isMCQ, setIsMCQ] = useState<boolean>(false);
+	const { user } = useUser();
 
 	const publishLectureQuizModalRef = useRef<BottomSheetModal>(null);
 
@@ -30,14 +31,9 @@ const CreateLectureQuizPage: ApplicationRoute = () => {
 		setExercise(exercise)
 	}
 
-	async function checkUserType() {
-		const thisUser = await getDocument(Collections.users, uid);
-
-		if (thisUser?.data.type != "professor") {
-			return <TText> You are not authorized to create a quiz. </TText>;
-		}
+	if (user.type == 'student') {
+		return (<Redirect href='/' />)
 	}
-	checkUserType()
 
 	function controlPublishLectureQuiz() {
 		if (exercise == undefined) {
@@ -101,11 +97,11 @@ const CreateLectureQuizPage: ApplicationRoute = () => {
 
 			<TView mb='lg' flexDirection='row' flexColumnGap='sm' >
 				<TView flex={1}>
-					<FancyButton onPress={() => setIsMCQ(true)} backgroundColor={isMCQ ? "blue" : "base"} icon='checkbox-sharp'> MCQ </FancyButton>
+					<FancyButton onPress={() => setIsMCQ(true)} textColor={isMCQ ? "crust" : "surface2"} backgroundColor={isMCQ ? "blue" : "base"} icon='checkbox-sharp'> MCQ </FancyButton>
 
 				</TView>
 				<TView flex={1}>
-					<FancyButton onPress={() => setIsMCQ(false)} backgroundColor={!isMCQ ? "blue" : "base"} icon='radio-button-on-sharp'> True-False </FancyButton>
+					<FancyButton onPress={() => setIsMCQ(false)} textColor={!isMCQ ? "crust" : "surface2"} backgroundColor={!isMCQ ? "blue" : "base"} icon='radio-button-on-sharp'> True-False </FancyButton>
 				</TView>
 
 			</TView>
