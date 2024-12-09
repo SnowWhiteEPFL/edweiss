@@ -98,23 +98,7 @@ const CreateQuizPage: ApplicationRoute = () => {
 		);
 	}
 
-	// function checkExerciseNumber() {
-	// 	console.log(exercises.length)
-	// 	if (isTemporary && exercises.length >= 1) {
-	// 		Toast.show({
-	// 			type: 'error',
-	// 			text1: t(`quiz:too_much_exercises_temp`),
-	// 		});
-	// 		return false;
-	// 	}
-	// 	return true
-	// }
 
-	// function controlAddModal() {
-	// 	if (checkExerciseNumber()) {
-	// 		addModalRef.current?.present()
-	// 	}
-	// }
 	function checkQuizParams(): boolean {
 		if (exercises.length <= 0) {
 			Toast.show({
@@ -498,7 +482,6 @@ export const MCQFields: ReactComponent<{ addToExerciseList?: (exercise: Quizzes.
 	//const [answer, setAnswer] = useState<number[]>([]);
 	const [propositions, setPropositions] = useState<[string, boolean][]>(props.previousPropositions == undefined ? [] : props.previousPropositions);
 
-	const placeHolder = props.previousQuestion == undefined ? "Which of these are true?" : props.previousQuestion
 	function addNewProposition() {
 		if (propositions.length >= 6) {
 			Toast.show({

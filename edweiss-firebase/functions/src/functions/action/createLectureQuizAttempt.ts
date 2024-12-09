@@ -7,15 +7,13 @@ import { ok } from 'utils/status';
 
 export const createLectureQuizAttempt = onSanitizedCall(LectureQuizzesAttempts.Functions.createLectureQuizAttempt, {
 	courseId: Predicate.isNonEmptyString,
-	quizId: Predicate.isNonEmptyString,
 	lectureId: Predicate.isNonEmptyString,
 	lectureEventId: Predicate.isNonEmptyString,
 	lectureQuizAttempt: CustomPredicateQuiz.isValidLectureQuizAttempt
 }, async (userId, args) => {
 
-	const ref = getDocumentRef(CollectionOf<LectureQuizzesAttempts.LectureQuizAttempt>("courses/" + args.courseId + "/lectures/" + args.lectureId + "/lectureEvents/" + args.lectureEventId), userId);
+	const ref = getDocumentRef(CollectionOf<LectureQuizzesAttempts.LectureQuizAttempt>("courses/" + args.courseId + "/lectures/" + args.lectureId + "/lectureEvents/" + args.lectureEventId + "/attempts"), userId);
 
 	await ref.set(args.lectureQuizAttempt);
-	console.log("Document successfully updated!");
 	return ok({ id: ref.id });
 });

@@ -15,10 +15,10 @@ import { Redirect, router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 
 export const LectureQuizStudentViewSignature: ApplicationRouteSignature<{
-	quizId: string, courseId: string, lectureId: string,
+	courseId: string, lectureId: string, lectureEventId: string
 	prefetchedQuiz: Document<LectureDisplay.LectureEvent> | undefined
 }> = {
-	path: "/(app)/quiz/quizStudentView" as any
+	path: "/(app)/quiz/lectureQuizStudentView" as any
 }
 
 const LectureQuizStudentView: ApplicationRoute = () => {
@@ -27,15 +27,18 @@ const LectureQuizStudentView: ApplicationRoute = () => {
 
 	// })
 
-	const { quizId, courseId, lectureId, prefetchedQuiz } = useRouteParameters(LectureQuizStudentViewSignature);
+	const { courseId, lectureId, lectureEventId, prefetchedQuiz } = useRouteParameters(LectureQuizStudentViewSignature);
 	const pathToLectureEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
-	const pathToAttempts = pathToLectureEvents + "/" + quizId + "/attempts";
+	const pathToAttempts = pathToLectureEvents + "/" + lectureEventId + "/attempts";
 	const { uid } = useAuth();
-	const [quizEvent] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEvent>(pathToLectureEvents), quizId, prefetchedQuiz);
+	const [quizEvent] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEvent>(pathToLectureEvents), lectureEventId, prefetchedQuiz);
 	const previousAttempt = useDoc(CollectionOf<LectureQuizzesAttempts.LectureQuizAttempt>(pathToAttempts), uid);
 	const [studentAnswer, setStudentAnswer] = useState<QuizzesAttempts.Answer | undefined>(undefined);
 	const quiz = quizEvent?.data.quizModel
 	const exercise = quiz?.exercise;
+
+	console.log("before redirect")
+	console.log("exercise : " + JSON.stringify(exercise))
 
 
 
@@ -69,20 +72,26 @@ const LectureQuizStudentView: ApplicationRoute = () => {
 		return (<TActivityIndicator testID='undefined-quizEvent-loading' />)
 	}
 
-	if (typeof quizId != 'string') {
+	if (typeof lectureId != 'string') {
+		console.log("redirected")
 		return <Redirect href={'/'} />;
 	}
+	console.log("after redirect")
 
 
 	async function send() {
-		//sendToLectureEvent()
+		if (studentAnswer == undefined) {
+			console.log("Undefined answer, submitted before loading default")
+			return;
+		}
+		sendToLectureEvent(studentAnswer, courseId, lectureId, lectureEventId)
 	}
 
 	if (quiz.showResultToStudents && previousAttempt != undefined) {
-		return <LectureQuizResultDisplay key={quizEvent.id + "result"} studentAnswer={previousAttempt.data} exercise={exercise} result={quiz.answer} testId='quiz-result-display'></LectureQuizResultDisplay>;
+		return <LectureQuizResultDisplay key={quizEvent.id + "result"} studentAnswer={previousAttempt.data} exercise={exercise} result={quiz.answer} testId='quiz-result-display' />;
 	}
 	else if (!quiz.showResultToStudents) {
-		return <LectureQuizDisplay key={quizEvent.id + "display"} studentAnswer={studentAnswer} exercise={exercise} onUpdate={onUpdate} send={send} testId='quiz-display'></LectureQuizDisplay>;
+		return <LectureQuizDisplay key={quizEvent.id + "display"} studentAnswer={studentAnswer} exercise={exercise} onUpdate={onUpdate} send={send} testId='quiz-display' />;
 	}
 	else {
 		return (<TActivityIndicator />);
@@ -95,48 +104,44 @@ export default LectureQuizStudentView;
 export const LectureQuizDisplay: ReactComponent<{ studentAnswer: QuizzesAttempts.Answer | undefined, exercise: Quizzes.Exercise, onUpdate: (answer: number[] | boolean | undefined, id: number) => void, send: () => void, testId: string }> = ({ studentAnswer, exercise, onUpdate, send, testId }) => {
 	if (exercise.type == "MCQ" && studentAnswer != undefined) {
 		return (
-			<>
-				<TSafeArea>
-					<TView>
-						<MCQDisplay key={exercise.question + "display"} exercise={exercise} selectedIds={studentAnswer.value as number[]} onUpdate={onUpdate} exId={0} />
-					</TView >
-					<FancyButton
-						mt={"md"} mb={"md"}
-						onPress={() => {
-							if (send != undefined) {
-								send();
-							}
-							router.back();
-						}}
-						icon='save-sharp'
-						testID='submit'>
-						Submit and exit
-					</FancyButton>
-				</TSafeArea>
-			</>
+			<TSafeArea>
+				<TView>
+					<MCQDisplay key={exercise.question + "display"} exercise={exercise} selectedIds={studentAnswer.value as number[]} onUpdate={onUpdate} exId={0} />
+				</TView >
+				<FancyButton
+					mt={"md"} mb={"md"}
+					onPress={() => {
+						if (send != undefined) {
+							send();
+						}
+						router.back();
+					}}
+					icon='save-sharp'
+					testID='submit'>
+					Submit and exit
+				</FancyButton>
+			</TSafeArea>
 		);
 	}
 	else if (exercise.type == "TF" && studentAnswer != undefined) { // if type == "TF"
 		return (
-			<>
-				<TSafeArea>
-					<TView>
-						<TFDisplay key={exercise.question + "display"} exercise={exercise} selected={studentAnswer.value as boolean | undefined} onUpdate={onUpdate} exId={0} />
-					</TView >
-					<FancyButton
-						mt={"md"} mb={"md"}
-						onPress={() => {
-							if (send != undefined) {
-								send();
-							}
-							router.back();
-						}}
-						icon='save-sharp'
-						testID='submit'>
-						Submit and exit
-					</FancyButton>
-				</TSafeArea >
-			</>
+			<TSafeArea>
+				<TView>
+					<TFDisplay key={exercise.question + "display"} exercise={exercise} selected={studentAnswer.value as boolean | undefined} onUpdate={onUpdate} exId={0} />
+				</TView >
+				<FancyButton
+					mt={"md"} mb={"md"}
+					onPress={() => {
+						if (send != undefined) {
+							send();
+						}
+						router.back();
+					}}
+					icon='save-sharp'
+					testID='submit'>
+					Submit and exit
+				</FancyButton>
+			</TSafeArea >
 		);
 	} else {
 		return <TActivityIndicator />
@@ -147,40 +152,36 @@ export const LectureQuizResultDisplay: ReactComponent<{ studentAnswer: QuizzesAt
 
 	if (exercise.type == "MCQ" && studentAnswer != undefined) {
 		return (
-			<>
-				<TSafeArea>
-					<TView>
-						<MCQResultDisplay key={exercise.question + "result"} exercise={exercise} selectedIds={studentAnswer.value as number[]} results={result.value as number[]} />);
-						<FancyButton
-							mt={"md"} mb={"md"}
-							onPress={() => {
-								router.back();
-							}}
-							testID='exit-result'>
-							Exit
-						</FancyButton>
-					</TView >
-				</TSafeArea>
-			</>
+			<TSafeArea>
+				<TView>
+					<MCQResultDisplay key={exercise.question + "result"} exercise={exercise} selectedIds={studentAnswer.value as number[]} results={result.value as number[]} />
+					<FancyButton
+						mt={"md"} mb={"md"}
+						onPress={() => {
+							router.back();
+						}}
+						testID='exit-result'>
+						Exit
+					</FancyButton>
+				</TView >
+			</TSafeArea>
 		);
 	}
 	else if (exercise.type == "TF" && studentAnswer != undefined) { // if type == "TF"
 		return (
-			<>
-				<TSafeArea>
-					<TView>
-						return (<TFResultDisplay key={exercise.question + "result"} exercise={exercise} selected={studentAnswer.value as boolean | undefined} result={result.value as boolean} />);
-						<FancyButton
-							mt={"md"} mb={"md"}
-							onPress={() => {
-								router.back();
-							}}
-							testID='exit-result'>
-							Exit
-						</FancyButton>
-					</TView >
-				</TSafeArea >
-			</>
+			<TSafeArea>
+				<TView>
+					<TFResultDisplay key={exercise.question + "result"} exercise={exercise} selected={studentAnswer.value as boolean | undefined} result={result.value as boolean} />
+					<FancyButton
+						mt={"md"} mb={"md"}
+						onPress={() => {
+							router.back();
+						}}
+						testID='exit-result'>
+						Exit
+					</FancyButton>
+				</TView>
+			</TSafeArea>
 		);
 	} else {
 		return <TActivityIndicator />
@@ -188,10 +189,10 @@ export const LectureQuizResultDisplay: ReactComponent<{ studentAnswer: QuizzesAt
 
 };
 
-export async function sendToLectureEvent(studentAnswer: QuizzesAttempts.Answer, courseId: string, lectureId: string, lectureEventId: string, quizId: string) {
+export async function sendToLectureEvent(studentAnswer: QuizzesAttempts.Answer, courseId: string, lectureId: string, lectureEventId: string) {
+	console.log(JSON.stringify(studentAnswer))
 	const res = await callFunction(LectureQuizzesAttempts.Functions.createLectureQuizAttempt, {
 		courseId: courseId,
-		quizId: quizId,
 		lectureId: lectureId,
 		lectureEventId: lectureEventId,
 		lectureQuizAttempt: studentAnswer
@@ -201,5 +202,6 @@ export async function sendToLectureEvent(studentAnswer: QuizzesAttempts.Answer, 
 		console.log(`OKAY, submitted quiz with id ${res.data.id}`);
 	} else {
 		console.log(`Error while submitting attempt`);
+		console.log(res.error)
 	}
 }

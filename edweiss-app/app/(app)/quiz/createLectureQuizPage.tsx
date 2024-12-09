@@ -65,6 +65,7 @@ const CreateLectureQuizPage: ApplicationRoute = () => {
 			exercise.type == "MCQ" ?
 				{ type: "MCQAnswersIndices", value: exercise.answersIndices } : { type: "TFAnswer", value: exercise.answer }
 
+		console.log("answer : " + JSON.stringify(answer))
 		const newQuiz: LectureQuizzes.LectureQuiz = {
 			exercise: exercise,
 			ended: false,
@@ -80,7 +81,11 @@ const CreateLectureQuizPage: ApplicationRoute = () => {
 			type: "quiz"
 		}
 
-		const res = await callFunction(Quizzes.Functions.createLectureQuiz, { lectureQuiz: newLectureQuiz, courseId: courseId, lectureId: lectureId });
+		const args = { lectureQuiz: newLectureQuiz, courseId: courseId, lectureId: lectureId }
+
+		console.log(JSON.stringify(args));
+
+		const res = await callFunction(Quizzes.Functions.createLectureQuiz, args);
 
 		console.log(res)
 		if (res.status === 1) {

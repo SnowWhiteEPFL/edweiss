@@ -92,7 +92,7 @@ export namespace LectureQuizzesAttempts {
     export type LectureQuizAttempt = QuizzesAttempts.Answer;
 
     export const Functions = FunctionFolder("action", {
-        createLectureQuizAttempt: FunctionOf<{ lectureQuizAttempt: LectureQuizzesAttempts.LectureQuizAttempt; courseId: CourseID; lectureId: string, quizId: string; lectureEventId: string }, { id: string; }, "empty_quizAttempt" | "invalid_name" | "not_authorized">("createLectureQuizAttempt"),
+        createLectureQuizAttempt: FunctionOf<{ lectureQuizAttempt: LectureQuizzesAttempts.LectureQuizAttempt; courseId: CourseID; lectureId: string, lectureEventId: string }, { id: string; }, "empty_quizAttempt" | "invalid_name" | "not_authorized">("createLectureQuizAttempt"),
     });
 }
 

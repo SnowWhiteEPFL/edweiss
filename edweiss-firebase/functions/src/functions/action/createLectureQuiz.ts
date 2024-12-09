@@ -8,21 +8,24 @@ import { fail, ok } from 'utils/status';
 
 export const createLectureQuiz = onSanitizedCall(Quizzes.Functions.createLectureQuiz, {
 	courseId: Predicate.isNonEmptyString,
-	lectureQuiz: CustomPredicateQuiz.isValidLectureQuizEvent, // quiz should be a QuizLectureEvent
+	lectureQuiz: CustomPredicateQuiz.isValidLectureQuizEvent,
 	lectureId: Predicate.isNonEmptyString,
 }, async (userId, args) => {
-	console.log("inside create lecture quiz")
+
 	const thisUser = await getDocument(Collections.users, userId);
 
 	if (thisUser?.type != "professor") {
 		return fail("not_authorized");
 	}
 
-	const assignmentCollection = CollectionOf<LectureDisplay.LectureEvent>("courses/" + args.courseId + "/lectures/" + args.lectureId);
-	// "courses/" + args.courseId + "/assignments"
-	//         createLectureQuiz: FunctionOf < { lectureQuiz: LectureDisplay.F; courseId: CourseID; path: string }
+	const assignmentCollection = CollectionOf<LectureDisplay.LectureEvent>("courses/" + args.courseId + "/lectures/" + args.lectureId + "/lectureEvents");
 
-	const res = await assignmentCollection.add(args.lectureQuiz);
+	try {
+		const res = await assignmentCollection.add(args.lectureQuiz);
 
-	return ok({ id: res.id });
+		return ok({ id: res.id });
+	} catch (e) {
+		return fail("quiz addition failed")
+	}
+
 });

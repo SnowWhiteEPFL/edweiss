@@ -24,7 +24,7 @@ const QuizStudentViewPage: ApplicationRoute = () => {
     const pathToAssignments = "courses/" + courseId + "/assignments"
     const pathToAttempts = pathToAssignments + "/" + quizId + "/attempts";
     const { uid } = useAuth();
-    const [quiz, loading] = usePrefetchedDynamicDoc(CollectionOf<Quizzes.Quiz>(pathToAssignments as string), quizId as string, undefined);
+    const [quiz, loading] = usePrefetchedDynamicDoc(CollectionOf<Quizzes.Quiz>(pathToAssignments), quizId as string, undefined);
     const previousAttempt = useDoc(CollectionOf<QuizzesAttempts.QuizAttempt>(pathToAttempts), uid);
     const [studentAnswers, setStudentAnswers] = useState<QuizzesAttempts.Answer[]>([]);
 
@@ -97,44 +97,44 @@ export default QuizStudentViewPage;
 
 export const QuizDisplay: ReactComponent<{ studentAnswers: QuizzesAttempts.Answer[], exercises: Quizzes.Exercise[], onUpdate: (answer: number[] | boolean | undefined, id: number) => void, send: () => void, testId: string }> = ({ studentAnswers, exercises, onUpdate, send, testId }) => {
     return ( // for now, returns a scroll view instead of the "tiktok" format
-        <>
-            <TSafeArea>
-                <TScrollView testID={testId}>
-                    <TText>
-                        {/*JSON.stringify(studentAnswers.map(a => a.value))*/}
-                    </TText>
-                    <For each={exercises} key={"QuizDisplay"}>
-                        {
-                            (thisExercise, index) => {
-                                if (thisExercise.type == "MCQ" && studentAnswers[index] != undefined) {
 
-                                    return (<MCQDisplay key={thisExercise.question + "display"} exercise={thisExercise} selectedIds={studentAnswers[index].value as number[]} onUpdate={onUpdate} exId={index} />);
-                                }
-                                else if (thisExercise.type == "TF" && studentAnswers[index] != undefined) { // if type == "TF"
-                                    return (<TFDisplay key={thisExercise.question + "display"} exercise={thisExercise} selected={studentAnswers[index].value as boolean | undefined} onUpdate={onUpdate} exId={index} />);
-                                } else {
-                                    return (<ActivityIndicator />);
-                                }
+        <TSafeArea>
+            <TScrollView testID={testId}>
+                <TText>
+                    {/*JSON.stringify(studentAnswers.map(a => a.value))*/}
+                </TText>
+                <For each={exercises} key={"QuizDisplay"}>
+                    {
+                        (thisExercise, index) => {
+                            if (thisExercise.type == "MCQ" && studentAnswers[index] != undefined) {
+
+                                return (<MCQDisplay key={thisExercise.question + "display"} exercise={thisExercise} selectedIds={studentAnswers[index].value as number[]} onUpdate={onUpdate} exId={index} />);
+                            }
+                            else if (thisExercise.type == "TF" && studentAnswers[index] != undefined) { // if type == "TF"
+                                return (<TFDisplay key={thisExercise.question + "display"} exercise={thisExercise} selected={studentAnswers[index].value as boolean | undefined} onUpdate={onUpdate} exId={index} />);
+                            } else {
+                                return (<ActivityIndicator />);
                             }
                         }
-                    </For>
+                    }
+                </For>
 
-                    <FancyButton
-                        mt={"md"} mb={"md"}
-                        onPress={() => {
-                            if (send != undefined) {
-                                send();
-                            }
-                            router.back();
-                        }}
-                        icon='save-sharp'
-                        testID='submit'>
-                        Submit and exit
-                    </FancyButton>
+                <FancyButton
+                    mt={"md"} mb={"md"}
+                    onPress={() => {
+                        if (send != undefined) {
+                            send();
+                        }
+                        router.back();
+                    }}
+                    icon='save-sharp'
+                    testID='submit'>
+                    Submit and exit
+                </FancyButton>
 
-                </TScrollView>
-            </TSafeArea >
-        </>
+            </TScrollView>
+        </TSafeArea >
+
     );
 };
 

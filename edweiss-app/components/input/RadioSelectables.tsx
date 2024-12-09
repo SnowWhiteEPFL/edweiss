@@ -5,18 +5,18 @@ import TTouchableOpacity from '../core/containers/TTouchableOpacity'
 import TView from '../core/containers/TView'
 
 export interface RadioSelectable<ValueType> {
-	value: ValueType,
-	label: string
-	description?: string
-	inlineDescription?: string
+	readonly value: ValueType,
+	readonly label: string
+	readonly description?: string
+	readonly inlineDescription?: string
 }
 
 interface SelectablesProps<ValueType> {
-	value: ValueType | undefined,
-	data: RadioSelectable<ValueType>[],
-	onSelection: (value: ValueType) => void,
-	hasInlineDescription?: boolean,
-	disabled?: boolean
+	readonly value: ValueType | undefined,
+	readonly data: RadioSelectable<ValueType>[],
+	readonly onSelection: (value: ValueType) => void,
+	readonly hasInlineDescription?: boolean,
+	readonly disabled?: boolean
 }
 
 function RadioSelectables<ValueType>(props: SelectablesProps<ValueType>) {
