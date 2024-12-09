@@ -42,12 +42,12 @@ const TViewWithRef = forwardRef<View, ViewProps>((props, ref) => (
  * @returns {ApplicationRoute} Screen to test the user's knowledge of the deck
  */
 const TestYourMightScreen: ApplicationRoute = () => {
-	const { id, indices } = useStringParameters(); // Get deckId from params
+	const { deckId, indices } = useStringParameters(); // Get deckdeckId from params
 	const [currentCardIndex, setCurrentCardIndex] = useState(0);
 	const [currentCardIndices, setCurrentCardIndices] = useState((indices ? JSON.parse(indices) : []) as number[]);
 	const modalRef = useRef<BottomSheetModal>(null); // Reference for the modal
 
-	const [deck] = useRepositoryDocument(id, DecksRepository);
+	const [deck] = useRepositoryDocument(deckId, DecksRepository);
 
 	const cards = deck?.data.cards;
 
@@ -131,7 +131,7 @@ const TestYourMightScreen: ApplicationRoute = () => {
 					<PanGestureHandler onHandlerStateChange={handleGesture} testID='pan-gesture'>
 						<TViewWithRef style={{ flex: 1 }}>
 							<CardScreenComponent
-								deckId={id}
+								deckId={deckId}
 								cardIndex={sanitizedCardIndices[currentCardIndex]}
 								currentCardIndices={currentCardIndices}
 								setCurrentCardIndices={setCurrentCardIndices}
