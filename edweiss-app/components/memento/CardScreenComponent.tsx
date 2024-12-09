@@ -12,13 +12,14 @@
 
 import ReactComponent from '@/constants/Component';
 
+import { CreateEditCardScreenSignature } from '@/app/(app)/deck/[id]/card';
 import { DecksRepository } from '@/app/(app)/deck/_layout';
 import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
+import { pushWithParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
 import { mementoStatusColorMap, mementoStatusIconMap } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { State, TapGestureHandler } from 'react-native-gesture-handler';
@@ -117,8 +118,7 @@ const CardScreenComponent: ReactComponent<{
         })
     }
 
-    //const editCard = () => { router.push({ pathname: `/deck/${deckId}/card/edition` as any, params: { deckId: deckId, prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex } }) }
-    const editCard = () => { router.push({ pathname: `/deck/${deckId}/card/` as any, params: { deckId: deckId, mode: "Edit", prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex, currentCardIndices: currentCardIndices } }) }
+    const editCard = () => { pushWithParameters(CreateEditCardScreenSignature, { deckId: deckId, mode: "Edit", prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex }) }
 
     // Update card
     async function updateCard(new_learning_status: Memento.LearningStatus) {
@@ -134,12 +134,9 @@ const CardScreenComponent: ReactComponent<{
             {!isModal && <RouteHeader
                 title='Test Your Might!'
                 right={
-                    <>
-                        <TTouchableOpacity testID='toggleButton' onPress={() => { setShowDropdown(true); modalRef_Operation.current?.present() }}>
-                            <Icon name='settings' color='darkBlue' size={25} />
-                        </TTouchableOpacity>
-                        {/*<Button color={'black'} testID='toggleButton' onPress={() => { setShowDropdown(true); modalRef_Operation.current?.present() }} title='⋮' />*/}
-                    </>
+                    <TTouchableOpacity testID='toggleButton' onPress={() => { setShowDropdown(true); modalRef_Operation.current?.present() }}>
+                        <Icon name='settings' color='darkBlue' size={25} />
+                    </TTouchableOpacity>
                 }
             />}
 

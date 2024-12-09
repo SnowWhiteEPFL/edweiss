@@ -11,10 +11,10 @@
 import { CardModalDisplay } from '@/components/memento/ModalDisplay';
 import { callFunction } from '@/config/firebase';
 import { RepositoryHandler } from '@/hooks/repository';
+import { pushWithParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { fireEvent, render } from '@testing-library/react-native';
-import { router } from 'expo-router';
 import React from 'react';
 
 // ------------------------------------------------------------
@@ -48,6 +48,10 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
     setItem: jest.fn(),
     getItem: jest.fn(),
     removeItem: jest.fn(),
+    getAllKeys: jest.fn(() => Promise.resolve([])),
+    multiGet: jest.fn((keys) => Promise.resolve(keys.map((key: string) => [key, 'value']))),
+    multiSet: jest.fn(() => Promise.resolve()),
+    multiRemove: jest.fn(() => Promise.resolve()),
 }));
 
 // Mock Firebase functions and firestore
@@ -78,6 +82,10 @@ jest.mock('@gorhom/bottom-sheet', () => ({
         <div>{children}</div>
     )),
     BottomSheetBackdrop: jest.fn(),
+}));
+
+jest.mock('@/hooks/routeParameters', () => ({
+    pushWithParameters: jest.fn(),
 }));
 
 // ------------------------------------------------------------
@@ -139,7 +147,7 @@ describe('CardModal', () => {
         expect(editButton).toBeTruthy();
 
         fireEvent.press(editButton)
-        expect(router.push).toHaveBeenCalledWith({ pathname: "/deck/1/card/", params: { deckId: '1', mode: "Edit", prev_question: 'Question 1', prev_answer: 'Answer 1', cardIndex: 0 } });
+        expect(pushWithParameters).toHaveBeenCalledWith({ path: "/deck/[id]/card" }, { deckId: '1', mode: "Edit", prev_question: 'Question 1', prev_answer: 'Answer 1', cardIndex: 0 });
 
     });
 });

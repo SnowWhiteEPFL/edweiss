@@ -71,6 +71,11 @@ jest.mock('expo-router', () => ({
 	useLocalSearchParams: jest.fn(() => ({ deckId: '1', mode: 'Edit', prev_question: 'Question 0', prev_answer: 'Answer 0', cardIndex: '0' })),
 }));
 
+jest.mock('@/hooks/routeParameters', () => ({
+	useRouteParameters: jest.fn(() => ({ deckId: '1', mode: 'Edit', prev_question: 'Question 0', prev_answer: 'Answer 0', cardIndex: 0 })),
+	pushWithParameters: jest.fn(),
+}));
+
 // Mock Firebase functions and firestore
 jest.mock('@/config/firebase', () => ({
 	callFunction: jest.fn(),

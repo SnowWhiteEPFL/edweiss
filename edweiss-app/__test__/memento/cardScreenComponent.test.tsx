@@ -10,10 +10,10 @@
 
 import CardScreenComponent from '@/components/memento/CardScreenComponent';
 import { callFunction } from '@/config/firebase';
+import { pushWithParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
-import { router } from 'expo-router';
 import React from 'react';
 import { State } from 'react-native-gesture-handler';
 import { RepositoryMock } from '../__mocks__/repository';
@@ -82,6 +82,10 @@ jest.mock('expo-router', () => ({
     },
     //useLocalSearchParams: jest.fn(),
     useLocalSearchParams: jest.fn(() => ({ id: '1' })),
+}));
+
+jest.mock('@/hooks/routeParameters', () => ({
+    pushWithParameters: jest.fn(),
 }));
 
 // Mock BottomSheet modal
@@ -181,11 +185,12 @@ describe('CardScreen', () => {
         const editButton = getByText('Edit this card!');
 
         fireEvent.press(editButton);
-        expect(router.push).toHaveBeenCalledWith({
+        /*expect(router.push).toHaveBeenCalledWith({
             pathname: "/deck/1/card/", params: {
                 deckId: '1', currentCardIndices: [0, 1], mode: "Edit", prev_question: 'Question 1', prev_answer: 'Answer 1', cardIndex: 0
             }
-        });
+        });*/
+        expect(pushWithParameters).toHaveBeenCalledWith({ path: "/deck/[id]/card" }, { deckId: '1', mode: "Edit", prev_question: 'Question 1', prev_answer: 'Answer 1', cardIndex: 0 });
     });
 
     it('should call toggleFlip on question tap', () => {

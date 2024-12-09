@@ -57,8 +57,12 @@ jest.mock('expo-router', () => ({
             </>  // Render the right prop directly for testing
         )),
     },
-    //useLocalSearchParams: jest.fn(),
     useLocalSearchParams: jest.fn(() => ({ deckId: '1', mode: 'Create', prev_question: '', prev_answer: '', cardIndex: 'None' })),
+}));
+
+jest.mock('@/hooks/routeParameters', () => ({
+    useRouteParameters: jest.fn(() => ({ deckId: '1', mode: 'Create', prev_question: '', prev_answer: '', cardIndex: 'None' })),
+    pushWithParameters: jest.fn(),
 }));
 
 RepositoryMock.mockRepository<Memento.Deck>([{ name: 'Deck 1', cards: [card1, card2] }]);

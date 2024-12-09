@@ -8,12 +8,13 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
+import { CreateEditCardScreenSignature } from '@/app/(app)/deck/[id]/card';
 import { callFunction } from '@/config/firebase';
 import ReactComponent from '@/constants/Component';
 import { RepositoryHandler } from '@/hooks/repository';
+import { pushWithParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import TView from '../core/containers/TView';
@@ -78,7 +79,7 @@ export const CardModalDisplay: ReactComponent<{
                         style={{ position: 'absolute', alignSelf: 'flex-end' }}
                         onPress={() => {
                             modalRef.current?.dismiss();
-                            router.push({ pathname: `/deck/${id}/card/` as any, params: { deckId: id, mode: "Edit", prev_question: card?.question, prev_answer: card?.answer, cardIndex: absolute_index } })
+                            pushWithParameters(CreateEditCardScreenSignature, { deckId: id, mode: "Edit", prev_question: card?.question, prev_answer: card?.answer, cardIndex: absolute_index });
                         }}
                     >
                         <Icon testID={`status_icon ${absolute_index}`} name={'pencil'} color={'darkBlue'} size={'lg'} mr={'lg'} />

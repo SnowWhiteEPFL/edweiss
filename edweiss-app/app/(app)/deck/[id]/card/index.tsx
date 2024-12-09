@@ -24,7 +24,7 @@ import FancyTextInput from '@/components/input/FancyTextInput';
 import { callFunction } from '@/config/firebase';
 import { iconSizes } from '@/constants/Sizes';
 import { useRepositoryDocument } from '@/hooks/repository';
-import { useStringParameters } from '@/hooks/routeParameters';
+import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
 import { checkDupplication_EmptyField } from '@/utils/memento/utilsFunctions';
 import { router } from 'expo-router';
@@ -36,6 +36,16 @@ import { DecksRepository } from '../../_layout';
 // ----------------- CreateCardScreen Component ----------------
 // ------------------------------------------------------------
 
+export const CreateEditCardScreenSignature: ApplicationRouteSignature<{
+    deckId: string,
+    mode: string,
+    prev_question: string,
+    prev_answer: string,
+    cardIndex: number
+}> = {
+    path: "/deck/[id]/card"
+};
+
 /**
  * Create or edit card screen
  * User can create a new card or edit an existing card with a question and an answer
@@ -43,7 +53,7 @@ import { DecksRepository } from '../../_layout';
  * @returns {ApplicationRoute} Screen to create or edit a card
  */
 const CreateEditCardScreen: ApplicationRoute = () => {
-    const { deckId, mode, prev_question, prev_answer, cardIndex } = useStringParameters();
+    const { deckId, mode, prev_question, prev_answer, cardIndex } = useRouteParameters(CreateEditCardScreenSignature);
     const [question, setQuestion] = useState(prev_question);
     const [answer, setAnswer] = useState(prev_answer);
     const [existedQuestion, setExistedQuestion] = useState(false);
@@ -54,9 +64,7 @@ const CreateEditCardScreen: ApplicationRoute = () => {
 
     const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
 
-    const cardIndexInt = cardIndex ? parseInt(cardIndex.toString()) : 0;
-
-    const card = deck?.data.cards[cardIndexInt];
+    const card = deck?.data.cards[cardIndex]; // changed
 
     const error_selected = existedQuestion ? 'Question already exists' : emptyField ? 'Please fill in all fields' : undefined;
 
@@ -106,12 +114,12 @@ const CreateEditCardScreen: ApplicationRoute = () => {
         ) == 0) return;
 
         const newCards = deck.data.cards;
-        newCards[cardIndexInt] = { ...card, question: new_Question, answer: new_Answer };
+        newCards[cardIndex] = { ...card, question: new_Question, answer: new_Answer }; // changed
 
         handler.modifyDocument(deckId, {
             cards: newCards
         }, (deckId) => {
-            callFunction(Memento.Functions.updateCard, { deckId, newCard: { ...card, question: new_Question, answer: new_Answer }, cardIndex: cardIndexInt });
+            callFunction(Memento.Functions.updateCard, { deckId, newCard: { ...card, question: new_Question, answer: new_Answer }, cardIndex: cardIndex }); // changed
         });
 
         router.back();

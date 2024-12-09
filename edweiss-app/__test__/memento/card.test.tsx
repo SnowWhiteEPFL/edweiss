@@ -14,11 +14,12 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import { CardListDisplay } from '@/components/memento/CardListDisplayComponent';
 import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
+import { pushWithParameters, useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
 import { sortingCards } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { fireEvent, render } from '@testing-library/react-native';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import React from 'react';
 import { Button } from 'react-native';
 import { State } from 'react-native-gesture-handler';
@@ -88,6 +89,12 @@ jest.mock('expo-router', () => ({
 	},
 	//useLocalSearchParams: jest.fn(),
 	useLocalSearchParams: jest.fn(() => ({ id: '1' })),
+}));
+
+jest.mock('@/hooks/routeParameters', () => ({
+	useRouteParameters: jest.fn(() => ({ deckId: '1', mode: 'Create', prev_question: '', prev_answer: '', cardIndex: 'None' })),
+	pushWithParameters: jest.fn(),
+	useStringParameters: jest.fn(() => ({ id: '1' }))
 }));
 
 // Mock BottomSheet modal
@@ -203,7 +210,7 @@ describe('CardListScreen', () => {
 		const createButton = getByText('Create Card');
 
 		fireEvent.press(createButton);
-		expect(router.push).toHaveBeenCalledWith({ pathname: "/deck/1/card/", params: { deckId: '1', cardIndex: 'None', mode: 'Create', prev_question: "", prev_answer: "" } });
+		expect(pushWithParameters).toHaveBeenCalledWith({ path: "/deck/[id]/card" }, { deckId: '1', cardIndex: NaN, mode: 'Create', prev_question: "", prev_answer: "" });
 	});
 
 	it('can delete a deck', () => {
@@ -337,7 +344,7 @@ describe('TestYourMightScreen', () => {
 	});
 
 	it('should increment currentCardIndex on left swipe', () => {
-		(useLocalSearchParams as jest.Mock).mockReturnValue({ id: '1', indices: JSON.stringify([0, 1]) });
+		(useStringParameters as jest.Mock).mockReturnValue({ deckId: '1', indices: JSON.stringify([0, 1]) });
 		const { getByTestId, getByText } = render(<TestYourMightScreen />);
 		const panGesture = getByTestId('pan-gesture');
 

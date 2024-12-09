@@ -24,13 +24,14 @@ import { DeleteOptionModalDisplay } from '@/components/memento/DeleteDeckModalAc
 import { CardModalDisplay } from '@/components/memento/ModalDisplay';
 import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
-import { useStringParameters } from '@/hooks/routeParameters';
+import { pushWithParameters, useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
 import { selectedCardIndices_play, sortingCards } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Redirect, router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { DecksRepository } from '../_layout';
+import { CreateEditCardScreenSignature } from './card';
 
 /**
  * CardListScreen
@@ -146,8 +147,6 @@ const CardListScreen: ApplicationRoute = () => {
 						>
 							<Icon name={'trash'} size={30} />
 						</TTouchableOpacity>
-
-						{/*<Button color={'black'} testID='toggleButton' onPress={() => { setShowDropdown(true); modalRef_Operation.current?.present() }} title='⋮' />*/}
 					</>
 				}
 			/>
@@ -228,8 +227,7 @@ const CardListScreen: ApplicationRoute = () => {
 					textColor='crust'
 					onPress={() => {
 						setShowDropdown(false);
-						//router.push({ pathname: `/deck/${id}/card/creation` as any, params: { deckId: id } })
-						router.push({ pathname: `/deck/${id}/card/` as any, params: { deckId: id, mode: "Create", prev_question: "", prev_answer: "", cardIndex: "None" } })
+						pushWithParameters(CreateEditCardScreenSignature, { deckId: id, mode: "Create", prev_question: "", prev_answer: "", cardIndex: NaN });
 					}}
 					icon='create-outline'
 				>
