@@ -9,9 +9,11 @@ export const createDeck = onSanitizedCall(Memento.Functions.createDeck, {
 	deck: Predicate.fields({
 		name: Predicate.isNonEmptyString,
 		cards: Predicate.forEach(CustomPredicateMemento.isValidCard)
-	})
+	}),
+	courseId: Predicate.isNonEmptyString
 }, async (userId, args) => {
-	const deckCollection = CollectionOf<Memento.Deck>("decks");
+	//const deckCollection = CollectionOf<Memento.Deck>("decks");
+	const deckCollection = CollectionOf<Memento.Deck>(`courses/${args.courseId}/decks`);
 
 	const res = await deckCollection.add(args.deck);
 

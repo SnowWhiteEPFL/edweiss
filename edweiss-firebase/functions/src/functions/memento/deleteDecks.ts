@@ -5,9 +5,10 @@ import { Predicate } from 'utils/sanitizer';
 import { ok } from 'utils/status';
 
 export const deleteDecks = onSanitizedCall(Memento.Functions.deleteDecks, {
-    deckIds: Predicate.isNonEmptyArray
+    deckIds: Predicate.isNonEmptyArray,
+    courseId: Predicate.isNonEmptyString
 }, async (userId, args) => {
-    const deckCollection = CollectionOf<Memento.Deck>("decks");
+    const deckCollection = CollectionOf<Memento.Deck>(`courses/${args.courseId}/decks`);
     for (const deckId of args.deckIds) {
         await deckCollection.doc(deckId).delete();
     }
