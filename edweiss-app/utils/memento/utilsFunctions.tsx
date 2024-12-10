@@ -78,18 +78,15 @@ export const checkDupplication_EmptyField = (
     isEmptyField: boolean,
     setExistedQuestion: (value: React.SetStateAction<boolean>) => void,
     setEmptyField: (value: React.SetStateAction<boolean>) => void,
-    setIsLoading: (value: React.SetStateAction<boolean>) => void
 ) => {
     if (isDupplicate) {
         setExistedQuestion(true);
-        setIsLoading(false);
         if (isEmptyField) setEmptyField(true);
         return 0;  // Prevent creation if a duplicate is found
     }
 
     if (isEmptyField) {
         setEmptyField(true);
-        setIsLoading(false);
         return 0;
     }
 
