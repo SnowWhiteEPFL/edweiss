@@ -12,15 +12,14 @@
 
 import ReactComponent from '@/constants/Component';
 
-import { CreateEditCardScreenSignature } from '@/app/(app)/deck/[id]/card';
-import { DecksRepository } from '@/app/(app)/deck/_layout';
+import { DecksRepository } from '@/app/(app)/courses/[id]/deck/_layout';
 import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
-import { pushWithParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
+import { CourseID } from '@/model/school/courses';
 import { mementoStatusColorMap, mementoStatusIconMap } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { State, TapGestureHandler } from 'react-native-gesture-handler';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -31,7 +30,7 @@ import Icon from '../core/Icon';
 import RichText from '../core/rich-text/RichText';
 import TText from '../core/TText';
 import FancyButton from '../input/FancyButton';
-import { OptionCardModalDisplay } from './OptionCardModalAction';
+import CreateDeleteEditCardModal from './CreateDeleteEditCardModal';
 
 // ------------------------------------------------------------
 // ---------------- CardScreenComponent Component -------------
@@ -49,18 +48,16 @@ import { OptionCardModalDisplay } from './OptionCardModalAction';
  * @returns {ReactComponent} Screen to see a card
  */
 const CardScreenComponent: ReactComponent<{
+    courseId: CourseID,
     deckId: string,
     cardIndex: number;
     currentCardIndices: number[]
     setCurrentCardIndices: React.Dispatch<React.SetStateAction<number[]>>
-    isModal?: boolean;
-    modalRef: React.RefObject<BottomSheetModal>
-}> = ({ deckId, cardIndex, currentCardIndices, setCurrentCardIndices, isModal, modalRef }) => {
+}> = ({ courseId, deckId, cardIndex, currentCardIndices, setCurrentCardIndices }) => {
 
     const [showDropdown, setShowDropdown] = useState(false); // State for dropdown visibility
     const [isFlipped, setIsFlipped] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const modalRef_Operation = useRef<BottomSheetModal>(null); // Reference for the modal
 
     const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
 
@@ -91,8 +88,6 @@ const CardScreenComponent: ReactComponent<{
 
     const card = cards[cardIndex];
 
-    const toggleDropDown = () => { setShowDropdown(prev => !prev); }; // Open/close dropdown
-
     // Flip card animation
     const toggleFlip = () => {
         rotation.value = withTiming(
@@ -109,38 +104,34 @@ const CardScreenComponent: ReactComponent<{
 
     // Delete card
     const deleteCard = async () => {
+        console.log("I am called to delete card. I am a special deletion function");
         handler.modifyDocument(deckId, { cards: cards.filter((_, index) => index != cardIndex) }, (deckId) => {
-            callFunction(Memento.Functions.deleteCards, { deckId: deckId, cardIndices: [cardIndex] });
+            callFunction(Memento.Functions.deleteCards, { deckId: deckId, cardIndices: [cardIndex], courseId: courseId });
             console.log(`Card deleted with index ${cardIndex}`);
             const newCardIndices = currentCardIndices.filter((index) => index != cardIndex).map((index) => index > cardIndex ? index - 1 : index);
             setCurrentCardIndices(newCardIndices);
-            modalRef_Operation.current?.dismiss();
         })
     }
-
-    const editCard = () => { pushWithParameters(CreateEditCardScreenSignature, { deckId: deckId, mode: "Edit", prev_question: card?.question, prev_answer: card?.answer, cardIndex: cardIndex }) }
 
     // Update card
     async function updateCard(new_learning_status: Memento.LearningStatus) {
         if (!card) return;
 
         handler.modifyDocument(deckId, { cards: cards.map((c, index) => index == cardIndex ? { ...c, learning_status: new_learning_status } : c) }, (deckId) => {
-            callFunction(Memento.Functions.updateCard, { deckId: deckId as any, newCard: { ...card, learning_status: new_learning_status }, cardIndex: cardIndex });
+            callFunction(Memento.Functions.updateCard, { deckId: deckId as any, newCard: { ...card, learning_status: new_learning_status }, cardIndex: cardIndex, courseId: courseId });
         });
     }
 
     return (
-        <TView style={isModal ? styles.modalContainer : styles.container}>
-            {!isModal && <RouteHeader
+        <TView style={styles.container}>
+            <RouteHeader
                 title='Test Your Might!'
                 right={
-                    <TTouchableOpacity testID='toggleButton' onPress={() => { setShowDropdown(true); modalRef_Operation.current?.present() }}>
+                    <TTouchableOpacity testID='toggleButton' onPress={() => { setShowDropdown(true); }}>
                         <Icon name='settings' color='darkBlue' size={25} />
                     </TTouchableOpacity>
                 }
-            />}
-
-            <OptionCardModalDisplay modalRef={modalRef_Operation} toggleDropDown={showDropdown} deleteCard={deleteCard} editCard={editCard} />
+            />
 
             <TapGestureHandler
                 testID='flipCardToSeeAnswer'
@@ -149,7 +140,7 @@ const CardScreenComponent: ReactComponent<{
                         toggleFlip();
                     }
                 }}>
-                <Animated.View testID={'cardQuestionFace'} style={[isModal ? styles.modalCard : styles.cardContainer, fronCardStyle]}>
+                <Animated.View testID={'cardQuestionFace'} style={[styles.cardContainer, fronCardStyle]}>
                     {/*<TText mr={10} ml={10} size={20} ellipsizeMode='tail' style={{ textAlign: 'center', fontSize: calculateFontSize(card?.question ?? ""), lineHeight: calculateFontSize(card?.question ?? "") * 1.2 }}>
                         {card.question}
                     </TText>*/}
@@ -176,12 +167,14 @@ const CardScreenComponent: ReactComponent<{
                     {<RichText color='text' px={'sm'} >
                         {card.answer}
                     </RichText>}
+                    <RichText color='text'>
+                        {card.answer}
+                    </RichText>
                     <TText style={{ position: 'absolute', top: '2%', right: '2%' }} >
                         <Icon name={mementoStatusIconMap[card.learning_status]} color={mementoStatusColorMap[card.learning_status]} size={25} />
                     </TText>
                 </Animated.View>
             </TapGestureHandler>
-
 
             {/* Buttons container */}
             <TView style={styles.buttonContainer}>
@@ -189,13 +182,14 @@ const CardScreenComponent: ReactComponent<{
                     <FancyButton
                         testID='notYetButton'
                         loading={isLoading}
-                        backgroundColor='red'
+                        backgroundColor='transparent'
+                        textColor='red'
                         onPress={async () => {
                             setIsLoading(true);
                             await updateCard("Not yet");
                             setIsLoading(false);
                         }}
-                        style={{ width: '100%', height: '100%' }} // Make button fill its half
+                        style={{ width: '100%', height: '100%', borderColor: '#d20f39' }} // Make button fill its half
                         icon='close-sharp'
                     >
                         Not yet
@@ -205,21 +199,34 @@ const CardScreenComponent: ReactComponent<{
                     <FancyButton
                         loading={isLoading}
                         testID='gotItButton'
-                        backgroundColor='green'
+                        backgroundColor='transparent'
+                        textColor='green'
                         onPress={async () => {
                             setIsLoading(true);
                             await updateCard("Got it");
                             setIsLoading(false);
                         }}
-                        style={{ width: '100%', height: '100%' }} // Make button fill its half
+                        style={{ width: '100%', height: '100%', borderColor: '#40a02b' }} // Make button fill its half
                         icon='checkmark-sharp'
                     >
                         Got it!
                     </FancyButton>
                 </TView>
-                {isModal && <FancyButton icon='settings-sharp' backgroundColor='transparent' style={{ alignSelf: 'flex-end' }} onPress={toggleDropDown} />}
 
             </TView>
+
+            {/* Modal */}
+            {card && <CreateDeleteEditCardModal
+                courseId={courseId}
+                deckId={deckId}
+                mode='Edit'
+                prev_question={card.question}
+                prev_answer={card.answer}
+                cardIndex={cardIndex}
+                visible={showDropdown}
+                setVisible={setShowDropdown}
+                specialDeleteCard={deleteCard}
+            />}
 
         </TView >
     );
@@ -241,17 +248,6 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: '20%',
-    },
-    modalCard: {
-        width: '70%',
-        height: '75%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'white',
-        borderRadius: 20,
-        borderColor: 'crust',
-        backfaceVisibility: 'hidden',
-        top: '-2%',
     },
     cardContainer: {
         width: '70%',
