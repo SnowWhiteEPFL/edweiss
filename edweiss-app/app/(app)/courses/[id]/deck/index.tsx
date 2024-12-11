@@ -21,7 +21,9 @@ import { callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
 import { useRepository } from '@/hooks/repository';
+import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
+import { CourseID } from '@/model/school/courses';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { DecksRepository } from './_layout';
@@ -36,6 +38,8 @@ import { DecksRepository } from './_layout';
  * @returns {ApplicationRoute} DeckScreen component
  */
 const DeckScreen: ApplicationRoute = () => {
+	const { id: courseId } = useStringParameters();
+
 	const [deckName, setDeckName] = useState("");
 	const [existedDeckName, setExistedDeckName] = useState(false);
 	const [selectedDecks, setSelectedDecks] = useState<Memento.Deck[]>([]);
@@ -60,7 +64,7 @@ const DeckScreen: ApplicationRoute = () => {
 			name: deckName,
 			cards: []
 		}
-		handler.addDocument(deck, callFunction(Memento.Functions.createDeck, { deck }));
+		handler.addDocument(deck, callFunction(Memento.Functions.createDeck, { deck, courseId }));
 		setDeckName(""); // Clear the input field after successful creation
 
 	}
@@ -87,7 +91,7 @@ const DeckScreen: ApplicationRoute = () => {
 
 		const deckIds = selectedDecks.map(deck => decks?.filter(d => d.data.name === deck.name)[0].id) as string[];
 
-		handler.deleteDocuments(deckIds, (ids) => { callFunction(Memento.Functions.deleteDecks, { deckIds: ids }) });
+		handler.deleteDocuments(deckIds, (ids) => { callFunction(Memento.Functions.deleteDecks, { deckIds: ids, courseId: courseId }) });
 
 		setSelectedDecks([]); // Clear selection after deletion
 		setSelectionMode(false); // Exit selection mode
@@ -151,7 +155,8 @@ const DeckScreen: ApplicationRoute = () => {
 					<DeckDisplay
 						key={deck.id}
 						deck={deck.data}
-						id={deck.id}
+						courseId={courseId}
+						deckId={deck.id}
 						isSelected={selectedDecks.some(selected => selected.name === deck.data.name)}
 						toggleSelection={toggleDeckSelection}
 						onLongPress={enterSelectionMode}
@@ -180,10 +185,10 @@ export default DeckScreen;
  * @param selectionMode: boolean indicating if the selection mode is active
  * @returns deck display component
  */
-export const DeckDisplay: ReactComponent<{ deck: Memento.Deck, id: string; isSelected: boolean; toggleSelection: (deck: Memento.Deck) => void; onLongPress: () => void; selectionMode: boolean; }> = ({ deck, id, isSelected, toggleSelection, onLongPress, selectionMode }) => {
+export const DeckDisplay: ReactComponent<{ deck: Memento.Deck, courseId: CourseID, deckId: string; isSelected: boolean; toggleSelection: (deck: Memento.Deck) => void; onLongPress: () => void; selectionMode: boolean; }> = ({ deck, courseId, deckId, isSelected, toggleSelection, onLongPress, selectionMode }) => {
 	const handlePress = () => {
 		if (!selectionMode) {
-			router.push(`/deck/${id}`);
+			router.push(`courses/${courseId}/deck/${deckId}` as any);
 		} else {
 			toggleSelection(deck);  // Only toggle selection if we're in selection mode
 		}
