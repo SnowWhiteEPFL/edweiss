@@ -86,16 +86,15 @@ export const TranscriptModeModal: ReactComponent<{
                                         </TTouchableOpacity>
                                     </>
 
-
                                 );
                             })}
                     </TView>
 
+                    <FancyButton backgroundColor='subtext0' m='md' mb='lg' onPress={onClose} outlined testID='trad-mode-sel-close-button'>
+                        {t('showtime:close_btn')}
+                    </FancyButton>
                 </TScrollView>
 
-                <FancyButton backgroundColor='subtext0' m='md' onPress={onClose} outlined testID='trad-mode-sel-close-button'>
-                    {t('showtime:close_btn')}
-                </FancyButton>
             </>
         </ModalContainer >
     );

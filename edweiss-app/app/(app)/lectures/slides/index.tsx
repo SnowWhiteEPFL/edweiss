@@ -176,7 +176,6 @@ const LectureScreen: ApplicationRoute = () => {
                     onPress={() => modalRefTranscriptMode.current?.present()}
                     testID='st-trans-mode-sel-button'>
                     <Icon size={'xl'} name='language-outline' color='text'></Icon>
-                    <TText>{transMode}</TText>
                 </TTouchableOpacity>
 
             </TView>
