@@ -20,6 +20,7 @@ namespace LectureDisplay {
 
 	export type LectureEvents = "quiz";
 	export type AvailableLangs = "english" | "french" | "spanish" | "italian" | "german" | "brazilian" | "arabic" | "chinese" | "vietanames" | "hindi";
+	export type TranscriptLangMode = 'original' | AvailableLangs;
 
 	interface LectureEventBase {
 		type: LectureEvents;
