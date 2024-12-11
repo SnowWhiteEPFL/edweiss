@@ -176,6 +176,7 @@ const LectureScreen: ApplicationRoute = () => {
                     onPress={() => modalRefTranscriptMode.current?.present()}
                     testID='st-trans-mode-sel-button'>
                     <Icon size={'xl'} name='language-outline' color='text'></Icon>
+                    <TText>{transMode}</TText>
                 </TTouchableOpacity>
 
             </TView>
@@ -240,7 +241,7 @@ const LectureScreen: ApplicationRoute = () => {
             }
 
             {/* Modal */}
-            <TranscriptModeModal modalRef={modalRefTranscriptMode} mode={transMode} setTransMode={setTransMode} onClose={() => modalRefTranscriptMode.current?.close()} />
+            <TranscriptModeModal modalRef={modalRefTranscriptMode} mode={transMode} setTransMode={setTransMode} handleClose={() => modalRefTranscriptMode.current?.close()} />
 
         </>
     );

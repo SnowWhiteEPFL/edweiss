@@ -10,12 +10,15 @@
 // ------------------------------------------------------------
 
 import TScrollView from '@/components/core/containers/TScrollView';
+import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
+import Icon from '@/components/core/Icon';
 import ModalContainer from '@/components/core/modal/ModalContainer';
 import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
 import ReactComponent from '@/constants/Component';
 import LectureDisplay from '@/model/lectures/lectureDoc';
+import { transModeIconMap, transModeNameMap } from '@/utils/lectures/slides/utilsFunctions';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { t } from 'i18next';
 import React, { useState } from 'react';
@@ -32,8 +35,13 @@ export const TranscriptModeModal: ReactComponent<{
     modalRef: React.RefObject<BottomSheetModalMethods>;
     mode: TranscriptLangMode;
     setTransMode: (mode: TranscriptLangMode) => void;
-    onClose: () => void;
-}> = ({ modalRef, mode, setTransMode, onClose }) => {
+    handleClose: () => void;
+}> = ({ modalRef, mode, setTransMode, handleClose }) => {
+
+    const onClose = () => {
+        setTransMode(tmpSelectedMode);
+        handleClose();
+    };
 
     const [tmpSelectedMode, setTmpSelectedMode] = useState(mode); // Selected Mode Hook
 
@@ -45,31 +53,51 @@ export const TranscriptModeModal: ReactComponent<{
                 </TView>
 
                 <TScrollView>
-                    <TView justifyContent='center' alignItems='center'>
-                        <TView>
-                            {(['original',
-                                'english',
-                                'french',
-                                'german',
-                                'spanish',
-                                'italian',
-                                'brazilian',
-                                'arabic',
-                                'chinese',
-                                'vietanames',
-                                'hindi'] as TranscriptLangMode[]).map((language, index, array) => {
-                                    return <TText p='sm'>{language}</TText>;
-                                })}
-                        </TView>
+
+                    <TView>
+                        {(['original',
+                            'english',
+                            'french',
+                            'german',
+                            'spanish',
+                            'italian',
+                            'brazilian',
+                            'arabic',
+                            'chinese',
+                            'vietanames',
+                            'hindi'] as TranscriptLangMode[]).map((mode, index) => {
+                                return (
+                                    <>
+
+                                        <TTouchableOpacity onPress={() => setTmpSelectedMode(mode)} ml='lg' mr='md'>
+                                            <TView flexDirection='row' alignItems='center' pb={'sm'}>
+                                                <Icon
+                                                    name={tmpSelectedMode === mode ? 'checkbox-outline' : 'square-outline'}
+                                                    color={tmpSelectedMode === mode ? 'green' : 'text'}
+                                                    size={25}
+                                                />
+
+                                                <TText ml='md' color={tmpSelectedMode === mode ? 'text' : 'surface0'}>
+                                                    {transModeIconMap[mode]} {transModeNameMap[mode]}
+                                                </TText>
+
+                                            </TView >
+
+                                        </TTouchableOpacity>
+                                    </>
+
+
+                                );
+                            })}
                     </TView>
 
                 </TScrollView>
 
                 <FancyButton backgroundColor='subtext0' m='md' onPress={onClose} outlined testID='trad-mode-sel-close-button'>
-                    {t('todo:close_btn')}
+                    {t('showtime:close_btn')}
                 </FancyButton>
             </>
-        </ModalContainer>
+        </ModalContainer >
     );
 };
 
