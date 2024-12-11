@@ -57,8 +57,8 @@ const CreateDeleteEditCardModal: ReactComponent<{
         if (!deck) return
 
         if (checkDupplication_EmptyField(
-            deck.data.cards.some(card => card.question === question),
-            question.length == 0 || answer.length == 0,
+            deck.data.cards.some(card => card.question.trim === question.trim),
+            question.trim.length == 0 || answer.trim.length == 0,
             setExistedQuestion,
             setEmptyField,
         ) == 0) {
