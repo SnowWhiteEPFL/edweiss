@@ -17,6 +17,10 @@ export interface CourseTimePeriod extends CyclicTimePeriod {
 	type: CourseTimePeriodType;
 }
 
+export const MAX_COURSE_NAME_LENGTH = 30;
+export const MAX_COURSE_DESCRIPTION_LENGTH = 400;
+export const MAX_COURSE_CREDITS = 30;
+
 export interface Course {
 	name: string;
 	description: string;
@@ -30,8 +34,9 @@ export interface Course {
 	started: boolean;
 }
 
-export type AssignmentType = "quiz" | "submit";
+export type AssignmentType = "quiz" | "submission";
 
+export const MAX_ASSIGNMENT_NAME_LENGTH = 20;
 export interface AssignmentBase {
 	type: AssignmentType;
 	name: string;
@@ -47,6 +52,9 @@ export interface MaterialDocument {
 	title: string;
 	type: MaterialType;
 }
+
+export const MAX_MATERIAL_TITLE_LENGTH = 30;
+export const MAX_MATERIAL_DESCRIPTION_LENGTH = 300;
 
 export interface Material {
 	title: string;
@@ -87,4 +95,11 @@ export namespace Course_functions {
 
 		createCourse: FunctionOf<{ courseJSON: string; }, { courseID: CourseID; }, 'cannot create the course'>("createCourse"),
 	});
+}
+
+export type UpdateCourseArgs = {
+	name: string,
+	description: string,
+	credits: Credits,
+	section: Section,
 }
