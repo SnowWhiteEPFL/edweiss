@@ -214,7 +214,7 @@ describe('CoursePage with assignments', () => {
                             description: "Description of Material 1",
                             from: { seconds: seconds3, nanoseconds: 0 },
                             to: { seconds: seconds4, nanoseconds: 0 },
-                            docs: [{ url: "url1", title: "Document 1", type: "slides" }, { url: "url1.1", title: "Document 1.1", type: "exercises" }],
+                            docs: [{ uri: "uri1", title: "Document 1", type: "slides" }, { uri: "uri1.1", title: "Document 1.1", type: "exercises" }],
                         },
                     },
                     {
@@ -224,7 +224,7 @@ describe('CoursePage with assignments', () => {
                             description: "Description of Material 2",
                             from: { seconds: seconds5, nanoseconds: 0 },
                             to: { seconds: seconds6, nanoseconds: 0 },
-                            docs: [{ url: "url2", title: "Document 2", type: "exercises" }],
+                            docs: [{ uri: "uri2", title: "Document 2", type: "exercises" }],
                         },
                     },
                     {
@@ -234,7 +234,7 @@ describe('CoursePage with assignments', () => {
                             description: "Description of Material 3",
                             from: { seconds: seconds7, nanoseconds: 0 },
                             to: { seconds: seconds8, nanoseconds: 0 },
-                            docs: [{ url: "url3", title: "Document 3", type: "other" }],
+                            docs: [{ uri: "uri3", title: "Document 3", type: "other" }],
                         },
                     },
                 ];
@@ -437,7 +437,7 @@ describe('Navigate to PreviousPage', () => {
                             description: "Description of Material 1",
                             from: { seconds: 0, nanoseconds: 0 },
                             to: { seconds: 10000, nanoseconds: 0 },
-                            docs: [{ url: "url1", title: "Document 1", type: "slides" }],
+                            docs: [{ uri: "uri1", title: "Document 1", type: "slides" }],
                         },
                     },
                     {
@@ -447,7 +447,7 @@ describe('Navigate to PreviousPage', () => {
                             description: "Description of Material 2",
                             from: { seconds: 120000, nanoseconds: 0 },
                             to: { seconds: 120000 + 1, nanoseconds: 0 },
-                            docs: [{ url: "url2", title: "Document 2", type: "exercices" }],
+                            docs: [{ uri: "uri2", title: "Document 2", type: "exercices" }],
                         },
                     },
                     {
@@ -457,7 +457,7 @@ describe('Navigate to PreviousPage', () => {
                             description: "Description of Material 3",
                             from: { seconds: -120000 - 1, nanoseconds: 0 },
                             to: { seconds: -120000, nanoseconds: 0 },
-                            docs: [{ url: "url3", title: "Document 3", type: "other" }],
+                            docs: [{ uri: "uri3", title: "Document 3", type: "other" }],
                         },
                     },
                 ];

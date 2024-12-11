@@ -92,7 +92,7 @@ const MaterialDisplay: ReactComponent<{ item: Material, isTeacher?: boolean, onT
 
             {sortedDocs.map((doc) => (
                 <TTouchableOpacity
-                    key={doc.url}
+                    key={doc.uri}
                     testID={getTestID(doc.type)}
                     flexDirection="row"
                     alignItems="center"
