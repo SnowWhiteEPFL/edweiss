@@ -160,16 +160,24 @@ const LectureScreen: ApplicationRoute = () => {
 
     const ContentView = (widthPercent: string, heightPercent: string) => (
         <TView flexDirection='column' mr={'xl'} style={{ width: widthPercent as DimensionValue, height: heightPercent as DimensionValue }}>
+
+
+            {/* The Audio Transcript display */}
             <TScrollView b={'sm'} mt={25} mr={'md'} ml={'md'} radius={'lg'} flex={1}>
+
                 {currentLecture.audioTranscript?.[currentPage] ? (
+                    // Display's Teacher
                     <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[currentPage]}</TText>
                 ) : (
+
+                    // Default Text
                     <TText pt={'sm'} pl={'sm'} pr={'sm'} color='overlay0'>
                         {t(`showtime:lecturer_transcript_deftxt`)}
                     </TText>
                 )}
             </TScrollView>
 
+            {/* Student Questions Display */}
             <TScrollView flex={0.5} mt={15} mr={'md'} ml={'md'} mb={15}>
                 <StudentQuestion courseName={courseName} lectureId={lectureId} questionsDoc={questionsDoc} />
             </TScrollView>
