@@ -1,10 +1,23 @@
+/**
+ * @file abstractRmtCtl.test.tsx
+ * @description Test suite for the AbstractRmtCtl component attached
+ *              to the remote control screen
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import { TranscriptModeModal } from '@/components/lectures/slides/modal';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
 
 
-
+// ------------------------------------------------------------
+// -----------------  Mocking dependencies    -----------------
+// ------------------------------------------------------------
 
 // Mock translation function
 jest.mock('@/config/i18config', () => ({
@@ -84,9 +97,11 @@ jest.mock('@react-native-firebase/firestore', () => ({
 }));
 
 
+// ------------------------------------------------------------
+// ------   Transcript Mode Selection  Modal Test Suite   -----
+// ------------------------------------------------------------
 
-
-describe('TranscriptModeModal', () => {
+describe('Transcript Mode Modal Test Suite', () => {
     const mockSetTransMode = jest.fn();
     const mockOnClose = jest.fn();
     const mockModalRef = { current: null };
