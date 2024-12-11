@@ -6,6 +6,7 @@ import SyncStorage from '@/config/SyncStorage';
 import { useAuth } from '@/contexts/auth';
 import { useUser } from '@/contexts/user';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Timestamp } from '@react-native-firebase/firestore/lib/modular/Timestamp';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -255,8 +256,31 @@ jest.mock('@/contexts/user', () => ({
     useUser: jest.fn(), // Mock the hook
 }));
 
+// BottomSheet to detect modal appearance
+jest.mock('@gorhom/bottom-sheet', () => ({
+    BottomSheetModal: jest.fn(({ present }) => (
+        <div>{present}</div>
+    )),
+}));
+
 describe('LectureScreen Component', () => {
+
+    let modalRef: React.RefObject<BottomSheetModal>;
+
     beforeEach(() => {
+        modalRef = {
+            current: {
+                present: jest.fn(),
+                dismiss: jest.fn(),
+                snapToIndex: jest.fn(),
+                snapToPosition: jest.fn(),
+                expand: jest.fn(),
+                collapse: jest.fn(),
+                close: jest.fn(),
+                forceClose: jest.fn(),
+            }
+        };
+
         jest.clearAllMocks();
         (usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockLectureData]); // Mocking `usePrefetchedDynamicDoc` with minimal data
         (useDynamicDocs as jest.Mock).mockReturnValue(mockQuestionData); // Mocking `useDynamicDocs` with minimal question data
@@ -431,6 +455,15 @@ describe('LectureScreen Component', () => {
         );
     });
 
+
+    it('do not close the modal when the button is pressed', () => {
+        render(<LectureScreen />);
+        const button = screen.getByTestId('st-trans-mode-sel-button');
+        fireEvent.press(button);
+        expect(modalRef.current?.close).not.toHaveBeenCalled();
+    });
+
+
     it('should like a question', async () => {
         (callFunction as jest.Mock).mockResolvedValueOnce({ status: true });
         render(<StudentQuestion courseName={"Test Course"} lectureId={"Test Lecture"} questionsDoc={mockQuestionData} />);
@@ -487,3 +520,5 @@ describe('LectureScreen Component', () => {
         expect(screen.getByTestId('checkmark-circle-outline')).toBeTruthy();
     });
 });
+
+
