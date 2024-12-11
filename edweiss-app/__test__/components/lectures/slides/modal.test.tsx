@@ -119,15 +119,23 @@ describe('Transcript Mode Modal Test Suite', () => {
 
     it('should render correctly', () => {
         const { getByTestId } = renderComponent('original');
-        for (let i = 1; i <= 10; i++) {
-            expect(getByTestId(`trans-sel-but-${i}`)).toBeTruthy();
-        }
+
+        expect(getByTestId(`trans-sel-but-original`)).toBeTruthy();
+        expect(getByTestId(`trans-sel-but-english`)).toBeTruthy();
+        expect(getByTestId(`trans-sel-but-vietanames`)).toBeTruthy();
+        expect(getByTestId(`trans-sel-but-french`)).toBeTruthy();
+        expect(getByTestId(`trans-sel-but-german`)).toBeTruthy();
+        expect(getByTestId(`trans-sel-but-spanish`)).toBeTruthy();
+        expect(getByTestId(`trans-sel-but-italian`)).toBeTruthy();
+        expect(getByTestId(`trans-sel-but-chinese`)).toBeTruthy();
+        expect(getByTestId(`trans-sel-but-brazilian`)).toBeTruthy();
+        expect(getByTestId(`trans-sel-but-hindi`)).toBeTruthy();
         expect(getByTestId('trans-mode-sel-close-button')).toBeTruthy();
     });
 
     it('should call setTransMode with the correct mode when a mode is selected', () => {
         const { getByTestId } = renderComponent('original');
-        fireEvent.press(getByTestId('trans-sel-but-1'));
+        fireEvent.press(getByTestId('trans-sel-but-english'));
         expect(mockSetTransMode).toHaveBeenCalledWith('english');
     });
 
