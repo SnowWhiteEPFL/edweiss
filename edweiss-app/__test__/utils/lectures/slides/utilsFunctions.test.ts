@@ -68,8 +68,8 @@ jest.mock('@react-native-firebase/firestore', () => ({
 // ---------    ShowTime! Utils Functions Test suite    -------
 // ------------------------------------------------------------
 
-describe('Utils Function Testsuite', () => {
-    describe('transModeIconMap', () => {
+describe('ShowTime! Utils Function Testsuite', () => {
+    describe('transModeIconMap Record function test suites', () => {
         it('should have correct icon for original mode', () => {
             expect(transModeIconMap.original).toBe("📜");
         });
@@ -81,7 +81,7 @@ describe('Utils Function Testsuite', () => {
         });
     });
 
-    describe('transModeNameMap', () => {
+    describe('transModeNameMap Record function test suites', () => {
         it('should have correct name for original mode', () => {
             expect(transModeNameMap.original).toBe("Original");
         });
@@ -93,7 +93,7 @@ describe('Utils Function Testsuite', () => {
         });
     });
 
-    describe('transModeIDMap', () => {
+    describe('transModeIDMap Record function test suites', () => {
         it('should have correct ID for original mode', () => {
             expect(transModeIDMap.original).toBe(0);
         });

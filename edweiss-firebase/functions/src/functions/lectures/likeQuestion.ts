@@ -21,7 +21,6 @@ export const likeQuestion = onAuthentifiedCall(LectureDisplay.Functions.likeQues
         username: question.username
     };
     try {
-        console.log(likeQuestion);
         await ref.update(clean(updatedQuestion))
     } catch (error) {
         return fail('error_firebase');
