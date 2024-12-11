@@ -78,5 +78,8 @@
     "successUpdateCourse": "Course updated successfully 🎉",
     "failureUpdateCourse": "Failed to update course ❌",
 
-    "field_required": "This field cannot be empty"
+    "field_required": "This field cannot be empty",
+
+    "document_error": "An error occurred while loading the document.",
+    "of" : " of "
 }

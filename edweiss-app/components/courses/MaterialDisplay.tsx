@@ -1,10 +1,12 @@
 import ReactComponent from '@/constants/Component';
 
+import { DocumentRouteSignature } from '@/app/(app)/courses/[id]/materials/[materialId]/document';
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { iconSizes } from '@/constants/Sizes';
 import { IconType } from '@/constants/Style';
+import { pushWithParameters } from '@/hooks/routeParameters';
 import { Material, MaterialType } from '@/model/school/courses';
 import { getIconName, getIconTestID, getTestID, getTextTestID } from '@/utils/courses/materialDisplay';
 import { Time } from '@/utils/time';
@@ -100,7 +102,7 @@ const MaterialDisplay: ReactComponent<{ item: Material, isTeacher?: boolean, onT
                     mb={10}
                     bb={1}
                     borderColor="crust"
-                    onPress={() => console.log(`Click on ${item.title}`)}
+                    onPress={() => pushWithParameters(DocumentRouteSignature, { document: doc })}
                 >
                     <Icon
                         testID={getIconTestID(doc.type)}
