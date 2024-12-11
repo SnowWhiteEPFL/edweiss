@@ -19,6 +19,10 @@
     "rmt_ctl_timer": "Timer",
     "rmt_ctl_recall": "Recall",
     "close_btn": "Close",
+    "question_slide_title": "Audience Questions",
+    "empty_question": "No Question from the Audience",
+    "empty_question_funny_1": "Your explanation must have been clear",
+    "empty_question_funny_2": " ... or the students are totally lost",
 
     "lecturer_transcript_deftxt" : "Lecturer’s transcript... currently in invisible ink!",
     
