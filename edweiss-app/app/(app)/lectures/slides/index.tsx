@@ -23,6 +23,7 @@ import { ApplicationRoute } from '@/constants/Component';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import useListenToMessages from '@/hooks/useListenToMessages';
 import LectureDisplay from '@/model/lectures/lectureDoc';
+import { transModeIconMap } from '@/utils/lectures/slides/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useLocalSearchParams } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -175,7 +176,12 @@ const LectureScreen: ApplicationRoute = () => {
                     borderColor='text' p={'sm'} b={1} ml={'sm'} radius={1000}
                     onPress={() => modalRefTranscriptMode.current?.present()}
                     testID='st-trans-mode-sel-button'>
-                    <Icon size={'xl'} name='language-outline' color='text'></Icon>
+
+                    {transMode === 'original' ? (
+                        <Icon size={'lg'} name='language-outline' color='text'></Icon>
+                    ) : (
+                        <TText size={'lg'}>{transModeIconMap[transMode]}</TText>
+                    )}
                 </TTouchableOpacity>
 
             </TView>
@@ -240,7 +246,7 @@ const LectureScreen: ApplicationRoute = () => {
             }
 
             {/* Modal */}
-            <TranscriptModeModal modalRef={modalRefTranscriptMode} mode={transMode} setTransMode={setTransMode} handleClose={() => modalRefTranscriptMode.current?.close()} />
+            <TranscriptModeModal modalRef={modalRefTranscriptMode} transMode={transMode} setTransMode={setTransMode} onClose={() => modalRefTranscriptMode.current?.close()} />
 
         </>
     );

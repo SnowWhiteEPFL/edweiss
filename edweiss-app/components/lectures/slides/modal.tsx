@@ -21,7 +21,7 @@ import LectureDisplay from '@/model/lectures/lectureDoc';
 import { transModeIconMap, transModeNameMap } from '@/utils/lectures/slides/utilsFunctions';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { t } from 'i18next';
-import React, { useState } from 'react';
+import React from 'react';
 
 // type
 type TranscriptLangMode = LectureDisplay.TranscriptLangMode;
@@ -33,17 +33,10 @@ type TranscriptLangMode = LectureDisplay.TranscriptLangMode;
 
 export const TranscriptModeModal: ReactComponent<{
     modalRef: React.RefObject<BottomSheetModalMethods>;
-    mode: TranscriptLangMode;
+    transMode: TranscriptLangMode;
     setTransMode: (mode: TranscriptLangMode) => void;
-    handleClose: () => void;
-}> = ({ modalRef, mode, setTransMode, handleClose }) => {
-
-    const onClose = () => {
-        setTransMode(tmpSelectedMode);
-        handleClose();
-    };
-
-    const [tmpSelectedMode, setTmpSelectedMode] = useState(mode); // Selected Mode Hook
+    onClose: () => void;
+}> = ({ modalRef, transMode, setTransMode, onClose }) => {
 
     return (
         <ModalContainer modalRef={modalRef}>
@@ -69,15 +62,15 @@ export const TranscriptModeModal: ReactComponent<{
                                 return (
                                     <>
 
-                                        <TTouchableOpacity onPress={() => setTmpSelectedMode(mode)} ml='lg' mr='md'>
+                                        <TTouchableOpacity onPress={() => setTransMode(mode)} ml='lg' mr='md'>
                                             <TView flexDirection='row' alignItems='center' pb={'sm'}>
                                                 <Icon
-                                                    name={tmpSelectedMode === mode ? 'checkbox-outline' : 'square-outline'}
-                                                    color={tmpSelectedMode === mode ? 'green' : 'text'}
+                                                    name={transMode === mode ? 'checkbox-outline' : 'square-outline'}
+                                                    color={transMode === mode ? 'green' : 'text'}
                                                     size={25}
                                                 />
 
-                                                <TText ml='md' color={tmpSelectedMode === mode ? 'text' : 'surface0'}>
+                                                <TText ml='md' color={transMode === mode ? 'text' : 'surface0'}>
                                                     {transModeIconMap[mode]} {transModeNameMap[mode]}
                                                 </TText>
 
