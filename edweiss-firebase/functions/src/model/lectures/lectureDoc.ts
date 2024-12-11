@@ -20,6 +20,11 @@ namespace LectureDisplay {
 
 	export type LectureEvents = "quiz";
 	export type AvailableLangs = "english" | "french" | "spanish" | "italian" | "german" | "brazilian" | "arabic" | "chinese" | "vietanames" | "hindi";
+	export type TranscriptLangMode = 'original' | AvailableLangs;
+
+	export type MultiLangTranscript = {
+		[langNumber: number]: string;
+	};
 
 	interface LectureEventBase {
 		type: LectureEvents;
@@ -45,7 +50,7 @@ namespace LectureDisplay {
 		pdfUri: string;
 		nbOfPages: number;
 		availableToStudents: boolean;
-		audioTranscript: { [pageNumber: number]: string; };
+		audioTranscript: { [pageNumber: number]: MultiLangTranscript; };
 	}
 
 	export const Functions = FunctionFolder("lectures", {
