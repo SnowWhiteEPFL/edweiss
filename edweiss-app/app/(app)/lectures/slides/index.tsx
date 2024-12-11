@@ -23,7 +23,7 @@ import { ApplicationRoute } from '@/constants/Component';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import useListenToMessages from '@/hooks/useListenToMessages';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import { transModeIconMap } from '@/utils/lectures/slides/utilsFunctions';
+import { transModeIconMap, transModeIDMap } from '@/utils/lectures/slides/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useLocalSearchParams } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
@@ -193,7 +193,7 @@ const LectureScreen: ApplicationRoute = () => {
                 {/* Transcript Display */}
                 {currentLecture.audioTranscript?.[currentPage] ? (
                     // Display's Teacher
-                    <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[currentPage]}</TText>
+                    <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[currentPage][transModeIDMap[transMode]]}</TText>
                 ) : (
 
                     // Default Text

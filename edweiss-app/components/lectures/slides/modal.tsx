@@ -92,6 +92,3 @@ export const TranscriptModeModal: ReactComponent<{
         </ModalContainer >
     );
 };
-
-
-// Put the selection module in here

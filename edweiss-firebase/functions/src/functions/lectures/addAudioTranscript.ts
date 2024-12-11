@@ -19,6 +19,7 @@ import Functions = LectureDisplay.Functions;
 
 // Types
 type Lecture = LectureDisplay.Lecture;
+type AvailableLang = LectureDisplay.AvailableLangs;
 
 // ------------------------------------------------------------
 // -----------  Add Audio Transcript Cloud Function   ---------
@@ -56,10 +57,16 @@ export const addAudioTranscript = onSanitizedCall(Functions.addAudioTranscript, 
 	});
 
 
+	// Insert the audio transcript
 	if (!lecture.audioTranscript || !lecture.audioTranscript[args.pageNumber]) {
 		try {
 			await lectureRef.update({
 				[pageKey]: correctedTranscript
+			});
+			await lectureRef.update({
+				[pageKey]: {
+					0: correctedTranscript, 1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: "", 10: ""
+				}
 			});
 		} catch (error) {
 			return fail('error_firebase');
@@ -67,7 +74,7 @@ export const addAudioTranscript = onSanitizedCall(Functions.addAudioTranscript, 
 	} else if (correctedTranscript) {
 		try {
 			await lectureRef.update({
-				[pageKey]: lecture.audioTranscript[args.pageNumber] + " " + correctedTranscript
+				[`${pageKey}`]: lecture.audioTranscript[args.pageNumber][0] + " " + correctedTranscript
 			});
 		} catch (error) {
 			return fail('error_firebase');
@@ -75,5 +82,26 @@ export const addAudioTranscript = onSanitizedCall(Functions.addAudioTranscript, 
 	}
 
 
+	// Add the translation to all 10 languages
+	for (const [i, targetLang] of (['english', 'french', 'german', 'spanish', 'italian', 'brazilian', 'arabic', 'chinese', 'vietnamese', 'hindi'] as AvailableLang[]).entries()) {
+		const translatedTranscript = await prompt({
+			task: `
+				You are an audio translation AI of a prestigious university.
+				Translate the following in ${targetLang} even if the transcript is in multiple languages.
+			`,
+			content: correctedTranscript,
+			fallback: correctedTranscript
+		});
+
+		try {
+			await lectureRef.update({
+				[`${pageKey}.${i + 1}`]: (lecture.audioTranscript[args.pageNumber][i + 1] || "") + " " + translatedTranscript
+			});
+		} catch (error) {
+			return fail('error_firebase');
+		}
+	}
+
 	return ok('successfully_added');
+
 });

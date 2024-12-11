@@ -10,7 +10,6 @@
 // ------------------------------------------------------------
 
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import prompt from '../../../../edweiss-firebase/functions/src/actions/ai';
 import { langIconMap, langNameMap } from '../remotecontrol/utilsFunctions';
 
 // type
@@ -37,29 +36,9 @@ export const transModeNameMap: Record<TranscriptLangMode, string> = {
     )
 } as Record<TranscriptLangMode, string>;
 
-
-// ------------------------------------------------------------
-// --------------       Translation Handler       -------------
-// ------------------------------------------------------------
-
-export const generateTraduction = async function (
-    targetLang: AvailableLangs,
-    transcript: string,
-) {
-    try {
-        return await prompt({
-            task: `
-                    You are an audio translation AI of a prestigious university.
-                    Translate the following in ${targetLang} even if the transcript is in multiple languages.
-                `,
-            content: transcript,
-            fallback: transcript
-        });
-
-    } catch (error) {
-        console.error("Error generating translation:", error);
-        return transcript;
-    }
-
-}
-
+export const transModeIDMap: Record<TranscriptLangMode, number> = {
+    original: 0,
+    ...Object.fromEntries(
+        (Object.keys(langNameMap) as AvailableLangs[]).map((lang, index) => [lang, index + 1])
+    )
+} as Record<TranscriptLangMode, number>;
