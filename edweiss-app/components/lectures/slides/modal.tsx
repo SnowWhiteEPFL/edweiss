@@ -60,24 +60,22 @@ export const TranscriptModeModal: ReactComponent<{
                             'vietanames',
                             'hindi'] as TranscriptLangMode[]).map((mode, index) => {
                                 return (
-                                    <>
 
-                                        <TTouchableOpacity onPress={() => setTransMode(mode)} ml='lg' mr='md'>
-                                            <TView flexDirection='row' alignItems='center' pb={'sm'}>
-                                                <Icon
-                                                    name={transMode === mode ? 'checkbox-outline' : 'square-outline'}
-                                                    color={transMode === mode ? 'green' : 'text'}
-                                                    size={25}
-                                                />
+                                    <TTouchableOpacity onPress={() => setTransMode(mode)} ml='lg' mr='md'>
+                                        <TView flexDirection='row' alignItems='center' pb={'sm'}>
+                                            <Icon
+                                                name={transMode === mode ? 'checkbox-outline' : 'square-outline'}
+                                                color={transMode === mode ? 'green' : 'text'}
+                                                size={25}
+                                            />
 
-                                                <TText ml='md' color={transMode === mode ? 'text' : 'surface0'}>
-                                                    {transModeIconMap[mode]} {transModeNameMap[mode]}
-                                                </TText>
+                                            <TText ml='md' color={transMode === mode ? 'text' : 'surface0'}>
+                                                {transModeIconMap[mode]} {transModeNameMap[mode]}
+                                            </TText>
 
-                                            </TView >
+                                        </TView >
 
-                                        </TTouchableOpacity>
-                                    </>
+                                    </TTouchableOpacity>
 
                                 );
                             })}
