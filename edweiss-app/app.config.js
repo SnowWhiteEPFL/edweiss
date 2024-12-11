@@ -82,7 +82,15 @@ const config = {
 		[
 			"expo-font",
 			{
-				"fonts": ["./assets/fonts/Inter.ttf"]
+				"fonts": [
+					"./assets/fonts/Inter-Bold.ttf",
+					"./assets/fonts/Inter-ExtraLight.ttf",
+					"./assets/fonts/Inter-Light.ttf",
+					"./assets/fonts/Inter-Medium.ttf",
+					"./assets/fonts/Inter-Regular.ttf",
+					"./assets/fonts/Inter-SemiBold.ttf",
+					"./assets/fonts/Inter-Thin.ttf"
+				]
 			}
 		],
 		[
