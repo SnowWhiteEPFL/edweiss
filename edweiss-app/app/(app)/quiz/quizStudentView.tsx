@@ -16,7 +16,6 @@ import FancyButton from '@/components/input/FancyButton';
 import { MCQDisplay, MCQResultDisplay, TFDisplay, TFResultDisplay } from '@/components/quiz/QuizComponents';
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
 import { useAuth } from '@/contexts/auth';
-import { ActivityIndicator } from 'react-native';
 
 const QuizStudentViewPage: ApplicationRoute = () => {
 
@@ -113,7 +112,7 @@ export const QuizDisplay: ReactComponent<{ studentAnswers: QuizzesAttempts.Answe
                             else if (thisExercise.type == "TF" && studentAnswers[index] != undefined) { // if type == "TF"
                                 return (<TFDisplay key={thisExercise.question + "display"} exercise={thisExercise} selected={studentAnswers[index].value as boolean | undefined} onUpdate={onUpdate} exId={index} />);
                             } else {
-                                return (<ActivityIndicator />);
+                                return (<TActivityIndicator />);
                             }
                         }
                     }
@@ -122,9 +121,7 @@ export const QuizDisplay: ReactComponent<{ studentAnswers: QuizzesAttempts.Answe
                 <FancyButton
                     mt={"md"} mb={"md"}
                     onPress={() => {
-                        if (send != undefined) {
-                            send();
-                        }
+                        send();
                         router.back();
                     }}
                     icon='save-sharp'
@@ -176,7 +173,7 @@ export const QuizResultDisplay: ReactComponent<{ studentAnswers: QuizzesAttempts
                                 else if (thisExercise.type == "TF" && studentAnswers[index] != undefined) { // if type == "TF"
                                     return (<TFResultDisplay key={thisExercise.question + "result"} exercise={thisExercise} selected={studentAnswers[index].value as boolean | undefined} result={results[index].value as boolean} />);
                                 } else {
-                                    return (<ActivityIndicator />);
+                                    return (<TActivityIndicator />);
                                 }
                             }
                         }

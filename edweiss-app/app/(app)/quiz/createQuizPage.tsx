@@ -77,8 +77,7 @@ const CreateQuizPage: ApplicationRoute = () => {
 
 
 	function addToExerciseList(exercise: Quizzes.Exercise) {
-		//console.log(JSON.stringify(exercise))
-		//setExercises(exercises.concat([exercise]))
+
 		setExercises(exercises => {
 			const newList = [...exercises];
 			newList.push(exercise)
@@ -333,12 +332,7 @@ export const PublishQuizModal: ReactComponent<{ modalRef: RefObject<BottomSheetM
 	return (
 		<ModalContainer modalRef={props.modalRef}>
 			<TView m='md' mb='md'>
-				{/* <TView mb='md' p='md' flexDirection='row' flexColumnGap='xl' alignItems='center'>
-					<Icon name='warning-sharp' color='red' size='xl' />
-					<TText size='lg' align='left' lineHeight={40}>
-						Are you certain you want to publish this quiz?
-					</TText>
-				</TView> */}
+
 				<TView backgroundColor='base' radius={'lg'} mb='md' p='md' flexDirection='row' flexColumnGap='xl' alignItems='center'>
 					<Icon name='warning-sharp' color='red' size='xl' />
 					<TText color='red' style={{ flex: 1 }} size='md' align='left' lineHeight={24}>
@@ -382,8 +376,6 @@ export const PublishLectureQuizModal: ReactComponent<{ modalRef: RefObject<Botto
 
 export const AddExerciseModal: ReactComponent<{ modalRef: RefObject<BottomSheetModalMethods>, updateExerciseList: (exercise: Quizzes.Exercise) => void }> = (props) => {
 	const [isMCQ, setIsMCQ] = useState<boolean>(true);
-	const [exercise, setExercise] = useState<Quizzes.Exercise>();
-
 
 	return (
 
@@ -409,9 +401,6 @@ export const AddExerciseModal: ReactComponent<{ modalRef: RefObject<BottomSheetM
 
 };
 export const EditExerciseModal: ReactComponent<{ modalRef: RefObject<BottomSheetModalMethods>, secondModalRef: RefObject<BottomSheetModalMethods>, exercise: Quizzes.Exercise, editExercise: (exercise: Quizzes.Exercise, index: number) => void, removeExerciseFromList: (index: number) => void, index: number }> = (props) => {
-
-	//console.log(props.removeExerciseFromList == undefined)
-	console.log("in edit modal  : " + props.exercise.question)
 
 	return (<>
 		<ModalContainerScrollView modalRef={props.modalRef}>
@@ -479,7 +468,6 @@ export const EditSecondModal: ReactComponent<{ modalRef: RefObject<BottomSheetMo
 };
 export const MCQFields: ReactComponent<{ addToExerciseList?: (exercise: Quizzes.Exercise) => void, editExercise?: (exercise: Quizzes.Exercise, index: number) => void, modalRef?: RefObject<BottomSheetModalMethods>, previousPropositions?: [string, boolean][], previousQuestion?: string, index?: number }> = (props) => {
 	const [question, setQuestion] = useState<string>(props.previousQuestion == undefined ? "" : props.previousQuestion);
-	//const [answer, setAnswer] = useState<number[]>([]);
 	const [propositions, setPropositions] = useState<[string, boolean][]>(props.previousPropositions == undefined ? [] : props.previousPropositions);
 
 	function addNewProposition() {
@@ -542,7 +530,6 @@ export const MCQFields: ReactComponent<{ addToExerciseList?: (exercise: Quizzes.
 			return;
 		}
 
-		//const answersIndices = propositions.map((propo, index) => [propo[1], index] as const).filter((isCorrect, _) => isCorrect).map((_, index) => index)
 		const answersIndices: number[] = [];
 
 		propositions.forEach((proposition, index) => {
@@ -589,7 +576,6 @@ export const MCQFields: ReactComponent<{ addToExerciseList?: (exercise: Quizzes.
 		</TView>
 		<FancyButton style={{ borderWidth: 0 }} onPress={() => addToQuiz()} icon='save-sharp' outlined> Save</FancyButton>
 	</>
-		//			<TText>{JSON.stringify(propositions)}</TText>
 
 
 	);
@@ -609,7 +595,6 @@ const PropositionField: ReactComponent<{ proposition: [string, boolean], changeP
 				<TTouchableOpacity mx={8} backgroundColor='transparent' onPress={() => toggleCorrect()}>
 					<Icon size='xl' name='checkmark-circle-sharp' color={props.proposition[1] ? 'green' : 'surface0'}></Icon>
 				</TTouchableOpacity>
-				{/* <FancyButton mx={8} style={{ borderWidth: 0 }} onPress={() => toggleCorrect()} icon='checkmark-circle-sharp' backgroundColor={props.proposition[1] ? 'green' : 'surface0'} outlined></FancyButton> */}
 			</TView>
 			<TView flex={1} >
 				<FancyTextInput mx={0} placeholder={"Write your proposition"} label='Proposition' onChangeText={changeDescription} value={props.proposition[0]} />
@@ -665,14 +650,6 @@ export const TFFields: ReactComponent<{ editExercise?: (exercise: Quizzes.Exerci
 		<TView >
 
 			<FancyTextInput placeholder={placeHolder} onChangeText={setQuestion} label='Question' mb='lg'></FancyTextInput>
-			{/* <TView flexDirection='row' flexColumnGap='xs' mb='lg'>
-				<TView flex={1}>
-					<FancyButton onPress={() => setAnswer(true)} backgroundColor={answer ? "green" : "base"}>True</FancyButton>
-				</TView>
-				<TView flex={1}>
-					<FancyButton onPress={() => setAnswer(false)} backgroundColor={answer ? "base" : "red"}>False</FancyButton>
-				</TView>
-			</TView> */}
 			<TView ml='md' mb='md'>
 				<RadioSelectables data={[trueSelectable, falseSelectable]} onSelection={(value) => {
 					setAnswer(value)
