@@ -207,7 +207,7 @@ export const TimerSettingModal: ReactComponent<{
 
     // Recall Seter interface
     const setRecallInterf = (seconds: number) => {
-        if (0 <= seconds && seconds <= 35999) {
+        if (0 <= seconds && seconds <= MAX_REPRESENTABLE_VALUE) {
             setTmpRecall(seconds);
         }
     }
