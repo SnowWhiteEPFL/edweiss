@@ -61,7 +61,7 @@ export const TranscriptModeModal: ReactComponent<{
                             'hindi'] as TranscriptLangMode[]).map((mode, index) => {
                                 return (
 
-                                    <TTouchableOpacity onPress={() => setTransMode(mode)} ml='lg' mr='md'>
+                                    <TTouchableOpacity onPress={() => setTransMode(mode)} ml='lg' mr='md' testID={`trans-sel-but-${index}`}>
                                         <TView flexDirection='row' alignItems='center' pb={'sm'}>
                                             <Icon
                                                 name={transMode === mode ? 'checkbox-outline' : 'square-outline'}

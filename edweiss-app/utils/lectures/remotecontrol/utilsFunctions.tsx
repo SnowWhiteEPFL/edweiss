@@ -35,14 +35,12 @@ export const updateSlideAudioRecording = function (
     console.log(`HI THERE in update in here:'${talked}' @page ${pageToTranscribe}`);
     if (talked && talked.length > 0) {
         try {
-            console.log("Before sending")
             callFunction(LectureDisplay.Functions.addAudioTranscript, {
                 courseId: courseName,
                 lectureId: lectureId,
                 pageNumber: pageToTranscribe,
                 transcription: talked
             });
-            console.log("After sending")
         } catch (error) { console.error("Error adding audio transcript:", error); }
 
         setPageToTranscribe(currentPage);
