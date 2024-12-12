@@ -26,7 +26,7 @@ namespace LectureDisplay {
 		[langNumber: number]: string;
 	};
 
-	interface LectureEventBase {
+	export interface LectureEventBase {
 		type: LectureEvents;
 		done: boolean;
 		id: string;
