@@ -76,11 +76,13 @@ jest.mock('@/hooks/useListenToMessages', () => jest.fn());
 jest.mock('expo-router', () => ({
     router: { push: jest.fn() },
     Stack: {
-        Screen: jest.fn(({ options }) => (
-            <>{options.title}</>
-        )),
+        Screen: jest.fn(({ options }) => <>{options.title}</>),
     },
-    useLocalSearchParams: jest.fn(() => ({ courseNameString: 'testCourse', lectureIdString: 'testLectureId' }))
+    useLocalSearchParams: jest.fn(() => ({
+        courseNameString: 'testCourse',
+        lectureIdString: 'testLectureId',
+    })),
+    useFocusEffect: jest.fn(),
 }));
 
 // Firebase Messaging to avoid NativeEventEmitter errors
@@ -261,7 +263,10 @@ jest.mock('react-native-toast-message', () => ({
 jest.mock('@/contexts/user', () => ({
     useUser: jest.fn(), // Mock the hook
 }));
-
+jest.mock('@react-navigation/native', () => ({
+    useFocusEffect: jest.fn(),
+    useNavigation: jest.fn(),
+}));
 describe('LectureScreen Component', () => {
     beforeEach(() => {
         jest.clearAllMocks();

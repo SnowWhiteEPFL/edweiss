@@ -22,9 +22,9 @@ import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firest
 import useTheme from '@/hooks/theme/useTheme';
 import useListenToMessages from '@/hooks/useListenToMessages';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, DimensionValue } from 'react-native';
 import Pdf from 'react-native-pdf';
 
@@ -59,7 +59,6 @@ const LectureScreen: ApplicationRoute = () => {
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);    // FullScreen display of pdf toggle
     const colorScheme = useTheme();    // Get the current color scheme (light or dark)
 
-
     const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
     const questionsDoc = useDynamicDocs(CollectionOf<Question>(`courses/${courseName}/lectures/${lectureId}/questions`));
 
@@ -70,6 +69,15 @@ const LectureScreen: ApplicationRoute = () => {
         }
     }, [lectureDoc]);
 
+    useFocusEffect(
+        useCallback(() => {
+            // This effect runs every time the screen is unfocused or focused
+            return () => {
+                // Unlock orientation whenever the screen loses focus (navigating back)
+                ScreenOrientation.unlockAsync();
+            };
+        }, [])
+    );
 
     // Landscape display for the screen
     const setLandscape = async () => {
