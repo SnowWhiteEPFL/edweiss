@@ -1,7 +1,21 @@
+/**
+ * @file markQuestionAsAnswered.ts
+ * @description Cloud function for marking a question as answered
+ * @author Adamm Alaoui
+ */
+
+// ------------------------------------------------------------
+// --------------- Import Modules & Components ----------------
+// ------------------------------------------------------------
+
 import LectureDisplay from 'model/lectures/lectureDoc';
 import { onAuthentifiedCall } from 'utils/firebase';
 import { clean, CollectionOf, getDocumentAndRef } from 'utils/firestore';
 import { fail, ok } from 'utils/status';
+
+// ------------------------------------------------------------
+// ---------   Mark Question Answered Cloud Function   --------
+// ------------------------------------------------------------
 
 export const markQuestionAsAnswered = onAuthentifiedCall(LectureDisplay.Functions.markQuestionAsAnswered, async (userId, args) => {
     if (!args.id || args.id.length == 0)

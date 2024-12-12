@@ -18,7 +18,7 @@ import { Timestamp } from '../time';
 
 namespace LectureDisplay {
 
-	export type LectureEvents = "quiz" | "question";
+	export type LectureEvents = "quiz" | "question" | "invalid";
 	export type AvailableLangs = "english" | "french" | "spanish" | "italian" | "german" | "brazilian" | "arabic" | "chinese" | "vietanames" | "hindi";
 	export type TranscriptLangMode = 'original' | AvailableLangs;
 
@@ -64,7 +64,8 @@ namespace LectureDisplay {
 		createQuestion: FunctionOf<{ courseId: string, lectureId: string, question: string, anonym: boolean; }, { id: string; }, 'invalid_arg' | 'error_firebase' | 'empty_question' | 'user_not_found' | 'not_in_course'>("createQuestion"),
 		likeQuestion: FunctionOf<{ id: string, courseId: string, lectureId: string, likes: number; }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("likeQuestion"),
 		markQuestionAsAnswered: FunctionOf<{ id: string, courseId: string, lectureId: string, answered: boolean }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("markQuestionAsAnswered"),
-		broadcastQuestion: FunctionOf<{ id: string, courseId: string, lectureId: string }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("markQuestionAsAnswered"),
+		broadcastQuestion: FunctionOf<{ id: string, courseId: string, lectureId: string }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("broadcastQuestion"),
+		clearQuestionEvent: FunctionOf<{ id: string, courseId: string, lectureId: string }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("clearQuestionEvent"),
 	});
 }
 

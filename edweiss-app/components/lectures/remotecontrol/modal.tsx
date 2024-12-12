@@ -452,17 +452,37 @@ export const QuestionBroadcastModal: ReactComponent<{
         if (broadcasted === id) {
 
             // Question has been answered 
-            const res = await callFunction(LectureDisplay.Functions.markQuestionAsAnswered, {
-                courseId: courseId,
-                lectureId: lectureId,
-                id: id,
-                answered: true,
-            });
+            try {
+                callFunction(LectureDisplay.Functions.markQuestionAsAnswered, {
+                    courseId: courseId,
+                    lectureId: lectureId,
+                    id: id,
+                    answered: true,
+                });
+                callFunction(LectureDisplay.Functions.clearQuestionEvent, {
+                    courseId: courseId,
+                    lectureId: lectureId,
+                    id: id,
+                });
+                console.log("Question Cleared")
+            } catch (error) { console.error("Error adding audio transcript:", error); }
+
+
             setBroadcasted("");
 
         } else {
 
             // Broadcast the question to the audience
+            try {
+                callFunction(LectureDisplay.Functions.broadcastQuestion, {
+                    courseId: courseId,
+                    lectureId: lectureId,
+                    id: id,
+                });
+                console.log("Question Broadcasted")
+            } catch (error) { console.error("Error adding audio transcript:", error); }
+
+
             setBroadcasted(id);
             console.log("Broadcast the question to the audience");
         };
