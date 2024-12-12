@@ -16,8 +16,9 @@ import Icon from '../core/Icon';
 
 // Icons
 export const icons: { [key: string]: IconType } = {
-    slidesIcon: 'albums-outline',
+    slideIcon: 'albums-outline',
     exerciseIcon: 'document-text-outline',
+    imageIcon: 'image-outline',
     feedbackIcon: 'arrow-undo-outline',
     otherIcon: 'attach-outline',
 };
@@ -26,18 +27,21 @@ export const icons: { [key: string]: IconType } = {
 export const testIDs = {
     materialTitle: 'material-title',
     materialDescription: 'material-description',
-    slidesTouchable: 'slides-touchable',
-    slidesIcon: 'slides-icon',
-    slidesText: 'slides-text',
-    exercisesTouchable: 'exercises-touchable',
-    exercisesIcon: 'exercises-icon',
-    exercisesText: 'exercises-text',
+    slideTouchable: 'slide-touchable',
+    slideIcon: 'slide-icon',
+    slideText: 'slide-text',
+    exerciseTouchable: 'exercise-touchable',
+    exerciseIcon: 'exercise-icon',
+    exerciseText: 'exercise-text',
+    imageTouchable: 'other-touchable',
+    imageIcon: 'others-icon',
+    imageText: 'other-text',
     otherTouchable: 'other-touchable',
     otherIcon: 'others-icon',
     otherText: 'other-text',
-    feedbacksTouchable: 'feedbacks-touchable',
-    feedbacksIcon: 'feedbacks-icon',
-    feedbacksText: 'feedbacks-text',
+    feedbackTouchable: 'feedback-touchable',
+    feedbackIcon: 'feedback-icon',
+    feedbackText: 'feedback-text',
 };
 
 /**
@@ -70,10 +74,11 @@ const MaterialDisplay: ReactComponent<{ item: Material, isTeacher?: boolean, onT
 
     // Type-safe order mapping
     const order: Record<MaterialType, number> = {
-        slides: 1,
-        exercises: 2,
-        other: 3,
-        feedbacks: 4,
+        slide: 1,
+        exercise: 2,
+        image: 3,
+        other: 4,
+        feedback: 5,
     };
 
     // Sort using the type-safe order mapping
