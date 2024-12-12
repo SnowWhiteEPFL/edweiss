@@ -212,11 +212,17 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                         <TTouchableOpacity
                             backgroundColor='crust'
                             borderColor='text' p={10} b={1} mr={'md'} radius={1000}
-                            onPress={() => Toast.show({
-                                type: 'success',
-                                text1: 'The Audiance  Questions',
-                                text2: 'Implementation comes soon'
-                            })}
+                            onPress={() =>
+                                router.push({
+                                    pathname: '/(app)/lectures/remotecontrol/questionToSlide' as any,
+                                    params: {
+                                        courseNameString,
+                                        lectureIdString,
+                                        currentPageString: curPageProvided.toString(),
+                                        totalPageString: totPageProvided.toString(),
+                                    },
+                                })
+                            }
                             testID='strc-chat-button'>
                             <Icon size={40} name='chatbubbles-outline' color='text'></Icon>
                         </TTouchableOpacity>

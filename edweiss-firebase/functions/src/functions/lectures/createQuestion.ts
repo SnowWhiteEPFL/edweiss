@@ -23,7 +23,8 @@ export const createQuestion = onAuthentifiedCall(LectureDisplay.Functions.create
         username: user.name,
         anonym: args.anonym,
         likes: 0,
-        postedTime: Timestamp.now()
+        postedTime: Timestamp.now(),
+        answered: false,
     }
     const ref = await addDocument(CollectionOf<LectureDisplay.Question>(`courses/${args.courseId}/lectures/${args.lectureId}/questions`), newQuestion);
 
