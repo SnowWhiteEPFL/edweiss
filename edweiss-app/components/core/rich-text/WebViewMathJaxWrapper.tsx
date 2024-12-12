@@ -32,11 +32,13 @@ const WebViewMathJaxWrapper: ReactComponent<WebViewJaxWrapperProps> = (props) =>
 		${props.disableMathJax ? `
 			<div id="jax-content">${props.source}</div>
 			<script type="text/javascript">
-
+				window.ReactNativeWebView.postMessage(String(document.getElementById("jax-content").scrollHeight));
+				
+				// element.scrollHeight
 				// window.ReactNativeWebView.postMessage(String(document.documentElement.scrollHeight));
-				setTimeout(() => {
-					window.ReactNativeWebView.postMessage(String(document.documentElement.scrollHeight));
-				}, 48);
+				// setTimeout(() => {
+					// window.ReactNativeWebView.postMessage(String(document.documentElement.scrollHeight));
+				// }, 48);
 			</script>
 		` : `
 			<script type="text/x-mathjax-config">
