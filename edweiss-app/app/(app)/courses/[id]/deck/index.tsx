@@ -20,6 +20,8 @@ import FancyTextInput from '@/components/input/FancyTextInput';
 import { callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
+import { useAuth } from '@/contexts/auth';
+import { useUser } from '@/contexts/user';
 import { useRepository } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
@@ -39,6 +41,8 @@ import { DecksRepository } from './_layout';
  */
 const DeckScreen: ApplicationRoute = () => {
 	const { id: courseId } = useStringParameters();
+	const { uid } = useAuth();
+	const { user } = useUser();
 
 	const [deckName, setDeckName] = useState("");
 	const [existedDeckName, setExistedDeckName] = useState(false);
@@ -61,8 +65,10 @@ const DeckScreen: ApplicationRoute = () => {
 		}
 
 		const deck = {
+			ownerID: [uid],
 			name: deckName,
-			cards: []
+			cards: [],
+			public: false
 		}
 		handler.addDocument(deck, callFunction(Memento.Functions.createDeck, { deck, courseId }));
 		setDeckName(""); // Clear the input field after successful creation
@@ -108,7 +114,7 @@ const DeckScreen: ApplicationRoute = () => {
 
 	return (
 		<>
-			<RouteHeader title={"Decks"} />
+			<RouteHeader title={`${courseId}: Memento`} />
 
 			<TScrollView>
 
@@ -155,6 +161,7 @@ const DeckScreen: ApplicationRoute = () => {
 					<DeckDisplay
 						key={deck.id}
 						deck={deck.data}
+						creator={user.name}
 						courseId={courseId}
 						deckId={deck.id}
 						isSelected={selectedDecks.some(selected => selected.name === deck.data.name)}
@@ -185,7 +192,7 @@ export default DeckScreen;
  * @param selectionMode: boolean indicating if the selection mode is active
  * @returns deck display component
  */
-export const DeckDisplay: ReactComponent<{ deck: Memento.Deck, courseId: CourseID, deckId: string; isSelected: boolean; toggleSelection: (deck: Memento.Deck) => void; onLongPress: () => void; selectionMode: boolean; }> = ({ deck, courseId, deckId, isSelected, toggleSelection, onLongPress, selectionMode }) => {
+export const DeckDisplay: ReactComponent<{ deck: Memento.Deck, creator: string, courseId: CourseID, deckId: string; isSelected: boolean; toggleSelection: (deck: Memento.Deck) => void; onLongPress: () => void; selectionMode: boolean; }> = ({ deck, creator, courseId, deckId, isSelected, toggleSelection, onLongPress, selectionMode }) => {
 	const handlePress = () => {
 		if (!selectionMode) {
 			router.push(`courses/${courseId}/deck/${deckId}` as any);
@@ -209,7 +216,7 @@ export const DeckDisplay: ReactComponent<{ deck: Memento.Deck, courseId: CourseI
 				{deck.name}
 			</TText>
 			<TText mb='md' color='subtext0' size={'sm'}>
-				2h ago
+				Created by: {creator}
 			</TText>
 			{isSelected && <TText color='green'>✓</TText>}
 		</TTouchableOpacity>
