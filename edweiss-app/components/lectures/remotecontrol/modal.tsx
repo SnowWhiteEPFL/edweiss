@@ -464,8 +464,7 @@ export const QuestionBroadcastModal: ReactComponent<{
                     lectureId: lectureId,
                     id: id,
                 });
-                console.log("Question Cleared")
-            } catch (error) { console.error("Error adding audio transcript:", error); }
+            } catch (error) { console.error("Error updating the question event:", error); }
 
 
             setBroadcasted("");
@@ -513,11 +512,11 @@ export const QuestionBroadcastModal: ReactComponent<{
                     )}
                 </TView>
 
-                <FancyButton backgroundColor='subtext0' m='md' outlined onPress={handleQuestionBroadcast} testID='brod-quest-ans-button'>
+                <FancyButton m='md' mb='sm' icon={broadcasted === id ? 'cloud-done-outline' : 'paper-plane-outline'} onPress={handleQuestionBroadcast} testID='brod-quest-ans-button'>
                     {broadcasted === id ? t('showtime:question_answered') : t('showtime:broadcast_question')}
                 </FancyButton>
 
-                <FancyButton backgroundColor='subtext0' m='md' onPress={onClose} outlined testID='brod-quest-close-button'>
+                <FancyButton backgroundColor='subtext0' m='md' mt='sm' onPress={onClose} outlined testID='brod-quest-close-button'>
                     {t('showtime:close_btn')}
                 </FancyButton>
             </>

@@ -68,9 +68,15 @@ const TodoListScreen: ApplicationRoute = () => {
 
     // Wait for lectureDoc to be available
     if (!lectureDoc) return <TActivityIndicator size={40} testID='quest-slide-activity-indicator' />;
-    const currentLecture = lectureDoc.data;
     questionsDoc?.sort((a, b) => b.data.likes - a.data.likes) || []
     const questionDocPending = questionsDoc?.filter(question => !question.data.answered) || [];
+    const currentLecture = lectureDoc.data;
+
+    if (broadcasted === "" && currentLecture.event && currentLecture.event.type === "question") {
+        setBroadcasted(currentLecture.event.id);
+    }
+    console.log("Current Event", currentLecture.event)
+
 
 
     // Handle sigle question
