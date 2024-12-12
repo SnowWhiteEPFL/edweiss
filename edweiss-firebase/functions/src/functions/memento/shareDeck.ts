@@ -23,8 +23,9 @@ export const shareDeck = onSanitizedCall(Memento.Functions.shareDeck, {
     const other_deckDoc = await other_deckCollection.where("name", "==", shared_deck.name).where("ownerID", "array-contains", args.other_user).get();
     if (other_deckDoc.size > 0) {
         const other_deck = other_deckDoc.docs[0].data();
-        const updated_deck = { ...other_deck, cards: shared_deck.cards };
-        await other_deckCollection.doc(other_deckDoc.docs[0].id).update(updated_deck);
+        const other_cards = other_deck.cards;
+        const updated_cards = [...other_cards, ...shared_deck.cards];
+        await other_deckCollection.doc(other_deckDoc.docs[0].id).update({ cards: updated_cards });
         return ok({ id: other_deckDoc.docs[0].id });
     }
 
