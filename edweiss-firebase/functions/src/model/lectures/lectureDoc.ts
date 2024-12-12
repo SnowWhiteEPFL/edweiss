@@ -8,7 +8,7 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
-import { FunctionFolder, FunctionOf } from '../functions';
+import { FunctionFolder, FunctionOf, NoResult } from '../functions';
 import Quizzes from '../quizzes';
 import { Timestamp } from '../time';
 
@@ -54,8 +54,8 @@ namespace LectureDisplay {
 
 	export const Functions = FunctionFolder("lectures", {
 		addAudioTranscript: FunctionOf<{ courseId: string, lectureId: string, pageNumber: number, transcription: string; }, {}, 'invalid_arg' | 'error_firebase' | 'successfully_added'>("addAudioTranscript"),
-		createQuestion: FunctionOf<{ courseId: string, lectureId: string, question: string, anonym: boolean; }, { id: string; }, 'invalid_arg' | 'error_firebase' | 'empty_question' | 'user_not_found' | 'not_in_course'>("createQuestion"),
-		likeQuestion: FunctionOf<{ id: string, courseId: string, lectureId: string, questionId: QuestionID, liked: boolean; }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("likeQuestion"),
+		createQuestion: FunctionOf<{ courseId: string, lectureId: string, question: string, anonym: boolean; }, { id: QuestionID; }, 'invalid_arg' | 'error_firebase' | 'empty_question' | 'user_not_found' | 'not_in_course'>("createQuestion"),
+		likeQuestion: FunctionOf<{ id: QuestionID, courseId: string, lectureId: string, liked: boolean; }, NoResult, 'invalid_id'>("likeQuestion"),
 	});
 }
 

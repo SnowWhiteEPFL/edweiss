@@ -1,3 +1,4 @@
+import Avatar from '@/components/Avatar';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import For from '@/components/core/For';
@@ -8,19 +9,27 @@ import { callFunction, Document } from '@/config/firebase';
 import SyncStorage from '@/config/SyncStorage';
 import ReactComponent from '@/constants/Component';
 import { useAuth } from '@/contexts/auth';
+import { useStoredState } from '@/hooks/storage';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import React, { useState } from 'react';
+import { Time } from '@/utils/time';
+import React, { useMemo, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import Toast from 'react-native-toast-message';
 
 
 const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, questionsDoc: Document<LectureDisplay.Question>[] | undefined }> = ({ courseName, lectureId, questionsDoc }) => {
     const [question, setQuestion] = useState<string>('');
-    const [isLoadingSend, setIsLoadingSend] = useState<boolean>(false);
-    const [isLoadingLike, setIsLoadingLike] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isAnonym, setIsAnonym] = useState<boolean>(false);
     const [enableDisplay, setEnableDisplay] = useState<boolean>(false);
     const { uid } = useAuth();
+
+    const sortedQuestions = useMemo(() => {
+        if (questionsDoc) {
+            return questionsDoc.slice().sort((a, b) => b.data.likes - a.data.likes);
+        }
+        return [];
+    }, [questionsDoc?.map(q => q.data.likes)]);
 
     // Function for adding new question into the firebase storage
     async function addQuestion(question: string) {
@@ -45,76 +54,65 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                 text1: 'You were unable to send this message',
             });
         }
-        setIsLoadingSend(false);
-    }
-
-    // Function for updating a question with new like values
-    async function likeQuestion(id: string, likes: number) {
-        const res = await callFunction(LectureDisplay.Functions.likeQuestion, {
-            courseId: courseName,
-            lectureId: lectureId,
-            id: id,
-            likes: likes,
-        });
-        if (!res.status) {
-            console.log(res.error)
-            // Display feedback to the user when failure (empty question)
-            Toast.show({
-                type: 'error',
-                text1: 'You were unable to like/unlike this message',
-            });
-        }
-        setIsLoadingLike(false);
+        setIsLoading(false);
     }
 
     const QuestionItem: React.FC<{
         question: Document<LectureDisplay.Question>;
         index: number;
     }> = ({ question, index }) => {
-        const { text, anonym, userID, likes, username } = question.data;
+        const { text, anonym, userID, likes, username, postedTime } = question.data;
         const isUser = uid == userID;
         const id = question.id;
+        const likedStorageKey = `stquestion-${id}`;
+        const [liked, setLiked] = useStoredState(likedStorageKey, false);
+        const initialLiked = useMemo(() => SyncStorage.get(likedStorageKey) == true, []);
+
+        // Function for updating a question with new like values
+        async function toggleLike() {
+            setLiked(liked => !liked);
+
+            const res = await callFunction(LectureDisplay.Functions.likeQuestion, {
+                courseId: courseName,
+                lectureId: lectureId,
+                id: id,
+                liked: !liked
+            });
+
+            if (res.status == 0) {
+                setLiked(initialLiked);
+            }
+        }
+        const likeCount = Math.max(0, likes + (initialLiked == liked ? 0 : (liked ? 1 : -1)));
 
         return (
-            <TView key={index} mb={'sm'} backgroundColor={isUser ? 'sapphire' : 'crust'} borderColor='surface0' radius={'lg'} flex={1} flexDirection='column' ml='sm' style={{ right: isUser ? 0 : 10 }}>
-                <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'} color='overlay2'>{anonym ? "Anonym" : username}</TText>
-
-                <TView pr={'sm'} pl={'md'} pb={'sm'} flexDirection='row' justifyContent='space-between' alignItems='flex-start'>
-                    <TText ml={10} color='overlay0'>{text}</TText>
-                    <TView pr={'sm'} pl={'md'} pb={'sm'} flexDirection='row' alignItems='flex-end'>
-                        <TText color='text'>{likes}</TText>
-                        {!isUser && <TTouchableOpacity testID={`like-button-${index}`} backgroundColor='transparent' onPress={() => {
-                            if (!isLoadingLike && SyncStorage.get(`stquestion-${id}`) !== undefined) {
-                                SyncStorage.set(`stquestion-${id}`, !SyncStorage.get(`stquestion-${id}`));
-                                setIsLoadingLike(true);
-                                if (SyncStorage.get(`stquestion-${id}`)) {
-                                    console.log(SyncStorage.get(`stquestion-${id}`))
-                                    likeQuestion(id, likes + 1);
-                                } else {
-                                    console.log(SyncStorage.get(`stquestion-${id}`))
-                                    likeQuestion(id, likes - 1);
-                                }
-                            } else if (!isLoadingLike) {
-                                SyncStorage.set(`stquestion-${id}`, true);
-                            }
-                        }}>
-                            {isLoadingLike ? (
-                                <ActivityIndicator />
-                            ) : (
-                                <Icon size={'md'} name={SyncStorage.get(`stquestion-${id}`) === undefined || !SyncStorage.get(`stquestion-${id}`) ? 'heart-outline' : 'heart'} color='text'></Icon>
-                            )}
-                        </TTouchableOpacity>}
+            <>
+                <TView key={index} mb={'sm'} backgroundColor={isUser ? 'overlay0' : 'crust'} borderColor='surface0' radius={'lg'} flex={1} flexDirection='column' ml='md' style={{ right: isUser ? 0 : 10 }}>
+                    <TView borderColor='darkBlue' bb={1} flexDirection='row' flexColumnGap={10} alignItems='center' radius={'lg'} mb={'sm'}>
+                        <Avatar size={40} name={anonym ? undefined : username} uid={anonym ? undefined : userID} />
+                        <TView flex={1}>
+                            <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'}>{anonym ? "Anonymous" : username}, {Time.agoTimestamp(postedTime)}</TText>
+                        </TView>
                     </TView>
+                    <TText pl={'md'}>
+                        {text}
+                    </TText>
+
+                    <TTouchableOpacity mr={'md'} testID='like' onPress={toggleLike} flexDirection='row' justifyContent='flex-end' alignItems='center' flexColumnGap={8}>
+                        <Icon name={liked ? 'heart' : 'heart-outline'} color='red' size={24} />
+                        <TText color='red' size={'xs'} bold lineHeight={14}>{likeCount}</TText>
+                    </TTouchableOpacity>
                 </TView>
-            </TView>
+            </>
+
         );
     }
 
     return (
         <>
             {/* Display existing questions */}
-            {questionsDoc ? (
-                <For each={questionsDoc}>
+            {sortedQuestions ? (
+                <For each={sortedQuestions}>
                     {(question, index) => <QuestionItem question={question} index={index} />}
                 </For>
             ) : (
@@ -134,13 +132,13 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                 />
                 <TTouchableOpacity backgroundColor="transparent" style={{ position: 'absolute', right: 20, bottom: 10, }} pl="md" testID="send-button"
                     onPress={() => {
-                        if (!isLoadingSend) {
-                            setIsLoadingSend(true);
+                        if (!isLoading) {
+                            setIsLoading(true);
                             addQuestion(question);
                         }
                     }}
                 >
-                    {isLoadingSend ? (
+                    {isLoading ? (
                         <ActivityIndicator />
                     ) : (
                         <Icon size="xl" name="send-outline" color="text" />

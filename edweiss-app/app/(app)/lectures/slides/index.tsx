@@ -19,6 +19,7 @@ import StudentQuestion from '@/components/lectures/slides/StudentQuestion';
 import { CollectionOf, getDownloadURL } from '@/config/firebase';
 import { ApplicationRoute } from '@/constants/Component';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import useTheme from '@/hooks/theme/useTheme';
 import useListenToMessages from '@/hooks/useListenToMessages';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { useLocalSearchParams } from 'expo-router';
@@ -56,6 +57,7 @@ const LectureScreen: ApplicationRoute = () => {
     // UI display setting's hooks
     const [isLandscape, setIsLandscape] = useState<boolean>(false);       // Landscape display boolean for different UI
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);    // FullScreen display of pdf toggle
+    const colorScheme = useTheme();    // Get the current color scheme (light or dark)
 
 
     const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
@@ -129,6 +131,7 @@ const LectureScreen: ApplicationRoute = () => {
             horizontal
             style={{
                 flex: 1,
+                backgroundColor: colorScheme == "dark" ? "#181825" : "#e6e9ef",
                 width: Dimensions.get('window').width * widthPorp,
                 height: Dimensions.get('window').height * heightProp,
             }}
@@ -136,7 +139,7 @@ const LectureScreen: ApplicationRoute = () => {
     );
 
     const ControlButtons = () => (
-        <TView alignItems='center' flexDirection='row' justifyContent='space-between' style={{ position: 'absolute', bottom: 0, left: 0, width: '100%' }} backgroundColor='overlay0'>
+        <TView alignItems='center' flexDirection='row' justifyContent='space-between' style={{ position: 'absolute', backgroundColor: colorScheme == "dark" ? "rgba(108, 112, 134, 0.5)" : "rgba(156, 160, 176, 0.5)", bottom: 0, left: 0, width: '100%' }}>
             {/* Buttons for page change and fullScreen toggle */}
 
             <TView flexDirection='row' justifyContent='space-between' pr={'sm'} pl={'sm'}>
@@ -156,7 +159,7 @@ const LectureScreen: ApplicationRoute = () => {
                 isLandscape && ScreenOrientation.unlockAsync();
                 setIsFullscreen(!isFullscreen);
             }}>
-                <Icon size={'xl'} name={isFullscreen ? 'contract-outline' : 'expand-outline'} dark='text' testID='fullscreen-toggle'></Icon>
+                <Icon size={'xl'} name={isFullscreen ? 'contract-outline' : 'expand-outline'} color='text' testID='fullscreen-toggle'></Icon>
             </TTouchableOpacity>
         </TView >
     );
