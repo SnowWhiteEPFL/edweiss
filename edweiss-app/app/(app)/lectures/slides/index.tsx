@@ -291,7 +291,6 @@ const LectureViewer: React.FC<{
             horizontal
             style={{
                 flex: 1,
-                backgroundColor: colorScheme == "dark" ? "#181825" : "#e6e9ef",
                 width: Dimensions.get('window').width * widthPorp,
                 height: Dimensions.get('window').height * heightProp,
             }}
