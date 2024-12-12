@@ -8,7 +8,7 @@ export const deleteDecks = onSanitizedCall(Memento.Functions.deleteDecks, {
     deckIds: Predicate.isNonEmptyArray,
     courseId: Predicate.isNonEmptyString
 }, async (userId, args) => {
-    const deckCollection = CollectionOf<Memento.Deck>(`courses/${args.courseId}/decks`);
+    const deckCollection = CollectionOf<Memento.Deck>(`users/${userId}/courses/${args.courseId}/decks`);
     for (const deckId of args.deckIds) {
         await deckCollection.doc(deckId).delete();
     }

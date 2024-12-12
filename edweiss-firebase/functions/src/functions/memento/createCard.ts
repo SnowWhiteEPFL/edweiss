@@ -13,7 +13,7 @@ export const createCard = onSanitizedCall(Memento.Functions.createCard, {
 	}),
 	courseId: Predicate.isNonEmptyString
 }, async (userId, args) => {
-	const deckCollection = CollectionOf<Memento.Deck>(`courses/${args.courseId}/decks`);
+	const deckCollection = CollectionOf<Memento.Deck>(`users/${userId}/courses/${args.courseId}/decks`);
 	const deckDoc = await deckCollection.doc(args.deckId).get();
 	const deckData = deckDoc.data();
 
