@@ -38,7 +38,7 @@ type Question = LectureDisplay.Question;
 // --------------    Question To Slide Screen    --------------
 // ------------------------------------------------------------
 
-const TodoListScreen: ApplicationRoute = () => {
+const QuestionToSlideScreen: ApplicationRoute = () => {
     // Argument Processing
     const { courseNameString, lectureIdString } = useLocalSearchParams();
     const courseName = courseNameString as string;
@@ -150,5 +150,5 @@ const TodoListScreen: ApplicationRoute = () => {
     );
 };
 
-export default TodoListScreen;
+export default QuestionToSlideScreen;
 
