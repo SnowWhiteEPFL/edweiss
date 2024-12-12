@@ -1,15 +1,19 @@
+import test from '@/app/(app)/(tabs)/test';
 import { Calendar } from '@/components/core/calendar';
 import { getWeekDates } from '@/components/core/getWeekDates';
 import { AssignmentType } from '@/model/school/courses';
 import Todolist from '@/model/todo';
-import { act, render, screen } from '@testing-library/react-native';
+import { act, expect, render, screen } from '@testing-library/react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import * as jest from 'jest-mock';
 import { initCourse, initPeriod } from './helper_functions';
 
 // Mocking Firebase Firestore Timestamp with Jest
 const Timestamp = {
-    fromDate: jest.fn((date) => {
-        const timestamp = new Date(date);
+    // Simulating the `fromDate` method
+    fromDate: jest.fn((date: string | number | Date) => {
+        const timestamp = new Date(date); // Create a `Date` object from the parameter
+
         return {
             seconds: Math.floor(timestamp.getTime() / 1000),
             nanoseconds: (timestamp.getTime() % 1000) * 1000000,
@@ -126,11 +130,11 @@ jest.mock('@react-native-firebase/firestore', () => {
 jest.mock('expo-screen-orientation', () => {
     const listeners: any[] = [];
     return {
-        addOrientationChangeListener: jest.fn((listener) => {
+        addOrientationChangeListener: jest.fn((listener: any) => {
             listeners.push(listener);
             return { remove: () => listeners.splice(listeners.indexOf(listener), 1) };
         }),
-        removeOrientationChangeListener: jest.fn((listener) => {
+        removeOrientationChangeListener: jest.fn((listener: any) => {
             const index = listeners.indexOf(listener);
             if (index > -1) listeners.splice(index, 1);
         }),

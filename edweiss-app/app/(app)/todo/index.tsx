@@ -21,8 +21,8 @@ import { useAuth } from '@/contexts/auth';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { default as Todolist } from '@/model/todo';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { router } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
 import { GestureHandlerRootView, NativeViewGestureHandler, ScrollView } from 'react-native-gesture-handler';
 import { FilterModalDisplay, TodoModalDisplay } from '../../../components/todo/modal';
 import { TodoDisplay } from '../../../components/todo/todoDisplay';
@@ -37,10 +37,14 @@ type TodoStatus = Todolist.TodoStatus;
 // ------------------------------------------------------------
 
 const TodoListScreen: ApplicationRoute = () => {
+    const { todo } = useLocalSearchParams(); // Accéder aux paramètres passés
+    const parsedTodo = todo ? JSON.parse(todo as string) : null;
+    const optionalTodoToRender = parsedTodo || 'Default Todo';
+    const shouldDisplayModal = Boolean(parsedTodo);
     const auth = useAuth();
     const todosData = useDynamicDocs(CollectionOf<Todo>(`users/${auth.authUser.uid}/todos`));
     const todos = todosData ? todosData.map(doc => ({ id: doc.id, data: doc.data })) : [];
-    const [todoToDisplay, setTodoToDisplay] = React.useState<Todo>();
+    const [todoToDisplay, setTodoToDisplay] = React.useState<Todo | undefined>(optionalTodoToRender.data);
     const modalRefTodoInfo = useRef<BottomSheetModal>(null);
     const modalRefFilter = useRef<BottomSheetModal>(null);
     const [selectedStatus, setSelectedStatus] = useState<{ [key in TodoStatus]: boolean }>({
@@ -51,6 +55,11 @@ const TodoListScreen: ApplicationRoute = () => {
     });
     const todos_filtered = todos.filter(todo => selectedStatus[todo.data.status]);
 
+    useEffect(() => {
+        if (shouldDisplayModal) {
+            modalRefTodoInfo.current?.present();
+        }
+    }, [shouldDisplayModal]);
 
     return (
         <>
