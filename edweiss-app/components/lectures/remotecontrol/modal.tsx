@@ -425,3 +425,56 @@ export const TimerSettingModal: ReactComponent<{
         </ModalContainer >
     );
 };
+
+
+
+
+// ------------------------------------------------------------
+// -------------      Question Broadcast Modal    -------------
+// ------------------------------------------------------------
+
+export const QuestionBroadcastModal: ReactComponent<{
+    modalRef: React.RefObject<BottomSheetModalMethods>;
+    id: string;
+    question: string;
+    username: string;
+    likes: number;
+    broadcasted: string,
+    setBroadcasted: React.Dispatch<React.SetStateAction<string>>;
+    onClose: () => void;
+}> = ({ modalRef, id, question, username, likes, broadcasted, setBroadcasted, onClose }) => {
+
+    const handleQuestionBroadcast = () => {
+        if (broadcasted === id) {
+            setBroadcasted("");
+        } else {
+            setBroadcasted(id);
+        }
+
+        onClose();
+    };
+
+    return (
+        <ModalContainer modalRef={modalRef}>
+            <>
+                <TView justifyContent='center' alignItems='center' mb='sm'>
+                    <TText bold size='lg' mb='sm'>{t('showtime:question_broadcast_modal_title')}</TText>
+                </TView>
+
+                <TView justifyContent='center' alignItems='center'>
+                    <TText ml={10} color='overlay2'>{question}</TText>
+                    <TText ml={10} color='overlay2'>{username}</TText>
+                    <TText ml={10} color='overlay2'>{likes}</TText>
+                </TView>
+
+                <FancyButton backgroundColor='subtext0' m='md' outlined onPress={handleQuestionBroadcast} testID='brod-quest-ans-button'>
+                    {t('showtime:broadcast_question')}
+                </FancyButton>
+
+                <FancyButton backgroundColor='subtext0' m='md' onPress={onClose} outlined testID='brod-quest-close-button'>
+                    {t('showtime:close_btn')}
+                </FancyButton>
+            </>
+        </ModalContainer>
+    );
+};
