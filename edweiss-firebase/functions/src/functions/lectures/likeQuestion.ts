@@ -9,7 +9,7 @@ export const likeQuestion = onAuthentifiedCall(LectureDisplay.Functions.likeQues
         return fail("invalid_id");
 
     const [question, questionRef] = await getDocumentAndRef(CollectionOf<LectureDisplay.Question>(`courses/${args.courseId}/lectures/${args.lectureId}/questions`), args.id);
-    const [like, likeRef] = await getDocumentAndRef(CollectionOf<LectureDisplay.Like>(`courses/${args.courseId}/lectures/${args.lectureId}/questions/${args.postId}/likes`), userId);
+    const [like, likeRef] = await getDocumentAndRef(CollectionOf<LectureDisplay.Like>(`courses/${args.courseId}/lectures/${args.lectureId}/questions/${args.questionId}/likes`), userId);
 
     if (args.liked) {
         if (like != undefined)

@@ -20,7 +20,7 @@ namespace LectureDisplay {
 
 	export type LectureEvents = "quiz";
 	export type AvailableLangs = "english" | "french" | "spanish" | "italian" | "german" | "brazilian" | "arabic" | "chinese" | "vietanames" | "hindi";
-	export type PostID = string & {};
+	export type QuestionID = string & {};
 
 	interface LectureEventBase {
 		type: LectureEvents;
@@ -55,7 +55,7 @@ namespace LectureDisplay {
 	export const Functions = FunctionFolder("lectures", {
 		addAudioTranscript: FunctionOf<{ courseId: string, lectureId: string, pageNumber: number, transcription: string; }, {}, 'invalid_arg' | 'error_firebase' | 'successfully_added'>("addAudioTranscript"),
 		createQuestion: FunctionOf<{ courseId: string, lectureId: string, question: string, anonym: boolean; }, { id: string; }, 'invalid_arg' | 'error_firebase' | 'empty_question' | 'user_not_found' | 'not_in_course'>("createQuestion"),
-		likeQuestion: FunctionOf<{ id: string, courseId: string, lectureId: string, postId: PostID, liked: boolean; }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("likeQuestion"),
+		likeQuestion: FunctionOf<{ id: string, courseId: string, lectureId: string, questionId: QuestionID, liked: boolean; }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("likeQuestion"),
 	});
 }
 
