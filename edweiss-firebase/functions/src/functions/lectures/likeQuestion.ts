@@ -23,7 +23,7 @@ export const likeQuestion = onAuthentifiedCall(LectureDisplay.Functions.likeQues
             ...question,
             likes: question.likes + 1
         });
-
+      
         return OK;
     } else {
         if (like == undefined)

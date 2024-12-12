@@ -128,8 +128,8 @@ const FakeIdLength = 16;
  * @param query The cloud collection/query from which to perform the initial fetch.
  * @returns `[documents, handler]`
  */
-export function useInitialRepository<Type extends DocumentData>(repository: Repository<Type>, query: Query<Type>): RepositoryInstance<Type> {
-	const [documents, setDocuments] = useStoredState<RepositoryDocument<Type>[] | undefined>(repository.key, undefined);
+export function useInitialRepository<Type extends DocumentData>(repository: Repository<Type>, query: Query<Type>, extender?: string): RepositoryInstance<Type> {
+	const [documents, setDocuments] = useStoredState<RepositoryDocument<Type>[] | undefined>(repository.key + (extender ? `-${extender}` : ""), undefined);
 	const yetToSyncEvents = useRef<YetToSyncEvent[]>([]);
 
 	useEffect(() => {
@@ -322,8 +322,8 @@ export function useRepositoryDocument<T extends DocumentData>(id: string, reposi
  * @param repository The signature {@link Repository} created with {@link createRepository}.
  * @param collection The Firebase collection for the initial fetch.
  */
-export function RepositoryLayout<T extends DocumentData>(props: { repository: Repository<T>, collection: Query<T> }) {
-	const instance = useInitialRepository(props.repository, props.collection);
+export function RepositoryLayout<T extends DocumentData>(props: { repository: Repository<T>, collection: Query<T>, extender?: string }) {
+	const instance = useInitialRepository(props.repository, props.collection, props.extender);
 
 	return (
 		<RepositoryProvider repository={props.repository} instance={instance}>

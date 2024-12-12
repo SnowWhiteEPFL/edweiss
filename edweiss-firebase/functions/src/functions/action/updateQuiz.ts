@@ -7,7 +7,8 @@ import { INVALID_COURSE_ID, ok } from 'utils/status';
 
 export const updateQuiz = onSanitizedCall(Quizzes.Functions.updateQuiz, {
 	courseId: tag(Predicate.isNonEmptyString, INVALID_COURSE_ID),
-	quiz: CustomPredicateQuiz.isValidQuiz
+	quiz: CustomPredicateQuiz.isValidQuiz,
+	path: Predicate.isNonEmptyString
 }, async (userId, args) => {
 	//const thisUser = await getDocument(Collections.users, userId);
 	// if (thisUser?.type != "professor") {

@@ -15,6 +15,7 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import Icon from '@/components/core/Icon';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
+import { TranscriptModeModal } from '@/components/lectures/slides/modal';
 import StudentQuestion from '@/components/lectures/slides/StudentQuestion';
 import { CollectionOf, getDownloadURL } from '@/config/firebase';
 import { ApplicationRoute } from '@/constants/Component';
@@ -24,13 +25,16 @@ import useListenToMessages from '@/hooks/useListenToMessages';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import React, { useCallback, useEffect, useState } from 'react';
+import { transModeIconMap, transModeIDMap } from '@/utils/lectures/slides/utilsFunctions';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, DimensionValue } from 'react-native';
 import Pdf from 'react-native-pdf';
 
 // Types
 type Lecture = LectureDisplay.Lecture;
 type Question = LectureDisplay.Question;
+type TranscriptLangMode = LectureDisplay.TranscriptLangMode;
 
 // ------------------------------------------------------------
 // --------------------  Lecture Screen  ----------------------
@@ -40,6 +44,10 @@ const LectureScreen: ApplicationRoute = () => {
     const { courseNameString, lectureIdString } = useLocalSearchParams();
     const courseName = courseNameString as string;
     const lectureId = lectureIdString as string;
+
+
+    // Modal References
+    const modalRefTranscriptMode = useRef<BottomSheetModal>(null);
 
     // FCM token receiver for changing pages 
     useListenToMessages((msg) => {
@@ -58,6 +66,7 @@ const LectureScreen: ApplicationRoute = () => {
     const [isLandscape, setIsLandscape] = useState<boolean>(false);       // Landscape display boolean for different UI
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);    // FullScreen display of pdf toggle
     const colorScheme = useTheme();    // Get the current color scheme (light or dark)
+    const [transMode, setTransMode] = useState<TranscriptLangMode>('original');          // Current transcript mode 
 
     const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
     const questionsDoc = useDynamicDocs(CollectionOf<Question>(`courses/${courseName}/lectures/${lectureId}/questions`));
@@ -174,16 +183,42 @@ const LectureScreen: ApplicationRoute = () => {
 
     const ContentView = (widthPercent: string, heightPercent: string) => (
         <TView flexDirection='column' mr={'xl'} style={{ width: widthPercent as DimensionValue, height: heightPercent as DimensionValue }}>
-            {/*<TScrollView b={'sm'} mt={25} mr={'md'} ml={'md'} radius={'lg'} flex={1}>
+
+            {/* Transcript selection */}
+            <TView style={{ position: 'absolute', top: 10, right: 10, zIndex: 1 }}>
+                <TTouchableOpacity
+                    backgroundColor='crust'
+                    borderColor='text' p={'sm'} b={1} ml={'sm'} radius={1000}
+                    onPress={() => modalRefTranscriptMode.current?.present()}
+                    testID='st-trans-mode-sel-button'>
+
+                    {transMode === 'original' ? (
+                        <Icon size={'lg'} name='language-outline' color='text'></Icon>
+                    ) : (
+                        <TText size={'lg'}>{transModeIconMap[transMode]}</TText>
+                    )}
+                </TTouchableOpacity>
+
+            </TView>
+
+
+            {/* The Audio Transcript display */}
+            <TScrollView b={'sm'} mt={25} mr={'md'} ml={'md'} radius={'lg'} flex={1}>
+
+                {/* Transcript Display */}
                 {currentLecture.audioTranscript?.[currentPage] ? (
-                    <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[currentPage]}</TText>
+                    // Display's Teacher
+                    <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[currentPage][transModeIDMap[transMode]]}</TText>
                 ) : (
+
+                    // Default Text
                     <TText pt={'sm'} pl={'sm'} pr={'sm'} color='overlay0'>
                         {t(`showtime:lecturer_transcript_deftxt`)}
                     </TText>
                 )}
             </TScrollView>*/}
 
+            {/* Student Questions Display */}
             <TScrollView flex={0.5} mt={15} mr={'md'} ml={'md'} mb={15}>
                 <StudentQuestion courseName={courseName} lectureId={lectureId} questionsDoc={questionsDoc} />
             </TScrollView>
@@ -196,11 +231,15 @@ const LectureScreen: ApplicationRoute = () => {
 
             <RouteHeader disabled title={"Lecture's Slides"} />
 
+            {/* Main Screen by default on Full Screen*/}
             {isFullscreen ?
+
                 <TView mr={'lg'} flexDirection='column' style={{ width: '100%', height: '100%', position: 'relative' }} >
                     {PDFViewer(uri, 1, 1)}
                     {ControlButtons()}
                 </TView>
+
+                // Landscape Mode handling
                 : isLandscape ?
                     <TView flexDirection={'row'} flex={1} style={{ width: '100%' }}>
                         <TView flexDirection='column' style={{ width: '60%', height: '100%', position: 'relative' }} >
@@ -209,6 +248,8 @@ const LectureScreen: ApplicationRoute = () => {
                         </TView>
                         {ContentView('40%', '100%')}
                     </TView>
+
+                    // Portrait Mode handling
                     :
                     <TView flexDirection={'column'} flex={1} style={{ width: '100%' }}>
                         <TView flexDirection='column' style={{ width: '100%', height: '40%', position: 'relative' }} >
@@ -218,6 +259,9 @@ const LectureScreen: ApplicationRoute = () => {
                         {ContentView('100%', '60%')}
                     </TView>
             }
+
+            {/* Modal */}
+            <TranscriptModeModal modalRef={modalRefTranscriptMode} transMode={transMode} setTransMode={setTransMode} onClose={() => modalRefTranscriptMode.current?.close()} />
 
         </>
     );
