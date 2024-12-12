@@ -1,6 +1,6 @@
 import ReactComponent from '@/constants/Component';
 
-import { DocumentRouteSignature } from '@/app/(app)/courses/[id]/materials/[materialId]/document';
+import { DocumentRouteSignature } from '@/app/(app)/courses/[id]/materials/[materialId]';
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';

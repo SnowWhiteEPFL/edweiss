@@ -25,7 +25,7 @@ import Pdf from 'react-native-pdf';
 export const DocumentRouteSignature: ApplicationRouteSignature<{
     document: MaterialDocument,
 }> = {
-    path: `/courses/[id]/materials/[materialId]/document`
+    path: `/courses/[id]/materials/[materialId]`
 }
 
 // Supported document formats
