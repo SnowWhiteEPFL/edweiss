@@ -1,5 +1,5 @@
 import { SingleDistributionDisplay } from '@/app/(app)/quiz/temporaryQuizProfView';
-import Quizzes, { QuizzesAttempts } from '@/model/quizzes';
+import Quizzes, { LectureQuizzesAttempts } from '@/model/quizzes';
 import { render } from '@testing-library/react-native';
 import { ViewProps } from 'react-native';
 
@@ -138,18 +138,18 @@ describe('SingleDistributionDisplay', () => {
 		answer: false,
 	};
 
-	const mockMCQAttempts: QuizzesAttempts.QuizAttempt[] = [
-		{ attempts: 1, answers: [{ type: 'MCQAnswersIndices', value: [2] }] },
-		{ attempts: 1, answers: [{ type: 'MCQAnswersIndices', value: [1] }] },
-		{ attempts: 3, answers: [{ type: 'MCQAnswersIndices', value: [0] }] },
-		{ attempts: 2, answers: [{ type: 'MCQAnswersIndices', value: [0] }] },
+	const mockMCQAttempts: LectureQuizzesAttempts.LectureQuizAttempt[] = [
+		{ type: 'MCQAnswersIndices', value: [2] },
+		{ type: 'MCQAnswersIndices', value: [1] },
+		{ type: 'MCQAnswersIndices', value: [0] },
+		{ type: 'MCQAnswersIndices', value: [0] },
 	];
 
-	const mockTFAttempts: QuizzesAttempts.QuizAttempt[] = [
-		{ attempts: 2, answers: [{ type: 'TFAnswer', value: true }] },
-		{ attempts: 4, answers: [{ type: 'TFAnswer', value: false }] },
-		{ attempts: 1, answers: [{ type: 'TFAnswer', value: true }] },
-		{ attempts: 1, answers: [{ type: 'TFAnswer', value: false }] },
+	const mockTFAttempts: LectureQuizzesAttempts.LectureQuizAttempt[] = [
+		{ type: 'TFAnswer', value: true },
+		{ type: 'TFAnswer', value: false },
+		{ type: 'TFAnswer', value: true },
+		{ type: 'TFAnswer', value: false }
 	];
 
 	beforeEach(() => {
@@ -162,7 +162,6 @@ describe('SingleDistributionDisplay', () => {
 
 				exercise={mockMCQExercise}
 				exerciseAttempts={mockMCQAttempts}
-				index={0}
 			/>
 		);
 
@@ -176,9 +175,9 @@ describe('SingleDistributionDisplay', () => {
 	it('renders TF distribution correctly', () => {
 		const { getByText } = render(
 			<SingleDistributionDisplay
+
 				exercise={mockTFExercise}
 				exerciseAttempts={mockTFAttempts}
-				index={0}
 			/>
 		);
 

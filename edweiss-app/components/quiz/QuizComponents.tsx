@@ -1,12 +1,12 @@
-//import { handleMCQColor, textColor } from '@/app/(app)/quiz/temporaryQuizStudentView';
 import { Color } from '@/constants/Colors';
 import ReactComponent from '@/constants/Component';
 import Quizzes from '@/model/quizzes';
 import { memo } from 'react';
-import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import TView from '../core/containers/TView';
 import For from '../core/For';
 import TText from '../core/TText';
+import CoolCheckBox from '../input/CoolCheckBox';
+import RadioSelectables, { RadioSelectable } from '../input/RadioSelectables';
 
 export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: number[], onUpdate: (answer: number[] | boolean | undefined, id: number) => void, exId: number, }> = memo(({ exercise, selectedIds, onUpdate, exId }) => {
 	const handleSelection = (propId: number) => {
@@ -32,23 +32,20 @@ export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: nu
 	return (
 		<TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"}>
 
-			<TView mb={"lg"} radius={999} p={"md"}>
+			<TView mb={"md"} radius={999} p={"md"}>
 				<TText size={"lg"}>
-					{exercise.question} - {exercise.numberOfAnswers} answer(s)
+					{exercise.question} -- {exercise.numberOfAnswers} answer(s)
 				</TText>
 			</TView>
 
 			<For each={exercise.propositions} key={exercise.question}>
 				{(proposition, index) =>
-					<TTouchableOpacity key={exercise.question + proposition.id}
-						onPress={() => handleSelection(index)}
-						backgroundColor={handleMCQColor(selectedIds, index)}
-						mb={"md"} mr={"md"} ml={"md"} p={"sm"} px={"md"}
-						radius={"xl"}>
-						<TText color={textColor(handleMCQColor(selectedIds, index))}>
-							{proposition.description}
-						</TText>
-					</TTouchableOpacity>}
+					<CoolCheckBox key={proposition.id} value={selectedIds.includes(index)} onChange={b => {
+						handleSelection(index)
+
+					}} label={<TText>{proposition.description}</TText>} />
+				}
+
 			</For>
 		</TView>
 	);
@@ -58,7 +55,7 @@ export const MCQResultDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedI
 	return (
 		<TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"}>
 
-			<TView mb={"lg"} radius={999} p={"md"}>
+			<TView mb={"md"} radius={999} p={"md"}>
 				<TText size={"lg"}>
 					{exercise.question}
 				</TText>
@@ -66,14 +63,14 @@ export const MCQResultDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedI
 
 			<For each={exercise.propositions} key={exercise.question}>
 				{(proposition, index) =>
-					<TTouchableOpacity key={exercise.question + proposition.id}
+					<TView key={exercise.question + proposition.id}
 						backgroundColor={checkResultColor(checkMCQPropositionCorrect(selectedIds, results, index))}
 						mb={"md"} mr={"md"} ml={"md"} p={"sm"} px={"md"}
 						radius={"xl"}>
 						<TText color={textColor(checkResultColor(checkMCQPropositionCorrect(selectedIds, results, index)))}>
 							{proposition.description}
 						</TText>
-					</TTouchableOpacity>}
+					</TView>}
 			</For>
 		</TView>
 	);
@@ -92,16 +89,25 @@ export const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean
 		});
 	};
 
+	const trueSelectable: RadioSelectable<boolean> = {
+		label: "True",
+		value: true,
+	}
+	const falseSelectable: RadioSelectable<boolean> = {
+		label: "False",
+		value: false,
+	}
+
 	return (
 		<TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"} pb={"xl"}>
 
-			<TView mb={"lg"} radius={"xl"} p={"md"}>
+			<TView mb={"md"} radius={"xl"} p={"md"}>
 				<TText size={"lg"}>
 					{exercise.question}
 				</TText>
 			</TView>
 
-			<TView flexDirection='row' flexColumnGap={"xl"}>
+			{/* <TView flexDirection='row' flexColumnGap={"xl"}>
 				<TTouchableOpacity flex={1} onPress={() => { handleSelection(true); }} radius={"xl"} p={"md"} backgroundColor={handleTFColor(selected, true)} testID='true' >
 					<TText align='center' color={textColor(handleTFColor(selected, true))}>
 						True
@@ -114,7 +120,14 @@ export const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean
 					</TText>
 				</TTouchableOpacity>
 
-			</TView>
+			</TView> */}
+			<RadioSelectables data={[trueSelectable, falseSelectable]} onSelection={(value) => {
+
+				handleSelection(value)
+			}} value={selected}>
+
+			</RadioSelectables>
+
 		</TView>
 
 	);
@@ -132,17 +145,17 @@ export const TFResultDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: b
 			</TView>
 
 			<TView flexDirection='row' flexColumnGap={"xl"}>
-				<TTouchableOpacity flex={1} radius={"xl"} p={"md"} backgroundColor={checkResultColor(checkTFCorrect(selected, true, result))} testID='true'>
+				<TView flex={1} radius={"xl"} p={"md"} backgroundColor={checkResultColor(checkTFCorrect(selected, true, result))} testID='true'>
 					<TText align='center' color={textColor(checkResultColor(checkTFCorrect(selected, true, result)))}>
 						True
 					</TText>
-				</TTouchableOpacity>
+				</TView>
 
-				<TTouchableOpacity flex={1} radius={"xl"} p={"md"} backgroundColor={checkResultColor(checkTFCorrect(selected, false, result))} testID='false'>
+				<TView flex={1} radius={"xl"} p={"md"} backgroundColor={checkResultColor(checkTFCorrect(selected, false, result))} testID='false'>
 					<TText align='center' color={textColor(checkResultColor(checkTFCorrect(selected, false, result)))}>
 						False
 					</TText>
-				</TTouchableOpacity>
+				</TView>
 
 			</TView>
 		</TView>

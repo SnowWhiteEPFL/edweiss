@@ -123,7 +123,7 @@ describe('DisplayMCQProportions', () => {
 	};
 
 	it('renders the MCQ question and distribution for each proposition', () => {
-		const { getByText } = render(<DisplayMCQProportions distribution={mockDistribution} exercise={mockMCQExercise} />);
+		const { getByText } = render(<DisplayMCQProportions distribution={mockDistribution} exercise={mockMCQExercise} numberOfAttempts={1} />);
 
 		// Check if question is rendered
 		expect(getByText('What is the capital of France?')).toBeTruthy();

@@ -116,7 +116,7 @@ describe('DisplayTFProportions', () => {
 	};
 
 	it('renders the TF question and distribution percentages', () => {
-		const { getByText } = render(<DisplayTFProportions distribution={mockDistribution} exercise={mockTFExercise} />);
+		const { getByText } = render(<DisplayTFProportions distribution={mockDistribution} exercise={mockTFExercise} numberOfAttempts={1} />);
 
 		// Check if question is rendered
 		expect(getByText('The earth is flat.')).toBeTruthy();
