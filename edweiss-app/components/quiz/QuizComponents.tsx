@@ -30,13 +30,13 @@ export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: nu
 		});
 	};
 
-	// ${t('quiz:quiz_display.answer')} ${exercise.numberOfAnswers}
+
 	return (
 		<TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"}>
 
-			<TView backgroundColor='red' mb={"md"} p={"md"}>
+			<TView mb={"md"} p={"md"}>
 				<RichText>
-					{exercise.question}
+					{`${exercise.question} — ${exercise.numberOfAnswers} ${t('quiz:quiz_display.answer')}`}
 				</RichText>
 			</TView>
 

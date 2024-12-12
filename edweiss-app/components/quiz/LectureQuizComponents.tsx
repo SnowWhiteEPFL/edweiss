@@ -1,19 +1,18 @@
 import { LectureQuizDisplay, LectureQuizResultDisplay, sendToLectureEvent } from '@/app/(app)/quiz/lectureQuizStudentView';
 import { SingleDistributionDisplay } from '@/app/(app)/quiz/temporaryQuizProfView';
-import { CollectionOf, Document, callFunction } from '@/config/firebase';
+import { CollectionOf, Document } from '@/config/firebase';
 import ReactComponent from '@/constants/Component';
 import { useAuth } from '@/contexts/auth';
 import { useUser } from '@/contexts/user';
 import { useDoc, useDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import Quizzes, { LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
+import { LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
 import { Redirect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import TSafeArea from '../core/containers/TSafeArea';
 import TView from '../core/containers/TView';
 import TActivityIndicator from '../core/TActivityIndicator';
 import TText from '../core/TText';
-import FancyButton from '../input/FancyButton';
 
 const LectureQuizView: ReactComponent<{ courseId: string, lectureId: string, lectureEventId: string }> = ({ courseId, lectureId, lectureEventId }) => {
 	const pathToEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
@@ -51,17 +50,21 @@ export const LectureQuizProfView: ReactComponent<{ courseId: string, lectureId: 
 		// }
 	}, [quizEvent]);
 
-	async function toggleResult() {
-		setLoading(true);
-		const res = await callFunction(Quizzes.Functions.toggleLectureQuizResult, { lectureId: lectureId, lectureEventId: lectureEventId, courseId: courseId, });
+	// ------------The following must be managed in the remote control-----------
 
-		if (res.status === 1) {
-			console.log(`toggled showResultToStudent boolean`);
-		} else {
-			console.log(`Error while toggling boolean shoresultToStudent`);
-		}
-		setLoading(false);
-	}
+	// async function toggleResult() {
+	// 	setLoading(true);
+	// 	const res = await callFunction(Quizzes.Functions.toggleLectureQuizResult, { lectureId: lectureId, lectureEventId: lectureEventId, courseId: courseId, });
+
+	// 	if (res.status === 1) {
+	// 		console.log(`toggled showResultToStudent boolean`);
+	// 	} else {
+	// 		console.log(`Error while toggling boolean shoresultToStudent`);
+	// 	}
+	// 	setLoading(false);
+	// }
+
+	// --------------------------
 	if (quizEvent == undefined || studentAttempts == undefined) {
 		return <TActivityIndicator testID='undefined-quiz-loading-prof' />;
 	}
@@ -84,9 +87,10 @@ export const LectureQuizProfView: ReactComponent<{ courseId: string, lectureId: 
 					</TView>
 				</>
 				}
-				<FancyButton loading={loading} onPress={toggleResult}>
+				{/* ------- must be put in the remote control ------- */}
+				{/* <FancyButton loading={loading} onPress={toggleResult}>
 					{quiz?.showResultToStudents ? "Show quiz to students" : "Show results to students"}
-				</FancyButton>
+				</FancyButton> */}
 			</TSafeArea>
 
 		</>
