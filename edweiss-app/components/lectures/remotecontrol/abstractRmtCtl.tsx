@@ -215,12 +215,12 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                             onPress={() =>
                                 router.push({
                                     pathname: '/(app)/lectures/remotecontrol/questionToSlide' as any,
-                                    // params: {
-                                    //     courseNameString,
-                                    //     lectureIdString,
-                                    //     currentPageString: curPageProvided.toString(),
-                                    //     totalPageString: totPageProvided.toString(),
-                                    // },
+                                    params: {
+                                        courseNameString,
+                                        lectureIdString,
+                                        currentPageString: curPageProvided.toString(),
+                                        totalPageString: totPageProvided.toString(),
+                                    },
                                 })
                             }
                             testID='strc-chat-button'>
