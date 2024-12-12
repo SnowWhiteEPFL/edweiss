@@ -20,6 +20,7 @@ interface CustomEvents {
   course?: { id: string, data: Course };
   todo?: { id: string, data: any };
   type: "Todo" | "Course" | "Assignment";
+  assignmentID?: string;
 }
 const calculateTopOffset = (startTime: string) => {
   const [hours, minutes] = startTime.split(':').map(Number);
@@ -125,6 +126,8 @@ const EventsPerDayScreen = () => {
               name: `Assignment: ${assignment.name}`,
               startTime: dueDate.getHours() * 60 + dueDate.getMinutes(),
               type: "Assignment",
+              assignmentID: assignmentDoc.id,
+              course: { id: courseDoc.id, data: courseDoc.data() as unknown as Course },
             });
           }
         });
@@ -387,6 +390,7 @@ const CalendarTable = ({ eventsByDate }: CalendarTableProps) => {
                     ? { todo: JSON.stringify(event.todo) } // Sérialiser l'objet
                     : {};
                   console.log(pathname);
+                  const assignmentParams = { pathname: `/(app)/quiz/temporaryQuizStudentView`, params: { quizId: event.assignmentID, courseId: event.course?.id } }
                   return (
                     <TouchableOpacity
                       onPress={() => {
@@ -394,6 +398,10 @@ const CalendarTable = ({ eventsByDate }: CalendarTableProps) => {
                           router.push({ pathname: pathname as any, params });
                         } else if (event.type == "Todo") {
                           router.push({ pathname: '/(app)/todo', params: todoParams });
+                        }
+                        else {
+                          console.log(assignmentParams);
+                          router.push(assignmentParams);
                         }
                       }}
                       key={index}
