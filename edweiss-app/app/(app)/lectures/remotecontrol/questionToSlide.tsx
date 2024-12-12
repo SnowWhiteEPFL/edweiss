@@ -75,7 +75,6 @@ const TodoListScreen: ApplicationRoute = () => {
     if (broadcasted === "" && currentLecture.event && currentLecture.event.type === "question") {
         setBroadcasted(currentLecture.event.id);
     }
-    console.log("Current Event", currentLecture.event)
 
 
 
@@ -128,7 +127,7 @@ const TodoListScreen: ApplicationRoute = () => {
 
 
 
-            {questionDocPending ? (
+            {questionDocPending && questionDocPending.length > 0 ? (
                 <TScrollView>
                     <For each={questionDocPending}>
                         {(question, index) => <QuestionDisplay question={question} index={index} />}
