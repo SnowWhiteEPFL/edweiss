@@ -14,11 +14,10 @@ import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
 import { MaterialDocument } from '@/model/school/courses';
-import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert } from 'react-native';
+import { ActivityIndicator, Image } from 'react-native';
 //import ReactNativeFS from 'react-native-fs';
+import * as FileSystem from 'expo-file-system';
 import Pdf from 'react-native-pdf';
 
 
@@ -28,6 +27,8 @@ export const DocumentRouteSignature: ApplicationRouteSignature<{
     path: `/courses/[id]/materials/[materialId]/document`
 }
 
+type DocumentFormat = 'pdf' | 'jpg' | 'png';
+
 // ------------------------------------------------------------
 // --------------------  Document Screen  ----------------------
 // ------------------------------------------------------------
@@ -35,48 +36,45 @@ export const DocumentRouteSignature: ApplicationRouteSignature<{
 const DocumentScreen: ApplicationRoute = () => {
     const { document } = useRouteParameters(DocumentRouteSignature);
 
+    const docFormat = document.uri.substring(document.uri.lastIndexOf('.') + 1).toLowerCase();
+
     const [numPages, setNumPages] = useState<number>(0); // Total number of pages
     const [currentPage, setCurrentPage] = useState<number>(1); // Current active page
     const [url, setUrl] = useState<string>(''); // URL of the PDF
     const [hasError, setHasError] = useState<boolean>(false); // Track if an error should be shown
 
+
     useEffect(() => {
         if (document.uri) {
-            getUri();
+            getUrl();
         }
     }, [document]);
 
-    // Timeout ID to control error delay
-    const errorTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-
-    const getUri = async () => {
+    const getUrl = async () => {
         try {
             const url = await getDownloadURL(document.uri);
             setUrl(url);
             setHasError(false); // Reset any existing error
         } catch (error) {
+            setHasError(true);
             console.error('Error loading PDF URL:', error);
         }
     };
 
 
-    const handlePdfError = (error: any) => {
-        // Start a timeout to delay the error reporting
-        if (!errorTimeoutRef.current) {
-            errorTimeoutRef.current = setTimeout(() => {
-                setHasError(true); // Only set error after timeout
-                console.error('PDF loading error:', error);
-            }, 1000); // Delay of 1 second
-        }
-    };
 
-    // Clear timeout if PDF successfully loads
-    const handlePdfLoadSuccess = () => {
-        if (errorTimeoutRef.current) {
-            clearTimeout(errorTimeoutRef.current);
-            errorTimeoutRef.current = null;
+    // ------------------------------------------------------------
+    // ----------------------  Document Viewer  -------------------
+    // ------------------------------------------------------------
+
+    const docViewer = (uri: string) => {
+        if (docFormat === 'pdf') {
+            return PDFViewer(uri);
+        } else if (docFormat === 'jpg' || docFormat === 'png') {
+            return (
+                ImageViewer(uri)
+            );
         }
-        setHasError(false); // No error
     };
 
     const PDFViewer = (uri: string) => (
@@ -84,13 +82,10 @@ const DocumentScreen: ApplicationRoute = () => {
             trustAllCerts={false}
             source={{ uri }}
             renderActivityIndicator={() => <ActivityIndicator size="large" />}
-            horizontal={false} // Enable vertical scrolling
-            onLoadComplete={(totalPages) => {
-                setNumPages(totalPages);
-                handlePdfLoadSuccess(); // Call success handler
-            }}
+            horizontal={false}
             onPageChanged={(currentPage) => setCurrentPage(currentPage)}
-            onError={handlePdfError} // Call delayed error handler
+            onLoadComplete={(totalPages) => { setNumPages(totalPages); }}
+            onError={() => console.error('Error loading PDF')}
             style={{
                 flex: 1,
                 width: '100%',
@@ -99,8 +94,96 @@ const DocumentScreen: ApplicationRoute = () => {
         />
     );
 
-    const displayPageNumber = (currentPage: number, numPages: number) => (
-        <TView radius={5} px={10} py={5} style={{ position: 'absolute', bottom: 10, right: 10, backgroundColor: 'rgba(128, 128, 128, 0.2)' }}>
+    const ImageViewer = (uri: string) => (
+        <TView flex={1} justifyContent='flex-start' alignItems='center' pb={120} >
+            <Image
+                source={{ uri }}
+                style={{ flex: 1, width: '100%', height: '100%' }}
+                resizeMode="contain"
+            />
+        </TView>
+    );
+
+
+
+    // ------------------------------------------------------------
+    // --------------------  Download and Save  --------------------
+    // ------------------------------------------------------------
+
+    const handleDownloadAndSave = async () => {
+        try {
+            // Download the file and encode it in Base64
+            const base64Data = await downloadAndEncodeBase64(url);
+
+            // Save the file in the selected directory
+            await saveToSelectedDirectory(base64Data, document.uri);
+        } catch (error) {
+            console.error('Global Error: ', error);
+        }
+    };
+
+    const downloadAndEncodeBase64 = async (url: string) => {
+        try {
+            // Save the file in the cache directory
+            const fileUri = FileSystem.cacheDirectory + `temp.${docFormat}`; // Temporary name
+            await FileSystem.downloadAsync(url, fileUri);           // Download the file
+            console.log('File saved in cache:', fileUri);
+
+            // Read the file and get its content encoded in Base64
+            const base64Data = await FileSystem.readAsStringAsync(fileUri, {
+                encoding: FileSystem.EncodingType.Base64,
+            });
+
+            console.log('Encoded data in Base64 retrieved.');
+            console.log('Data size:', base64Data.length);
+            return base64Data;
+        } catch (error) {
+            console.error('Error when downloading or encoding:', error);
+            throw error;
+        }
+    };
+
+    const saveToSelectedDirectory = async (base64Data: string, fileName: string) => {
+        try {
+            // Ask the user to select a directory
+            const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+            if (!permissions.granted) {
+                console.log('Permission denied.');
+                return;
+            }
+
+            console.log('Selected directory:', permissions.directoryUri);
+
+            // Create the file in the selected directory
+            await FileSystem.StorageAccessFramework.createFileAsync(
+                permissions.directoryUri,
+                fileName,
+                `application/${docFormat}` // MIME type
+            )
+                .then(async (uri) => {
+                    console.log('File downloaded in :', uri);
+
+                    // Write the Base64 data in the file
+                    await FileSystem.writeAsStringAsync(uri, base64Data, {
+                        encoding: FileSystem.EncodingType.Base64,
+                    });
+                    console.log('File successfully saved.');
+                })
+                .catch((e) => {
+                    console.error('Error when creating the file: ', e);
+                });
+        } catch (e) {
+            console.error('Error when downloading the file: ', e);
+        }
+    };
+
+
+
+    // ------------------------------------------------------------
+    // ----------------------  Page Number  -----------------------
+    // ------------------------------------------------------------
+    const displayPageNumber = () => (
+        <TView radius={5} px={10} py={5} style={{ position: 'absolute', top: 10, left: 10, backgroundColor: 'rgba(128, 128, 128, 0.2)' }}>
             <TText bold color='text'>
                 {currentPage + t('course:of') + numPages}
             </TText>
@@ -108,69 +191,28 @@ const DocumentScreen: ApplicationRoute = () => {
 
     );
 
+
     return (
         <>
             <RouteHeader
                 title={document.title}
                 isBold
                 right={
-                    <TTouchableOpacity p={10} onPress={async () => {
-                        try {
-                            // File selection using DocumentPicker
-                            const result = await DocumentPicker.getDocumentAsync({
-                                type: '*/*',
-                                copyToCacheDirectory: true,
-                                multiple: false,
-                            });
-
-                            if (result.canceled) {
-                                console.log('The user cancelled the document selection');
-                            } else {
-                                const asset = result.assets && result.assets.length > 0 ? result.assets[0] : null;
-
-                                if (asset) {
-                                    console.log('File Informations:', {
-                                        name: asset.name,
-                                        size: asset.size,
-                                        uri: asset.uri,
-                                    });
-
-                                    // Prompt user to confirm where to save the file
-                                    const downloadDirectory = `${FileSystem.documentDirectory}downloads/`; // Change directory as needed
-                                    const fileUri = `${downloadDirectory}${asset.name}`;
-
-                                    // Create directory if it doesn't exist
-                                    await FileSystem.makeDirectoryAsync(downloadDirectory, { intermediates: true });
-
-                                    // Copy the file to the selected directory
-                                    await FileSystem.copyAsync({
-                                        from: asset.uri,
-                                        to: fileUri,
-                                    });
-
-                                    Alert.alert('Success', `File downloaded to: ${fileUri}`);
-                                    console.log('File saved at:', fileUri);
-                                }
-                            }
-                        } catch (error) {
-                            console.error('Error selecting document', error);
-                            Alert.alert('Error', 'An error occurred while selecting the document.');
-                        }
-                    }}>
+                    <TTouchableOpacity p={10} onPress={handleDownloadAndSave}>
                         <Icon name='download' size={'xl'} color='darkBlue' mr={5} />
                     </TTouchableOpacity>
                 }
             />
 
-            <TView mr={'lg'} flexDirection='column' style={{ width: '100%', height: '100%', position: 'relative' }} >
-                {url && PDFViewer(url)}
+            <TView mr={'lg'} flexDirection='column' justifyContent='center' style={{ width: '100%', height: '100%', position: 'relative' }} >
+                {url && docViewer(url)}
                 {hasError && (
-                    <TText color="red" style={{ textAlign: 'center', marginTop: 20 }}>
+                    <TText color="red" bold align='center' mt={20}>
                         {t('course:document_error')}
                     </TText>
                 )}
             </TView>
-            {url && displayPageNumber(currentPage, numPages)}
+            {url && docFormat === 'pdf' && displayPageNumber()}
 
         </>
     );
