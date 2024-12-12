@@ -5,10 +5,11 @@ import For from '@/components/core/For';
 import Icon from '@/components/core/Icon';
 import TText from '@/components/core/TText';
 import FancyTextInput from '@/components/input/FancyTextInput';
-import { callFunction, Document } from '@/config/firebase';
+import { callFunction, CollectionOf, Document } from '@/config/firebase';
 import SyncStorage from '@/config/SyncStorage';
 import ReactComponent from '@/constants/Component';
 import { useAuth } from '@/contexts/auth';
+import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { useStoredState } from '@/hooks/storage';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { Time } from '@/utils/time';
@@ -21,15 +22,9 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
     const [question, setQuestion] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isAnonym, setIsAnonym] = useState<boolean>(false);
-    const [enableDisplay, setEnableDisplay] = useState<boolean>(false);
     const { uid } = useAuth();
 
-    const sortedQuestions = useMemo(() => {
-        if (questionsDoc) {
-            return questionsDoc.slice().sort((a, b) => b.data.likes - a.data.likes);
-        }
-        return [];
-    }, [questionsDoc?.map(q => q.data.likes)]);
+    const sortedQuestions = useDynamicDocs(CollectionOf<LectureDisplay.Question>(`courses/${courseName}/lectures/${lectureId}/questions`).orderBy("likes", "desc"));
 
     // Function for adding new question into the firebase storage
     async function addQuestion(question: string) {
@@ -88,7 +83,7 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
         return (
             <>
                 <TView key={index} mb={'sm'} backgroundColor={isUser ? 'overlay0' : 'crust'} borderColor='surface0' radius={'lg'} flex={1} flexDirection='column' ml='md' style={{ right: isUser ? 0 : 10 }}>
-                    <TView borderColor='darkBlue' bb={1} flexDirection='row' flexColumnGap={10} alignItems='center' radius={'lg'} mb={'sm'}>
+                    <TView borderColor={isUser ? 'crust' : 'overlay0'} bb={1} flexDirection='row' flexColumnGap={10} alignItems='center' radius={'lg'} mb={'sm'}>
                         <Avatar size={40} name={anonym ? undefined : username} uid={anonym ? undefined : userID} />
                         <TView flex={1}>
                             <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'}>{anonym ? "Anonymous" : username}, {Time.agoTimestamp(postedTime)}</TText>
@@ -98,7 +93,7 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                         {text}
                     </TText>
 
-                    <TTouchableOpacity mr={'md'} testID='like' onPress={toggleLike} flexDirection='row' justifyContent='flex-end' alignItems='center' flexColumnGap={8}>
+                    <TTouchableOpacity mr={'md'} testID={`like-button-${index}`} onPress={toggleLike} flexDirection='row' justifyContent='flex-end' alignItems='center' flexColumnGap={8}>
                         <Icon name={liked ? 'heart' : 'heart-outline'} color='red' size={24} />
                         <TText color='red' size={'xs'} bold lineHeight={14}>{likeCount}</TText>
                     </TTouchableOpacity>
@@ -144,28 +139,15 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                         <Icon size="xl" name="send-outline" color="text" />
                     )}
                 </TTouchableOpacity>
-                <TTouchableOpacity style={{ position: 'absolute', right: 20, bottom: 60, }} backgroundColor="transparent" onPress={() => { setEnableDisplay(!enableDisplay) }} pl="md" testID='person-circle-outline'>
-                    <Icon size="xl" name="person-circle-outline" color="text" />
-                </TTouchableOpacity>
+                <TView flexDirection='row' justifyContent='center' style={{ position: 'absolute', right: 20, top: 0 }}>
+                    <TText color='darkBlue' size={15}>Anonym ? </TText>
+                    <TTouchableOpacity backgroundColor="transparent" onPress={() => { setIsAnonym(!isAnonym) }} pt={'xs'} testID={isAnonym ? "checkmark-circle-outline" : "ellipse-outline"}>
+                        <Icon size="lg" name={isAnonym ? "checkmark-circle-outline" : "ellipse-outline"} color="darkBlue" />
+                    </TTouchableOpacity>
+                </TView>
 
             </TView>
 
-            {/* Overlay for anonimity and username configuration */}
-            {enableDisplay && (
-                <TView radius={'lg'} flex={1} justifyContent='center' style={{ position: 'absolute', bottom: 0, right: 0, left: 0 }} backgroundColor='overlay0' pt={"md"} pb={"sm"} mr={"md"} ml={"md"} mb={"md"}>
-
-                    <TView flexDirection='row' justifyContent='center'>
-                        <TText color='cherry'>Anonym ? </TText>
-                        <TTouchableOpacity backgroundColor="transparent" onPress={() => { setIsAnonym(!isAnonym) }} pl="md" testID={isAnonym ? "checkmark-circle-outline" : "ellipse-outline"}>
-                            <Icon size="xl" name={isAnonym ? "checkmark-circle-outline" : "ellipse-outline"} color="cherry" />
-                        </TTouchableOpacity>
-                    </TView>
-
-                    <TTouchableOpacity style={{ position: 'absolute', top: 0, right: 0 }} onPress={() => { setEnableDisplay(!enableDisplay) }}>
-                        <Icon size="lg" name="close-circle-outline" color="red" />
-                    </TTouchableOpacity>
-
-                </TView>)}
         </>
     );
 };
