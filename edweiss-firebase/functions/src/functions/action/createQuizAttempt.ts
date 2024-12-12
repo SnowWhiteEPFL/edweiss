@@ -11,6 +11,7 @@ export const createQuizAttempt = onSanitizedCall(QuizzesAttempts.Functions.creat
 	quizId: Predicate.isNonEmptyString,
 	quizAttempt: CustomPredicateQuiz.isValidQuizAttempt
 }, async (userId, args) => {
+	
 	const ref = getDocumentRef(CollectionOf<QuizzesAttempts.QuizAttempt>(args.path), userId);
 
 	await ref.set(args.quizAttempt);
