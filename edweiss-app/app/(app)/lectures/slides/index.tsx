@@ -18,16 +18,17 @@ import TText from '@/components/core/TText';
 import { TranscriptModeModal } from '@/components/lectures/slides/modal';
 import StudentQuestion from '@/components/lectures/slides/StudentQuestion';
 import { CollectionOf, getDownloadURL } from '@/config/firebase';
-import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import useTheme from '@/hooks/theme/useTheme';
 import useListenToMessages from '@/hooks/useListenToMessages';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { transModeIconMap, transModeIDMap } from '@/utils/lectures/slides/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import React, { useEffect, useRef, useState } from 'react';
+import { t } from 'i18next';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, DimensionValue } from 'react-native';
 import Pdf from 'react-native-pdf';
 
@@ -63,8 +64,9 @@ const LectureScreen: ApplicationRoute = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);  // Track swiped or active page
     const [uri, setUri] = useState<string>('');                 // Url state
     // UI display setting's hooks
-    const [isLandscape, setIsLandscape] = useState<boolean>(true);       // Landscape display boolean for different UI
+    const [isLandscape, setIsLandscape] = useState<boolean>(false);       // Landscape display boolean for different UI
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);    // FullScreen display of pdf toggle
+    const colorScheme = useTheme();    // Get the current color scheme (light or dark)
     const [transMode, setTransMode] = useState<TranscriptLangMode>('original');          // Current transcript mode 
 
     const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
@@ -77,14 +79,27 @@ const LectureScreen: ApplicationRoute = () => {
         }
     }, [lectureDoc]);
 
+    useFocusEffect(
+        useCallback(() => {
+            // This effect runs every time the screen is unfocused or focused
+            return () => {
+                // Unlock orientation whenever the screen loses focus (navigating back)
+                ScreenOrientation.unlockAsync();
+            };
+        }, [])
+    );
 
     // Landscape display for the screen
     const setLandscape = async () => {
         await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     };
+    // Landscape display for the screen
+    const setPortrait = async () => {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    };
 
     useEffect(() => {
-        setLandscape();
+        setPortrait();
         ScreenOrientation.unlockAsync();
         const onOrientationChange = (currentOrientation: ScreenOrientation.OrientationChangeEvent) => {
             const orientationValue = currentOrientation.orientationInfo.orientation;
@@ -134,6 +149,7 @@ const LectureScreen: ApplicationRoute = () => {
             horizontal
             style={{
                 flex: 1,
+                backgroundColor: colorScheme == "dark" ? "#181825" : "#e6e9ef",
                 width: Dimensions.get('window').width * widthPorp,
                 height: Dimensions.get('window').height * heightProp,
             }}
@@ -141,7 +157,7 @@ const LectureScreen: ApplicationRoute = () => {
     );
 
     const ControlButtons = () => (
-        <TView alignItems='center' flexDirection='row' justifyContent='space-between' style={{ position: 'absolute', bottom: 0, left: 0, width: '100%' }} backgroundColor='overlay0'>
+        <TView alignItems='center' flexDirection='row' justifyContent='space-between' style={{ position: 'absolute', backgroundColor: colorScheme == "dark" ? "rgba(108, 112, 134, 0.5)" : "rgba(156, 160, 176, 0.5)", bottom: 0, left: 0, width: '100%' }}>
             {/* Buttons for page change and fullScreen toggle */}
 
             <TView flexDirection='row' justifyContent='space-between' pr={'sm'} pl={'sm'}>
@@ -161,7 +177,7 @@ const LectureScreen: ApplicationRoute = () => {
                 isLandscape && ScreenOrientation.unlockAsync();
                 setIsFullscreen(!isFullscreen);
             }}>
-                <Icon size={'xl'} name={isFullscreen ? 'contract-outline' : 'expand-outline'} dark='text' testID='fullscreen-toggle'></Icon>
+                <Icon size={'xl'} name={isFullscreen ? 'contract-outline' : 'expand-outline'} color='text' testID='fullscreen-toggle'></Icon>
             </TTouchableOpacity>
         </TView >
     );
