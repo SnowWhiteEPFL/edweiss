@@ -15,11 +15,28 @@ import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
 import Toast from 'react-native-toast-message';
 
 
-// Mock data for `usePrefetchedDynamicDoc`
+// Mock data for `usePrefetchedDynamicDoc` with any lecture event
 const mockLectureData = {
     data: {
         pdfUri: 'mocked-uri',
         audioTranscript: {},
+        event: {
+            id: "",
+            type: "invalid",
+        }
+    },
+};
+
+
+// Mock data for `usePrefetchedDynamicDoc` with any lecture event
+const mockLectureData2 = {
+    data: {
+        pdfUri: 'mocked-uri',
+        audioTranscript: {},
+        event: {
+            id: "1",
+            type: "question",
+        }
     },
 };
 
@@ -50,6 +67,7 @@ const mockQuestionData = [
             likes: 5,
             username: 'User1',
             postedTime: Timestamp.now(), // Include postedTime as an ISO string
+            answered: false,
         },
     },
     {
@@ -61,6 +79,7 @@ const mockQuestionData = [
             likes: 3,
             username: '',
             postedTime: Timestamp.now(), // Include postedTime as an ISO string
+            answered: false,
         },
     },
 ];
@@ -522,3 +541,35 @@ describe('LectureScreen Component', () => {
 });
 
 
+describe('LectureScreen Component Broadcasting Question to audiance', () => {
+
+    let modalRef: React.RefObject<BottomSheetModal>;
+
+    beforeEach(() => {
+        modalRef = {
+            current: {
+                present: jest.fn(),
+                dismiss: jest.fn(),
+                snapToIndex: jest.fn(),
+                snapToPosition: jest.fn(),
+                expand: jest.fn(),
+                collapse: jest.fn(),
+                close: jest.fn(),
+                forceClose: jest.fn(),
+            }
+        };
+
+        jest.clearAllMocks();
+        (usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockLectureData2]); // Mocking `usePrefetchedDynamicDoc` with minimal data
+        (useDynamicDocs as jest.Mock).mockReturnValue(mockQuestionData); // Mocking `useDynamicDocs` with minimal question data
+        (useAuth as jest.Mock).mockReturnValue({ uid: 'mock-uid', });
+        (useUser as jest.Mock).mockReturnValue({ user: { name: 'Test User', }, });
+    });
+
+    it('display the correct current question on the screen', () => {
+        const { rerender } = render(<LectureScreen />);
+        rerender(<LectureScreen />);
+        expect(screen.getByText('« Test Question 1 »')).toBeTruthy();
+    });
+
+});
