@@ -23,10 +23,11 @@ import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firest
 import useTheme from '@/hooks/theme/useTheme';
 import useListenToMessages from '@/hooks/useListenToMessages';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
-import * as ScreenOrientation from 'expo-screen-orientation';
 import { transModeIconMap, transModeIDMap } from '@/utils/lectures/slides/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import { t } from 'i18next';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, DimensionValue } from 'react-native';
 import Pdf from 'react-native-pdf';
@@ -216,7 +217,7 @@ const LectureScreen: ApplicationRoute = () => {
                         {t(`showtime:lecturer_transcript_deftxt`)}
                     </TText>
                 )}
-            </TScrollView>*/}
+            </TScrollView>
 
             {/* Student Questions Display */}
             <TScrollView flex={0.5} mt={15} mr={'md'} ml={'md'} mb={15}>
