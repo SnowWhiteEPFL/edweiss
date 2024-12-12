@@ -11,7 +11,7 @@ import { useDoc, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import Quizzes, { LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
-import { Redirect, router } from 'expo-router';
+import { Redirect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 
 export const LectureQuizStudentViewSignature: ApplicationRouteSignature<{
@@ -100,8 +100,9 @@ const LectureQuizStudentView: ApplicationRoute = () => {
 	}
 
 };
-
 export default LectureQuizStudentView;
+
+
 
 export const LectureQuizDisplay: ReactComponent<{ studentAnswer: QuizzesAttempts.Answer | undefined, exercise: Quizzes.Exercise, onUpdate: (answer: number[] | boolean | undefined, id: number) => void, send: () => void, testId: string }> = ({ studentAnswer, exercise, onUpdate, send, testId }) => {
 	if (exercise.type == "MCQ" && studentAnswer != undefined) {
@@ -116,7 +117,7 @@ export const LectureQuizDisplay: ReactComponent<{ studentAnswer: QuizzesAttempts
 						if (send != undefined) {
 							send();
 						}
-						router.back();
+						//router.back();
 					}}
 					icon='save-sharp'
 					testID='submit'>
@@ -137,7 +138,7 @@ export const LectureQuizDisplay: ReactComponent<{ studentAnswer: QuizzesAttempts
 						if (send != undefined) {
 							send();
 						}
-						router.back();
+						//router.back();
 					}}
 					icon='save-sharp'
 					testID='submit'>
@@ -157,14 +158,7 @@ export const LectureQuizResultDisplay: ReactComponent<{ studentAnswer: QuizzesAt
 			<TSafeArea>
 				<TView>
 					<MCQResultDisplay key={exercise.question + "result"} exercise={exercise} selectedIds={studentAnswer.value as number[]} results={result.value as number[]} />
-					<FancyButton
-						mt={"md"} mb={"md"}
-						onPress={() => {
-							router.back();
-						}}
-						testID='exit-result'>
-						Exit
-					</FancyButton>
+
 				</TView >
 			</TSafeArea>
 		);
@@ -174,14 +168,7 @@ export const LectureQuizResultDisplay: ReactComponent<{ studentAnswer: QuizzesAt
 			<TSafeArea>
 				<TView>
 					<TFResultDisplay key={exercise.question + "result"} exercise={exercise} selected={studentAnswer.value as boolean | undefined} result={result.value as boolean} />
-					<FancyButton
-						mt={"md"} mb={"md"}
-						onPress={() => {
-							router.back();
-						}}
-						testID='exit-result'>
-						Exit
-					</FancyButton>
+
 				</TView>
 			</TSafeArea>
 		);

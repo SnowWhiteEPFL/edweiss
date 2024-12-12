@@ -1,9 +1,11 @@
 import { Color } from '@/constants/Colors';
 import ReactComponent from '@/constants/Component';
 import Quizzes from '@/model/quizzes';
+import { t } from 'i18next';
 import { memo } from 'react';
 import TView from '../core/containers/TView';
 import For from '../core/For';
+import RichText from '../core/rich-text/RichText';
 import TText from '../core/TText';
 import CoolCheckBox from '../input/CoolCheckBox';
 import RadioSelectables, { RadioSelectable } from '../input/RadioSelectables';
@@ -28,14 +30,14 @@ export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: nu
 		});
 	};
 
-
+	// ${t('quiz:quiz_display.answer')} ${exercise.numberOfAnswers}
 	return (
 		<TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"}>
 
-			<TView mb={"md"} radius={999} p={"md"}>
-				<TText size={"lg"}>
-					{exercise.question} -- {exercise.numberOfAnswers} answer(s)
-				</TText>
+			<TView backgroundColor='red' mb={"md"} p={"md"}>
+				<RichText>
+					{exercise.question}
+				</RichText>
 			</TView>
 
 			<For each={exercise.propositions} key={exercise.question}>
@@ -43,7 +45,7 @@ export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: nu
 					<CoolCheckBox key={proposition.id} value={selectedIds.includes(index)} onChange={b => {
 						handleSelection(index)
 
-					}} label={<TText>{proposition.description}</TText>} />
+					}} label={<RichText>{proposition.description}</RichText>} />
 				}
 
 			</For>
@@ -55,10 +57,10 @@ export const MCQResultDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedI
 	return (
 		<TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"}>
 
-			<TView mb={"md"} radius={999} p={"md"}>
-				<TText size={"lg"}>
+			<TView mb={"xs"} p={"md"}>
+				<RichText size={"lg"}>
 					{exercise.question}
-				</TText>
+				</RichText>
 			</TView>
 
 			<For each={exercise.propositions} key={exercise.question}>
@@ -67,7 +69,7 @@ export const MCQResultDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedI
 						backgroundColor={checkResultColor(checkMCQPropositionCorrect(selectedIds, results, index))}
 						mb={"md"} mr={"md"} ml={"md"} p={"sm"} px={"md"}
 						radius={"xl"}>
-						<TText color={textColor(checkResultColor(checkMCQPropositionCorrect(selectedIds, results, index)))}>
+						<TText key={exercise.question + proposition.id} color={textColor(checkResultColor(checkMCQPropositionCorrect(selectedIds, results, index)))}>
 							{proposition.description}
 						</TText>
 					</TView>}
@@ -90,11 +92,11 @@ export const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean
 	};
 
 	const trueSelectable: RadioSelectable<boolean> = {
-		label: "True",
+		label: t('quiz:quiz_display.true'),
 		value: true,
 	}
 	const falseSelectable: RadioSelectable<boolean> = {
-		label: "False",
+		label: t('quiz:quiz_display.false'),
 		value: false,
 	}
 
@@ -102,31 +104,15 @@ export const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean
 		<TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"} pb={"xl"}>
 
 			<TView mb={"md"} radius={"xl"} p={"md"}>
-				<TText size={"lg"}>
+				<RichText size={"lg"}>
 					{exercise.question}
-				</TText>
+				</RichText>
 			</TView>
 
-			{/* <TView flexDirection='row' flexColumnGap={"xl"}>
-				<TTouchableOpacity flex={1} onPress={() => { handleSelection(true); }} radius={"xl"} p={"md"} backgroundColor={handleTFColor(selected, true)} testID='true' >
-					<TText align='center' color={textColor(handleTFColor(selected, true))}>
-						True
-					</TText>
-				</TTouchableOpacity>
-
-				<TTouchableOpacity flex={1} onPress={() => handleSelection(false)} radius={"xl"} p={"md"} backgroundColor={handleTFColor(selected, false)} testID='false'>
-					<TText align='center' color={textColor(handleTFColor(selected, false))}>
-						False
-					</TText>
-				</TTouchableOpacity>
-
-			</TView> */}
 			<RadioSelectables data={[trueSelectable, falseSelectable]} onSelection={(value) => {
 
 				handleSelection(value)
-			}} value={selected}>
-
-			</RadioSelectables>
+			}} value={selected} />
 
 		</TView>
 
@@ -147,13 +133,13 @@ export const TFResultDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: b
 			<TView flexDirection='row' flexColumnGap={"xl"}>
 				<TView flex={1} radius={"xl"} p={"md"} backgroundColor={checkResultColor(checkTFCorrect(selected, true, result))} testID='true'>
 					<TText align='center' color={textColor(checkResultColor(checkTFCorrect(selected, true, result)))}>
-						True
+						{t('quiz:quiz_display.true')}
 					</TText>
 				</TView>
 
 				<TView flex={1} radius={"xl"} p={"md"} backgroundColor={checkResultColor(checkTFCorrect(selected, false, result))} testID='false'>
 					<TText align='center' color={textColor(checkResultColor(checkTFCorrect(selected, false, result)))}>
-						False
+						{t('quiz:quiz_display.false')}
 					</TText>
 				</TView>
 

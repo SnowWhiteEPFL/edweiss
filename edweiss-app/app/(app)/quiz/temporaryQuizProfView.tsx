@@ -1,4 +1,3 @@
-import RouteHeader from '@/components/core/header/RouteHeader';
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
 
 import For from '@/components/core/For';
@@ -6,13 +5,14 @@ import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
 import TSafeArea from '@/components/core/containers/TSafeArea';
 import TView from '@/components/core/containers/TView';
-import { CollectionOf, Document } from '@/config/firebase';
+import FancyButton from '@/components/input/FancyButton';
+import { callFunction, CollectionOf, Document } from '@/config/firebase';
 import { useDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import Quizzes, { LectureQuizzes, LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
 import { router } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export const TemporaryQuizProfViewSignature: ApplicationRouteSignature<{
 	courseId: string, lectureId: string, lectureEventId: string
@@ -24,9 +24,11 @@ export const TemporaryQuizProfViewSignature: ApplicationRouteSignature<{
 const TemporaryQuizProfView: ApplicationRoute = () => {
 	const { courseId, lectureId, lectureEventId, prefetchedQuizEvent } = useRouteParameters(TemporaryQuizProfViewSignature)
 	const pathToEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
-	const pathToAttempts = pathToEvents + "/" + lectureEventId + "/attempts"
+	const pathToAttempts = pathToEvents + "/" + lectureEventId + "/attempts";
 
-	const [quizEvent, loading] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEvent>(pathToEvents), lectureEventId as string, prefetchedQuizEvent);
+	const [loading, setLoading] = useState(false);
+
+	const [quizEvent, _] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEvent>(pathToEvents), lectureEventId as string, prefetchedQuizEvent);
 	const studentAttempts = useDocs(CollectionOf<LectureQuizzesAttempts.LectureQuizAttempt>(pathToAttempts));
 
 	const quiz = quizEvent?.data.quizModel
@@ -39,47 +41,47 @@ const TemporaryQuizProfView: ApplicationRoute = () => {
 			router.back();
 		}
 	}, [quizEvent]);
+
+	async function toggleResult() {
+		setLoading(true);
+		const res = await callFunction(Quizzes.Functions.toggleLectureQuizResult, { lectureId: lectureId, lectureEventId: lectureEventId, courseId: courseId, });
+
+		if (res.status === 1) {
+			console.log(`toggled showResultToStudent boolean`);
+		} else {
+			console.log(`Error while toggling boolean shoresultToStudent`);
+		}
+		setLoading(false);
+	}
 	if (quizEvent == undefined || studentAttempts == undefined) {
 		return <TActivityIndicator testID='undefined-quiz-loading-prof' />;
 	}
 
-	if (quiz?.showResultToStudents && studentAttempts.length > 0) {
-		const studentAttemptsData = studentAttempts.map(doc => doc.data);
-		if (studentAttemptsData == undefined) {
-			return <TActivityIndicator testID='attempts-empty' />
-		}
+	const studentAttemptsData = studentAttempts.map(doc => doc.data);
 
-		return (
-			<>
-				<TSafeArea>
-					<SingleDistributionDisplay exercise={quiz.exercise} exerciseAttempts={studentAttemptsData} />
-				</TSafeArea>
 
-			</>
-		);
-	}
-	else if (quizEvent != undefined && !quizEvent.data.quizModel.showResultToStudents) {
-		return (
-			<>
-				<RouteHeader disabled />
-				<TSafeArea>
+	return (
+		<>
+			<TSafeArea>
+				{quiz?.showResultToStudents && studentAttempts.length > 0 && <>
+					<TView mb='lg'>
+						<SingleDistributionDisplay exercise={quiz.exercise} exerciseAttempts={studentAttemptsData} />
+					</TView>
+				</>
+				}
+				{quizEvent != undefined && !quiz?.showResultToStudents && <>
 					<TView>
 						<TText> Quiz is live! </TText>
 					</TView>
-				</TSafeArea>
+				</>
+				}
+				<FancyButton loading={loading} onPress={toggleResult}>
+					{quiz?.showResultToStudents ? "Show quiz to students" : "Show results to students"}
+				</FancyButton>
+			</TSafeArea>
 
-			</>
-		);
-	}
-	else {
-		return (
-			<TView>
-				<TText>
-					An error occured!
-				</TText>
-			</TView>
-		);
-	}
+		</>
+	);
 
 };
 export default TemporaryQuizProfView;
@@ -174,16 +176,16 @@ export const DisplayMCQProportions: ReactComponent<{ distribution: number[], exe
 			<TText size={'lg'}>
 				{exercise.question}
 			</TText>
-			<For each={distribution}>
-				{(percentage, propositionIndex) => {
+			<For each={exercise.propositions}>
+				{(proposition, propositionIndex) => {
 					//console.log(distribution.length)
 					return (
-						<TView style={{ position: "relative" }}>
-							<TView backgroundColor='blue' style={{ width: `${percentage}%` }} radius='xs' p='md' ml='sm' mb='sm'>
+						<TView style={{ position: "relative" }} key={proposition.id}>
+							<TView backgroundColor='blue' style={{ width: `${distribution[propositionIndex]}%` }} radius='xs' p='md' ml='sm' mb='sm'>
 							</TView>
 
 							<TText style={{ position: 'absolute' }} color='overlay0' mt='sm' ml='sm'>
-								{`Proposition ${propositionIndex + 1} : ${percentage} %`}
+								{`Proposition ${propositionIndex + 1} : ${distribution[propositionIndex]} %`}
 							</TText>
 						</TView>
 					);
