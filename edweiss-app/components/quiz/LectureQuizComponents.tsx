@@ -35,7 +35,6 @@ const LectureQuizView: ReactComponent<{ courseId: string, lectureId: string, lec
 
 export const LectureQuizProfView: ReactComponent<{ courseId: string, lectureId: string, lectureEventId: string, quizEvent: Document<LectureDisplay.QuizLectureEvent> | undefined, pathToAttempts: string }> = ({ courseId, lectureId, lectureEventId, quizEvent, pathToAttempts }) => {
 
-	const [loading, setLoading] = useState(false);
 
 	const studentAttempts = useDocs(CollectionOf<LectureQuizzesAttempts.LectureQuizAttempt>(pathToAttempts));
 
