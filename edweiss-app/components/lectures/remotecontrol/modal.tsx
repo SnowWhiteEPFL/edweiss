@@ -479,7 +479,8 @@ export const QuestionBroadcastModal: ReactComponent<{
                     id: id,
                 });
                 console.log("Question Broadcasted")
-            } catch (error) { console.error("Error adding audio transcript:", error); }
+            } catch (error) { console.error("Error updating the question event:", error); }
+
 
 
             setBroadcasted(id);
