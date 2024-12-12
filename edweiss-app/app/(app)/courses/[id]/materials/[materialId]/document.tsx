@@ -17,6 +17,7 @@ import { MaterialDocument } from '@/model/school/courses';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Image } from 'react-native';
 //import ReactNativeFS from 'react-native-fs';
+import SVGImage from '@/components/core/SVGImage';
 import * as FileSystem from 'expo-file-system';
 import Pdf from 'react-native-pdf';
 
@@ -27,7 +28,8 @@ export const DocumentRouteSignature: ApplicationRouteSignature<{
     path: `/courses/[id]/materials/[materialId]/document`
 }
 
-type DocumentFormat = 'pdf' | 'jpg' | 'png';
+// Supported document formats
+type DocumentFormat = 'pdf' | 'jpg' | 'png' | 'jpeg' | 'gif' | 'webp' | 'svg' | string;
 
 // ------------------------------------------------------------
 // --------------------  Document Screen  ----------------------
@@ -36,7 +38,7 @@ type DocumentFormat = 'pdf' | 'jpg' | 'png';
 const DocumentScreen: ApplicationRoute = () => {
     const { document } = useRouteParameters(DocumentRouteSignature);
 
-    const docFormat = document.uri.substring(document.uri.lastIndexOf('.') + 1).toLowerCase();
+    const docFormat: DocumentFormat = document.uri.substring(document.uri.lastIndexOf('.') + 1).toLowerCase();
 
     const [numPages, setNumPages] = useState<number>(0); // Total number of pages
     const [currentPage, setCurrentPage] = useState<number>(1); // Current active page
@@ -57,7 +59,7 @@ const DocumentScreen: ApplicationRoute = () => {
             setHasError(false); // Reset any existing error
         } catch (error) {
             setHasError(true);
-            console.error('Error loading PDF URL:', error);
+            console.error('Error loading URL:', error);
         }
     };
 
@@ -68,15 +70,25 @@ const DocumentScreen: ApplicationRoute = () => {
     // ------------------------------------------------------------
 
     const docViewer = (uri: string) => {
-        if (docFormat === 'pdf') {
-            return PDFViewer(uri);
-        } else if (docFormat === 'jpg' || docFormat === 'png') {
-            return (
-                ImageViewer(uri)
-            );
+        switch (docFormat) {
+            case 'pdf':
+                return PDFViewer(uri);
+            case 'jpg':
+            case 'jpeg':
+            case 'png':
+                return ImageViewer(uri);
+            case 'svg':
+                return SVGViewer(uri);
+            case 'gif':
+            case 'webp':
+                return;
+            //return WEBPnGIFViewer(uri);
+            default:
+                return NotSupportedViewer();
         }
     };
 
+    // PDF Viewer for PDF
     const PDFViewer = (uri: string) => (
         <Pdf
             trustAllCerts={false}
@@ -94,16 +106,50 @@ const DocumentScreen: ApplicationRoute = () => {
         />
     );
 
+    // Image Viewer for JPG, JPEG and PNG
     const ImageViewer = (uri: string) => (
+        console.log('url ', uri),
         <TView flex={1} justifyContent='flex-start' alignItems='center' pb={120} >
             <Image
                 source={{ uri }}
                 style={{ flex: 1, width: '100%', height: '100%' }}
                 resizeMode="contain"
+                onError={() => console.error('Error loading image')}
             />
         </TView>
     );
 
+    // SVG Viewer for SVG
+    const SVGViewer = (uri: string) => (
+        <TView flex={1} justifyContent='center' alignItems='center' pb={120} >
+            <SVGImage
+                uri={uri}
+                onError={() => console.error('Error loading SVG')}
+            />
+        </TView>
+    );
+
+    // const WEBPnGIFViewer = (uri: string) => (
+    //     <TView flex={1} justifyContent='center' alignItems='center' pb={120} >
+    //         <FastImage
+    //             style={{ width: 200, height: 200 }}
+    //             source={{
+    //                 uri: uri, // .webp or .gif URL
+    //                 priority: FastImage.priority.normal,
+    //             }}
+    //             resizeMode='contain'
+    //         />
+    //     </TView>
+    // );
+
+    // Viewer for unsupported formats
+    const NotSupportedViewer = () => (
+        <TView flex={1} justifyContent='center' alignItems='center' pb={120} >
+            <TText color='red' bold>
+                {t('course:document_not_supported')}
+            </TText>
+        </TView>
+    );
 
 
     // ------------------------------------------------------------

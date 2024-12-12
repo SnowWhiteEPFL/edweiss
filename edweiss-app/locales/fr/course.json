@@ -47,5 +47,6 @@
     "update_changes": "Mettre à jour les changements",
 
     "document_error": "Une erreur est survenue lors du chargement du document.",
+    "document_not_supported": "Ce type de document n'est pas supporté par Edweiss.",
     "of": " sur "
 }

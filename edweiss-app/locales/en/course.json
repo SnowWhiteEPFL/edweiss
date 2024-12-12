@@ -81,5 +81,6 @@
     "field_required": "This field cannot be empty",
 
     "document_error": "An error occurred while loading the document.",
+    "document_not_supported": "This document format is not supported by Edweiss.",
     "of" : " of "
 }
