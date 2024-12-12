@@ -9,7 +9,7 @@
 // ------------------------------------------------------------
 
 import { FunctionFolder, FunctionOf } from '../functions';
-import Quizzes from '../quizzes';
+import { LectureQuizzes } from '../quizzes';
 import { Timestamp } from '../time';
 
 // ------------------------------------------------------------
@@ -18,20 +18,26 @@ import { Timestamp } from '../time';
 
 namespace LectureDisplay {
 
-	export type LectureEvents = "quiz";
+	export type LectureEventType = "quiz";
 	export type AvailableLangs = "english" | "french" | "spanish" | "italian" | "german" | "brazilian" | "arabic" | "chinese" | "vietanames" | "hindi";
+	export type TranscriptLangMode = 'original' | AvailableLangs;
+
+	export type MultiLangTranscript = {
+		[langNumber: number]: string;
+	};
 
 	interface LectureEventBase {
-		type: LectureEvents;
+		type: LectureEventType;
 		done: boolean;
 		pageNumber: number;
 	}
 
 	export interface QuizLectureEvent extends LectureEventBase {
 		type: "quiz";
-		quizModel: Quizzes.Quiz;
+		quizModel: LectureQuizzes.LectureQuiz;
 	}
 
+	export type LectureEvent = QuizLectureEvent
 	export interface Question {
 		text: string,
 		userID: string,
@@ -45,7 +51,7 @@ namespace LectureDisplay {
 		pdfUri: string;
 		nbOfPages: number;
 		availableToStudents: boolean;
-		audioTranscript: { [pageNumber: number]: string; };
+		audioTranscript: { [pageNumber: number]: MultiLangTranscript; };
 	}
 
 	export const Functions = FunctionFolder("lectures", {
