@@ -15,6 +15,7 @@ import Icon from '@/components/core/Icon';
 import ModalContainer from '@/components/core/modal/ModalContainer';
 import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
+import { callFunction } from '@/config/firebase';
 import { LightDarkProps } from '@/constants/Colors';
 import ReactComponent from '@/constants/Component';
 import { TIME_CONSTANTS } from '@/constants/Time';
@@ -436,23 +437,36 @@ export const TimerSettingModal: ReactComponent<{
 export const QuestionBroadcastModal: ReactComponent<{
     modalRef: React.RefObject<BottomSheetModalMethods>;
     id: string;
+    courseId: string,
+    lectureId: string,
     question: string;
     username: string;
     likes: number;
     broadcasted: string,
     setBroadcasted: React.Dispatch<React.SetStateAction<string>>;
     onClose: () => void;
-}> = ({ modalRef, id, question, username, likes, broadcasted, setBroadcasted, onClose }) => {
+}> = ({ modalRef, id, courseId, lectureId, question, username, likes, broadcasted, setBroadcasted, onClose }) => {
 
-    const handleQuestionBroadcast = () => {
-        if (broadcasted === id) {
-            setBroadcasted("");
-        } else {
-            setBroadcasted(id);
-        }
-
+    async function handleQuestionBroadcast() {
         onClose();
-    };
+        if (broadcasted === id) {
+
+            // Question has been answered 
+            const res = await callFunction(LectureDisplay.Functions.markQuestionAsAnswered, {
+                courseId: courseId,
+                lectureId: lectureId,
+                id: id,
+                answered: true,
+            });
+            setBroadcasted("");
+
+        } else {
+
+            // Broadcast the question to the audience
+            setBroadcasted(id);
+            console.log("Broadcast the question to the audience");
+        };
+    }
 
     return (
         <ModalContainer modalRef={modalRef}>
@@ -466,21 +480,21 @@ export const QuestionBroadcastModal: ReactComponent<{
 
 
                 <TView justifyContent='center' alignItems='center' m={'md'}>
-                    <TText ml={10} size={'lg'} color='overlay2'>« {question} »</TText>
+                    <TText size={'lg'} color='overlay2' align='center'>« {question} »</TText>
                 </TView>
 
 
                 <TView flexDirection='column' alignItems='flex-end' mt='md'>
                     {likes > 0 && (
                         <>
-                            <TText ml={10} color='overlay2' mr='lg'>{likes} other student also want</TText>
-                            <TText ml={10} color='overlay2' mr='lg'>to know about this</TText>
+                            <TText ml={'md'} color='overlay2' mr='lg'>{likes} {t('showtime:other_student')}</TText>
+                            <TText ml={'md'} color='overlay2' mr='lg'>{t('showtime:are_interrested')}</TText>
                         </>
                     )}
                 </TView>
 
                 <FancyButton backgroundColor='subtext0' m='md' outlined onPress={handleQuestionBroadcast} testID='brod-quest-ans-button'>
-                    {t('showtime:broadcast_question')}
+                    {broadcasted === id ? t('showtime:question_answered') : t('showtime:broadcast_question')}
                 </FancyButton>
 
                 <FancyButton backgroundColor='subtext0' m='md' onPress={onClose} outlined testID='brod-quest-close-button'>

@@ -139,7 +139,7 @@ const TodoListScreen: ApplicationRoute = () => {
             )}
 
             {/* Modal */}
-            <QuestionBroadcastModal modalRef={modalRefQuestionBroadcast} id={selID} question={selQuestion} likes={selLikes} username={selUsername} broadcasted={broadcasted} setBroadcasted={setBroadcasted} onClose={() => modalRefQuestionBroadcast.current?.close()} />
+            <QuestionBroadcastModal modalRef={modalRefQuestionBroadcast} id={selID} courseId={courseName} lectureId={lectureId} question={selQuestion} likes={selLikes} username={selUsername} broadcasted={broadcasted} setBroadcasted={setBroadcasted} onClose={() => modalRefQuestionBroadcast.current?.close()} />
         </>
     );
 };

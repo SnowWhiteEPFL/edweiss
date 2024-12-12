@@ -27,9 +27,11 @@
     "lecturer_transcript_deftxt" : "Lecturer’s transcript... currently in invisible ink!",
     "question_broadcast_modal_title": "Answer Question",
     "broadcast_question": "Broadcast Question",
+    "question_answered": "Question Answered",
     "question_broadcast_modal_says": "asks :",
     "anony_ask_question": "An anomym student",
-    "are_interested": "other students also what to know about this",
+    "other_student": "other student also want",
+    "are_interrested":"to know about this.",
 
     "dummy_question_0" : "Why do we say ‘sleep like a baby’ when babies wake up every two hours?",
     "dummy_question_1" : "Why do we call it ‘quick sand’ if it’s so slow?",
