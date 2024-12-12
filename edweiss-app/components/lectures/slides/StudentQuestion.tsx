@@ -16,7 +16,8 @@ import Toast from 'react-native-toast-message';
 
 const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, questionsDoc: Document<LectureDisplay.Question>[] | undefined }> = ({ courseName, lectureId, questionsDoc }) => {
     const [question, setQuestion] = useState<string>('');
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoadingSend, setIsLoadingSend] = useState<boolean>(false);
+    const [isLoadingLike, setIsLoadingLike] = useState<boolean>(false);
     const [isAnonym, setIsAnonym] = useState<boolean>(false);
     const [enableDisplay, setEnableDisplay] = useState<boolean>(false);
     const { uid } = useAuth();
@@ -37,13 +38,14 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                 text1: 'Your comment was successfully added'
             });
         } else {
+            console.log(res.error);
             // Display feedback to the user when failure (empty question)
             Toast.show({
                 type: 'error',
                 text1: 'You were unable to send this message',
             });
         }
-        setIsLoading(false);
+        setIsLoadingSend(false);
     }
 
     // Function for updating a question with new like values
@@ -62,6 +64,7 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                 text1: 'You were unable to like/unlike this message',
             });
         }
+        setIsLoadingLike(false);
     }
 
     const QuestionItem: React.FC<{
@@ -81,8 +84,9 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                     <TView pr={'sm'} pl={'md'} pb={'sm'} flexDirection='row' alignItems='flex-end'>
                         <TText color='text'>{likes}</TText>
                         {!isUser && <TTouchableOpacity testID={`like-button-${index}`} backgroundColor='transparent' onPress={() => {
-                            if (SyncStorage.get(`stquestion-${id}`) !== undefined) {
+                            if (!isLoadingLike && SyncStorage.get(`stquestion-${id}`) !== undefined) {
                                 SyncStorage.set(`stquestion-${id}`, !SyncStorage.get(`stquestion-${id}`));
+                                setIsLoadingLike(true);
                                 if (SyncStorage.get(`stquestion-${id}`)) {
                                     console.log(SyncStorage.get(`stquestion-${id}`))
                                     likeQuestion(id, likes + 1);
@@ -90,11 +94,15 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                                     console.log(SyncStorage.get(`stquestion-${id}`))
                                     likeQuestion(id, likes - 1);
                                 }
-                            } else {
+                            } else if (!isLoadingLike) {
                                 SyncStorage.set(`stquestion-${id}`, true);
                             }
                         }}>
-                            <Icon size={'md'} name={SyncStorage.get(`stquestion-${id}`) === undefined || !SyncStorage.get(`stquestion-${id}`) ? 'heart-outline' : 'heart'} color='text'></Icon>
+                            {isLoadingLike ? (
+                                <ActivityIndicator />
+                            ) : (
+                                <Icon size={'md'} name={SyncStorage.get(`stquestion-${id}`) === undefined || !SyncStorage.get(`stquestion-${id}`) ? 'heart-outline' : 'heart'} color='text'></Icon>
+                            )}
                         </TTouchableOpacity>}
                     </TView>
                 </TView>
@@ -126,13 +134,13 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                 />
                 <TTouchableOpacity backgroundColor="transparent" style={{ position: 'absolute', right: 20, bottom: 10, }} pl="md" testID="send-button"
                     onPress={() => {
-                        if (!isLoading) {
+                        if (!isLoadingSend) {
+                            setIsLoadingSend(true);
                             addQuestion(question);
-                            setIsLoading(true);
                         }
                     }}
                 >
-                    {isLoading ? (
+                    {isLoadingSend ? (
                         <ActivityIndicator />
                     ) : (
                         <Icon size="xl" name="send-outline" color="text" />

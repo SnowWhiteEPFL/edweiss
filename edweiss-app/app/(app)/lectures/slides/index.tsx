@@ -17,7 +17,6 @@ import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
 import StudentQuestion from '@/components/lectures/slides/StudentQuestion';
 import { CollectionOf, getDownloadURL } from '@/config/firebase';
-import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import useListenToMessages from '@/hooks/useListenToMessages';
@@ -55,7 +54,7 @@ const LectureScreen: ApplicationRoute = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);  // Track swiped or active page
     const [uri, setUri] = useState<string>('');                 // Url state
     // UI display setting's hooks
-    const [isLandscape, setIsLandscape] = useState<boolean>(true);       // Landscape display boolean for different UI
+    const [isLandscape, setIsLandscape] = useState<boolean>(false);       // Landscape display boolean for different UI
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);    // FullScreen display of pdf toggle
 
 
@@ -74,9 +73,13 @@ const LectureScreen: ApplicationRoute = () => {
     const setLandscape = async () => {
         await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     };
+    // Landscape display for the screen
+    const setPortrait = async () => {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    };
 
     useEffect(() => {
-        setLandscape();
+        setPortrait();
         ScreenOrientation.unlockAsync();
         const onOrientationChange = (currentOrientation: ScreenOrientation.OrientationChangeEvent) => {
             const orientationValue = currentOrientation.orientationInfo.orientation;
@@ -160,7 +163,7 @@ const LectureScreen: ApplicationRoute = () => {
 
     const ContentView = (widthPercent: string, heightPercent: string) => (
         <TView flexDirection='column' mr={'xl'} style={{ width: widthPercent as DimensionValue, height: heightPercent as DimensionValue }}>
-            <TScrollView b={'sm'} mt={25} mr={'md'} ml={'md'} radius={'lg'} flex={1}>
+            {/*<TScrollView b={'sm'} mt={25} mr={'md'} ml={'md'} radius={'lg'} flex={1}>
                 {currentLecture.audioTranscript?.[currentPage] ? (
                     <TText pl={'sm'} pr={'sm'}>{currentLecture.audioTranscript[currentPage]}</TText>
                 ) : (
@@ -168,7 +171,7 @@ const LectureScreen: ApplicationRoute = () => {
                         {t(`showtime:lecturer_transcript_deftxt`)}
                     </TText>
                 )}
-            </TScrollView>
+            </TScrollView>*/}
 
             <TScrollView flex={0.5} mt={15} mr={'md'} ml={'md'} mb={15}>
                 <StudentQuestion courseName={courseName} lectureId={lectureId} questionsDoc={questionsDoc} />
