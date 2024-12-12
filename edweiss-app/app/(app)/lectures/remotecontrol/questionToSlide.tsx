@@ -70,6 +70,7 @@ const TodoListScreen: ApplicationRoute = () => {
     if (!lectureDoc) return <TActivityIndicator size={40} testID='quest-slide-activity-indicator' />;
     const currentLecture = lectureDoc.data;
     questionsDoc?.sort((a, b) => b.data.likes - a.data.likes) || []
+    const questionDocPending = questionsDoc?.filter(question => !question.data.answered) || [];
 
 
     // Handle sigle question
@@ -121,9 +122,9 @@ const TodoListScreen: ApplicationRoute = () => {
 
 
 
-            {questionsDoc ? (
+            {questionDocPending ? (
                 <TScrollView>
-                    <For each={questionsDoc}>
+                    <For each={questionDocPending}>
                         {(question, index) => <QuestionDisplay question={question} index={index} />}
                     </For>
                 </TScrollView>
