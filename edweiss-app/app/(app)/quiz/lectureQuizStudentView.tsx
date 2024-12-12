@@ -4,103 +4,33 @@ import TSafeArea from '@/components/core/containers/TSafeArea';
 import TView from '@/components/core/containers/TView';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import FancyButton from '@/components/input/FancyButton';
+import { LectureQuizStudentView } from '@/components/quiz/LectureQuizComponents';
 import { MCQDisplay, MCQResultDisplay, TFDisplay, TFResultDisplay } from '@/components/quiz/QuizComponents';
 import { callFunction, CollectionOf, Document } from '@/config/firebase';
-import { useAuth } from '@/contexts/auth';
-import { useDoc, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import Quizzes, { LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
-import { Redirect } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
 
 export const LectureQuizStudentViewSignature: ApplicationRouteSignature<{
 	courseId: string, lectureId: string, lectureEventId: string
 	prefetchedQuiz: Document<LectureDisplay.LectureEvent> | undefined
 }> = {
-	path: "/(app)/quiz/lectureQuizStudentView" as any
+	path: "/(app)/quiz/lectureQuizStudentViewPage" as any
 }
 
-const LectureQuizStudentView: ApplicationRoute = () => {
-
-	// pushWithParameters(LectureQuizStudentViewSignature, {
-
-	// })
-
+const LectureQuizStudentViewPage: ApplicationRoute = () => {
 	const { courseId, lectureId, lectureEventId, prefetchedQuiz } = useRouteParameters(LectureQuizStudentViewSignature);
+
 	const pathToLectureEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
 	const pathToAttempts = pathToLectureEvents + "/" + lectureEventId + "/attempts";
-	const { uid } = useAuth();
-	const [quizEvent] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEvent>(pathToLectureEvents), lectureEventId, prefetchedQuiz);
-	const previousAttempt = useDoc(CollectionOf<LectureQuizzesAttempts.LectureQuizAttempt>(pathToAttempts), uid);
-	const [studentAnswer, setStudentAnswer] = useState<QuizzesAttempts.Answer | undefined>(undefined);
-	const quiz = quizEvent?.data.quizModel
-	const exercise = quiz?.exercise;
 
-	console.log("before redirect")
-	console.log("exercise : " + JSON.stringify(exercise))
+	const [quizEvent, _] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEvent>(pathToLectureEvents), lectureEventId, prefetchedQuiz);
 
-
-
-	useEffect(() => {
-
-		if (quiz == undefined || exercise == undefined)
-			return;
-
-		const defaultAnswer = () => {
-			if (exercise.type == "MCQ") {
-				const MCQAnswer: QuizzesAttempts.MCQAnswersIndices = { type: "MCQAnswersIndices", value: [] }
-				return MCQAnswer;
-			}
-			else {
-				const TFAnswer: QuizzesAttempts.TFAnswer = { type: "TFAnswer", value: undefined }
-				return TFAnswer;
-			}
-		}
-
-		setStudentAnswer(defaultAnswer());
-	}, [quizEvent]);
-
-
-
-	const onUpdate = useCallback((newAnswer: number[] | boolean | undefined) => {
-		const newFormattedAnswer: LectureQuizzesAttempts.LectureQuizAttempt = exercise?.type == "MCQ" ? { type: "MCQAnswersIndices", value: newAnswer as number[] } : { type: "TFAnswer", value: newAnswer as boolean }
-		console.log(JSON.stringify(newFormattedAnswer))
-		console.log(exercise?.type == "MCQ")
-		setStudentAnswer(newFormattedAnswer)
-	}, [exercise]);
-
-	if (quizEvent == undefined || quiz == undefined || exercise == undefined) {
-		return (<TActivityIndicator testID='undefined-quizEvent-loading' />)
-	}
-
-	if (typeof lectureId != 'string') {
-		console.log("redirected")
-		return <Redirect href={'/'} />;
-	}
-	console.log("after redirect")
-
-
-	async function send() {
-		if (studentAnswer == undefined) {
-			console.log("Undefined answer, submitted before loading default")
-			return;
-		}
-		sendToLectureEvent(studentAnswer, courseId, lectureId, lectureEventId)
-	}
-
-	if (quiz.showResultToStudents && previousAttempt != undefined) {
-		return <LectureQuizResultDisplay key={quizEvent.id + "result"} studentAnswer={previousAttempt.data} exercise={exercise} result={quiz.answer} testId='quiz-result-display' />;
-	}
-	else if (!quiz.showResultToStudents) {
-		return <LectureQuizDisplay key={quizEvent.id + "display"} studentAnswer={studentAnswer} exercise={exercise} onUpdate={onUpdate} send={send} testId='quiz-display' />;
-	}
-	else {
-		return (<TActivityIndicator />);
-	}
+	return (<LectureQuizStudentView courseId={courseId} lectureEventId={lectureEventId} lectureId={lectureId} pathToAttempts={pathToAttempts} pathToLectureEvents={pathToLectureEvents} quizEvent={quizEvent} />)
 
 };
-export default LectureQuizStudentView;
+export default LectureQuizStudentViewPage;
 
 
 
