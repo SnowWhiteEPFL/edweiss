@@ -461,10 +461,22 @@ export const QuestionBroadcastModal: ReactComponent<{
                     <TText bold size='lg' mb='sm'>{t('showtime:question_broadcast_modal_title')}</TText>
                 </TView>
 
-                <TView justifyContent='center' alignItems='center'>
-                    <TText ml={10} color='overlay2'>{question}</TText>
-                    <TText ml={10} color='overlay2'>{username}</TText>
-                    <TText ml={10} color='overlay2'>{likes}</TText>
+
+                <TText ml={'md'} color='overlay2' bold>{username === "" ? t('showtime:anony_ask_question') : username} {t('showtime:question_broadcast_modal_says')}</TText>
+
+
+                <TView justifyContent='center' alignItems='center' m={'md'}>
+                    <TText ml={10} size={'lg'} color='overlay2'>« {question} »</TText>
+                </TView>
+
+
+                <TView flexDirection='column' alignItems='flex-end' mt='md'>
+                    {likes > 0 && (
+                        <>
+                            <TText ml={10} color='overlay2' mr='lg'>{likes} other student also want</TText>
+                            <TText ml={10} color='overlay2' mr='lg'>to know about this</TText>
+                        </>
+                    )}
                 </TView>
 
                 <FancyButton backgroundColor='subtext0' m='md' outlined onPress={handleQuestionBroadcast} testID='brod-quest-ans-button'>
