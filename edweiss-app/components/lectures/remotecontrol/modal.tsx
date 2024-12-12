@@ -453,13 +453,13 @@ export const QuestionBroadcastModal: ReactComponent<{
 
             // Question has been answered 
             try {
-                callFunction(LectureDisplay.Functions.markQuestionAsAnswered, {
+                await callFunction(LectureDisplay.Functions.markQuestionAsAnswered, {
                     courseId: courseId,
                     lectureId: lectureId,
                     id: id,
                     answered: true,
                 });
-                callFunction(LectureDisplay.Functions.clearQuestionEvent, {
+                await callFunction(LectureDisplay.Functions.clearQuestionEvent, {
                     courseId: courseId,
                     lectureId: lectureId,
                     id: id,
@@ -472,7 +472,7 @@ export const QuestionBroadcastModal: ReactComponent<{
 
             // Broadcast the question to the audience
             try {
-                callFunction(LectureDisplay.Functions.broadcastQuestion, {
+                await callFunction(LectureDisplay.Functions.broadcastQuestion, {
                     courseId: courseId,
                     lectureId: lectureId,
                     id: id,
