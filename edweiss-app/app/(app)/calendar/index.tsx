@@ -18,6 +18,8 @@ interface CustomEvents {
   rooms?: Room[];
   period?: CourseTimePeriod;
   course?: { id: string, data: Course };
+  todo?: { id: string, data: any };
+  type: "Todo" | "Course" | "Assignment";
 }
 const calculateTopOffset = (startTime: string) => {
   const [hours, minutes] = startTime.split(':').map(Number);
@@ -78,6 +80,8 @@ const EventsPerDayScreen = () => {
           allEvents[dateKey].push({
             name: `Todos: ${todo.name}`,
             startTime: dueDate.getHours() * 60 + dueDate.getMinutes(),
+            todo: { id: todoDoc.id, data: todoDoc.data() },
+            type: "Todo",
           });
         }
       });
@@ -105,6 +109,7 @@ const EventsPerDayScreen = () => {
             rooms,
             period,
             course: { id: courseDoc.id, data: courseDoc.data() as unknown as Course },
+            type: "Course",
           });
         });
 
@@ -119,6 +124,7 @@ const EventsPerDayScreen = () => {
             allEvents[dateKey].push({
               name: `Assignment: ${assignment.name}`,
               startTime: dueDate.getHours() * 60 + dueDate.getMinutes(),
+              type: "Assignment",
             });
           }
         });
@@ -377,10 +383,19 @@ const CalendarTable = ({ eventsByDate }: CalendarTableProps) => {
                   const eventDuration = event.endTime ? event.endTime - event.startTime : 0; // Calculate duration in minutes
                   const eventHeight = ((eventDuration / 60) * 80) > 80 ? ((eventDuration / 60) * 80) : 80; // Convert to pixels
                   const { pathname, params } = event.period && event.course ? getNavigationDetails(user, event.course, event.period, index) : { pathname: '', params: {} };
+                  const todoParams = event.todo
+                    ? { todo: JSON.stringify(event.todo) } // Sérialiser l'objet
+                    : {};
                   console.log(pathname);
                   return (
                     <TouchableOpacity
-                      onPress={() => router.push({ pathname: pathname as any, params })}
+                      onPress={() => {
+                        if (event.type == "Course") {
+                          router.push({ pathname: pathname as any, params });
+                        } else if (event.type == "Todo") {
+                          router.push({ pathname: '/(app)/todo', params: todoParams });
+                        }
+                      }}
                       key={index}
                       style={{
                         top: calculateTopOffset(formatTime(event.startTime)), // Décalage de l'événement
