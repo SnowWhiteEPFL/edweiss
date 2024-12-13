@@ -8,13 +8,13 @@ import { useDoc, useDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/fires
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
 import { Redirect } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import TSafeArea from '../core/containers/TSafeArea';
 import TView from '../core/containers/TView';
 import TActivityIndicator from '../core/TActivityIndicator';
 import TText from '../core/TText';
 
-const LectureQuizView: ReactComponent<{ courseId: string, lectureId: string, lectureEventId: string }> = ({ courseId, lectureId, lectureEventId }) => {
+export const LectureQuizView: ReactComponent<{ courseId: string, lectureId: string, lectureEventId: string }> = ({ courseId, lectureId, lectureEventId }) => {
 	const pathToEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
 	const pathToAttempts = pathToEvents + "/" + lectureEventId + "/attempts";
 
