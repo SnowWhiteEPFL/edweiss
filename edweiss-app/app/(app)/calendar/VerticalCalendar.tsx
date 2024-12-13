@@ -4,20 +4,35 @@ import TView from '@/components/core/containers/TView';
 
 import Icon from '@/components/core/Icon';
 import TText from '@/components/core/TText';
-import { useUser } from '@/contexts/user';
+import { Course, CourseTimePeriod } from '@/model/school/courses';
 import { CustomEvents } from '@/model/school/Events';
 import { getCurrentTimeInMinutes } from '@/utils/calendar/getCurrentTimeInMinutes';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { FlatList, ScrollView, useWindowDimensions } from 'react-native';
-import { EventsByDate, getNavigationDetails } from '.';
+import { EventsByDate } from '.';
 
-
+export const getNavigationDetails = (user: any, courseItem: { id: string; data: Course }, period: CourseTimePeriod, index: number) => {
+    const isProfessor = user?.data?.type === 'professor';
+    return {
+        pathname: isProfessor ? '/(app)/startCourseScreen' : '/(app)/lectures/slides',
+        params: isProfessor
+            ? {
+                courseID: courseItem.id,
+                course: JSON.stringify(courseItem.data),
+                period: JSON.stringify(period),
+                index,
+            }
+            : {
+                courseNameString: courseItem.data.name,
+                lectureIdString: period.activityId,
+            },
+    };
+};
 
 const HOUR_BLOCK_HEIGHT = 80; // Height of an hour block
 
 const verticalCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
-    const { user } = useUser()
 
     const { width, height } = useWindowDimensions();
     const scrollViewRef = useRef<ScrollView>(null);
@@ -113,26 +128,9 @@ const verticalCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
                                         ? event.endTime - event.startTime
                                         : 0; // Calculate duration in minutes
                                     const eventHeight = ((eventDuration / 60) * HOUR_BLOCK_HEIGHT) > 120 ? ((eventDuration / 60) * HOUR_BLOCK_HEIGHT) : event.type == "Course" ? 120 : HOUR_BLOCK_HEIGHT; // Convert to pixels
-                                    const { pathname, params } = event.period && event.course ? getNavigationDetails(user, event.course, event.period, index) : { pathname: '', params: {} };
-                                    console.log(pathname, params)
-                                    const todoParams = event.todo
-                                        ? { todo: JSON.stringify(event.todo) } // Serialize the object
-                                        : {};
-                                    const assignmentPath = `/(app)/quiz/quizStudentView`;
-                                    const assignmentParams = { quizId: event.assignmentID, courseId: event.course?.id }
 
                                     return (
-                                        <TTouchableOpacity
-                                            onPress={() => {
-                                                if (event.type == "Course") {
-                                                    router.push({ pathname: pathname as any, params });
-                                                } else if (event.type == "Todo") {
-                                                    router.push({ pathname: '/(app)/todo', params: todoParams });
-                                                }
-                                                else {
-                                                    router.push({ pathname: assignmentPath, params: assignmentParams });
-                                                }
-                                            }}
+                                        <TView
                                             key={i}
                                             style={{
                                                 top: calculateTopOffset(formatTime(event.startTime)), // Offset for the event
@@ -180,7 +178,7 @@ const verticalCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
                                                 </TText>
                                             )
                                             }
-                                        </TTouchableOpacity>
+                                        </TView>
                                     );
                                 })}
                             </TView>

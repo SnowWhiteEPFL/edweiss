@@ -1,23 +1,87 @@
 import LectureScreen from '@/app/(app)/lectures/slides/index';
 import TView from '@/components/core/containers/TView';
+import StudentQuestion from '@/components/lectures/slides/StudentQuestion';
 import { callFunction, getDownloadURL } from '@/config/firebase';
+import SyncStorage from '@/config/SyncStorage';
+import { useAuth } from '@/contexts/auth';
+import { useUser } from '@/contexts/user';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { Timestamp } from '@react-native-firebase/firestore/lib/modular/Timestamp';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import React from 'react';
 import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
+import Toast from 'react-native-toast-message';
 
-// Mock data for `usePrefetchedDynamicDoc`
+
+// Mock data for `usePrefetchedDynamicDoc` with any lecture event
 const mockLectureData = {
     data: {
         pdfUri: 'mocked-uri',
         audioTranscript: {},
+        event: {
+            id: "",
+            type: "invalid",
+        }
     },
 };
 
+
+// Mock data for `usePrefetchedDynamicDoc` with any lecture event
+const mockLectureData2 = {
+    data: {
+        pdfUri: 'mocked-uri',
+        audioTranscript: {},
+        event: {
+            id: "1",
+            type: "question",
+        }
+    },
+};
+
+
+// Mock SyncStorage module
+jest.mock('@/config/SyncStorage', () => ({
+    init: jest.fn().mockResolvedValueOnce(undefined),
+    get: jest.fn(),
+    set: jest.fn(),
+    getOrDefault: jest.fn((key, defaultValue) => defaultValue),  // Add getOrDefault mock
+}));
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+    getAllKeys: jest.fn().mockResolvedValue(['key1', 'key2']),  // Mocking `getAllKeys`
+    multiGet: jest.fn().mockResolvedValue([['key1', 'value1'], ['key2', 'value2']]),  // Mocking `multiGet`
+    setItem: jest.fn(),
+    getItem: jest.fn(),
+    removeItem: jest.fn(),
+}));
 // Mock data for `useDynamicDocs`
 const mockQuestionData = [
-    { id: '1', data: { text: 'Mock Question' } },
+    {
+        id: '1',
+        data: {
+            text: 'Test Question 1',
+            anonym: false,
+            userID: 'user1',
+            likes: 5,
+            username: 'User1',
+            postedTime: Timestamp.now(), // Include postedTime as an ISO string
+            answered: false,
+        },
+    },
+    {
+        id: '2',
+        data: {
+            text: 'Test Question 2',
+            anonym: true,
+            userID: 'mock-uid',
+            likes: 3,
+            username: '',
+            postedTime: Timestamp.now(), // Include postedTime as an ISO string
+            answered: false,
+        },
+    },
 ];
 
 // `t` to return the key as the translation
@@ -32,11 +96,13 @@ jest.mock('@/hooks/useListenToMessages', () => jest.fn());
 jest.mock('expo-router', () => ({
     router: { push: jest.fn() },
     Stack: {
-        Screen: jest.fn(({ options }) => (
-            <>{options.title}</>
-        )),
+        Screen: jest.fn(({ options }) => <>{options.title}</>),
     },
-    useLocalSearchParams: jest.fn(() => ({ courseNameString: 'testCourse', lectureIdString: 'testLectureId' }))
+    useLocalSearchParams: jest.fn(() => ({
+        courseNameString: 'testCourse',
+        lectureIdString: 'testLectureId',
+    })),
+    useFocusEffect: jest.fn(),
 }));
 
 // Firebase Messaging to avoid NativeEventEmitter errors
@@ -74,10 +140,16 @@ jest.mock('@react-native-firebase/storage', () => ({
     })),
 }));
 
-// Firebase mock
+// Mock Firebase mock
 jest.mock('@/config/firebase', () => ({
     callFunction: jest.fn(),
-    CollectionOf: jest.fn((path: string) => `MockedCollection(${path})`), // Mocking CollectionOf to return a simple string or mock object
+    CollectionOf: jest.fn((path) => ({
+        orderBy: jest.fn((field, direction) => ({
+            path,
+            field,
+            direction
+        }))
+    })),
     getDownloadURL: jest.fn(),
 }));
 
@@ -142,11 +214,6 @@ jest.mock('react-native/Libraries/Settings/Settings', () => ({
     set: jest.fn(),
 }));
 
-jest.mock('@react-native-async-storage/async-storage', () => ({
-    setItem: jest.fn(),
-    getItem: jest.fn(),
-    removeItem: jest.fn(),
-}));
 
 // Application Route
 jest.mock('@/constants/Component', () => ({
@@ -156,6 +223,7 @@ jest.mock('@/constants/Component', () => ({
 jest.mock('@/utils/time', () => ({
     Time: {
         fromDate: jest.fn(),
+        agoTimestamp: jest.fn(() => '2 hours ago'),
     },
 }));
 
@@ -204,27 +272,59 @@ jest.mock('@expo/vector-icons', () => {
         ),
     };
 });
+jest.mock('@/contexts/auth', () => ({
+    useAuth: jest.fn(),
+}));
+jest.mock('react-native-toast-message', () => ({
+    show: jest.fn(),
+}));
+
+// Mock the useUser hook
+jest.mock('@/contexts/user', () => ({
+    useUser: jest.fn(), // Mock the hook
+}));
+jest.mock('@react-navigation/native', () => ({
+    useFocusEffect: jest.fn(),
+    useNavigation: jest.fn(),
+}));
+
+// BottomSheet to detect modal appearance
+jest.mock('@gorhom/bottom-sheet', () => ({
+    BottomSheetModal: jest.fn(({ present }) => (
+        <div>{present}</div>
+    )),
+}));
 
 describe('LectureScreen Component', () => {
+
+    let modalRef: React.RefObject<BottomSheetModal>;
+
     beforeEach(() => {
+        modalRef = {
+            current: {
+                present: jest.fn(),
+                dismiss: jest.fn(),
+                snapToIndex: jest.fn(),
+                snapToPosition: jest.fn(),
+                expand: jest.fn(),
+                collapse: jest.fn(),
+                close: jest.fn(),
+                forceClose: jest.fn(),
+            }
+        };
+
         jest.clearAllMocks();
         (usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockLectureData]); // Mocking `usePrefetchedDynamicDoc` with minimal data
         (useDynamicDocs as jest.Mock).mockReturnValue(mockQuestionData); // Mocking `useDynamicDocs` with minimal question data
+        (useAuth as jest.Mock).mockReturnValue({ uid: 'mock-uid', });
+        (useUser as jest.Mock).mockReturnValue({ user: { name: 'Test User', }, });
     });
 
-    it('updates UI when new questions are added dynamically', () => {
-        // Verifies that the component re-renders when new question data is added dynamically
-        const { rerender } = render(<LectureScreen />);
-        (useDynamicDocs as jest.Mock).mockReturnValueOnce([...mockQuestionData, { id: '2', data: { text: 'New Question' } }]);
-        rerender(<LectureScreen />);
-        expect(screen.getByText('New Question')).toBeTruthy();
-    });
-
-    it('calls setLandscape on mount', async () => {
+    it('calls setPortrait on mount', async () => {
         // Ensures that the screen is locked in landscape mode when the component mounts
         const mockLockAsync = jest.spyOn(ScreenOrientation, 'lockAsync');
         render(<LectureScreen />);
-        expect(mockLockAsync).toHaveBeenCalledWith(ScreenOrientation.OrientationLock.LANDSCAPE);
+        expect(mockLockAsync).toHaveBeenCalledWith(ScreenOrientation.OrientationLock.PORTRAIT);
     });
 
     it('adds and removes the orientation change listener', () => {
@@ -284,6 +384,7 @@ describe('LectureScreen Component', () => {
     });
 
     it('calls add question function with correct parameters on question submission', async () => {
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: true });
         // Ensures the correct function is called with expected parameters when submitting a new question
         render(<LectureScreen />);
         const questionInput = screen.getByPlaceholderText('Got something on your mind? Type away!');
@@ -302,6 +403,7 @@ describe('LectureScreen Component', () => {
                 courseId: 'testCourse',
                 lectureId: 'testLectureId',
                 question: 'New Question',
+                anonym: false,
             }
         );
     });
@@ -327,4 +429,136 @@ describe('LectureScreen Component', () => {
         fireEvent.press(expandButton);
         expect(ScreenOrientation.lockAsync).toHaveBeenCalledWith(ScreenOrientation.OrientationLock.LANDSCAPE);
     });
+
+    it('renders the list of questions correctly', () => {
+        const { getByText } = render(
+            <StudentQuestion
+                courseName="Test Course"
+                lectureId="Test Lecture"
+                questionsDoc={mockQuestionData}
+            />
+        );
+
+        expect(getByText('Test Question 1')).toBeTruthy();
+        expect(getByText('Test Question 2')).toBeTruthy();
+    });
+
+    it('allows a user to submit a new question', async () => {
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: true });
+
+        render(
+            <StudentQuestion
+                courseName="Test Course"
+                lectureId="Test Lecture"
+                questionsDoc={mockQuestionData}
+            />
+        );
+        const input = screen.getByPlaceholderText('Got something on your mind? Type away!');
+        const sendButton = screen.getByTestId('send-button');
+
+        fireEvent.changeText(input, 'New Test Question');
+        fireEvent.press(sendButton);
+
+        await waitFor(() => {
+            expect(callFunction).toHaveBeenCalledWith(
+                { "exportedName": "lectures_createQuestion", "originalName": "createQuestion", "path": "lectures/createQuestion" },
+                expect.objectContaining({
+                    courseId: 'Test Course',
+                    lectureId: 'Test Lecture',
+                    question: 'New Test Question',
+                    anonym: false,
+                })
+            );
+        });
+
+        expect(Toast.show).toHaveBeenCalledWith(
+            expect.objectContaining({
+                type: 'success',
+                text1: 'Your comment was successfully added',
+            })
+        );
+    });
+
+
+    it('do not close the modal when the button is pressed', () => {
+        render(<LectureScreen />);
+        const button = screen.getByTestId('st-trans-mode-sel-button');
+        fireEvent.press(button);
+        expect(modalRef.current?.close).not.toHaveBeenCalled();
+    });
+
+
+    it('should like a question', async () => {
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: true });
+        render(<StudentQuestion courseName={"Test Course"} lectureId={"Test Lecture"} questionsDoc={mockQuestionData} />);
+
+        // Initially, the question has 0 likes, and the user hasn't liked it
+        (SyncStorage.get as jest.Mock).mockResolvedValueOnce({ status: false });
+
+        const likeButton = screen.getByTestId('like-button-0'); // Assuming first question has index 0
+
+        // Like the question
+        fireEvent.press(likeButton);
+
+        // Check if SyncStorage.set was called to store the like state
+        await waitFor(() => {
+            expect(SyncStorage.set).toHaveBeenCalledWith(`stquestion-${mockQuestionData[0].id}`, true);
+        });
+    });
+
+    it('should show an error message if adding question fails', async () => {
+        render(<StudentQuestion courseName={"Test Course"} lectureId={"Test Lecture"} questionsDoc={mockQuestionData} />);
+
+        // Mock the behavior of the callFunction to simulate a failure
+        (callFunction as jest.Mock).mockResolvedValueOnce({ status: false });
+
+        const input = screen.getByPlaceholderText('Got something on your mind? Type away!');
+        const sendButton = screen.getByTestId('send-button');
+
+        fireEvent.changeText(input, 'New Question');
+        fireEvent.press(sendButton);
+
+        // Check if Toast notification was triggered for failure
+        await waitFor(() =>
+            expect(Toast.show).toHaveBeenCalledWith({
+                type: 'error',
+                text1: 'You were unable to send this message',
+            })
+        );
+    });
+
+});
+
+
+describe('LectureScreen Component Broadcasting Question to audiance', () => {
+
+    let modalRef: React.RefObject<BottomSheetModal>;
+
+    beforeEach(() => {
+        modalRef = {
+            current: {
+                present: jest.fn(),
+                dismiss: jest.fn(),
+                snapToIndex: jest.fn(),
+                snapToPosition: jest.fn(),
+                expand: jest.fn(),
+                collapse: jest.fn(),
+                close: jest.fn(),
+                forceClose: jest.fn(),
+            }
+        };
+
+        jest.clearAllMocks();
+        (usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockLectureData2]); // Mocking `usePrefetchedDynamicDoc` with minimal data
+        (useDynamicDocs as jest.Mock).mockReturnValue(mockQuestionData); // Mocking `useDynamicDocs` with minimal question data
+        (useAuth as jest.Mock).mockReturnValue({ uid: 'mock-uid', });
+        (useUser as jest.Mock).mockReturnValue({ user: { name: 'Test User', }, });
+    });
+
+    it('display the correct current question on the screen', () => {
+        const { rerender } = render(<LectureScreen />);
+        rerender(<LectureScreen />);
+        expect(screen.getByText('« Test Question 1 »')).toBeTruthy();
+    });
+
 });

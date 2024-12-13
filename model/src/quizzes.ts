@@ -1,4 +1,5 @@
 import { FunctionFolder, FunctionOf } from './functions';
+import LectureDisplay from './lectures/lectureDoc';
 import { Assignment, CourseID } from './school/courses';
 
 namespace Quizzes {
@@ -46,7 +47,9 @@ namespace Quizzes {
 
     export const Functions = FunctionFolder("action", {
         createQuiz: FunctionOf<{ quiz: Quizzes.Quiz; courseId: CourseID; }, { id: string; }, "empty_quiz" | "invalid_name" | "not_authorized">("createQuiz"),
-        updateQuiz: FunctionOf<{ quiz: Quizzes.Quiz; courseId: CourseID; }, { id: string; }, "not_authorized">("updateQuiz")
+        updateQuiz: FunctionOf<{ quiz: Quizzes.Quiz; courseId: CourseID; path: string }, { id: string; }, "not_authorized">("updateQuiz"),
+        createLectureQuiz: FunctionOf<{ lectureQuiz: LectureDisplay.QuizLectureEvent; courseId: CourseID; lectureId: string }, { id: string }, "empty_quiz">("createLectureQuiz"),
+        toggleLectureQuizResult: FunctionOf<{ courseId: CourseID; lectureId: string, lectureEventId: string, }, { id: string }, "not_authorized" | "wrong_ids">("toggleLectureQuizResult")
     });
 
 }
@@ -75,30 +78,22 @@ export namespace QuizzesAttempts {
         createQuizAttempt: FunctionOf<{ quizAttempt: QuizzesAttempts.QuizAttempt; courseId: CourseID; quizId: string; path: string; }, { id: string; }, "empty_quizAttempt" | "invalid_name" | "not_authorized">("createQuizAttempt"),
     });
 
-
-
 }
 
-// export namespace QuizzesResults {
-//     // export type MCQAnswersIndices = number[]; // unchecked options will not appear in the list in the first place
-//     // export type TFAnswer = boolean | undefined;
-//     export interface MCQAnswersIndices {
-//         type: "MCQAnswersIndices",
-//         value: number[];
-//     }
-//     export interface TFAnswer {
-//         type: "TFAnswer",
-//         value: boolean | undefined;
-//     }
-//     export type Answer = MCQAnswersIndices | TFAnswer;
+export namespace LectureQuizzes {
+    export interface LectureQuiz {
+        exercise: Quizzes.Exercise,
+        answer: QuizzesAttempts.Answer,
+        ended: boolean,
+        showResultToStudents: boolean
+    }
+}
 
-//     export interface QuizResults {
-//         answers: Answer[];
-//         quizName?: string;
-//     }
+export namespace LectureQuizzesAttempts {
+    export type LectureQuizAttempt = QuizzesAttempts.Answer;
 
-//     export const Functions = FunctionFolder("action", {
-//         createQuizResults: FunctionOf<{ quizResults: QuizzesResults.QuizResults; courseId: CourseID; quizId: string; }, { id: string; }, "empty_quizAttempt" | "invalid_name" | "not_authorized">("createQuizResults"),
-//     });
+    export const Functions = FunctionFolder("action", {
+        createLectureQuizAttempt: FunctionOf<{ lectureQuizAttempt: LectureQuizzesAttempts.LectureQuizAttempt; courseId: CourseID; lectureId: string, lectureEventId: string }, { id: string; }, "empty_quizAttempt" | "invalid_name" | "not_authorized">("createLectureQuizAttempt"),
+    });
+}
 
-// }

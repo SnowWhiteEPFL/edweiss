@@ -87,4 +87,4 @@ Check our [Figma](https://www.figma.com/design/BBD2dqgIbEF96IhNpyv7MW/EdWeiss?no
 (Last update : 15.11.2024)
 
 ## Admin
-(Last update : 29.11.2024)
+(Last update : 06.12.2024)

@@ -8,7 +8,7 @@ import { fail, ok } from 'utils/status';
 
 export const createQuiz = onSanitizedCall(Quizzes.Functions.createQuiz, {
 	courseId: Predicate.isNonEmptyString,
-	quiz: CustomPredicateQuiz.isValidQuiz
+	quiz: CustomPredicateQuiz.isValidQuiz,
 }, async (userId, args) => {
 	const thisUser = await getDocument(Collections.users, userId);
 
@@ -17,6 +17,8 @@ export const createQuiz = onSanitizedCall(Quizzes.Functions.createQuiz, {
 	}
 
 	const assignmentCollection = CollectionOf<Assignment>("courses/" + args.courseId + "/assignments");
+	// "courses/" + args.courseId + "/assignments"
+	//         createLectureQuiz: FunctionOf < { lectureQuiz: LectureDisplay.F; courseId: CourseID; path: string }
 
 	const res = await assignmentCollection.add(args.quiz);
 
