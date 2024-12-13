@@ -1,4 +1,5 @@
 {
+	
 	"empty_question": "Question is empty!",
 	"empty_quiz": "Quiz does not have any exercise!",
 	"not_enough_propositions": "At least 2 propositions!",
@@ -7,7 +8,24 @@
 	"not_enough_correct": "Select at least one correct choice!",
 	"date_invalid": "Due date is invalid!",
 	"quiz_name_empty": "Quiz does not have a name!",
-	"too_much_exercises_temp": "Lecture quizzes can contain only one exercise!"
+	"too_much_exercises_temp": "Lecture quizzes can contain only one exercise!",
+	"quiz_display": {
+		"answer" : "answer(s)",
+		"true" : "True",
+		"false": "False",
+		"mcq" : "MCQ",
+		"tf" : "True-False"
+	},
+	"quiz_creation": {
+		"no_option" : "No options added!",
+		"save" : "Save",
+		"add_new_proposition" : "Add new proposition",
+		"edit" : "Edit",
+		"delete" : "Delete",
+		"confirm": "Confirm",
+		"are_you_sure": "Are you certain you want to publish this quiz?"
+	}
+
 
 
 }

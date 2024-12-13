@@ -49,6 +49,7 @@ namespace Quizzes {
         createQuiz: FunctionOf<{ quiz: Quizzes.Quiz; courseId: CourseID; }, { id: string; }, "empty_quiz" | "invalid_name" | "not_authorized">("createQuiz"),
         updateQuiz: FunctionOf<{ quiz: Quizzes.Quiz; courseId: CourseID; path: string }, { id: string; }, "not_authorized">("updateQuiz"),
         createLectureQuiz: FunctionOf<{ lectureQuiz: LectureDisplay.QuizLectureEvent; courseId: CourseID; lectureId: string }, { id: string }, "empty_quiz">("createLectureQuiz"),
+        toggleLectureQuizResult: FunctionOf<{ courseId: CourseID; lectureId: string, lectureEventId: string, }, { id: string }, "not_authorized" | "wrong_ids">("toggleLectureQuizResult")
     });
 
 }

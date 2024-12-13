@@ -9,7 +9,7 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
-import { LangSelectModal, TimerSettingModal } from '@/components/lectures/remotecontrol/modal';
+import { LangSelectModal, QuestionBroadcastModal, TimerSettingModal } from '@/components/lectures/remotecontrol/modal';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { fireEvent, render } from '@testing-library/react-native';
@@ -393,3 +393,67 @@ describe('TimerSettingModal', () => {
         expect(mockSetTimer).not.toHaveBeenCalled();
     });
 });
+
+
+// ------------------------------------------------------------
+// -----      Question Broadcast Modal Test Suites       ------
+// ------------------------------------------------------------
+
+describe('QuestionBroadcastModal', () => {
+    const mockModalRef = { current: null };
+    const mockSetBroadcasted = jest.fn();
+    const mockOnClose = jest.fn();
+
+    const renderModal = (props = {}) =>
+        render(
+            <QuestionBroadcastModal
+                modalRef={mockModalRef}
+                id="1"
+                courseId="course1"
+                lectureId="lecture1"
+                question="Sample question?"
+                username="John Doe"
+                likes={5}
+                broadcasted=""
+                setBroadcasted={mockSetBroadcasted}
+                onClose={mockOnClose}
+                {...props}
+            />
+        );
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('renders correctly', () => {
+        const { getByTestId, getByText } = renderModal();
+        expect(getByText('John Doe')).toBeTruthy();
+        expect(getByText('5')).toBeTruthy();
+        expect(getByTestId('brod-quest-ans-button')).toBeTruthy();
+        expect(getByTestId('brod-quest-close-button')).toBeTruthy();
+    });
+
+    test('calls handleQuestionBroadcast when broadcast button is pressed', () => {
+        const { getByTestId } = renderModal();
+        const broadcastButton = getByTestId('brod-quest-ans-button');
+        fireEvent.press(broadcastButton);
+        expect(mockOnClose).toHaveBeenCalled();
+        expect(mockSetBroadcasted).toHaveBeenCalledWith("1");
+    });
+
+    test('calls handleQuestionBroadcast when broadcast button is pressed again to mark as answered', () => {
+        const { getByTestId } = renderModal({ broadcasted: "1" });
+        const broadcastButton = getByTestId('brod-quest-ans-button');
+        fireEvent.press(broadcastButton);
+        expect(mockOnClose).toHaveBeenCalled();
+        expect(mockSetBroadcasted).toHaveBeenCalledWith("");
+    });
+
+    test('calls onClose when the close button is pressed', () => {
+        const { getByTestId } = renderModal();
+        const closeButton = getByTestId('brod-quest-close-button');
+        fireEvent.press(closeButton);
+        expect(mockOnClose).toHaveBeenCalled();
+    });
+});
+
