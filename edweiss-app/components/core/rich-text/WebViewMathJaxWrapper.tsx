@@ -30,12 +30,16 @@ const WebViewMathJaxWrapper: ReactComponent<WebViewJaxWrapperProps> = (props) =>
 	const html = useMemo(() => `
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 		${props.disableMathJax ? `
-			<script type="text/javascript">
-				setTimeout(() => {
-					window.ReactNativeWebView.postMessage(String(document.documentElement.scrollHeight));
-				}, 48);
-			</script>
 			<div id="jax-content">${props.source}</div>
+			<script type="text/javascript">
+				window.ReactNativeWebView.postMessage(String(document.getElementById("jax-content").scrollHeight));
+				
+				// element.scrollHeight
+				// window.ReactNativeWebView.postMessage(String(document.documentElement.scrollHeight));
+				// setTimeout(() => {
+					// window.ReactNativeWebView.postMessage(String(document.documentElement.scrollHeight));
+				// }, 48);
+			</script>
 		` : `
 			<script type="text/x-mathjax-config">
 				MathJax.Hub.Config(${mathjaxConfigPayload});
@@ -52,6 +56,10 @@ const WebViewMathJaxWrapper: ReactComponent<WebViewJaxWrapperProps> = (props) =>
 	return (
 		<View style={[{ height }, props.style]}>
 			<WebView
+				textInteractionEnabled={false}
+				scrollEnabled={false}
+				overScrollMode='never'
+				showsVerticalScrollIndicator={false}
 				source={{ html }}
 				onMessage={message => setHeight(Number(message.nativeEvent.data))}
 				cacheEnabled
