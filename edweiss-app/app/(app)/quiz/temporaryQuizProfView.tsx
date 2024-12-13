@@ -1,5 +1,6 @@
 import RouteHeader from '@/components/core/header/RouteHeader';
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
+import React from 'react';
 
 import For from '@/components/core/For';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
@@ -16,7 +17,7 @@ import { useEffect } from 'react';
 
 export const TemporaryQuizProfViewSignature: ApplicationRouteSignature<{
 	courseId: string, lectureId: string, lectureEventId: string
-	prefetchedQuizEvent: Document<LectureDisplay.LectureEvent> | undefined
+	prefetchedQuizEvent: Document<LectureDisplay.QuizLectureEvent> | undefined
 }> = {
 	path: "/(app)/quiz/temporaryQuizProfView" as any
 }
@@ -26,7 +27,7 @@ const TemporaryQuizProfView: ApplicationRoute = () => {
 	const pathToEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
 	const pathToAttempts = pathToEvents + "/" + lectureEventId + "/attempts"
 
-	const [quizEvent, loading] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEvent>(pathToEvents), lectureEventId as string, prefetchedQuizEvent);
+	const [quizEvent, loading] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.QuizLectureEvent>(pathToEvents), lectureEventId as string, prefetchedQuizEvent);
 	const studentAttempts = useDocs(CollectionOf<LectureQuizzesAttempts.LectureQuizAttempt>(pathToAttempts));
 
 	const quiz = quizEvent?.data.quizModel
