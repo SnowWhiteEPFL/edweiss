@@ -107,7 +107,7 @@ const MaterialDisplay: ReactComponent<{ item: Material, isTeacher?: boolean, onT
                     mb={10}
                     bb={1}
                     borderColor="crust"
-                    onPress={() => pushWithParameters(DocumentRouteSignature, { document: doc })}
+                    onPress={() => { console.log(`Click on ${doc.title}`); pushWithParameters(DocumentRouteSignature, { document: doc }) }}
                 >
                     <Icon
                         testID={getIconTestID(doc.type)}

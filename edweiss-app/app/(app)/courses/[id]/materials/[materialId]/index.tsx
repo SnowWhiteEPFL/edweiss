@@ -22,6 +22,29 @@ import * as FileSystem from 'expo-file-system';
 import Pdf from 'react-native-pdf';
 
 
+// Tests Tags
+export const testIDs = {
+    pageView: 'page-view',
+    docError: 'doc-error',
+
+    downloadButton: 'download-button',
+    downloadIcon: 'download-icon',
+
+    pageNumView: 'page-num-view',
+    pageNumText: 'page-num-text',
+
+    pdfView: 'pdf-view',
+    imageView: 'image-view',
+    imageImage: 'image-image',
+    svgView: 'svg-view',
+    svgImage: 'svg-image',
+    webpNgifView: 'webp-ngif-view',
+    webpNgifImage: 'webp-ngif-image',
+    notSupportedView: 'not-supported-view',
+    notSupportedText: 'not-supported-text',
+};
+
+
 export const DocumentRouteSignature: ApplicationRouteSignature<{
     document: MaterialDocument,
 }> = {
@@ -41,7 +64,7 @@ const DocumentScreen: ApplicationRoute = () => {
     const docFormat: DocumentFormat = document.uri.substring(document.uri.lastIndexOf('.') + 1).toLowerCase();
 
     const [numPages, setNumPages] = useState<number>(0); // Total number of pages
-    const [currentPage, setCurrentPage] = useState<number>(1); // Current active page
+    const [currentPage, setCurrentPage] = useState<number>(0); // Current active page
     const [url, setUrl] = useState<string>(''); // URL of the PDF
     const [hasError, setHasError] = useState<boolean>(false); // Track if an error should be shown
 
@@ -63,12 +86,9 @@ const DocumentScreen: ApplicationRoute = () => {
         }
     };
 
-
-
     // ------------------------------------------------------------
     // ----------------------  Document Viewer  -------------------
     // ------------------------------------------------------------
-
     const docViewer = (uri: string) => {
         switch (docFormat) {
             case 'pdf':
@@ -81,7 +101,7 @@ const DocumentScreen: ApplicationRoute = () => {
                 return SVGViewer(uri);
             case 'gif':
             case 'webp':
-                return;
+                return NotSupportedViewer();
             //return WEBPnGIFViewer(uri);
             default:
                 return NotSupportedViewer();
@@ -90,27 +110,30 @@ const DocumentScreen: ApplicationRoute = () => {
 
     // PDF Viewer for PDF
     const PDFViewer = (uri: string) => (
-        <Pdf
-            trustAllCerts={false}
-            source={{ uri }}
-            renderActivityIndicator={() => <ActivityIndicator size="large" />}
-            horizontal={false}
-            onPageChanged={(currentPage) => setCurrentPage(currentPage)}
-            onLoadComplete={(totalPages) => { setNumPages(totalPages); }}
-            onError={() => console.error('Error loading PDF')}
-            style={{
-                flex: 1,
-                width: '100%',
-                height: '100%',
-            }}
-        />
+        console.debug('PDFViewer:', uri),
+        <TView testID={testIDs.pdfView} flex={1} justifyContent='center' alignItems='center' >
+            <Pdf
+                trustAllCerts={false}
+                source={{ uri }}
+                renderActivityIndicator={() => <ActivityIndicator size="large" />}
+                horizontal={false}
+                onPageChanged={(currentPage, totalPages) => { setCurrentPage(currentPage); setNumPages(totalPages); }}
+                onLoadComplete={(totalPages) => setNumPages(totalPages)} // Does not work for now so I put it in onPageChanged
+                onError={() => { console.error('Error loading PDF') }}
+                style={{
+                    flex: 1,
+                    width: '100%',
+                    height: '100%',
+                }}
+            />
+        </TView>
     );
 
     // Image Viewer for JPG, JPEG and PNG
     const ImageViewer = (uri: string) => (
-        console.log('url ', uri),
-        <TView flex={1} justifyContent='flex-start' alignItems='center' pb={120} >
+        <TView testID={testIDs.imageView} flex={1} justifyContent='flex-start' alignItems='center' pb={120} >
             <Image
+                testID={testIDs.imageImage}
                 source={{ uri }}
                 style={{ flex: 1, width: '100%', height: '100%' }}
                 resizeMode="contain"
@@ -121,41 +144,44 @@ const DocumentScreen: ApplicationRoute = () => {
 
     // SVG Viewer for SVG
     const SVGViewer = (uri: string) => (
-        <TView flex={1} justifyContent='center' alignItems='center' pb={120} >
+        <TView testID={testIDs.svgView} flex={1} justifyContent='center' alignItems='center' pb={120} >
             <SVGImage
                 uri={uri}
                 onError={() => console.error('Error loading SVG')}
+                testID={testIDs.svgImage}
             />
         </TView>
     );
 
-    // const WEBPnGIFViewer = (uri: string) => (
-    //     <TView flex={1} justifyContent='center' alignItems='center' pb={120} >
-    //         <FastImage
-    //             style={{ width: 200, height: 200 }}
-    //             source={{
-    //                 uri: uri, // .webp or .gif URL
-    //                 priority: FastImage.priority.normal,
-    //             }}
-    //             resizeMode='contain'
-    //         />
-    //     </TView>
-    // );
+    //WEBP and GIF Viewer for WEBP and GIF
+    /*const WEBPnGIFViewer = (uri: string) => (
+        <TView testID={testIDs.webpNgifView} flex={1} justifyContent='center' alignItems='center' pb={120} >
+            <FastImage
+                style={{ width: 200, height: 200 }}
+                source={{
+                    uri: uri, // .webp or .gif URL
+                    priority: FastImage.priority.normal,
+                }}
+                resizeMode='contain'
+                testID={testIDs.webpNgifImage}
+            />
+        </TView>
+    );*/
 
     // Viewer for unsupported formats
     const NotSupportedViewer = () => (
-        <TView flex={1} justifyContent='center' alignItems='center' pb={120} >
-            <TText color='red' bold>
+        <TView testID={testIDs.notSupportedView} flex={1} justifyContent='center' alignItems='center' pb={120} >
+            <TText testID={testIDs.notSupportedText} align='center' color='red' bold>
                 {t('course:document_not_supported')}
             </TText>
         </TView>
     );
 
 
+
     // ------------------------------------------------------------
     // --------------------  Download and Save  --------------------
     // ------------------------------------------------------------
-
     const handleDownloadAndSave = async () => {
         try {
             // Download the file and encode it in Base64
@@ -184,7 +210,8 @@ const DocumentScreen: ApplicationRoute = () => {
             console.log('Data size:', base64Data.length);
             return base64Data;
         } catch (error) {
-            console.error('Error when downloading or encoding:', error);
+            setHasError(true);
+            console.error('Error when downloading or encoding: ', error);
             throw error;
         }
     };
@@ -216,9 +243,11 @@ const DocumentScreen: ApplicationRoute = () => {
                     console.log('File successfully saved.');
                 })
                 .catch((e) => {
+                    setHasError(true);
                     console.error('Error when creating the file: ', e);
                 });
         } catch (e) {
+            setHasError(true);
             console.error('Error when downloading the file: ', e);
         }
     };
@@ -229,12 +258,11 @@ const DocumentScreen: ApplicationRoute = () => {
     // ----------------------  Page Number  -----------------------
     // ------------------------------------------------------------
     const displayPageNumber = () => (
-        <TView radius={5} px={10} py={5} style={{ position: 'absolute', top: 10, left: 10, backgroundColor: 'rgba(128, 128, 128, 0.2)' }}>
-            <TText bold color='text'>
+        <TView testID={testIDs.pageNumView} backgroundColor='transparent' radius={5} px={10} py={5} style={{ position: 'absolute', top: 10, left: 10, backgroundColor: 'rgba(128, 128, 128, 0.2)' }}>
+            <TText testID={testIDs.pageNumText} bold color='text'>
                 {currentPage + t('course:of') + numPages}
             </TText>
         </TView>
-
     );
 
 
@@ -244,22 +272,21 @@ const DocumentScreen: ApplicationRoute = () => {
                 title={document.title}
                 isBold
                 right={
-                    <TTouchableOpacity p={10} onPress={handleDownloadAndSave}>
-                        <Icon name='download' size={'xl'} color='darkBlue' mr={5} />
+                    <TTouchableOpacity testID={testIDs.downloadButton} disabled={!url || hasError} p={10} onPress={handleDownloadAndSave}>
+                        <Icon testID={testIDs.downloadIcon} name='download' size={'xl'} color='darkBlue' mr={5} />
                     </TTouchableOpacity>
                 }
             />
 
-            <TView mr={'lg'} flexDirection='column' justifyContent='center' style={{ width: '100%', height: '100%', position: 'relative' }} >
+            <TView testID={testIDs.pageView} mr={'lg'} flexDirection='column' justifyContent='center' style={{ width: '100%', height: '100%', position: 'relative' }} >
                 {url && docViewer(url)}
+                {url && docFormat === 'pdf' && displayPageNumber()}
                 {hasError && (
-                    <TText color="red" bold align='center' mt={20}>
+                    <TText testID={testIDs.docError} color="red" bold align='center' mt={20}>
                         {t('course:document_error')}
                     </TText>
                 )}
             </TView>
-            {url && docFormat === 'pdf' && displayPageNumber()}
-
         </>
     );
 };

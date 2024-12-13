@@ -8,6 +8,7 @@ import { fireEvent, render } from "@testing-library/react-native";
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
+import { PdfProps } from 'react-native-pdf';
 
 
 jest.mock('@/components/core/containers/TView.tsx', () => {
@@ -132,6 +133,35 @@ jest.mock('@/components/core/TActivityIndicator', () => {
         default: jest.fn(() => null), // On retourne une version mockée de TActivityIndicator qui ne rend rien
     };
 });
+
+//====================== Mock PDF ===========================
+jest.mock('react-native/Libraries/Settings/Settings', () => ({
+    get: jest.fn(),
+    set: jest.fn(),
+}));
+jest.mock('react-native-pdf', () => {
+    const React = require('react');
+    return (props: PdfProps) => {
+        const { onLoadComplete, onPageChanged } = props;
+
+        React.useEffect(() => {
+            if (onLoadComplete) {
+                onLoadComplete(10, "1", { height: 100, width: 100 }, []); // Mock total pages as 10 with additional required arguments
+            }
+        }, [onLoadComplete]);
+
+        React.useEffect(() => {
+            if (onPageChanged) {
+                onPageChanged(3, 10); // Mock current page as 1 and total pages as 10
+            }
+        }, [onPageChanged]);
+
+        return React.createElement('Pdf', {
+            ...props
+        });
+    };
+});
+//==========================================================
 
 
 // Mock Date
@@ -296,10 +326,10 @@ describe('CoursePage with assignments', () => {
         expect(screen.queryByTestId('feedbacks-touchable')).toBeNull();
 
         //Fire events
-        fireEvent.press(screen.getByTestId('slides-touchable'));
-        expect(console.log).toHaveBeenCalledWith('Click on Material 1');
-        fireEvent.press(screen.getAllByTestId('exercises-touchable')[0]); // Press the first exercises-touchable
-        expect(console.log).toHaveBeenCalledWith('Click on Material 2');
+        fireEvent.press(screen.getByTestId('slide-touchable'));
+        expect(console.log).toHaveBeenCalledWith('Click on Document 1');
+        fireEvent.press(screen.getAllByTestId('exercise-touchable')[0]); // Press the first exercises-touchable
+        expect(console.log).toHaveBeenCalledWith('Click on Document 2');
     });
 
     test('should display future Materials when the \"Show future materials\" is clicked', () => {
@@ -320,7 +350,7 @@ describe('CoursePage with assignments', () => {
         expect(screen.getByTestId('future-material-view')).toBeTruthy();
 
         fireEvent.press(screen.getByTestId('other-touchable'));
-        expect(console.log).toHaveBeenCalledWith('Click on Material 3');
+        expect(console.log).toHaveBeenCalledWith('Click on Document 3');
     });
 });
 

@@ -29,7 +29,8 @@ const SVGImage: ReactComponent<SVGImageProps> = ({ uri, width, height, color, ti
                 setSvgData(response.data);
                 setLoading(false);
             } catch (error) {
-                console.error('Error fetching SVG:', error);
+                console.error('Error fetching SVG: ', error);
+                console.debug(svgData);
                 setLoading(false);
             }
         };
@@ -38,14 +39,15 @@ const SVGImage: ReactComponent<SVGImageProps> = ({ uri, width, height, color, ti
     }, [uri]);
 
     if (loading) {
-        return <ActivityIndicator size="large" />;
+        return <ActivityIndicator testID='activityIndicatorId' size="large" />;
     }
 
     if (!svgData) {
-        return <TText>{t(`common:errorOccurred`)}</TText>;
+        return <TText testID='errorText'>{t(`common:errorOccurred`)}</TText>;
     }
 
     return <SvgXml
+        testID='svgXmlId'
         xml={svgData}
         width={width}
         height={height}
