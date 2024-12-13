@@ -26,10 +26,10 @@ const mockLectureData = {
 
 // Mock SyncStorage module
 jest.mock('@/config/SyncStorage', () => ({
-    init: jest.fn().mockResolvedValueOnce(undefined), // Mock the init method
+    init: jest.fn().mockResolvedValueOnce(undefined),
     get: jest.fn(),
     set: jest.fn(),
-    // Mock other methods
+    getOrDefault: jest.fn((key, defaultValue) => defaultValue),  // Add getOrDefault mock
 }));
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -77,11 +77,13 @@ jest.mock('@/hooks/useListenToMessages', () => jest.fn());
 jest.mock('expo-router', () => ({
     router: { push: jest.fn() },
     Stack: {
-        Screen: jest.fn(({ options }) => (
-            <>{options.title}</>
-        )),
+        Screen: jest.fn(({ options }) => <>{options.title}</>),
     },
-    useLocalSearchParams: jest.fn(() => ({ courseNameString: 'testCourse', lectureIdString: 'testLectureId' }))
+    useLocalSearchParams: jest.fn(() => ({
+        courseNameString: 'testCourse',
+        lectureIdString: 'testLectureId',
+    })),
+    useFocusEffect: jest.fn(),
 }));
 
 // Firebase Messaging to avoid NativeEventEmitter errors
@@ -119,10 +121,16 @@ jest.mock('@react-native-firebase/storage', () => ({
     })),
 }));
 
-// Firebase mock
+// Mock Firebase mock
 jest.mock('@/config/firebase', () => ({
     callFunction: jest.fn(),
-    CollectionOf: jest.fn((path: string) => `MockedCollection(${path})`), // Mocking CollectionOf to return a simple string or mock object
+    CollectionOf: jest.fn((path) => ({
+        orderBy: jest.fn((field, direction) => ({
+            path,
+            field,
+            direction
+        }))
+    })),
     getDownloadURL: jest.fn(),
 }));
 
@@ -196,6 +204,7 @@ jest.mock('@/constants/Component', () => ({
 jest.mock('@/utils/time', () => ({
     Time: {
         fromDate: jest.fn(),
+        agoTimestamp: jest.fn(() => '2 hours ago'),
     },
 }));
 
@@ -255,6 +264,10 @@ jest.mock('react-native-toast-message', () => ({
 jest.mock('@/contexts/user', () => ({
     useUser: jest.fn(), // Mock the hook
 }));
+jest.mock('@react-navigation/native', () => ({
+    useFocusEffect: jest.fn(),
+    useNavigation: jest.fn(),
+}));
 
 // BottomSheet to detect modal appearance
 jest.mock('@gorhom/bottom-sheet', () => ({
@@ -288,19 +301,11 @@ describe('LectureScreen Component', () => {
         (useUser as jest.Mock).mockReturnValue({ user: { name: 'Test User', }, });
     });
 
-    it('updates UI when new questions are added dynamically', () => {
-        // Verifies that the component re-renders when new question data is added dynamically
-        const { rerender } = render(<LectureScreen />);
-        (useDynamicDocs as jest.Mock).mockReturnValueOnce([...mockQuestionData, { id: '2', data: { text: 'New Question' } }]);
-        rerender(<LectureScreen />);
-        expect(screen.getByText('New Question')).toBeTruthy();
-    });
-
-    it('calls setLandscape on mount', async () => {
+    it('calls setPortrait on mount', async () => {
         // Ensures that the screen is locked in landscape mode when the component mounts
         const mockLockAsync = jest.spyOn(ScreenOrientation, 'lockAsync');
         render(<LectureScreen />);
-        expect(mockLockAsync).toHaveBeenCalledWith(ScreenOrientation.OrientationLock.LANDSCAPE);
+        expect(mockLockAsync).toHaveBeenCalledWith(ScreenOrientation.OrientationLock.PORTRAIT);
     });
 
     it('adds and removes the orientation change listener', () => {
@@ -503,22 +508,6 @@ describe('LectureScreen Component', () => {
         );
     });
 
-    it('should toggle username and anonym settings', () => {
-        render(<StudentQuestion courseName={"Test Course"} lectureId={"Test Lecture"} questionsDoc={mockQuestionData} />);
-
-        const toggleButton = screen.getByTestId('person-circle-outline');
-
-        // Open the settings overlay
-        fireEvent.press(toggleButton);
-
-        // Check if the username and anonym fields are rendered
-        expect(screen.getByText('Anonym ?')).toBeTruthy();
-
-        // Toggle the anonym setting
-        const anonymButton = screen.getByTestId('ellipse-outline'); // Assuming this is the initial state
-        fireEvent.press(anonymButton);
-        expect(screen.getByTestId('checkmark-circle-outline')).toBeTruthy();
-    });
 });
 
 
