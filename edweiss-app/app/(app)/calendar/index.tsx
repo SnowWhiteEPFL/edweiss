@@ -3,6 +3,7 @@ import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import { CollectionOf } from '@/config/firebase';
 import { useAuth } from '@/contexts/auth';
+<<<<<<< Updated upstream
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { Course } from '@/model/school/courses';
 import React, { useEffect, useRef, useState } from 'react';
@@ -11,6 +12,50 @@ export type CourseWithId = Course & { id: string };
 
 const useWindowDimensions = () => {
   const [dimensions, setDimensions] = useState(() => Dimensions.get('window'));
+=======
+import { Course, CourseTimePeriod } from '@/model/school/courses';
+import { CustomEvents } from '@/model/school/Events';
+import { AppUser } from '@/model/users';
+import { getDocs, Timestamp } from '@react-native-firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { Alert, useWindowDimensions } from 'react-native';
+import HorizontalCalendar from './horizontalCalendar'; // Import HorizontalCalendar
+import VerticalCalendar from './VerticalCalendar';
+
+export interface EventsByDate {
+  [key: string]: CustomEvents[];
+}
+
+// Function to get navigation details based on user type and course information
+export const getNavigationDetails = (user: AppUser, courseItem: { id: string; data: Course }, period: CourseTimePeriod, index: number) => {
+  const isProfessor = user.type === 'professor';
+  return {
+    pathname: isProfessor ? '/(app)/startCourseScreen' : '/(app)/lectures/slides',
+    params: isProfessor
+      ? {
+        courseID: courseItem.id,
+        course: JSON.stringify(courseItem.data),
+        period: JSON.stringify(period),
+        index,
+      }
+      : {
+        courseNameString: courseItem.data.name,
+        lectureIdString: period.activityId,
+      },
+  };
+};
+
+const HOUR_BLOCK_HEIGHT = 80; // Height of an hour block
+
+const EventsPerDayScreen = () => {
+  const [isPortrait, setIsPortrait] = useState(true); // State to track orientation
+  const [loading, setLoading] = useState(true); // State to track loading status
+  const [eventsByDate, setEventsByDate] = useState<{ [key: string]: CustomEvents[] }>({}); // State to store events by date
+  const auth = useAuth(); // Get authentication context
+  const authUserId = auth.authUser?.uid; // Get authenticated user ID
+  const { width, height } = useWindowDimensions(); // Get window dimensions
+  const date = new Date(); // Current date
+>>>>>>> Stashed changes
 
   useEffect(() => {
     const handleResize = ({ window }: { window: ScaledSize }) =>
