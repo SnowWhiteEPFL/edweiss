@@ -22,7 +22,6 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Vibration } from 'react-native';
-import Toast from 'react-native-toast-message';
 import { LangSelectModal, TimerSettingModal } from './modal';
 
 // types
@@ -197,11 +196,17 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                         <TTouchableOpacity
                             backgroundColor='crust'
                             borderColor='text' p={10} b={1} radius={1000}
-                            onPress={() => Toast.show({
-                                type: 'success',
-                                text1: 'The Available activities',
-                                text2: 'Implementation comes soon'
-                            })}
+                            onPress={() => {
+                                router.push({
+                                    pathname: '/(app)/lectures/remotecontrol/quizToSlide' as any,
+                                    params: {
+                                        courseNameString,
+                                        lectureIdString,
+                                        currentPageString: curPageProvided.toString(),
+                                        totalPageString: totPageProvided.toString(),
+                                    },
+                                })
+                            }}
                             testID='strc-activity-button'>
                             <Icon size={40} name='easel-outline' color='text'></Icon>
                         </TTouchableOpacity>

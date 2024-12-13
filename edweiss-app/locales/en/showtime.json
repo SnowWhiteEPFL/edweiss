@@ -20,9 +20,13 @@
     "rmt_ctl_recall": "Recall",
     "close_btn": "Close",
     "question_slide_title": "Audience Questions",
+    "quiz_slide_title": "Available Activities",
     "empty_question": "No Question from the Audience",
     "empty_question_funny_1": "Your explanation must have been clear",
     "empty_question_funny_2": " ... or the students are totally lost",
+    "empty_quiz": "No Activity for the Audience",
+    "empty_quiz_funny_1": "The quiz must have been too easy!",
+    "empty_quiz_funny_2": " ... or everyone is still thinking hard",
 
     "lecturer_transcript_deftxt" : "Lecturer’s transcript... currently in invisible ink!",
     "question_broadcast_modal_title": "Answer Question",
