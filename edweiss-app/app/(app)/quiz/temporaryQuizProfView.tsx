@@ -25,10 +25,10 @@ const TemporaryQuizProfView: ApplicationRoute = () => {
 	const pathToEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
 	const pathToAttempts = pathToEvents + "/" + lectureEventId + "/attempts";
 
-	const [quizEvent, _] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEvent>(pathToEvents), lectureEventId as string, prefetchedQuizEvent);
+	const [quizEvent, _] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEventBase>(pathToEvents), lectureEventId as string, prefetchedQuizEvent);
 
 
-	return (<LectureQuizProfView courseId={courseId} lectureEventId={lectureEventId} lectureId={lectureId} pathToAttempts={pathToAttempts} quizEvent={quizEvent}></LectureQuizProfView>);
+	return (<LectureQuizProfView courseId={courseId} lectureEventId={lectureEventId} lectureId={lectureId} pathToAttempts={pathToAttempts} quizEvent={quizEvent as Document<LectureDisplay.QuizLectureEvent>}></LectureQuizProfView>);
 
 };
 export default TemporaryQuizProfView;

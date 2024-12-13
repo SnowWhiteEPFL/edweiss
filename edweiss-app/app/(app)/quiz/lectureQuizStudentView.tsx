@@ -26,9 +26,9 @@ const LectureQuizStudentViewPage: ApplicationRoute = () => {
 	const pathToAttempts = pathToLectureEvents + "/" + lectureEventId + "/attempts";
 
 
-	const [quizEvent, _] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEvent>(pathToLectureEvents), lectureEventId, prefetchedQuiz);
+	const [quizEvent, _] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEventBase>(pathToLectureEvents), lectureEventId, prefetchedQuiz);
 
-	return (<LectureQuizStudentView courseId={courseId} lectureEventId={lectureEventId} lectureId={lectureId} pathToAttempts={pathToAttempts} pathToLectureEvents={pathToLectureEvents} quizEvent={quizEvent} />)
+	return (<LectureQuizStudentView courseId={courseId} lectureEventId={lectureEventId} lectureId={lectureId} pathToAttempts={pathToAttempts} pathToLectureEvents={pathToLectureEvents} quizEvent={quizEvent as Document<LectureDisplay.QuizLectureEvent>} />)
 
 };
 export default LectureQuizStudentViewPage;

@@ -19,15 +19,17 @@ const LectureQuizView: ReactComponent<{ courseId: string, lectureId: string, lec
 	const pathToAttempts = pathToEvents + "/" + lectureEventId + "/attempts";
 
 	const { user } = useUser()
-	const [quizEvent, _] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEvent>(pathToEvents), lectureEventId as string, undefined);
+	const [quizEvent, _] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEventBase>(pathToEvents), lectureEventId as string, undefined);
 
 	return (
-		<>
+		<>{(quizEvent == undefined || quizEvent.data.type != 'quiz') && <>
+			<TActivityIndicator />
+		</>}
 			{user.type == "professor" && <>
-				<LectureQuizProfView courseId={courseId} lectureId={lectureId} lectureEventId={lectureEventId} quizEvent={quizEvent} pathToAttempts={pathToAttempts} />
+				<LectureQuizProfView courseId={courseId} lectureId={lectureId} lectureEventId={lectureEventId} quizEvent={quizEvent as Document<LectureDisplay.QuizLectureEvent>} pathToAttempts={pathToAttempts} />
 			</>}
 			{user.type == "student" && <>
-				<LectureQuizStudentView courseId={courseId} lectureId={lectureId} lectureEventId={lectureEventId} quizEvent={quizEvent} pathToAttempts={pathToAttempts} pathToLectureEvents={pathToEvents} />
+				<LectureQuizStudentView courseId={courseId} lectureId={lectureId} lectureEventId={lectureEventId} quizEvent={quizEvent as Document<LectureDisplay.QuizLectureEvent>} pathToAttempts={pathToAttempts} pathToLectureEvents={pathToEvents} />
 			</>}
 		</>
 	);
