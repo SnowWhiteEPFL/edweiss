@@ -32,8 +32,13 @@
 
     "lecturer_transcript_deftxt" : "Lecturer’s transcript... currently in invisible ink!",
     "question_broadcast_modal_title": "Answer Question",
+    "quiz_broadcast_modal_title": "Handle Quiz",
     "broadcast_question": "Broadcast Question",
+    "broadcast_quiz": "Broadcast Quiz",
     "question_answered": "Question Answered",
+    "show_result_but": "Show Result",
+    "hide_result_but": "Hide Result",
+    "stop_activity": "Stop Activity",
     "question_broadcast_modal_says": "asks :",
     "anony_ask_question": "An anomym student",
     "other_student": "other student also want",

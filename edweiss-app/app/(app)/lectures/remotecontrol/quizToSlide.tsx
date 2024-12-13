@@ -67,8 +67,6 @@ const QuizToSlideScreen: ApplicationRoute = () => {
     const quizDocPending = quizDoc?.filter(quiz => !quiz.data.done) || [];
     const currentLecture = lectureDoc.data;
 
-    console.log("quizDoc: ", quizDocPending);
-
     // Set the current broadcasted if the user just 
     // comes back from another screen
     if (broadcasted === "" && currentLecture.event && currentLecture.event.type === "quiz") {
@@ -157,7 +155,7 @@ const QuizDisplay: React.FC<{
 
                     {/* Page Number Status */}
                     <TView flexDirection='row' mt='sm' mr='sm'>
-                        <TText>{pageNumber}</TText>
+                        <TText color='blue'>{pageNumber}</TText>
                         <Icon size={'md'} name='newspaper-outline' color='blue' ml='xs' mt='xs'></Icon>
                     </TView>
                 </TView>
