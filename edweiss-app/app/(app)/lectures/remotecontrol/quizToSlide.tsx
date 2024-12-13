@@ -152,19 +152,17 @@ const QuizDisplay: React.FC<{
         >
             <TTouchableOpacity onPress={() => { setSelID(quizID); setSelQuiz(quizModel); Vibration.vibrate(100); modalRefQuizBroadcast.current?.present() }}>
                 <TView flexDirection='row' justifyContent='space-between' ml='md' mb='xs'>
-                    {/* Person status */}
-                    <TText size={'sm'} pl={2} pt={'sm'} color='text'>{exercise.type === "MCQ" ? "Multiple Question" : "True False"}</TText>
+                    {/* Quiz Type Status */}
+                    <TText size={'sm'} pl={2} pt={'sm'} color='text'>{exercise.type === "MCQ" ? t('showtime:MCQ_title') : t('showtime:TF_title')}</TText>
 
-
-
-                    {/* Likes Status */}
+                    {/* Page Number Status */}
                     <TView flexDirection='row' mt='sm' mr='sm'>
                         <TText>{pageNumber}</TText>
                         <Icon size={'md'} name='newspaper-outline' color='blue' ml='xs' mt='xs'></Icon>
                     </TView>
                 </TView>
 
-                {/* Question Content */}
+                {/* Quiz Question Name */}
                 <TView pr={'sm'} pl={'md'} pb={'sm'} flexDirection='row' justifyContent='space-between' alignItems='flex-start'>
                     <TText ml='md' color='overlay2'>{exercise.question}</TText>
                 </TView>
