@@ -56,7 +56,7 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
         question: Document<LectureDisplay.Question>;
         index: number;
     }> = ({ question, index }) => {
-        const { text, anonym, userID, likes, username, postedTime } = question.data;
+        const { text, anonym, userID, likes, username, postedTime, answered } = question.data;
         const isUser = uid == userID;
         const id = question.id;
         const likedStorageKey = `stquestion-${id}`;
@@ -82,11 +82,14 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
 
         return (
             <>
-                <TView key={index} mb={'sm'} backgroundColor={isUser ? 'overlay0' : 'crust'} borderColor='surface0' radius={'lg'} flex={1} flexDirection='column' ml='md' style={{ right: isUser ? 0 : 10 }}>
-                    <TView borderColor={isUser ? 'crust' : 'overlay0'} bb={1} flexDirection='row' flexColumnGap={10} alignItems='center' radius={'lg'} mb={'sm'}>
-                        <Avatar size={40} name={anonym ? undefined : username} uid={anonym ? undefined : userID} />
-                        <TView flex={1}>
-                            <TText ml={16} mb={4} size={'sm'} pl={2} pt={'sm'}>{anonym ? "Anonymous" : username}, {Time.agoTimestamp(postedTime)}</TText>
+                {!answered && <TView key={index} mb={'sm'} backgroundColor='crust' borderColor='surface0' radius={'lg'} flex={1} flexDirection='column' mr={isUser ? 'md' : 'lg'} ml={isUser ? 'lg' : 'md'} style={{ right: isUser ? 0 : 10 }}>
+                    <TView pt={'sm'} flexDirection='row' flexColumnGap={10} alignItems='center' radius={'lg'} mb={'sm'}>
+                        <TView ml={'md'}>
+                            <Avatar size={30} name={anonym ? undefined : username} uid={anonym ? undefined : userID} />
+                        </TView>
+                        <TView flex={1} flexDirection='row' alignItems='flex-end' justifyContent='space-between'>
+                            <TText mb={4} size={'sm'} pl={2} pt={'sm'}>{anonym ? "Anonymous" : username}</TText>
+                            <TText size={'xs'}>{Time.agoTimestamp(postedTime)}</TText>
                         </TView>
                     </TView>
                     <TText pl={'md'}>
@@ -97,7 +100,7 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                         <Icon name={liked ? 'heart' : 'heart-outline'} color='red' size={24} />
                         <TText color='red' size={'xs'} bold lineHeight={14}>{likeCount}</TText>
                     </TTouchableOpacity>
-                </TView>
+                </TView>}
             </>
 
         );
