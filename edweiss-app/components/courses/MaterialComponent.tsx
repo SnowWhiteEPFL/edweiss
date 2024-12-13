@@ -1,17 +1,23 @@
 import ReactComponent from '@/constants/Component';
 
+import { DocumentRouteSignature } from '@/app/(app)/courses/[id]/materials/[materialId]';
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
+import { Color } from '@/constants/Colors';
 import { IconType } from '@/constants/Style';
-import { Material, MaterialID, MAX_MATERIAL_DESCRIPTION_LENGTH, MAX_MATERIAL_TITLE_LENGTH } from '@/model/school/courses';
+import { pushWithParameters } from '@/hooks/routeParameters';
+import { Material, MaterialDocument, MaterialID, MaterialType, MAX_DOCUMENT_TITLE_LENGTH, MAX_MATERIAL_DESCRIPTION_LENGTH, MAX_MATERIAL_TITLE_LENGTH } from '@/model/school/courses';
 import { Time } from '@/utils/time';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useEffect, useState } from 'react';
 import TScrollView from '../core/containers/TScrollView';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
+import For from '../core/For';
 import Icon from '../core/Icon';
+import FancyButton from '../input/FancyButton';
 import FancyTextInput from '../input/FancyTextInput';
+import DocumentDisplay from './DocumentDisplay';
 
 // Icons
 export const icons: { [key: string]: IconType } = {
@@ -99,17 +105,32 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
     const [description, setDescription] = useState<string>(material?.data.description ?? "");
     const [fromDate, setFromDate] = useState<Date>(material ? Time.toDate(material.data.from) : new Date());
     const [toDate, setToDate] = useState<Date>(material ? Time.toDate(material.data.to) : new Date());
+    const [docs, setDocs] = useState<MaterialDocument[]>(material?.data.docs ?? []);
+    const [docTitle, setDocTitle] = useState<string>('');
+    const [docType, setDocType] = useState<MaterialType>('slide');
+    const [docUri, setDocUri] = useState<string>('');
     const [titleChanged, setTitleChanged] = useState<boolean>(false);
     const [fromDateChanged, setFromDateChanged] = useState<boolean>(false);
     const [fromTimeChanged, setFromTimeChanged] = useState<boolean>(false);
     const [toDateChanged, setToDateChanged] = useState<boolean>(false);
     const [toTimeChanged, setToTimeChanged] = useState<boolean>(false);
+    const [docTitleChanged, setDocTitleChanged] = useState<boolean>(false);
     const [showPickerFromDate, setShowPickerFromDate] = useState<boolean>(false);
     const [showPickerFromTime, setShowPickerFromTime] = useState<boolean>(false);
     const [showPickerToDate, setShowPickerToDate] = useState<boolean>(false);
     const [showPickerToTime, setShowPickerToTime] = useState<boolean>(false);
 
+    const [showAddDocument, setShowAddDocument] = useState<boolean>(false);
+
     const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
+    const typeOptions: { type: MaterialType, color: Color }[] = [
+        { type: 'slide', color: 'cherry' },
+        { type: 'exercise', color: 'maroon' },
+        { type: 'image', color: 'yellow' },
+        { type: 'other', color: 'sapphire' },
+        { type: 'feedback', color: 'lavender' },
+    ];
 
     useEffect(() => {
         const isInvalid =
@@ -177,23 +198,30 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
         }
     };
 
+    const resetDocument = () => {
+        setDocTitle('');
+        setDocType('slide');
+        setDocUri('');
+        setDocTitleChanged(false);
+    }
+
     return (
         <>
-            <TText
-                testID={mode === 'add' ? testIDs.addMaterialTitle : testIDs.editMaterialTitle}
-                size={24} bold mb={20} mx='md' pt={20}
-            >
-                {mode === 'add' ? t('course:add_material') : t('course:edit_material')}
-            </TText>
-
-            <TText
-                testID={mode === 'add' ? testIDs.addMaterialDescription : testIDs.editMaterialDescription}
-                mx='md' mb={15}
-            >
-                {mode === 'add' ? t('course:add_material_title') : t('course:edit_material_title')}
-            </TText>
-
             <TScrollView testID={testIDs.scrollView}>
+
+                <TText
+                    testID={mode === 'add' ? testIDs.addMaterialTitle : testIDs.editMaterialTitle}
+                    size={24} bold mb={20} mx='md' pt={20}
+                >
+                    {mode === 'add' ? t('course:add_material') : t('course:edit_material')}
+                </TText>
+
+                <TText
+                    testID={mode === 'add' ? testIDs.addMaterialDescription : testIDs.editMaterialDescription}
+                    mx='md' mb={15}
+                >
+                    {mode === 'add' ? t('course:add_material_title') : t('course:edit_material_title')}
+                </TText>
 
                 <TView testID={testIDs.titleAndDescriptionView}>
                     <FancyTextInput
@@ -349,6 +377,131 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                     />
                 )}
 
+                <TView flexDirection='row' alignItems='center' justifyContent='space-between' mx='md'>
+                    <TText
+                        testID={testIDs.documentsTitle}
+                        size={24} bold mb={20} pt={30}
+                    >
+                        {t('course:documents_title')}
+                    </TText>
+
+                    <TTouchableOpacity
+                        onPress={() => { setShowAddDocument(!showAddDocument); resetDocument(); }}
+                        radius={'xl'}
+                        backgroundColor='blue'
+                        flexDirection='row'
+                        alignItems='center'
+                        p={5}
+                        mt={10}
+                    >
+                        <Icon
+                            name='add-circle'
+                            color='constantWhite'
+                            size='lg'
+                        />
+                        <TText
+                            color='constantWhite'
+                            ml={5}
+                        >
+                            {t('course:add_document')}
+                        </TText>
+                    </TTouchableOpacity>
+                </TView>
+
+                {showAddDocument &&
+                    <TView pb={20}>
+                        <FancyTextInput
+                            testID={testIDs.docTitleInput}
+                            label={t('course:document_title_label')}
+                            value={docTitle}
+                            onChangeText={n => { setDocTitleChanged(true); setDocTitle(n) }}
+                            placeholder={t('course:document_title_placeholder')}
+                            icon={icons.nameIcon}
+                            error={docTitle.length > MAX_DOCUMENT_TITLE_LENGTH ? t(`course:title_too_long`) : docTitleChanged && docTitle == "" ? t(`course:field_required`) : undefined}
+                        />
+                        <FancyButton
+                            testID={testIDs.sectionInput}
+                            onPress={() => {
+                                setDocType(typeOptions[(typeOptions.findIndex(option => option.type === docType) + 1) % typeOptions.length].type);
+                            }}
+                            backgroundColor={typeOptions[typeOptions.findIndex(option => option.type === docType)].color}
+                            textColor='constantWhite'
+                            radius={'lg'}
+                            mt={'md'}
+                            mb={'sm'}
+                        >
+                            {docType}
+                        </FancyButton>
+                        <TView flexDirection='row' justifyContent='flex-start' alignItems='center' mt='md' mx='md' pb={20}>
+                            <TTouchableOpacity
+                                onPress={() => {
+
+                                }}
+                                radius={'md'}
+                                backgroundColor='crust'
+                                flexDirection='row'
+                                alignItems='center'
+                                p={8}
+                                px={15}
+                            >
+                                <Icon
+                                    name='document-attach-outline'
+                                    color='subtext0'
+                                    size='lg'
+                                />
+                                <TText
+                                    color='text'
+                                    ml={10}
+                                >
+                                    {t('course:browse_document')}
+                                </TText>
+                            </TTouchableOpacity>
+                            <TText
+                                ml={10}
+                                color='subtext0'
+                            >
+                                {docUri}
+                            </TText>
+                        </TView>
+
+                        <FancyButton
+                            testID={testIDs.saveUploadButton}
+                            onPress={() => {
+
+                            }}
+                            backgroundColor='blue'
+                            textColor='constantWhite'
+                            radius={'xl'}
+                            mt={'md'}
+                            mb={'sm'}
+                        >
+                            {t('course:save_upload')}
+                        </FancyButton>
+                    </TView>
+                }
+
+                <TView
+                    pb={60}
+                    mx={20}
+                >
+                    <For
+                        each={docs.length > 0 ? docs : undefined}
+                        fallback={<TText size={16} testID={testIDs.noAssignmentDue}>{t('course:no_assignment_due')}</TText>}
+                    >{(doc) => (
+                        <DocumentDisplay
+                            doc={doc}
+                            isTeacher
+                            onPress={() => {
+                                console.log(`Click on ${doc.title}`);
+                                pushWithParameters(DocumentRouteSignature, { document: doc });
+                            }}
+                            onDelete={() => setDocs(docs.filter(d => d !== doc))}
+                        />
+                    )}
+                    </For>
+
+                </TView>
+
             </TScrollView >
 
             <TView
@@ -362,8 +515,31 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                     testID={testIDs.submitTouchableOpacity}
                     backgroundColor={isButtonDisabled ? 'text' : 'blue'}
                     disabled={isButtonDisabled}
-                    onPress={() => material ? onSubmit({ title: title, description: description, from: Time.fromDate(fromDate), to: Time.fromDate(toDate), docs: [] }, material.id) : onSubmit({ title: title, description: description, from: Time.fromDate(fromDate), to: Time.fromDate(toDate), docs: [] })}
-                    flex={1} mx={10} p={12} radius={'xl'}
+                    onPress={() => material
+                        ? onSubmit(
+                            {
+                                title: title,
+                                description: description,
+                                from: Time.fromDate(fromDate),
+                                to: Time.fromDate(toDate),
+                                docs: []
+                            },
+                            material.id
+                        )
+                        : onSubmit(
+                            {
+                                title: title,
+                                description: description,
+                                from: Time.fromDate(fromDate),
+                                to: Time.fromDate(toDate),
+                                docs: docs
+                            }
+                        )
+                    }
+                    flex={1}
+                    mx={10}
+                    p={12}
+                    radius={'xl'}
                 >
                     <TView
                         testID={testIDs.submitView}
@@ -371,8 +547,17 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                         justifyContent="center"
                         alignItems="center"
                     >
-                        <Icon testID={testIDs.submitIcon} name={icons.submitIcon} color="base" size="md" />
-                        <TText testID={testIDs.submitText} color="base" ml={10}>
+                        <Icon
+                            testID={testIDs.submitIcon}
+                            name={icons.submitIcon}
+                            color="base"
+                            size="lg"
+                        />
+                        <TText
+                            testID={testIDs.submitText}
+                            color="base"
+                            ml={10}
+                        >
                             {mode === 'add' ? t('course:upload_material') : t('course:update_changes')}
                         </TText>
                     </TView>
@@ -391,7 +576,7 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                             justifyContent="center"
                             alignItems="center"
                         >
-                            <Icon testID={testIDs.deleteIcon} name={icons.deleteIcon} color="base" size="md" />
+                            <Icon testID={testIDs.deleteIcon} name={icons.deleteIcon} color="base" size="lg" />
                             <TText testID={testIDs.deleteText} color="base" ml={10}>
                                 {t(`course:delete`)}
                             </TText>

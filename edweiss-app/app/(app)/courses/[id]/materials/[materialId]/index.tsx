@@ -261,7 +261,7 @@ const DocumentScreen: ApplicationRoute = () => {
     // ------------------------------------------------------------
     const displayPageNumber = () => (
         <TView testID={testIDs.pageNumView} backgroundColor='transparent' radius={5} px={10} py={5} style={{ position: 'absolute', top: 10, left: 10, backgroundColor: 'rgba(128, 128, 128, 0.2)' }}>
-            <TText testID={testIDs.pageNumText} bold color='text'>
+            <TText testID={testIDs.pageNumText} bold color='constantBlack'>
                 {currentPage + t('course:of') + numPages}
             </TText>
         </TView>

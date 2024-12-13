@@ -84,5 +84,13 @@
     "document_not_supported": "This document format cannot be displayed by Edweiss. \n You can download the document to view it.",
     "of" : " of ",
     "failure_download_document": "Failed to download document",
-    "success_download_document": "Document downloaded successfully 🎉"
+    "success_download_document": "Document downloaded successfully 🎉",
+
+    "documents_title": "Documents",
+    "add_document": "Add Document",
+    "document_title_label": "Title",
+    "document_title_placeholder": "Document title",
+    "browse_document": "browse",
+    "save_upload": "Save",
+    "no_documents": "No documents for this course yet"
 }
