@@ -17,15 +17,16 @@ import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
-import { callFunction } from '@/config/firebase';
+import { callFunction, CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
 import { useAuth } from '@/contexts/auth';
-import { useUser } from '@/contexts/user';
+import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { useRepository } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
 import { CourseID } from '@/model/school/courses';
+import { AppUser } from '@/model/users';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { DecksRepository } from './_layout';
@@ -42,7 +43,6 @@ import { DecksRepository } from './_layout';
 const DeckScreen: ApplicationRoute = () => {
 	const { id: courseId } = useStringParameters();
 	const { uid } = useAuth();
-	const { user } = useUser();
 
 	const [deckName, setDeckName] = useState("");
 	const [existedDeckName, setExistedDeckName] = useState(false);
@@ -50,6 +50,15 @@ const DeckScreen: ApplicationRoute = () => {
 	const [selectionMode, setSelectionMode] = useState(false); // Track selection mode
 
 	const [decks, handler] = useRepository(DecksRepository);
+
+	const users = useDynamicDocs(CollectionOf<AppUser>('users'));
+	if (!users) return undefined;
+
+	// For each users, map user.id to user.data.name
+	const ids_names_map = new Map<string, string>();
+	users.forEach(user => {
+		ids_names_map.set(user.id, user.data.name);
+	});
 
 	// Create a new deck
 	async function call() {
@@ -142,15 +151,20 @@ const DeckScreen: ApplicationRoute = () => {
 							backgroundColor='red'
 							onPress={deleteSelectedDecks}
 							mb={'sm'}
+							mr={'sm'}
+							ml={'md'}
 							style={{ flex: 1 }}
+							icon='trash'
 						>
-							Delete Selected Deck
+							Delete
 						</FancyButton>
 
 						<FancyButton
 							backgroundColor='blue'
 							onPress={cancelSelection}
 							style={{ flex: 1 }}
+							ml={'sm'}
+							mr={'md'}
 						>
 							Cancel
 						</FancyButton>
@@ -161,7 +175,7 @@ const DeckScreen: ApplicationRoute = () => {
 					<DeckDisplay
 						key={deck.id}
 						deck={deck.data}
-						creator={user.name}
+						creator={ids_names_map.get(deck.data.ownerID[0]) || 'who is this?'}
 						courseId={courseId}
 						deckId={deck.id}
 						isSelected={selectedDecks.some(selected => selected.name === deck.data.name)}
@@ -209,16 +223,15 @@ export const DeckDisplay: ReactComponent<{ deck: Memento.Deck, creator: string, 
 			}}
 			onPress={handlePress}
 			m='md' mt={'sm'} mb={'sm'} p='lg'
-			backgroundColor={isSelected ? 'rosewater' : 'base'}
+			backgroundColor={isSelected ? 'peach' : 'base'}
 			borderColor='crust' radius='lg'
 		>
-			<TText bold>
+			<TText bold color={isSelected ? 'crust' : 'text'}>
 				{deck.name}
 			</TText>
 			<TText mb='md' color='subtext0' size={'sm'}>
 				Created by: {creator}
 			</TText>
-			{isSelected && <TText color='green'>✓</TText>}
 		</TTouchableOpacity>
 	);
 };
