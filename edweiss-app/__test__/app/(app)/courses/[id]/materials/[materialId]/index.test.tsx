@@ -71,14 +71,11 @@ jest.mock('@/components/core/SVGImage', () => {
 });
 
 // Mock Image component
-jest.mock('react-native', () => {
+jest.mock('expo-image', () => {
     const React = require('react');
-    const RN = jest.requireActual('react-native');
-
     return {
-        ...RN,
-        NativeEventEmitter: jest.fn(),
-        Image: (props: React.ComponentProps<typeof RN.Image>) => {
+        __esModule: true,
+        Image: (props: React.ComponentProps<typeof import('expo-image').Image>) => {
             return React.createElement('Image', {
                 ...props
             });
@@ -392,8 +389,8 @@ describe('DocumentScreen', () => {
         expect(screen.getByText('Image WebP and GIF')).toBeTruthy();
 
         //Test IDs presence check
-        await waitFor(() => expect(screen.getByTestId(testIDs.notSupportedView)).toBeTruthy());
-        expect(screen.getByTestId(testIDs.notSupportedText)).toBeTruthy();;
+        await waitFor(() => expect(screen.getByTestId(testIDs.imageView)).toBeTruthy());
+        expect(screen.getByTestId(testIDs.imageImage)).toBeTruthy();
     });
 
     it('should handle downloading', async () => {
