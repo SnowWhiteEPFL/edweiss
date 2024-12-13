@@ -388,19 +388,18 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDe
                     <TTouchableOpacity
                         onPress={() => { setShowAddDocument(!showAddDocument); resetDocument(); }}
                         radius={'xl'}
-                        backgroundColor='blue'
                         flexDirection='row'
                         alignItems='center'
                         p={5}
                         mt={10}
                     >
                         <Icon
-                            name='add-circle'
-                            color='constantWhite'
+                            name={showAddDocument ? 'chevron-down' : 'chevron-forward'}
+                            color='text'
                             size='lg'
                         />
                         <TText
-                            color='constantWhite'
+                            bold
                             ml={5}
                         >
                             {t('course:add_document')}
