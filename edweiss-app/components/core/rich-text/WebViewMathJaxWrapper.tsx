@@ -31,8 +31,15 @@ const WebViewMathJaxWrapper: ReactComponent<WebViewJaxWrapperProps> = (props) =>
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 		${props.disableMathJax ? `
 			<div id="jax-content">${props.source}</div>
+
 			<script type="text/javascript">
-				window.ReactNativeWebView.postMessage(String(document.getElementById("jax-content").scrollHeight));
+				window.addEventListener('load', (event) => {
+					// console.log('page is fully loaded');
+					setTimeout(() => {
+						window.ReactNativeWebView.postMessage(String(document.getElementById("jax-content").scrollHeight));
+					}, 16);
+				});
+
 				
 				// element.scrollHeight
 				// window.ReactNativeWebView.postMessage(String(document.documentElement.scrollHeight));
@@ -61,7 +68,11 @@ const WebViewMathJaxWrapper: ReactComponent<WebViewJaxWrapperProps> = (props) =>
 				overScrollMode='never'
 				showsVerticalScrollIndicator={false}
 				source={{ html }}
-				onMessage={message => setHeight(Number(message.nativeEvent.data))}
+				onMessage={message => {
+					const newHeight = Number(message.nativeEvent.data);
+					setHeight(newHeight);
+					console.log(newHeight);
+				}}
 				cacheEnabled
 				// cacheMode='LOAD_CACHE_ELSE_NETWORK'
 				{...props.webview}
