@@ -66,8 +66,8 @@ const LectureScreen: ApplicationRoute = () => {
     // UI display setting's hooks
     const [isLandscape, setIsLandscape] = useState<boolean>(false);       // Landscape display boolean for different UI
     const [isFullscreen, setIsFullscreen] = useState<boolean>(false);    // FullScreen display of pdf toggle
-    const colorScheme = useTheme();    // Get the current color scheme (light or dark)
     const [transMode, setTransMode] = useState<TranscriptLangMode>('original');          // Current transcript mode 
+    const colorScheme = useTheme();    // Get the current color scheme (light or dark)
 
     const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
     const questionsDoc = useDynamicDocs(CollectionOf<Question>(`courses/${courseName}/lectures/${lectureId}/questions`));
@@ -225,7 +225,7 @@ const LectureScreen: ApplicationRoute = () => {
             {isFullscreen ?
 
                 <TView mr={'lg'} flexDirection='column' style={{ width: '100%', height: '100%', position: 'relative' }} >
-                    {LectureViewer({ uri, widthPorp: 1, heightProp: 1, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape })}
+                    {LectureViewer({ uri, widthPorp: 1, heightProp: 1, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, colorScheme })}
                     {ControlButtons()}
                 </TView>
 
@@ -233,7 +233,7 @@ const LectureScreen: ApplicationRoute = () => {
                 : isLandscape ?
                     <TView flexDirection={'row'} flex={1} style={{ width: '100%' }}>
                         <TView flexDirection='column' style={{ width: '60%', height: '100%', position: 'relative' }} >
-                            {LectureViewer({ uri, widthPorp: 0.6, heightProp: 1, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape })}
+                            {LectureViewer({ uri, widthPorp: 0.6, heightProp: 1, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, colorScheme })}
                             {ControlButtons()}
                         </TView>
                         {ContentView('40%', '100%')}
@@ -243,7 +243,7 @@ const LectureScreen: ApplicationRoute = () => {
                     :
                     <TView flexDirection={'column'} flex={1} style={{ width: '100%' }}>
                         <TView flexDirection='column' style={{ width: '100%', height: '40%', position: 'relative' }} >
-                            {LectureViewer({ uri, widthPorp: 1, heightProp: 0.6, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape })}
+                            {LectureViewer({ uri, widthPorp: 1, heightProp: 0.6, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, colorScheme })}
                             {ControlButtons()}
                         </TView>
                         {ContentView('100%', '60%')}
@@ -276,7 +276,8 @@ const LectureViewer: React.FC<{
     setCurrentPage: (currentPage: number) => void;
     page: number;
     isLandscape: boolean;
-}> = ({ uri, widthPorp, heightProp, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape }) => {
+    colorScheme: string;
+}> = ({ uri, widthPorp, heightProp, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, colorScheme }) => {
 
     return (currentEvent && currentEvent.type === "invalid") ? (
         <Pdf
@@ -291,6 +292,7 @@ const LectureViewer: React.FC<{
             horizontal
             style={{
                 flex: 1,
+                backgroundColor: colorScheme == "dark" ? "#181825" : "#e6e9ef",
                 width: Dimensions.get('window').width * widthPorp,
                 height: Dimensions.get('window').height * heightProp,
             }}
