@@ -24,7 +24,7 @@ import LectureDisplay from '@/model/lectures/lectureDoc';
 import Quizzes, { LectureQuizzes } from '@/model/quizzes';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { t } from 'i18next';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Vibration } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { langIconMap, langNameMap } from '../../../utils/lectures/remotecontrol/utilsFunctions';
@@ -538,9 +538,18 @@ export const QuizBroadcastModal: ReactComponent<{
     onClose: () => void;
 }> = ({ modalRef, id, courseId, lectureId, quizModel, broadcasted, setBroadcasted, onClose }) => {
 
+
+    // Hooks
     const [broadLoading, setBroadLoading] = useState(false);
     const [showLoading, setShowLoading] = useState(false);
-    const [showResultToStudent, setShowResultToStudent] = useState(quizModel?.showResultToStudents);
+    const [showResultToStudent, setShowResultToStudent] = useState(false);
+
+    useEffect(() => {
+        if (quizModel?.showResultToStudents !== undefined) {
+            setShowResultToStudent(quizModel.showResultToStudents);
+        }
+    }, [quizModel?.showResultToStudents]);
+
 
     async function toggleResult() {
         setShowLoading(true);
@@ -560,36 +569,42 @@ export const QuizBroadcastModal: ReactComponent<{
     async function handleQuizBroadcast() {
         if (broadcasted === id) {
 
-            // // Question has been answered 
-            // try {
-            //     await callFunction(LectureDisplay.Functions.markQuestionAsAnswered, {
-            //         courseId: courseId,
-            //         lectureId: lectureId,
-            //         id: id,
-            //         answered: true,
-            //     });
-            //     await callFunction(LectureDisplay.Functions.clearQuestionEvent, {
-            //         courseId: courseId,
-            //         lectureId: lectureId,
-            //         id: id,
-            //     });
-            // } catch (error) { console.error("Error updating the question event:", error); }
+            setBroadLoading(true);
+
+            // Question has been answered 
+            try {
+                // await callFunction(LectureDisplay.Functions.markQuestionAsAnswered, {
+                //     courseId: courseId,
+                //     lectureId: lectureId,
+                //     id: id,
+                //     answered: true,
+                // });
+                await callFunction(LectureDisplay.Functions.clearQuestionEvent, {
+                    courseId: courseId,
+                    lectureId: lectureId,
+                    id: id,
+                });
+
+            } catch (error) { console.error("Error updating the quiz event:", error); }
 
             setBroadcasted("");
+            setBroadLoading(false);
             onClose();
 
         } else {
 
-            // // Broadcast the question to the audience
-            // try {
-            //     await callFunction(LectureDisplay.Functions.broadcastQuestion, {
-            //         courseId: courseId,
-            //         lectureId: lectureId,
-            //         id: id,
-            //     });
-            // } catch (error) { console.error("Error updating the question event:", error); }
+            // Broadcast the quiz to the audience
+            setBroadLoading(true);
+            try {
+                await callFunction(LectureDisplay.Functions.broadcastQuiz, {
+                    courseId: courseId,
+                    lectureId: lectureId,
+                    id: id,
+                });
+            } catch (error) { console.error("Error updating the quiz event:", error); }
 
             setBroadcasted(id);
+            setBroadLoading(false);
         };
     }
 
@@ -607,7 +622,7 @@ export const QuizBroadcastModal: ReactComponent<{
                         {showResultToStudent ? t('showtime:hide_result_but') : t('showtime:show_result_but')}
                     </FancyButton>}
 
-                <FancyButton m='md' mb='sm' icon={broadcasted === id ? 'cloud-done-outline' : 'paper-plane-outline'} onPress={handleQuizBroadcast} testID='brod-quest-ans-button'>
+                <FancyButton m='md' mb='sm' icon={broadcasted === id ? 'cloud-done-outline' : 'paper-plane-outline'} loading={broadLoading} onPress={handleQuizBroadcast} testID='brod-quest-ans-button'>
                     {broadcasted === id ? t('showtime:stop_activity') : t('showtime:broadcast_quiz')}
                 </FancyButton>
 

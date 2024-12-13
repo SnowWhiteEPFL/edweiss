@@ -71,6 +71,7 @@ namespace LectureDisplay {
 		addAudioTranscript: FunctionOf<{ courseId: string, lectureId: string, pageNumber: number, transcription: string; }, {}, 'invalid_arg' | 'error_firebase' | 'successfully_added'>("addAudioTranscript"),
 		markQuestionAsAnswered: FunctionOf<{ id: string, courseId: string, lectureId: string, answered: boolean }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("markQuestionAsAnswered"),
 		broadcastQuestion: FunctionOf<{ id: string, courseId: string, lectureId: string }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("broadcastQuestion"),
+		broadcastQuiz: FunctionOf<{ id: string, courseId: string, lectureId: string }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("broadcastQuiz"),
 		clearQuestionEvent: FunctionOf<{ id: string, courseId: string, lectureId: string }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("clearQuestionEvent"),
 		createQuestion: FunctionOf<{ courseId: string, lectureId: string, question: string, anonym: boolean; }, { id: QuestionID; }, 'invalid_arg' | 'error_firebase' | 'empty_question' | 'user_not_found' | 'not_in_course'>("createQuestion"),
 		likeQuestion: FunctionOf<{ id: QuestionID, courseId: string, lectureId: string, liked: boolean; }, NoResult, 'invalid_id'>("likeQuestion"),

@@ -5,7 +5,6 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import RichText from '@/components/core/rich-text/RichText';
 import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
-import { LectureQuizView } from '@/components/quiz/LectureQuizComponents';
 import { ApplicationRoute } from '@/constants/Component';
 import { pushWithParameters } from '@/hooks/routeParameters';
 import { router } from 'expo-router';
@@ -131,10 +130,6 @@ genrated by AI etc.
 				}} >
 					<TText> Go to ShowTime</TText>
 				</FancyButton>
-
-
-				<LectureQuizView courseId="edweiss-demo" lectureId="xgy30FeIOHAnKtSfPjAe" lectureEventId="vP0yhuu9eVdATOqZV59Q"></LectureQuizView>
-
 
 				<FancyTextInput value={richText} onChangeText={setRichText} placeholder='Use Markdown and LaTeX' icon='document-text' label='Rich text' multiline />
 

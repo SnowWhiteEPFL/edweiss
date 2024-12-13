@@ -17,6 +17,7 @@ import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
 import { TranscriptModeModal } from '@/components/lectures/slides/modal';
 import StudentQuestion from '@/components/lectures/slides/StudentQuestion';
+import { LectureQuizView } from '@/components/quiz/LectureQuizComponents';
 import { CollectionOf, getDownloadURL } from '@/config/firebase';
 import { ApplicationRoute } from '@/constants/Component';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
@@ -225,7 +226,7 @@ const LectureScreen: ApplicationRoute = () => {
             {isFullscreen ?
 
                 <TView mr={'lg'} flexDirection='column' style={{ width: '100%', height: '100%', position: 'relative' }} >
-                    {LectureViewer({ uri, widthPorp: 1, heightProp: 1, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape })}
+                    {LectureViewer({ uri, widthPorp: 1, heightProp: 1, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, courseId: courseName, lectureId })}
                     {ControlButtons()}
                 </TView>
 
@@ -233,7 +234,7 @@ const LectureScreen: ApplicationRoute = () => {
                 : isLandscape ?
                     <TView flexDirection={'row'} flex={1} style={{ width: '100%' }}>
                         <TView flexDirection='column' style={{ width: '60%', height: '100%', position: 'relative' }} >
-                            {LectureViewer({ uri, widthPorp: 0.6, heightProp: 1, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape })}
+                            {LectureViewer({ uri, widthPorp: 0.6, heightProp: 1, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, courseId: courseName, lectureId })}
                             {ControlButtons()}
                         </TView>
                         {ContentView('40%', '100%')}
@@ -243,7 +244,7 @@ const LectureScreen: ApplicationRoute = () => {
                     :
                     <TView flexDirection={'column'} flex={1} style={{ width: '100%' }}>
                         <TView flexDirection='column' style={{ width: '100%', height: '40%', position: 'relative' }} >
-                            {LectureViewer({ uri, widthPorp: 1, heightProp: 0.6, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape })}
+                            {LectureViewer({ uri, widthPorp: 1, heightProp: 0.6, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, courseId: courseName, lectureId })}
                             {ControlButtons()}
                         </TView>
                         {ContentView('100%', '60%')}
@@ -276,40 +277,24 @@ const LectureViewer: React.FC<{
     setCurrentPage: (currentPage: number) => void;
     page: number;
     isLandscape: boolean;
-}> = ({ uri, widthPorp, heightProp, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape }) => {
+    courseId: string;
+    lectureId: string;
+}> = ({ uri, widthPorp, heightProp, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, courseId, lectureId }) => {
 
-    return (currentEvent && currentEvent.type === "invalid") ? (
-        <Pdf
-            trustAllCerts={false}
-            source={{ uri }}
-            renderActivityIndicator={() => <ActivityIndicator size="large" />}
-            enablePaging
-            onLoadComplete={(totalPages) => setNumPages(totalPages)}
-            onPageChanged={(currentPage) => setCurrentPage(currentPage)}
-            onError={(error) => console.log(error)}
-            page={page}
-            horizontal
-            style={{
-                flex: 1,
-                width: Dimensions.get('window').width * widthPorp,
-                height: Dimensions.get('window').height * heightProp,
-            }}
-        />
-    ) : (
+    return (currentEvent && currentEvent.type === "quiz") ? (
+        <LectureQuizView courseId={courseId} lectureId={lectureId} lectureEventId={currentEvent?.id!}></LectureQuizView>
 
+    ) : (currentEvent && currentEvent.type === "question") ? (
         currentQuestion && <>
             <TView justifyContent='center' alignItems='center' mt='lg' mb={isLandscape ? 'sm' : 'xs'}>
                 <TText bold size='lg' mb='sm'>{t('showtime:question_broadcast_ans_title')}</TText>
             </TView>
 
-
             <TText ml={'md'} color='overlay2' mt='xs' mb={isLandscape ? 'lg' : 'xs'} bold>{currentQuestion.username === "" ? t('showtime:anony_ask_question') : currentQuestion.username} {t('showtime:question_broadcast_modal_says')}</TText>
-
 
             <TView justifyContent='center' alignItems='center' m={'md'} mb={isLandscape ? 'lg' : 'xs'}>
                 <TText size={'lg'} color='overlay2' align='center'>« {currentQuestion.text} »</TText>
             </TView>
-
 
             <TView flexDirection='column' alignItems='flex-end' mt={isLandscape ? 'md' : 'xs'}>
                 {currentQuestion.likes > 0 && (
@@ -321,5 +306,20 @@ const LectureViewer: React.FC<{
             </TView>
 
         </>
-    );
+    ) : (<Pdf
+        trustAllCerts={false}
+        source={{ uri }}
+        renderActivityIndicator={() => <ActivityIndicator size="large" />}
+        enablePaging
+        onLoadComplete={(totalPages) => setNumPages(totalPages)}
+        onPageChanged={(currentPage) => setCurrentPage(currentPage)}
+        onError={(error) => console.log(error)}
+        page={page}
+        horizontal
+        style={{
+            flex: 1,
+            width: Dimensions.get('window').width * widthPorp,
+            height: Dimensions.get('window').height * heightProp,
+        }}
+    />);
 }
