@@ -5,7 +5,7 @@ export type CourseTimePeriodType = "lecture" | "exercises" | "lab" | "project";
 
 export type CyclicTimePeriodType = CourseTimePeriodType | "association";
 
-interface Room {
+export interface Room {
 	name: string;
 	geoloc: Geopoint;
 }

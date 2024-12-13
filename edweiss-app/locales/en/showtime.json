@@ -19,9 +19,21 @@
     "rmt_ctl_timer": "Timer",
     "rmt_ctl_recall": "Recall",
     "close_btn": "Close",
+    "question_slide_title": "Audience Questions",
+    "empty_question": "No Question from the Audience",
+    "empty_question_funny_1": "Your explanation must have been clear",
+    "empty_question_funny_2": " ... or the students are totally lost",
 
     "lecturer_transcript_deftxt" : "Lecturer’s transcript... currently in invisible ink!",
-    
+    "question_broadcast_modal_title": "Answer Question",
+    "broadcast_question": "Broadcast Question",
+    "question_answered": "Question Answered",
+    "question_broadcast_modal_says": "asks :",
+    "anony_ask_question": "An anomym student",
+    "other_student": "other student also want",
+    "are_interrested":"to know about this.",
+    "question_broadcast_ans_title": "Answering an Audience Question", 
+
     "dummy_question_0" : "Why do we say ‘sleep like a baby’ when babies wake up every two hours?",
     "dummy_question_1" : "Why do we call it ‘quick sand’ if it’s so slow?",
     "dummy_question_2" : "If a tomato is a fruit, does that make ketchup a smoothie?",

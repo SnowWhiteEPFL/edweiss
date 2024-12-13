@@ -1,4 +1,5 @@
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
+import React from 'react';
 
 import For from '@/components/core/For';
 import TText from '@/components/core/TText';
@@ -12,13 +13,14 @@ import Quizzes, { LectureQuizzes, QuizzesAttempts } from '@/model/quizzes';
 
 export const TemporaryQuizProfViewSignature: ApplicationRouteSignature<{
 	courseId: string, lectureId: string, lectureEventId: string
-	prefetchedQuizEvent: Document<LectureDisplay.LectureEvent> | undefined
+	prefetchedQuizEvent: Document<LectureDisplay.QuizLectureEvent> | undefined
 }> = {
 	path: "/(app)/quiz/temporaryQuizProfView" as any
 }
 
 const TemporaryQuizProfView: ApplicationRoute = () => {
 	const { courseId, lectureId, lectureEventId, prefetchedQuizEvent } = useRouteParameters(TemporaryQuizProfViewSignature)
+
 
 	const pathToEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
 	const pathToAttempts = pathToEvents + "/" + lectureEventId + "/attempts";

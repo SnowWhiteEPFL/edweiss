@@ -18,7 +18,7 @@ export const createLectureQuiz = onSanitizedCall(Quizzes.Functions.createLecture
 		return fail("not_authorized");
 	}
 
-	const assignmentCollection = CollectionOf<LectureDisplay.LectureEvent>("courses/" + args.courseId + "/lectures/" + args.lectureId + "/lectureEvents");
+	const assignmentCollection = CollectionOf<LectureDisplay.QuizLectureEvent>("courses/" + args.courseId + "/lectures/" + args.lectureId + "/lectureEvents");
 
 	try {
 		const res = await assignmentCollection.add(args.lectureQuiz);

@@ -437,7 +437,7 @@ describe('AbstractRmtCrl Component', () => {
         });
     });
 
-    test('shows toast when Audiance Questions button is pressed', () => {
+    test('go to audience live question manager when it button is pressed', () => {
         const { getByTestId } = render(
             <AbstractRmtCrl
                 handleRight={handleRightMock}
@@ -455,10 +455,14 @@ describe('AbstractRmtCrl Component', () => {
         );
 
         fireEvent.press(getByTestId('strc-chat-button'));
-        expect(Toast.show).toHaveBeenCalledWith({
-            type: 'success',
-            text1: 'The Audiance  Questions',
-            text2: 'Implementation comes soon'
+        expect(router.push).toHaveBeenCalledWith({
+            pathname: '/(app)/lectures/remotecontrol/questionToSlide',
+            params: {
+                courseNameString,
+                lectureIdString,
+                currentPageString: curPageProvided.toString(),
+                totalPageString: totPageProvided.toString(),
+            },
         });
     });
 

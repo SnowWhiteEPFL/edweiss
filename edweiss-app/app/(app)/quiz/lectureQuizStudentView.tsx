@@ -14,7 +14,7 @@ import Quizzes, { LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizze
 
 export const LectureQuizStudentViewSignature: ApplicationRouteSignature<{
 	courseId: string, lectureId: string, lectureEventId: string
-	prefetchedQuiz: Document<LectureDisplay.LectureEvent> | undefined
+	prefetchedQuiz: Document<LectureDisplay.QuizLectureEvent> | undefined
 }> = {
 	path: "/(app)/quiz/lectureQuizStudentViewPage" as any
 }
@@ -24,6 +24,7 @@ const LectureQuizStudentViewPage: ApplicationRoute = () => {
 
 	const pathToLectureEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
 	const pathToAttempts = pathToLectureEvents + "/" + lectureEventId + "/attempts";
+
 
 	const [quizEvent, _] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEvent>(pathToLectureEvents), lectureEventId, prefetchedQuiz);
 

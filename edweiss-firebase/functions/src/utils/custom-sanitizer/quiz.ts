@@ -124,7 +124,8 @@ export namespace CustomPredicateQuiz {
 			done: Predicate.isBoolean,
 			pageNumber: Predicate.isPositive,
 			type: Predicate.is("quiz"),
-			quizModel: CustomPredicateQuiz.isValidLectureQuiz
+			quizModel: CustomPredicateQuiz.isValidLectureQuiz,
+			id: Predicate.isString,
 		})
 
 }
