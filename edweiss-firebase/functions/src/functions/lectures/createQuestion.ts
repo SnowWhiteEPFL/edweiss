@@ -2,14 +2,14 @@ import { Timestamp } from 'firebase-admin/firestore';
 import LectureDisplay from 'model/lectures/lectureDoc';
 import { onAuthentifiedCall } from 'utils/firebase';
 import { addDocument, CollectionOf, Collections, getRequiredDocument } from 'utils/firestore';
-import { fail, ok } from 'utils/status';
+import { fail, NOT_IN_COURSE, ok, USER_NOT_FOUND } from 'utils/status';
 
 
 export const createQuestion = onAuthentifiedCall(LectureDisplay.Functions.createQuestion, async (userId, args) => {
-    const user = await getRequiredDocument(Collections.users, userId, fail('user_not_found'));
+    const user = await getRequiredDocument(Collections.users, userId, USER_NOT_FOUND);
 
     if (!user.courses.includes(args.courseId))
-        return fail('not_in_course');
+        return NOT_IN_COURSE;
 
     if (!args.courseId || !args.lectureId) {
         return fail('invalid_arg');
@@ -23,7 +23,8 @@ export const createQuestion = onAuthentifiedCall(LectureDisplay.Functions.create
         username: user.name,
         anonym: args.anonym,
         likes: 0,
-        postedTime: Timestamp.now()
+        postedTime: Timestamp.now(),
+        answered: false,
     }
     const ref = await addDocument(CollectionOf<LectureDisplay.Question>(`courses/${args.courseId}/lectures/${args.lectureId}/questions`), newQuestion);
 

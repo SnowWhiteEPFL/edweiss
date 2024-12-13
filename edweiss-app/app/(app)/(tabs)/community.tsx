@@ -6,8 +6,11 @@ import RichText from '@/components/core/rich-text/RichText';
 import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { ApplicationRoute } from '@/constants/Component';
+import { pushWithParameters } from '@/hooks/routeParameters';
 import { router } from 'expo-router';
 import { useState } from 'react';
+import { LectureQuizStudentViewSignature } from '../quiz/lectureQuizStudentView';
+import { TemporaryQuizProfViewSignature } from '../quiz/temporaryQuizProfView';
 
 const CommunityTab: ApplicationRoute = () => {
 	/**
@@ -78,6 +81,31 @@ genrated by AI etc.
 					My Todos
 				</FancyButton>
 
+				<FancyButton mt={10} mb={10} onPress={() => router.push({ pathname: '/(app)/quiz/createQuizPage', params: { courseId: "edweiss-demo" } })} backgroundColor='green'>
+					Create quiz
+				</FancyButton>
+
+				<FancyButton mt={10} mb={10} onPress={() => router.push({ pathname: '/(app)/quiz/createLectureQuizPage', params: { courseId: "edweiss-demo", lectureId: "xgy30FeIOHAnKtSfPjAe" } })} backgroundColor='cherry'>
+					Create lecture quiz
+				</FancyButton>
+
+				<FancyButton mt={10} mb={10} onPress={() => pushWithParameters(LectureQuizStudentViewSignature, { courseId: "edweiss-demo", lectureId: "xgy30FeIOHAnKtSfPjAe", lectureEventId: "kPaqoWkLLY96B1pBkaeR", prefetchedQuiz: undefined })} backgroundColor='lavender'>
+					Complete TF lecture quiz
+				</FancyButton>
+
+				<FancyButton mt={10} mb={10} onPress={() => pushWithParameters(LectureQuizStudentViewSignature, { courseId: "edweiss-demo", lectureId: "xgy30FeIOHAnKtSfPjAe", lectureEventId: "vP0yhuu9eVdATOqZV59Q", prefetchedQuiz: undefined })} backgroundColor='lavender'>
+					Complete MCQ lecture quiz
+				</FancyButton>
+
+				<FancyButton mt={10} mb={10} onPress={() => pushWithParameters(TemporaryQuizProfViewSignature, { courseId: "edweiss-demo", lectureId: "xgy30FeIOHAnKtSfPjAe", lectureEventId: "kPaqoWkLLY96B1pBkaeR", prefetchedQuizEvent: undefined })} backgroundColor='lavender'>
+					See TF results for prof
+				</FancyButton>
+
+				<FancyButton mt={10} mb={10} onPress={() => pushWithParameters(TemporaryQuizProfViewSignature, { courseId: "edweiss-demo", lectureId: "xgy30FeIOHAnKtSfPjAe", lectureEventId: "vP0yhuu9eVdATOqZV59Q", prefetchedQuizEvent: undefined })} backgroundColor='lavender'>
+					See MCQ results for prof
+				</FancyButton>
+
+
 
 				<FancyButton mt={10} mb={10} onPress={() => {
 					router.push({
@@ -110,7 +138,7 @@ genrated by AI etc.
 					{richText}
 				</RichText>
 
-			</TScrollView>
+			</TScrollView >
 		</>
 	);
 };

@@ -1,85 +1,34 @@
-import RouteHeader from '@/components/core/header/RouteHeader';
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
+import React from 'react';
 
 import For from '@/components/core/For';
-import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
-import TSafeArea from '@/components/core/containers/TSafeArea';
 import TView from '@/components/core/containers/TView';
+import { LectureQuizProfView } from '@/components/quiz/LectureQuizComponents';
 import { CollectionOf, Document } from '@/config/firebase';
-import { useDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import Quizzes, { LectureQuizzes, LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
-import { router } from 'expo-router';
-import { useEffect } from 'react';
+import Quizzes, { LectureQuizzes, QuizzesAttempts } from '@/model/quizzes';
 
 export const TemporaryQuizProfViewSignature: ApplicationRouteSignature<{
 	courseId: string, lectureId: string, lectureEventId: string
-	prefetchedQuizEvent: Document<LectureDisplay.LectureEvent> | undefined
+	prefetchedQuizEvent: Document<LectureDisplay.QuizLectureEvent> | undefined
 }> = {
 	path: "/(app)/quiz/temporaryQuizProfView" as any
 }
 
 const TemporaryQuizProfView: ApplicationRoute = () => {
 	const { courseId, lectureId, lectureEventId, prefetchedQuizEvent } = useRouteParameters(TemporaryQuizProfViewSignature)
+
+
 	const pathToEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
-	const pathToAttempts = pathToEvents + "/" + lectureEventId + "/attempts"
+	const pathToAttempts = pathToEvents + "/" + lectureEventId + "/attempts";
 
-	const [quizEvent, loading] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEvent>(pathToEvents), lectureEventId as string, prefetchedQuizEvent);
-	const studentAttempts = useDocs(CollectionOf<LectureQuizzesAttempts.LectureQuizAttempt>(pathToAttempts));
+	const [quizEvent, _] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEventBase>(pathToEvents), lectureEventId as string, prefetchedQuizEvent);
 
-	const quiz = quizEvent?.data.quizModel
 
-	useEffect(() => {
-		if (quiz?.exercise == undefined) {
-			return;
-		}
-		else if (quizEvent?.data.done) {
-			router.back();
-		}
-	}, [quizEvent]);
-	if (quizEvent == undefined || studentAttempts == undefined) {
-		return <TActivityIndicator testID='undefined-quiz-loading-prof' />;
-	}
-
-	if (quiz?.showResultToStudents && studentAttempts.length > 0) {
-		const studentAttemptsData = studentAttempts.map(doc => doc.data);
-		if (studentAttemptsData == undefined) {
-			return <TActivityIndicator testID='attempts-empty' />
-		}
-
-		return (
-			<>
-				<TSafeArea>
-					<SingleDistributionDisplay exercise={quiz.exercise} exerciseAttempts={studentAttemptsData} />
-				</TSafeArea>
-
-			</>
-		);
-	}
-	else if (quizEvent != undefined && !quizEvent.data.quizModel.showResultToStudents) {
-		return (
-			<>
-				<RouteHeader disabled />
-				<TSafeArea>
-					<TView>
-						<TText> Quiz is live! </TText>
-					</TView>
-				</TSafeArea>
-
-			</>
-		);
-	}
-	else {
-		return (
-			<TView>
-				<TText>
-					An error occured!
-				</TText>
-			</TView>
-		);
-	}
+	return (<LectureQuizProfView courseId={courseId} lectureEventId={lectureEventId} lectureId={lectureId} pathToAttempts={pathToAttempts} quizEvent={quizEvent as Document<LectureDisplay.QuizLectureEvent>}></LectureQuizProfView>);
 
 };
 export default TemporaryQuizProfView;
@@ -174,16 +123,16 @@ export const DisplayMCQProportions: ReactComponent<{ distribution: number[], exe
 			<TText size={'lg'}>
 				{exercise.question}
 			</TText>
-			<For each={distribution}>
-				{(percentage, propositionIndex) => {
+			<For each={exercise.propositions}>
+				{(proposition, propositionIndex) => {
 					//console.log(distribution.length)
 					return (
-						<TView style={{ position: "relative" }}>
-							<TView backgroundColor='blue' style={{ width: `${percentage}%` }} radius='xs' p='md' ml='sm' mb='sm'>
+						<TView style={{ position: "relative" }} key={proposition.id}>
+							<TView backgroundColor='blue' style={{ width: `${distribution[propositionIndex]}%` }} radius='xs' p='md' ml='sm' mb='sm'>
 							</TView>
 
 							<TText style={{ position: 'absolute' }} color='overlay0' mt='sm' ml='sm'>
-								{`Proposition ${propositionIndex + 1} : ${percentage} %`}
+								{`Proposition ${propositionIndex + 1} : ${distribution[propositionIndex]} %`}
 							</TText>
 						</TView>
 					);
