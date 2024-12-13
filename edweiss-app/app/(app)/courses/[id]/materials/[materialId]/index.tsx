@@ -14,12 +14,14 @@ import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
 import { MaterialDocument } from '@/model/school/courses';
+import { Image } from 'expo-image';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Image } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 //import ReactNativeFS from 'react-native-fs';
 import SVGImage from '@/components/core/SVGImage';
 import * as FileSystem from 'expo-file-system';
 import Pdf from 'react-native-pdf';
+import Toast from 'react-native-toast-message';
 
 
 // Tests Tags
@@ -96,13 +98,11 @@ const DocumentScreen: ApplicationRoute = () => {
             case 'jpg':
             case 'jpeg':
             case 'png':
+            case 'gif':
+            case 'webp':
                 return ImageViewer(uri);
             case 'svg':
                 return SVGViewer(uri);
-            case 'gif':
-            case 'webp':
-                return NotSupportedViewer();
-            //return WEBPnGIFViewer(uri);
             default:
                 return NotSupportedViewer();
         }
@@ -129,14 +129,14 @@ const DocumentScreen: ApplicationRoute = () => {
         </TView>
     );
 
-    // Image Viewer for JPG, JPEG and PNG
+    // Image Viewer for JPG, JPEG, PNG, GIF, WEBP
     const ImageViewer = (uri: string) => (
         <TView testID={testIDs.imageView} flex={1} justifyContent='flex-start' alignItems='center' pb={120} >
             <Image
                 testID={testIDs.imageImage}
                 source={{ uri }}
                 style={{ flex: 1, width: '100%', height: '100%' }}
-                resizeMode="contain"
+                contentFit='contain'
                 onError={() => console.error('Error loading image')}
             />
         </TView>
@@ -153,25 +153,10 @@ const DocumentScreen: ApplicationRoute = () => {
         </TView>
     );
 
-    //WEBP and GIF Viewer for WEBP and GIF
-    /*const WEBPnGIFViewer = (uri: string) => (
-        <TView testID={testIDs.webpNgifView} flex={1} justifyContent='center' alignItems='center' pb={120} >
-            <FastImage
-                style={{ width: 200, height: 200 }}
-                source={{
-                    uri: uri, // .webp or .gif URL
-                    priority: FastImage.priority.normal,
-                }}
-                resizeMode='contain'
-                testID={testIDs.webpNgifImage}
-            />
-        </TView>
-    );*/
-
     // Viewer for unsupported formats
     const NotSupportedViewer = () => (
         <TView testID={testIDs.notSupportedView} flex={1} justifyContent='center' alignItems='center' pb={120} >
-            <TText testID={testIDs.notSupportedText} align='center' color='red' bold>
+            <TText testID={testIDs.notSupportedText} align='center' color='yellow' bold>
                 {t('course:document_not_supported')}
             </TText>
         </TView>
@@ -190,6 +175,7 @@ const DocumentScreen: ApplicationRoute = () => {
             // Save the file in the selected directory
             await saveToSelectedDirectory(base64Data, document.uri);
         } catch (error) {
+            handleDownloadFailure();
             console.error('Global Error: ', error);
         }
     };
@@ -210,7 +196,7 @@ const DocumentScreen: ApplicationRoute = () => {
             console.log('Data size:', base64Data.length);
             return base64Data;
         } catch (error) {
-            setHasError(true);
+            handleDownloadFailure();
             console.error('Error when downloading or encoding: ', error);
             throw error;
         }
@@ -241,15 +227,32 @@ const DocumentScreen: ApplicationRoute = () => {
                         encoding: FileSystem.EncodingType.Base64,
                     });
                     console.log('File successfully saved.');
+                    handleDownloadSuccess();
                 })
                 .catch((e) => {
-                    setHasError(true);
+                    handleDownloadFailure();
                     console.error('Error when creating the file: ', e);
                 });
         } catch (e) {
-            setHasError(true);
+            handleDownloadFailure();
             console.error('Error when downloading the file: ', e);
         }
+    };
+
+    const handleDownloadFailure = () => {
+        setHasError(true);
+        Toast.show({
+            type: 'error',
+            text1: t(`course:failure_download_document`),
+        });
+    };
+
+    const handleDownloadSuccess = () => {
+        setHasError(false);
+        Toast.show({
+            type: 'success',
+            text1: t(`course:success_download_document`),
+        });
     };
 
 
