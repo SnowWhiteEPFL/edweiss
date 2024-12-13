@@ -16,7 +16,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 export const LectureQuizStudentViewSignature: ApplicationRouteSignature<{
 	courseId: string, lectureId: string, lectureEventId: string
-	prefetchedQuiz: Document<LectureDisplay.LectureEvent> | undefined
+	prefetchedQuiz: Document<LectureDisplay.QuizLectureEvent> | undefined
 }> = {
 	path: "/(app)/quiz/lectureQuizStudentView" as any
 }
@@ -31,7 +31,7 @@ const LectureQuizStudentView: ApplicationRoute = () => {
 	const pathToLectureEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
 	const pathToAttempts = pathToLectureEvents + "/" + lectureEventId + "/attempts";
 	const { uid } = useAuth();
-	const [quizEvent] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEvent>(pathToLectureEvents), lectureEventId, prefetchedQuiz);
+	const [quizEvent] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.QuizLectureEvent>(pathToLectureEvents), lectureEventId, prefetchedQuiz);
 	const previousAttempt = useDoc(CollectionOf<LectureQuizzesAttempts.LectureQuizAttempt>(pathToAttempts), uid);
 	const [studentAnswer, setStudentAnswer] = useState<QuizzesAttempts.Answer | undefined>(undefined);
 	const quiz = quizEvent?.data.quizModel

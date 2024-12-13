@@ -19,7 +19,7 @@ import { Timestamp } from '../time';
 namespace LectureDisplay {
 
 
-	export type LectureEvents = "quiz" | "question" | "invalid";
+	export type LectureEvent = "quiz" | "question" | "invalid";
 	export type AvailableLangs = "english" | "french" | "spanish" | "italian" | "german" | "brazilian" | "arabic" | "chinese" | "vietanames" | "hindi";
 	export type QuestionID = string & {};
 	export type TranscriptLangMode = 'original' | AvailableLangs;
@@ -29,13 +29,15 @@ namespace LectureDisplay {
 	};
 
 	export interface LectureEventBase {
-		type: LectureEvents;
+		type: LectureEvent;
 		done: boolean;
 		id: string;
+		pageNumber: number;
 	}
 
 	export interface QuizLectureEvent extends LectureEventBase {
 		type: "quiz";
+		pageNumber: number;
 		quizModel: LectureQuizzes.LectureQuiz;
 	}
 
