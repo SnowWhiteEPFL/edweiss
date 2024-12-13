@@ -279,8 +279,8 @@ const DocumentScreen: ApplicationRoute = () => {
             />
 
             <TView testID={testIDs.pageView} mr={'lg'} flexDirection='column' justifyContent='center' style={{ width: '100%', height: '100%', position: 'relative' }} >
-                {url && docViewer(url)}
-                {url && docFormat === 'pdf' && displayPageNumber()}
+                {Boolean(url) && docViewer(url)}
+                {Boolean(url && docFormat === 'pdf') && displayPageNumber()}
                 {hasError && (
                     <TText testID={testIDs.docError} color="red" bold align='center' mt={20}>
                         {t('course:document_error')}
