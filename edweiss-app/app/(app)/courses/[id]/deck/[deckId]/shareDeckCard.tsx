@@ -7,6 +7,7 @@ import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
 import { callFunction, CollectionOf } from '@/config/firebase';
 import { useAuth } from '@/contexts/auth';
+import { useUser } from '@/contexts/user';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
@@ -17,14 +18,21 @@ import { useState } from 'react';
 const ShareScreen: ApplicationRoute = () => {
     const { id: courseId, deckId, type } = useStringParameters();
     const { uid } = useAuth();
+    const { user } = useUser();
     const [loading, setIsLoading] = useState(false);
+
+    const current_user_type = user.type
 
     const users = useDynamicDocs(CollectionOf<AppUser>('users'));
     if (!users) return null;
 
+    // Only take into accounts users who are the same type as the current user
+    // type of current user = user.type
+    const users_data_filtered_type = users.filter(user => user.data.type === current_user_type);
+
     // For each users, map user.id to user.data.name
     const ids_names_map = new Map<string, string>();
-    users.forEach(user => {
+    users_data_filtered_type.forEach(user => {
         ids_names_map.set(user.id, user.data.name);
     });
 
@@ -59,14 +67,15 @@ const ShareScreen: ApplicationRoute = () => {
                     <FancyButton
                         key={user.name}
                         loading={loading}
+                        outlined
                         textColor='text'
-                        backgroundColor='transparent'
+                        backgroundColor='green'
                         mb={'sm'}
-                        style={{ borderColor: 'green', width: '20%', alignSelf: 'center' }}
+                        style={{ alignSelf: 'center' }}
                         onPress={() => {
                             setIsLoading(true);
-                            if (type === 'deck') shareDeck(user.id);
-                            else if (type === 'card') shareCard(user.id);
+                            if (type === 'Deck') shareDeck(user.id);
+                            else if (type === 'Card') shareCard(user.id);
                         }}>
                         <TView alignItems='center'>
                             <TText>{user.name}</TText>

@@ -20,10 +20,9 @@ import CardScreenComponent from '@/components/memento/CardScreenComponent';
 import { ApplicationRoute } from '@/constants/Component';
 import { useRepositoryDocument } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { View, ViewProps } from 'react-native';
 import { PanGestureHandler, PanGestureHandlerStateChangeEvent, State } from 'react-native-gesture-handler';
 import { DecksRepository } from '../_layout';
@@ -42,10 +41,9 @@ const TViewWithRef = forwardRef<View, ViewProps>((props, ref) => (
  * @returns {ApplicationRoute} Screen to test the user's knowledge of the deck
  */
 const TestYourMightScreen: ApplicationRoute = () => {
-	const { deckId, indices } = useStringParameters(); // Get deckdeckId from params
+	const { id: courseId, deckId, indices } = useStringParameters(); // Get deckdeckId from params
 	const [currentCardIndex, setCurrentCardIndex] = useState(0);
 	const [currentCardIndices, setCurrentCardIndices] = useState((indices ? JSON.parse(indices) : []) as number[]);
-	const modalRef = useRef<BottomSheetModal>(null); // Reference for the modal
 
 	const [deck] = useRepositoryDocument(deckId, DecksRepository);
 
@@ -92,6 +90,8 @@ const TestYourMightScreen: ApplicationRoute = () => {
 	const handleNext = () => {
 		if (cards && currentCardIndex < sanitizedCardIndices.length - 1) {
 			setCurrentCardIndex((prevIndex) => prevIndex + 1);
+		} else {
+			setCurrentCardIndex(0);
 		}
 	};
 
@@ -131,11 +131,12 @@ const TestYourMightScreen: ApplicationRoute = () => {
 					<PanGestureHandler onHandlerStateChange={handleGesture} testID='pan-gesture'>
 						<TViewWithRef style={{ flex: 1 }}>
 							<CardScreenComponent
+								courseId={courseId}
 								deckId={deckId}
 								cardIndex={sanitizedCardIndices[currentCardIndex]}
 								currentCardIndices={currentCardIndices}
 								setCurrentCardIndices={setCurrentCardIndices}
-								modalRef={modalRef}
+								handleNext={handleNext}
 							/>
 						</TViewWithRef>
 					</PanGestureHandler>

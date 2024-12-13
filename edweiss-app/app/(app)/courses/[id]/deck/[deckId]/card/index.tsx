@@ -27,6 +27,7 @@ import { iconSizes } from '@/constants/Sizes';
 import { useRepositoryDocument } from '@/hooks/repository';
 import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
+import { CourseID } from '@/model/school/courses';
 import { checkDupplication_EmptyField } from '@/utils/memento/utilsFunctions';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -39,12 +40,13 @@ import { DecksRepository } from '../../_layout';
 
 export const CreateEditCardScreenSignature: ApplicationRouteSignature<{
     deckId: string,
+    courseId: CourseID,
     mode: string,
     prev_question: string,
     prev_answer: string,
     cardIndex: number
 }> = {
-    path: "/deck/[id]/card"
+    path: "/courses/[id]/deck/[deckId]/card"
 };
 
 /**
@@ -54,12 +56,11 @@ export const CreateEditCardScreenSignature: ApplicationRouteSignature<{
  * @returns {ApplicationRoute} Screen to create or edit a card
  */
 const CreateEditCardScreen: ApplicationRoute = () => {
-    const { deckId, mode, prev_question, prev_answer, cardIndex } = useRouteParameters(CreateEditCardScreenSignature);
+    const { deckId, courseId, mode, prev_question, prev_answer, cardIndex } = useRouteParameters(CreateEditCardScreenSignature);
     const [question, setQuestion] = useState(prev_question);
     const [answer, setAnswer] = useState(prev_answer);
     const [existedQuestion, setExistedQuestion] = useState(false);
     const [emptyField, setEmptyField] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
     const [previewModalVisible, setPreviewModalVisible] = useState(false);
 
 
@@ -78,7 +79,6 @@ const CreateEditCardScreen: ApplicationRoute = () => {
             question.length == 0 || answer.length == 0,
             setExistedQuestion,
             setEmptyField,
-            setIsLoading
         ) == 0) {
             return;
         }
@@ -94,7 +94,8 @@ const CreateEditCardScreen: ApplicationRoute = () => {
         handler.modifyDocument(deckId, { cards: [...previousCards, card] }, () => {
             callFunction(Memento.Functions.createCard, {
                 deckId: deckId,
-                card: card
+                card: card,
+                courseId: courseId
             });
         });
 
@@ -111,7 +112,6 @@ const CreateEditCardScreen: ApplicationRoute = () => {
             new_Question.length == 0 || new_Answer.length == 0,
             setExistedQuestion,
             setEmptyField,
-            setIsLoading
         ) == 0) return;
 
         const newCards = deck.data.cards;
@@ -120,7 +120,7 @@ const CreateEditCardScreen: ApplicationRoute = () => {
         handler.modifyDocument(deckId, {
             cards: newCards
         }, (deckId) => {
-            callFunction(Memento.Functions.updateCard, { deckId, newCard: { ...card, question: new_Question, answer: new_Answer }, cardIndex: cardIndex }); // changed
+            callFunction(Memento.Functions.updateCard, { deckId, newCard: { ...card, question: new_Question, answer: new_Answer }, cardIndex: cardIndex, courseId: courseId }); // changed
         });
 
         router.back();
@@ -163,26 +163,33 @@ const CreateEditCardScreen: ApplicationRoute = () => {
                         numberOfLines={3}
                     />
                 </TView>
-
                 <FancyButton
                     testID='createCardButton'
-                    backgroundColor='blue'
+                    backgroundColor='transparent'
+                    textColor='blue'
                     mt={'md'} mb={'sm'}
                     icon='checkmark-outline'
                     onPress={() => {
-                        setIsLoading(true);
                         if (mode === "Edit") {
                             updateCard(question, answer);
                         } else {
                             createCard();
                         }
                     }}
-                    loading={isLoading}>
+                    style={{ width: '50%', alignSelf: 'center', borderColor: '#1e66f5' }}
+                >
 
                     {mode} Card
                 </FancyButton>
 
-                <FancyButton testID='previewButton' onPress={() => setPreviewModalVisible(true)}>
+                <FancyButton
+                    testID='previewButton'
+                    onPress={() => setPreviewModalVisible(true)}
+                    backgroundColor='transparent'
+                    textColor='yellow'
+                    icon='eye-outline'
+                    style={{ width: '50%', alignSelf: 'center', borderColor: '#df8e1d' }}
+                >
                     Preview Card
                 </FancyButton>
 

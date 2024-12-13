@@ -3,6 +3,7 @@ import ReactComponent from '@/constants/Component';
 import { DecksRepository } from '@/app/(app)/courses/[id]/deck/_layout';
 import { callFunction } from '@/config/firebase';
 import { iconSizes } from '@/constants/Sizes';
+import { useAuth } from '@/contexts/auth';
 import { useRepositoryDocument } from '@/hooks/repository';
 import Memento from '@/model/memento';
 import { CourseID } from '@/model/school/courses';
@@ -35,6 +36,8 @@ const CreateDeleteEditCardModal: ReactComponent<{
     const [answer, setAnswer] = useState(prev_answer);
     const [emptyField, setEmptyField] = useState(false);
 
+    const { uid } = useAuth();
+
     // Reset state when modal is opened with new card data
     useEffect(() => {
         if (visible) {
@@ -66,6 +69,7 @@ const CreateDeleteEditCardModal: ReactComponent<{
         }
 
         const card: Memento.Card = {
+            ownerID: uid,
             question: question,
             answer: answer,
             learning_status: "Not yet",
@@ -97,8 +101,11 @@ const CreateDeleteEditCardModal: ReactComponent<{
         ) == 0) return;
 
         const newCards = deck.data.cards;
-        newCards[cardIndex] = { ...card, question: new_Question, answer: new_Answer }; // changed
-
+        if (new_Question != prev_question || new_Answer != prev_answer) {
+            newCards[cardIndex] = { ...card, ownerID: uid, question: new_Question, answer: new_Answer };
+        } else {
+            newCards[cardIndex] = { ...card, question: new_Question, answer: new_Answer }; // changed
+        }
         handler.modifyDocument(deckId, {
             cards: newCards
         }, (deckId) => {
@@ -119,21 +126,27 @@ const CreateDeleteEditCardModal: ReactComponent<{
     }
 
     return (
-        <Modal visible={visible} animationType='fade'>
+        <Modal visible={visible} animationType='fade' onRequestClose={() => setVisible(false)}>
             <TView flex={1} p={20} backgroundColor='mantle'>
                 <TScrollView>
 
-                    <TView flexDirection="row" justifyContent="space-between" alignItems="center" mb={8}>
+                    <TView flexDirection="row" justifyContent="space-between" alignItems="center" mb={'lg'}>
                         {/* Close Button */}
-                        <TTouchableOpacity testID="closeButton" alignItems="flex-start" onPress={() => {
+                        <TTouchableOpacity flex={1} testID="closeButton" alignItems="flex-start" onPress={() => {
                             setVisible(false)
                         }}>
                             <Icon name="close" size={iconSizes.lg} color="blue" />
                         </TTouchableOpacity>
 
+                        <TView justifyContent='center' alignItems='center'>
+                            <TText bold size='lg' align='center'>Option</TText>
+                        </TView>
+
                         {/* Top-Right Button */}
-                        {mode == "Edit" && <TTouchableOpacity
+                        {mode == "Edit" ? <TTouchableOpacity
                             testID="topRightButton"
+                            alignItems='flex-end'
+                            flex={1}
                             onPress={() => {
                                 if (specialDeleteCard) {
                                     specialDeleteCard();
@@ -144,14 +157,11 @@ const CreateDeleteEditCardModal: ReactComponent<{
                             }}
                         >
                             <Icon name="trash" size={iconSizes.lg} color="red" />
-                        </TTouchableOpacity>}
+                        </TTouchableOpacity> : <TView flex={1} />}
                     </TView>
 
-                    <TView justifyContent='center' alignItems='center' mb='sm'>
-                        <TText bold size='lg' mb='sm'>Option</TText>
-                    </TView>
 
-                    <TView m='md' borderColor='crust' radius='lg'>
+                    <TView my='md' borderColor='crust' radius='lg'>
                         <FancyTextInput
                             value={question}
                             onChangeText={n => {
@@ -165,10 +175,11 @@ const CreateDeleteEditCardModal: ReactComponent<{
                             error={error_selected}
                             multiline
                             numberOfLines={3}
+
                         />
                     </TView>
 
-                    <TView m='md' mt={2} borderColor='crust' radius='lg'>
+                    <TView my='md' mt={2} borderColor='crust' radius='lg'>
                         <FancyTextInput
                             value={answer}
                             onChangeText={n => {
@@ -203,7 +214,8 @@ const CreateDeleteEditCardModal: ReactComponent<{
 
                 <FancyButton
                     testID='createCardButton'
-                    backgroundColor='transparent'
+                    outlined
+                    backgroundColor='blue'
                     textColor='blue'
                     mt={'md'} mb={'sm'}
                     icon='checkmark-outline'
@@ -214,7 +226,7 @@ const CreateDeleteEditCardModal: ReactComponent<{
                             createCard();
                         }
                     }}
-                    style={{ width: '50%', alignSelf: 'center', borderColor: '#1e66f5' }}
+                    style={{ width: '50%', alignSelf: 'center' }}
                 >
                     {mode} Card
                 </FancyButton>

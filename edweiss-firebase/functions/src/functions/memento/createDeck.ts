@@ -8,7 +8,6 @@ import { ok } from 'utils/status';
 export const createDeck = onSanitizedCall(Memento.Functions.createDeck, {
 	deck: Predicate.fields({
 		ownerID: Predicate.forEach(Predicate.isNonEmptyString),
-		public: Predicate.isBoolean,
 		name: Predicate.isNonEmptyString,
 		cards: Predicate.forEach(CustomPredicateMemento.isValidCard)
 	}),

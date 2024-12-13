@@ -4,9 +4,12 @@
  * @author Tuan Dang Nguyen
  */
 
+import { CollectionOf } from '@/config/firebase';
 import { Color } from '@/constants/Colors';
 import { IconType } from '@/constants/Style';
+import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import Memento from '@/model/memento';
+import { AppUser, UserID } from '@/model/users';
 
 /**
  * sortingCards
@@ -98,3 +101,16 @@ export const selectedCardIndices_play = (selectedCards: Memento.Card[], cards: M
         ? selectedCards.map(card => cards.indexOf(card)) // Get indices of selected cards
         : Array.from(cards.keys()); // Use indices of all cards if none are
 };
+
+export const userIdToName = (userId: UserID) => {
+    const users = useDynamicDocs(CollectionOf<AppUser>('users'));
+    if (!users) return undefined;
+
+    // For each users, map user.id to user.data.name
+    const ids_names_map = new Map<string, string>();
+    users.forEach(user => {
+        ids_names_map.set(user.id, user.data.name);
+    });
+
+    return ids_names_map.get(userId);
+}

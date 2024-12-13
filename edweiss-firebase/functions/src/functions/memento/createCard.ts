@@ -7,6 +7,7 @@ import { ok } from 'utils/status';
 export const createCard = onSanitizedCall(Memento.Functions.createCard, {
 	deckId: Predicate.isNonEmptyString,
 	card: Predicate.fields({
+		ownerID: Predicate.isNonEmptyString,
 		answer: Predicate.isNonEmptyString,
 		question: Predicate.isNonEmptyString,
 		learning_status: Predicate.isOptional(Predicate.isIn(["Got it", "Not yet"] as const))

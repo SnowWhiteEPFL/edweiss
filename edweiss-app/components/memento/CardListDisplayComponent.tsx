@@ -8,11 +8,12 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
-import { DecksRepository } from '@/app/(app)/deck/_layout';
+import { DecksRepository } from '@/app/(app)/courses/[id]/deck/_layout';
 import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
 import Memento from '@/model/memento';
-import { mementoStatusColorMap, mementoStatusIconMap } from '@/utils/memento/utilsFunctions';
+import { CourseID } from '@/model/school/courses';
+import { mementoStatusColorMap, mementoStatusIconMap, userIdToName } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import React from 'react';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
@@ -35,6 +36,7 @@ import TText from '../core/TText';
  * @returns {React.FC} CardListDisplay component 
  */
 export const CardListDisplay: React.FC<{
+    courseId: CourseID,
     deckId: string,
     card: Memento.Card,
     isSelected: boolean,
@@ -43,7 +45,7 @@ export const CardListDisplay: React.FC<{
     selectionMode: boolean,
     setCardToDisplay: React.Dispatch<React.SetStateAction<Memento.Card | undefined>>
     modalRef: React.RefObject<BottomSheetModalMethods>;
-}> = ({ deckId, card, isSelected, toggleSelection, onLongPress, selectionMode, setCardToDisplay, modalRef }) => {
+}> = ({ courseId, deckId, card, isSelected, toggleSelection, onLongPress, selectionMode, setCardToDisplay, modalRef }) => {
 
     const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
 
@@ -57,7 +59,7 @@ export const CardListDisplay: React.FC<{
         newCards[cardIndex] = { ...card, learning_status: new_status };
 
         handler.modifyDocument(deckId, { cards: newCards }, (deckId) => {
-            callFunction(Memento.Functions.updateCard, { deckId, newCard: { ...card, learning_status: new_status }, cardIndex: cardIndex });
+            callFunction(Memento.Functions.updateCard, { deckId, newCard: { ...card, learning_status: new_status }, cardIndex: cardIndex, courseId: courseId });
         });
     }
 
@@ -76,7 +78,7 @@ export const CardListDisplay: React.FC<{
                 }
             }}
             m='md' mt={'sm'} mb={'sm'} p='lg'
-            backgroundColor={isSelected ? 'rosewater' : 'base'}
+            backgroundColor={isSelected ? 'peach' : 'base'}
             borderColor='crust' radius='lg'
             b={'xl'}
         >
@@ -85,9 +87,12 @@ export const CardListDisplay: React.FC<{
                     {/*<TText bold color='text' ellipsizeMode='tail' numberOfLines={1}>
                         {card.question}
                     </TText>*/}
-                    <RichText px={'sm'} color='text'>
+                    <RichText px={'sm'} color={isSelected ? 'crust' : 'text'}>
                         {card.question}
                     </RichText>
+                    <TText mt={'sm'} mb='md' color='subtext0' size={'sm'}>
+                        Created by: {userIdToName(card.ownerID) ?? 'who the heck is this?'}
+                    </TText>
                 </TView>
 
                 <TTouchableOpacity
@@ -98,8 +103,6 @@ export const CardListDisplay: React.FC<{
                     <Icon testID={`status_icon ${card.question}`} name={mementoStatusIconMap[card.learning_status]} color={mementoStatusColorMap[card.learning_status]} size={30} />
                 </TTouchableOpacity>
             </TView>
-
-            {isSelected && <TText color='green'>✓</TText>}
         </TTouchableOpacity>
     );
 }
