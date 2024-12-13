@@ -6,16 +6,19 @@ import * as FileSystem from 'expo-file-system';
 import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
 import { PdfProps } from 'react-native-pdf';
 
+// TView component mock
 jest.mock('@/components/core/containers/TView.tsx', () => {
     const { View } = require('react-native');
     return (props: ViewProps) => <View {...props} />;
 });
 
+// TText component mock
 jest.mock('@/components/core/TText.tsx', () => {
     const { Text } = require('react-native');
     return (props: TextProps) => <Text {...props} />;
 });
 
+// TTouchableOpacity component mock
 jest.mock('@/components/core/containers/TTouchableOpacity.tsx', () => {
     const { TouchableOpacity, View } = require('react-native');
     return (props: React.PropsWithChildren<TouchableOpacityProps>) => (
@@ -25,6 +28,7 @@ jest.mock('@/components/core/containers/TTouchableOpacity.tsx', () => {
     );
 });
 
+// Icon component mock
 jest.mock('@/components/core/Icon', () => {
     return {
         __esModule: true,
@@ -45,15 +49,18 @@ jest.mock('@/config/i18config', () =>
     })
 );
 
+// RouteHeader component mock
 jest.mock('@/components/core/header/RouteHeader', () => {
     const { View, Text } = require('react-native');
     return ({ title, right }: { title: string, right: React.ReactNode | undefined }) => <View><Text>{title}</Text>{right}</View>;
 });
 
+// Mock of the useRouteParameters hook
 jest.mock('@/hooks/routeParameters', () => ({
     useRouteParameters: jest.fn(),
 }));
 
+// Mock of the TActivityIndicator component
 jest.mock('@/components/core/TActivityIndicator', () => {
     return {
         __esModule: true,  // Ceci est nécessaire pour simuler un module ES6
@@ -83,6 +90,7 @@ jest.mock('expo-image', () => {
     };
 });
 
+// Mock of the NativeEventEmitter module
 jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter', () => {
     return jest.fn().mockImplementation(() => ({
         addListener: jest.fn(),
@@ -90,6 +98,7 @@ jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter', () => {
     }));
 });
 
+// Mock of the GoogleSignIn module
 jest.mock('@react-native-google-signin/google-signin', () => {
     return {
         GoogleSignin: {
@@ -102,6 +111,7 @@ jest.mock('@react-native-google-signin/google-signin', () => {
     };
 });
 
+// Mock of the useAuth hook
 jest.mock('@/contexts/auth', () => ({
     useAuth: jest.fn().mockReturnValue({ user: { id: 'mocked-user-id' } }),
 }));
@@ -135,7 +145,7 @@ jest.mock('react-native-pdf', () => {
 });
 //==========================================================
 
-// Mock complet du module expo-file-system
+// Mock of the FileSystem module
 jest.mock('expo-file-system', () => ({
     EncodingType: { Base64: 'base64' },
     cacheDirectory: 'mocked-cache-directory/',
@@ -148,7 +158,7 @@ jest.mock('expo-file-system', () => ({
     downloadAsync: jest.fn(),
 }));
 
-
+// Mock of the Firebase modules
 jest.mock('@react-native-firebase/auth', () => {
     return () => ({
         currentUser: { uid: 'mocked-uid' },
@@ -158,6 +168,7 @@ jest.mock('@react-native-firebase/auth', () => {
     });
 });
 
+// Mock of the Firestore module
 jest.mock('@react-native-firebase/firestore', () => {
     return () => ({
         collection: jest.fn(() => ({
@@ -169,18 +180,23 @@ jest.mock('@react-native-firebase/firestore', () => {
     });
 });
 
+// Mock of the Functions module
 jest.mock('@react-native-firebase/functions', () => {
     return () => ({
         httpsCallable: jest.fn(() => jest.fn(() => Promise.resolve({ data: {} }))),
     });
 });
 
-// Mock de `getDownloadURL`
+// Mock of getDownloadURL
 jest.mock('@/config/firebase', () => ({
     getDownloadURL: jest.fn(),
 }));
 
 
+
+//============================================================================================
+//======================================== Tests =============================================
+//============================================================================================
 
 describe('DocumentScreen', () => {
 
@@ -221,36 +237,33 @@ describe('DocumentScreen', () => {
         type: 'slide',
         uri: 'https://example.com/slides.pdf',
     };
-
     const docExercisesMock = {
         title: 'Exercises',
         type: 'exercise',
         uri: 'https://example.com/exercises.pdf',
     };
-
     const docImageMock = {
         title: 'Image',
         type: 'image',
         uri: 'https://example.com/image.png',
     };
-
     const docSVGMock = {
         title: 'Image SVG',
         type: 'image',
         uri: 'https://example.com/image.svg',
     };
-
     const docWebpNgifMock = {
         title: 'Image WebP and GIF',
         type: 'image',
         uri: 'https://example.com/image.webp',
     };
-
     const docOtherMock = {
         title: 'Other',
         type: 'other',
         uri: 'https://example.com/other.py',
     };
+
+
 
     it('should render the document screen for slide doc', async () => {
 
@@ -288,6 +301,8 @@ describe('DocumentScreen', () => {
         expect(screen.queryByTestId(testIDs.notSupportedText)).toBeNull();
     });
 
+
+
     it('should render the document screen for exercise doc', async () => {
 
         (useRouteParameters as jest.Mock).mockReturnValue({ document: docExercisesMock });
@@ -317,6 +332,8 @@ describe('DocumentScreen', () => {
         expect(screen.queryByTestId(testIDs.notSupportedView)).toBeNull();
         expect(screen.queryByTestId(testIDs.notSupportedText)).toBeNull();
     });
+
+
 
     it('should render the document screen for image doc', async () => {
 
@@ -348,6 +365,8 @@ describe('DocumentScreen', () => {
         expect(screen.queryByTestId(testIDs.notSupportedText)).toBeNull();
     });
 
+
+
     it('should render the document screen for svg doc', async () => {
 
         (useRouteParameters as jest.Mock).mockReturnValue({ document: docSVGMock });
@@ -378,7 +397,9 @@ describe('DocumentScreen', () => {
         expect(screen.queryByTestId(testIDs.notSupportedText)).toBeNull();
     });
 
-    it('TO BE UPDATED WHEN INTEGRATING WEBP AND GIF SUPPORT : should render the document screen for webp and git doc', async () => {
+
+
+    it('should render the document screen for webp and git doc', async () => {
 
         (useRouteParameters as jest.Mock).mockReturnValue({ document: docWebpNgifMock });
 
@@ -392,6 +413,8 @@ describe('DocumentScreen', () => {
         await waitFor(() => expect(screen.getByTestId(testIDs.imageView)).toBeTruthy());
         expect(screen.getByTestId(testIDs.imageImage)).toBeTruthy();
     });
+
+
 
     it('should handle downloading', async () => {
 
@@ -414,6 +437,8 @@ describe('DocumentScreen', () => {
         expect(logSpy).toHaveBeenCalledWith('File downloaded in :', 'mocked-uri');
         expect(logSpy).toHaveBeenCalledWith('File successfully saved.');
     });
+
+
 
     it('should render the document screen with an unsupported document', async () => {
 
@@ -446,6 +471,8 @@ describe('DocumentScreen', () => {
         expect(screen.queryByTestId(testIDs.pageNumText)).toBeNull();
     });
 
+
+
     it('should call onError on Image', async () => {
 
         const logSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -462,6 +489,8 @@ describe('DocumentScreen', () => {
         logSpy.mockRestore();
     });
 
+
+
     it('should call onError on SVG Image', async () => {
 
         const logSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -477,6 +506,8 @@ describe('DocumentScreen', () => {
         expect(logSpy).toHaveBeenCalledWith('Error loading SVG');
         logSpy.mockRestore();
     });
+
+
 
     it('should throw an error when downloadAsync() fails', async () => {
 
@@ -495,6 +526,8 @@ describe('DocumentScreen', () => {
         logSpy.mockRestore();
     });
 
+
+
     it('should throw an error when requestDirectoryPermissionsAsync() fails', async () => {
 
         const logSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -510,6 +543,8 @@ describe('DocumentScreen', () => {
         await waitFor(() => expect(logSpy).toHaveBeenCalledWith('Error when downloading the file: ', new Error('Mocked error: Permission request failed.')));
         logSpy.mockRestore();
     });
+
+
 
     it('should throw an error when createFileAsync() fails', async () => {
 
@@ -527,6 +562,8 @@ describe('DocumentScreen', () => {
         logSpy.mockRestore();
     });
 
+
+
     it('should throw an error when writeAsStringAsync() fails', async () => {
 
         const logSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -542,6 +579,8 @@ describe('DocumentScreen', () => {
         await waitFor(() => expect(logSpy).toHaveBeenCalledWith('Error when creating the file: ', new Error('Mocked error: Writing file failed.')));
         logSpy.mockRestore();
     });
+
+
 
     it('should return if permission to access a file is denied', async () => {
 
@@ -559,50 +598,12 @@ describe('DocumentScreen', () => {
         await waitFor(() => expect(logSpy).toHaveBeenCalledWith('Permission denied.'));
         logSpy.mockRestore();
     });
-});
 
-describe('DocumentScreen error when downloading url', () => {
 
-    beforeEach(() => {
+
+    it('should display error - url not retrieved - getDownloadURL error', async () => {
+
         (getDownloadURL as jest.Mock).mockRejectedValue(new Error('Mocked error'));
-
-        // Mock de la méthode `readAsStringAsync`
-        (FileSystem.readAsStringAsync as jest.Mock).mockImplementation((fileUri, { encoding }) => {
-            if (encoding === 'base64') {
-                return Promise.resolve('mocked-base64-content'); // Valeur simulée pour base64
-            }
-            return Promise.resolve('mocked-content'); // Valeur par défaut
-        });
-
-        (FileSystem.downloadAsync as jest.Mock).mockResolvedValue({
-            uri: 'mocked-download-uri',
-        });
-
-        // Mock de `writeAsStringAsync`
-        (FileSystem.writeAsStringAsync as jest.Mock).mockResolvedValue(true);
-
-        // Mock de `StorageAccessFramework.createFileAsync`
-        (FileSystem.StorageAccessFramework.createFileAsync as jest.Mock).mockResolvedValue('mocked-uri');
-
-        // Mock de `StorageAccessFramework.requestDirectoryPermissionsAsync`
-        (FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync as jest.Mock).mockResolvedValue({
-            granted: true,
-            directoryUri: 'mocked-directory-uri',
-        });
-    });
-
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
-
-    const docSlidesMock = {
-        title: 'Slides',
-        type: 'slide',
-        uri: 'https://example2.com/slides2.pdf',
-    };
-
-    it('should render the document screen for slide doc', async () => {
-
         (useRouteParameters as jest.Mock).mockReturnValue({ document: docSlidesMock });
 
         const screen = render(<DocumentScreen />);

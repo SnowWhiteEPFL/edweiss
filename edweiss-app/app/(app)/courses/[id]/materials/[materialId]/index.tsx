@@ -110,7 +110,6 @@ const DocumentScreen: ApplicationRoute = () => {
 
     // PDF Viewer for PDF
     const PDFViewer = (uri: string) => (
-        console.debug('PDFViewer:', uri),
         <TView testID={testIDs.pdfView} flex={1} justifyContent='center' alignItems='center' >
             <Pdf
                 trustAllCerts={false}
