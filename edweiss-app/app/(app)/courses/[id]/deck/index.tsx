@@ -10,11 +10,11 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
-import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
+import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { callFunction, CollectionOf } from '@/config/firebase';
@@ -29,6 +29,7 @@ import { CourseID } from '@/model/school/courses';
 import { AppUser } from '@/model/users';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
+import { Alert } from 'react-native';
 import { DecksRepository } from './_layout';
 
 // ------------------------------------------------------------
@@ -44,6 +45,8 @@ const DeckScreen: ApplicationRoute = () => {
 	const { id: courseId } = useStringParameters();
 	const { uid } = useAuth();
 
+	const [loading, setLoading] = useState(false);
+
 	const [deckName, setDeckName] = useState("");
 	const [existedDeckName, setExistedDeckName] = useState(false);
 	const [selectedDecks, setSelectedDecks] = useState<Memento.Deck[]>([]);
@@ -53,6 +56,24 @@ const DeckScreen: ApplicationRoute = () => {
 
 	const users = useDynamicDocs(CollectionOf<AppUser>('users'));
 	if (!users) return undefined;
+
+	async function generateByAI() {
+		setLoading(true);
+		const res = await callFunction(Memento.Functions.createDeckFromMaterial, {
+			courseId,
+			materialUrl: "China-101.pdf"
+		});
+
+		console.log(res);
+
+		if (res.status == 1) {
+			Alert.alert("All good, generated. Check Firebase.");
+		} else {
+			Alert.alert(`ERROR: ${JSON.stringify(res)}`);
+		}
+
+		setLoading(false);
+	}
 
 	// For each users, map user.id to user.data.name
 	const ids_names_map = new Map<string, string>();
@@ -126,6 +147,10 @@ const DeckScreen: ApplicationRoute = () => {
 			<RouteHeader title={`${courseId}: Memento`} />
 
 			<TScrollView>
+
+				<FancyButton loading={loading} onPress={generateByAI} backgroundColor='cherry'>
+					Generate by AI
+				</FancyButton>
 
 				<FancyTextInput
 					value={deckName}

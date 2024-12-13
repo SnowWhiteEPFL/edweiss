@@ -70,9 +70,9 @@ genrated by AI etc.
 					</TText>
 				</TView>
 
-				<FancyButton mt={10} mb={10} onPress={() => router.push("/deck")} backgroundColor='pink'>
+				{/* <FancyButton mt={10} mb={10} onPress={() => router.push("/deck")} backgroundColor='pink'>
 					Memento App
-				</FancyButton>
+				</FancyButton> */}
 
 				<FancyButton mt={'md'} mb={'md'} onPress={() => router.push(`/(app)/todo`)}>
 					My Todos
