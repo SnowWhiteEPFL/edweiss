@@ -12,6 +12,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import React, { useEffect, useState } from 'react';
+import { Alert } from 'react-native';
 import TScrollView from '../core/containers/TScrollView';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import For from '../core/For';
@@ -75,6 +76,24 @@ export const testIDs: { [key: string]: string } = {
     deleteView: 'delete-view',
     deleteText: 'delete-text',
     deleteIcon: 'delete-icon',
+};
+
+// Types assigned to colors
+const typeOptions: { type: MaterialType, color: Color }[] = [
+    { type: 'slide', color: 'cherry' },
+    { type: 'exercise', color: 'maroon' },
+    { type: 'image', color: 'yellow' },
+    { type: 'other', color: 'sapphire' },
+    { type: 'feedback', color: 'lavender' },
+];
+
+// Valid formats for each material type
+const validFormats: { [key in MaterialType]: string[] } = {
+    slide: ['pdf'],
+    exercise: ['pdf'],
+    image: ['pdf', 'png', 'jpg', 'jpeg', 'svg', 'gif', 'webp'],
+    feedback: ['*'],
+    other: ['*'],
 };
 
 type MaterialMode = 'add' | 'edit';
@@ -141,27 +160,19 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
     const [isButtonDisabled, setIsButtonDisabled] = useState(true);
     const [isDocumentButtonDisabled, setIsDocumentButtonDisabled] = useState(true);
 
-    // Types assigned to colors
-    const typeOptions: { type: MaterialType, color: Color }[] = [
-        { type: 'slide', color: 'cherry' },
-        { type: 'exercise', color: 'maroon' },
-        { type: 'image', color: 'yellow' },
-        { type: 'other', color: 'sapphire' },
-        { type: 'feedback', color: 'lavender' },
-    ];
+    const resetDocument = () => {
+        setDocTitle('');
+        setDocType('slide');
+        setDocName('');
+        setDocTitleChanged(false);
+        setDocData('');
+    }
 
-    // Valid formats for each material type
-    const validFormats: { [key in MaterialType]: string[] } = {
-        slide: ['pdf'],
-        exercise: ['pdf'],
-        image: ['pdf', 'png', 'jpg', 'jpeg', 'svg', 'gif', 'webp'],
-        feedback: ['*'],
-        other: ['*'],
-    };
+    //===============================================================
+    //======================== Listeners ============================
+    //===============================================================
 
-
-
-    // Document Format
+    // Document Format Listener
     useEffect(() => {
         if (docName) {
             setDocFormat(docName.substring(docName.lastIndexOf('.') + 1).toLowerCase())
@@ -170,37 +181,24 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
         }
     }, [docName]);
 
-    // Submit Button Validation
+    // Submit Button Validation Listener
     useEffect(() => {
         const isInvalid =
-            mode === 'add' &&
-            (
-                !fromDateChanged ||
-                !fromTimeChanged ||
-                !toDateChanged ||
-                !toTimeChanged ||
+            mode === 'add'
+            && (
+                !fromDateChanged || !fromTimeChanged || !toDateChanged || !toTimeChanged ||
                 (toDateChanged && fromDateChanged && toDate.getTime() < fromDate.getTime())
-            ) ||
-            title === "" ||
-            title.length > MAX_MATERIAL_TITLE_LENGTH ||
-            description.length > MAX_MATERIAL_DESCRIPTION_LENGTH;
+            )
+            || title === "" || title.length > MAX_MATERIAL_TITLE_LENGTH || description.length > MAX_MATERIAL_DESCRIPTION_LENGTH;
 
         setIsButtonDisabled(isInvalid);
     }, [
-        mode,
-        fromDateChanged,
-        fromTimeChanged,
-        toDateChanged,
-        toTimeChanged,
-        fromDate,
-        toDate,
-        title,
-        description,
-        MAX_MATERIAL_TITLE_LENGTH,
-        MAX_MATERIAL_DESCRIPTION_LENGTH
+        mode, fromDateChanged, fromTimeChanged, toDateChanged, toTimeChanged,
+        title, description, fromDate, toDate,
+        MAX_MATERIAL_TITLE_LENGTH, MAX_MATERIAL_DESCRIPTION_LENGTH
     ]);
 
-    // Document Button Validation
+    // Document Button Validation Listener
     useEffect(() => {
         if (docName) {
             const isValidFormat = validFormats[docType].includes(docFormat) || validFormats[docType].includes('*');
@@ -211,6 +209,11 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
     }, [docName, docType, docTitle, MAX_DOCUMENT_TITLE_LENGTH, docFormat]);
 
 
+
+    //===============================================================
+    //====================== onChange Callbacks =====================
+    //===============================================================
+
     const onChangeFromDate = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
             setFromDateChanged(true);
@@ -218,7 +221,6 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
             setShowPickerFromDate(false);
         }
     };
-
     const onChangeFromTime = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
             setFromTimeChanged(true);
@@ -226,7 +228,6 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
             setShowPickerFromTime(false);
         }
     };
-
     const onChangeToDate = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
             setToDateChanged(true);
@@ -234,7 +235,6 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
             setShowPickerToDate(false);
         }
     };
-
     const onChangeToTime = (event: any, selectedDate: Date | undefined) => {
         if (selectedDate) {
             setToTimeChanged(true);
@@ -243,25 +243,7 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
         }
     };
 
-    const resetDocument = () => {
-        setDocTitle('');
-        setDocType('slide');
-        setDocName('');
-        setDocTitleChanged(false);
-        setDocData('');
-    }
 
-    const showInfosDebug = () => {
-        console.log('Title:', title);
-        console.log('Description:', description);
-        console.log('From:', fromDate);
-        console.log('To:', toDate);
-        console.log('Documents:', docs);
-        console.log('Doc Title:', docTitle);
-        console.log('Doc Type:', docType);
-        console.log('Doc Name:', docName);
-        console.log('Doc Format:', docFormat);
-    }
 
     //===============================================================
     //======================== File Upload ==========================
@@ -309,7 +291,7 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
         }
     };
 
-    // Handle the document save
+    // Handle the document save when the user clicks on the save button
     const handleSaveDocument = async () => {
         const newDoc: MaterialDocument = {
             title: docTitle,
@@ -319,9 +301,9 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
         setDocs([...docs, newDoc]);
         setDocumentsData([...documentsData, { uri: docName, dataBase64: docData }]);
         resetDocument();
-    }
+    };
 
-    // Handle the upload of the documents
+    // Handle the deleted documents and uploaded new ones to the server
     const handleUploadDocuments = async (materialId: MaterialID) => {
         if (materialId) {
             try {
@@ -337,34 +319,87 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
                 console.error('Error uploading document:', error);
             }
         }
-    }
+    };
 
     // Handle the deletion of a document
     const handleOnDeleteDocument = (docToDelete: MaterialDocument) => {
+
+        // Remove the document from the list
         setDocs(docs.filter(d => d !== docToDelete));
         setDocumentsData(documentsData.filter(d => d.uri !== docToDelete.uri));
+
+        // If document already present in the firebase cloud storage, add it to the deleted docs
         if (material?.data.docs.includes(docToDelete)) {
             setDeletedDocs([...deletedDocs, docToDelete]);
         }
-    }
+    };
+
+    // Handle the submission of the material
+    const handleOnSubmit = async () => {
+        if (mode === 'edit') {
+            // Submit on edit mode
+            onSubmit(
+                {
+                    title: title,
+                    description: description,
+                    from: Time.fromDate(fromDate),
+                    to: Time.fromDate(toDate),
+                    docs: docs
+                } as Material,
+                material.id,
+                handleUploadDocuments
+            );
+        } else {
+            // Submit on add mode
+            onSubmit(
+                {
+                    title: title,
+                    description: description,
+                    from: Time.fromDate(fromDate),
+                    to: Time.fromDate(toDate),
+                    docs: docs
+                },
+                handleUploadDocuments
+            );
+        }
+    };
 
     // Handle the deletion of a material
     const handleDeleteMaterial = async () => {
-        if (material) {
-            try {
-                await onDelete(material.id);
-                deleteDirectoryFromFirebase(`courses/${courseId}/materials/${material.id}`);
-            } catch (error) {
-                console.error('Error deleting material:', error);
-            }
-        }
-    }
+        Alert.alert(
+            t(`course:confirm_deletion`),
+            t(`course:confirm_deletion_text`),
+            [
+                {
+                    text: t(`course:cancel`),
+                    style: 'cancel',
+                },
+                {
+                    text: t(`course:delete`),
+                    style: 'destructive',
+                    onPress: async () => {
+                        if (mode === 'edit') {
+                            try {
+                                await onDelete(material.id);
+                                deleteDirectoryFromFirebase(`courses/${courseId}/materials/${material.id}`);
+                            } catch (error) {
+                                console.error('Error deleting material:', error);
+                            }
+                        } else {
+                            console.error('Cannot delete a material that has not been created yet.');
+                        }
+                    },
+                },
+            ]
+        );
+    };
 
 
-    // Render the component
+
+
     return (
         <>
-            <TScrollView testID={testIDs.scrollView}>
+            <TScrollView testID={testIDs.scrollView} key={'scrollView'}>
 
                 <TText
                     testID={mode === 'add' ? testIDs.addMaterialTitle : testIDs.editMaterialTitle}
@@ -536,7 +571,7 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
 
 
 
-
+                {/* Documents View */}
                 <TView testID={testIDs.documentsView} flexDirection='row' alignItems='center' justifyContent='space-between' mx='md'>
                     <TText
                         testID={testIDs.documentsTitle}
@@ -572,7 +607,7 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
 
 
 
-
+                {/* Add Document View */}
                 {showAddDocument &&
                     <TView testID={testIDs.addDocumentView} pb={20}>
                         <FancyTextInput
@@ -591,9 +626,8 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
                             }}
                             backgroundColor={typeOptions[typeOptions.findIndex(option => option.type === docType)].color}
                             textColor='constantWhite'
+                            mt={'md'} mb={'sm'}
                             radius={'lg'}
-                            mt={'md'}
-                            mb={'sm'}
                         >
                             {docType}
                         </FancyButton>
@@ -639,9 +673,8 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
                             disabled={isDocumentButtonDisabled}
                             backgroundColor={isDocumentButtonDisabled ? 'subtext0' : 'blue'}
                             textColor='constantWhite'
+                            mt={'md'} mb={'sm'}
                             radius={'xl'}
-                            mt={'md'}
-                            mb={'sm'}
                         >
                             {t('course:save_upload')}
                         </FancyButton>
@@ -650,14 +683,14 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
 
 
 
-
+                {/* Documents Display */}
                 <TView
                     testID={testIDs.documentsDisplay}
                     pb={60}
                     mx={20}
                 >
                     <For
-                        each={docs.length > 0 ? docs : undefined}
+                        each={docs.length > 0 ? docs.reverse() : undefined}
                         fallback={<TText size={16} testID={testIDs.noAssignmentDue}>{t('course:no_documents')}</TText>}
                     >{(doc) => (
                         <DocumentDisplay
@@ -674,48 +707,23 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
 
 
 
-
+            {/* Submit and Delete Buttons */}
             <TView
                 testID={testIDs.finishViews}
+                key={'finishButtons'}
                 flexDirection="row"
                 justifyContent="center"
                 alignItems="center"
-                style={{ marginBottom: 60 }}
+                backgroundColor='transparent'
+                bt={1} borderColor='surface0'
+                mb={40} pt={20}
             >
                 <TTouchableOpacity
                     testID={testIDs.submitTouchableOpacity}
                     backgroundColor={isButtonDisabled ? 'text' : 'blue'}
                     disabled={isButtonDisabled}
-                    onPress={async () => {
-                        showInfosDebug();
-                        if (material) {
-                            onSubmit(
-                                {
-                                    title: title,
-                                    description: description,
-                                    from: Time.fromDate(fromDate),
-                                    to: Time.fromDate(toDate),
-                                    docs: docs
-                                } as Material,
-                                material.id,
-                                handleUploadDocuments
-                            );
-                        } else {
-                            onSubmit(
-                                {
-                                    title: title,
-                                    description: description,
-                                    from: Time.fromDate(fromDate),
-                                    to: Time.fromDate(toDate),
-                                    docs: docs
-                                },
-                                handleUploadDocuments
-                            );
-                        }
-                    }}
-                    flex={1}
-                    mx={10}
-                    p={12}
+                    onPress={handleOnSubmit}
+                    flex={1} mx={10} p={12}
                     radius={'xl'}
                 >
                     <TView
