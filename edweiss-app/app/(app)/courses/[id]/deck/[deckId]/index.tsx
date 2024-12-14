@@ -58,9 +58,10 @@ const CardListScreen: ApplicationRoute = () => {
 	const { uid } = useAuth();
 	const modalRef_Card_Info = useRef<BottomSheetModal>(null); // Reference for the modal
 
+	const [decks, handler] = useRepository(DecksRepository);
+
 	if (typeof deckId != 'string') return <Redirect href={'/'} />;
 
-	const [decks, handler] = useRepository(DecksRepository);
 	const deck = decks?.find(deck => deck.id === deckId);
 	//const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
 
@@ -103,7 +104,6 @@ const CardListScreen: ApplicationRoute = () => {
 			// Add user feedback here (e.g., alert or toast notification)
 		}
 	};
-
 
 	const cancelCardSelection = () => {
 		setSelectedCards([]); // Clear selection
@@ -152,6 +152,7 @@ const CardListScreen: ApplicationRoute = () => {
 							onPress={() => {
 								setName(deck?.data.name as string);
 								setShowDropdown(true);
+								cancelCardSelection();
 							}}
 							activeOpacity={0.2}
 						>
@@ -174,7 +175,13 @@ const CardListScreen: ApplicationRoute = () => {
 
 						<TTouchableOpacity testID='shareButton' onPress={() => {
 							setShowDropdown(false);
-							router.push({ pathname: `courses/${courseId}/deck/${deckId}/shareDeckCard` as any, params: { type: "Deck" } });
+							router.push({
+								pathname: `courses/${courseId}/deck/${deckId}/shareDeckCard` as any,
+								params: {
+									type: "Deck",
+									indices_of_cards_to_share: JSON.stringify([NaN]) // empty array of indices
+								}
+							});
 						}}>
 							<Icon name={'share-social'} size={iconSizes.lg} color="blue" mr={8} />
 						</TTouchableOpacity>
@@ -244,6 +251,28 @@ const CardListScreen: ApplicationRoute = () => {
 						icon='trash'
 					>
 						Delete
+					</FancyButton>
+
+					<FancyButton
+						backgroundColor='green'
+						onPress={() => {
+							const selectedCardIndices = selectedCardIndices_play(selectedCards, cards);
+							router.push({
+								pathname: `courses/${courseId}/deck/${deckId}/shareDeckCard` as any,
+								params: {
+									type: "Card",
+									indices_of_cards_to_share: JSON.stringify(selectedCardIndices)
+								}
+							});
+							cancelCardSelection();
+						}}
+						mb={'sm'}
+						style={{ flex: 1 }}
+						mr={'sm'}
+						ml={'md'}
+						icon='share-social'
+					>
+						Share
 					</FancyButton>
 
 					<FancyButton
