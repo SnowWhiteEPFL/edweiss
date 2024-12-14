@@ -126,7 +126,7 @@ Do not write any other content or confirmation text.
 		if (question.length == 0 || propositions.length == 0)
 			return [];
 
-		return [{ question, propositions }];
+		return [{ question: question.trim(), propositions }];
 	});
 
 	if (exercises.length == 0)
