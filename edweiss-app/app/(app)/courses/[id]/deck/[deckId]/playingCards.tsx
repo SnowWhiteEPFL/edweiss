@@ -14,6 +14,7 @@
 // ------------------------------------------------------------
 
 import TText from '@/components/core/TText';
+import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
 import FancyButton from '@/components/input/FancyButton';
 import CardScreenComponent from '@/components/memento/CardScreenComponent';
@@ -130,14 +131,16 @@ const TestYourMightScreen: ApplicationRoute = () => {
 					</TView>
 					<PanGestureHandler onHandlerStateChange={handleGesture} testID='pan-gesture'>
 						<TViewWithRef style={{ flex: 1 }}>
-							<CardScreenComponent
-								courseId={courseId}
-								deckId={deckId}
-								cardIndex={sanitizedCardIndices[currentCardIndex]}
-								currentCardIndices={currentCardIndices}
-								setCurrentCardIndices={setCurrentCardIndices}
-								handleNext={handleNext}
-							/>
+							<TScrollView>
+								<CardScreenComponent
+									courseId={courseId}
+									deckId={deckId}
+									cardIndex={sanitizedCardIndices[currentCardIndex]}
+									currentCardIndices={currentCardIndices}
+									setCurrentCardIndices={setCurrentCardIndices}
+									handleNext={handleNext}
+								/>
+							</TScrollView>
 						</TViewWithRef>
 					</PanGestureHandler>
 
