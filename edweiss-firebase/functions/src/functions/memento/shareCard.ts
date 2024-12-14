@@ -37,7 +37,12 @@ export const shareCard = onSanitizedCall(Memento.Functions.shareCard, {
             return ok({ id: other_deckDoc.docs[0].id });
         }
 
-        const updated_cards = [...other_cards, args.card];
+        let newName_card = args.card.question;
+        if (other_cards.some(other_card => other_card.question === args.card.question)) {
+            newName_card = args.card.question + " (shared)";
+        }
+
+        const updated_cards = [...other_cards, { ...args.card, question: newName_card }];
 
         await other_deckCollection.doc(other_deckDoc.docs[0].id).update({ cards: updated_cards });
 
