@@ -208,18 +208,34 @@ const CoursePage: ApplicationRoute = () => {
 
 	const renderProfessorModifButton = useCallback(() => {
 		return (
-			<TTouchableOpacity
-				testID={testIDs.addElementsTouchable}
-				style={{
-					position: 'absolute',
-					bottom: 20,
-					right: 20,
-					zIndex: 1000,
-				}}
-				onPress={handleButtonPress}
-			>
-				<Icon name="add-circle" size={60} color='blue' />
-			</TTouchableOpacity>
+			<>
+				<TTouchableOpacity
+					testID={testIDs.courseParametersTouchable}
+					style={{
+						position: 'absolute',
+						top: 10,
+						right: 20,
+						zIndex: 1000,
+					}}
+					onPress={() => setModalParamVisible(true)}
+				>
+					<Icon testID={testIDs.courseParametersIcon} name='cog' size={iconSizes.xl} />
+				</TTouchableOpacity>
+
+				<TTouchableOpacity
+					testID={testIDs.addElementsTouchable}
+					style={{
+						position: 'absolute',
+						bottom: 20,
+						right: 20,
+						zIndex: 1000,
+					}}
+					onPress={handleButtonPress}
+				>
+					<Icon name="add-circle" size={60} color='blue' />
+				</TTouchableOpacity>
+			</>
+
 		);
 	}, []);
 
@@ -294,20 +310,14 @@ const CoursePage: ApplicationRoute = () => {
 				align="center"
 				isBold
 				right={
-					userIsProfessor ? (
-						<TTouchableOpacity testID={testIDs.courseParametersTouchable} onPress={() => setModalParamVisible(true)}>
-							<Icon testID={testIDs.courseParametersIcon} name='cog' size={iconSizes.lg} mr={8} />
-						</TTouchableOpacity>
-					) : undefined
+					<FancyButton mb={'sm'} icon='chatbubbles-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/forum` as any)}>
+						Forum
+					</FancyButton>
 				}
 			/>
 
 			{/* ScrollView pour permettre le défilement */}
 			<TScrollView testID={testIDs.scrollView} p={16} backgroundColor="mantle" >
-
-				<FancyButton mb={'sm'} icon='chatbubbles-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/forum` as any)}>
-					Forum
-				</FancyButton>
 
 				<TText testID={testIDs.courseDescription} size={16} color='text' mb={10} >{course.data.description}</TText>
 
@@ -362,8 +372,6 @@ const CoursePage: ApplicationRoute = () => {
 				)))}
 
 				{currentMaterials.map((material) => (<MaterialDisplay item={material.data} courseId={id} materialId={material.id} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} key={material.id} />))}
-
-				{/*<TView bb={1} my={10} borderColor='crust' />}*/}
 
 				{passedMaterials.sort((a, b) => b.data.to.seconds - a.data.to.seconds).map((material) => (<MaterialDisplay item={material.data} courseId={id} materialId={material.id} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} key={material.id} />))}
 
