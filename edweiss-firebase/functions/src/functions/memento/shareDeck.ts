@@ -43,10 +43,14 @@ export const shareDeck = onSanitizedCall(Memento.Functions.shareDeck, {
         my_deck.name = new_name;
     }
 
-    // Add other_user to the ownerID array
-    await my_deckCollection.doc(args.deckId).update({ ownerID: [...my_deck.ownerID, args.other_user] });
+    // Add other_user to the ownerID array if only if the other_user is not already in the array
+    if (!my_deck.ownerID.includes(args.other_user)) {
+        await my_deckCollection.doc(args.deckId).update({ ownerID: [...my_deck.ownerID, args.other_user] });
+        my_deck = { ...my_deck, ownerID: [...my_deck.ownerID, args.other_user] };
+    }
+    //await my_deckCollection.doc(args.deckId).update({ ownerID: [...my_deck.ownerID, args.other_user] });
 
-    const shared_deck_with_added_owner = { ...my_deck, ownerID: [...my_deck.ownerID, args.other_user] };
+    const shared_deck_with_added_owner = { ...my_deck };
 
     const res = await other_deckCollection.add(shared_deck_with_added_owner);
 

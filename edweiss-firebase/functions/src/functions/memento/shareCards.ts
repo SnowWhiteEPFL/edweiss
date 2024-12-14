@@ -65,5 +65,10 @@ export const shareCards = onSanitizedCall(Memento.Functions.shareCards, {
     };
     await other_deckCollection.add(shared_deck);
 
+    // Update the ownerID array in the sender's deck
+    await my_deckCollection.doc(args.deckId).update({
+        ownerID: [...my_deck.ownerID, args.other_user]
+    });
+
     return ok({ id: "shareCards" });
 });
