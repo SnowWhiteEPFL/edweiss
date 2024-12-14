@@ -14,7 +14,7 @@ import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
 
 
-const validTypes: MaterialType[] = ["slides", "exercises", "feedbacks", "other"];
+const validTypes: MaterialType[] = ["slide", "exercise", "image", "feedback", "other"];
 
 
 /**

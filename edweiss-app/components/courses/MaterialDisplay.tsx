@@ -7,7 +7,7 @@ import t from '@/config/i18config';
 import { iconSizes } from '@/constants/Sizes';
 import { IconType } from '@/constants/Style';
 import { pushWithParameters } from '@/hooks/routeParameters';
-import { Material, MaterialType } from '@/model/school/courses';
+import { CourseID, Material, MaterialID, MaterialType } from '@/model/school/courses';
 import { Time } from '@/utils/time';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
@@ -54,7 +54,7 @@ export const testIDs = {
  * 
  * @returns JSX.Element - The rendered component for the assignment display.
  */
-const MaterialDisplay: ReactComponent<{ item: Material, isTeacher?: boolean, onTeacherClick?: () => void; }> = ({ item, isTeacher = false, onTeacherClick }) => {
+const MaterialDisplay: ReactComponent<{ item: Material, courseId: CourseID, materialId: MaterialID, isTeacher?: boolean, onTeacherClick?: () => void; }> = ({ item, courseId, materialId, isTeacher = false, onTeacherClick }) => {
 
     const formatDateRange = (fromSeconds: number, toSeconds: number) => {
 
@@ -98,7 +98,7 @@ const MaterialDisplay: ReactComponent<{ item: Material, isTeacher?: boolean, onT
             <TText testID={testIDs.materialDescription} lineHeight='md' align='auto' size={15} color='darkNight' py={12} textBreakStrategy='highQuality'>{item.description}</TText>
 
             {sortedDocs.map((doc) => (
-                <DocumentDisplay doc={doc} isTeacher={isTeacher} onDelete={undefined} key={doc.uri} onPress={() => pushWithParameters(DocumentRouteSignature, { document: doc })} />
+                <DocumentDisplay doc={doc} isTeacher={isTeacher} onDelete={undefined} key={doc.uri} onPress={() => pushWithParameters(DocumentRouteSignature, { courseId: courseId, materialId: materialId, document: doc })} />
             ))}
         </TView>
     );

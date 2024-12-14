@@ -14,7 +14,7 @@ interface DocumentDisplayPropsBase {
 type DocumentDisplayProps =
     (DocumentDisplayPropsBase & {
         isTeacher: boolean;
-        onDelete: (() => void) | undefined;
+        onDelete: ((doc: MaterialDocument) => void) | undefined;
     })
     | (DocumentDisplayPropsBase & {
         isTeacher?: false;
@@ -68,7 +68,7 @@ const DocumentDisplay: React.FC<DocumentDisplayProps> = ({ doc, isTeacher = fals
                 </TText>
 
             </TTouchableOpacity>
-            {isTeacher && onDelete && <TTouchableOpacity onPress={onDelete}>
+            {isTeacher && onDelete && <TTouchableOpacity onPress={() => onDelete(doc)}>
                 <Icon name='trash' size={iconSizes.md} color='red' />
             </TTouchableOpacity>}
         </TView>

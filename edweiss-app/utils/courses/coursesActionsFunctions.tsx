@@ -5,7 +5,7 @@ import { AssignmentID, Course_functions, CourseID, MaterialID } from '@/model/sc
 import { ProfessorID, StudentID } from '@/model/users';
 import Toast from 'react-native-toast-message';
 
-export async function addAssignmentAction(courseId: CourseID, assignmentJSON: string): Promise<CallResult<{}, Error>> {
+export async function addAssignmentAction(courseId: CourseID, assignmentJSON: string) {
     const res = await callFunction(Course_functions.Functions.addAssignment, { courseID: courseId, assignmentJSON: assignmentJSON });
     if (res.status != 1) {
         console.error(res.error);
@@ -22,7 +22,7 @@ export async function addAssignmentAction(courseId: CourseID, assignmentJSON: st
     return res;
 }
 
-export async function addMaterialAction(courseId: CourseID, materialJSON: string): Promise<CallResult<{}, Error>> {
+export async function addMaterialAction(courseId: CourseID, materialJSON: string) {
     const res = await callFunction(Course_functions.Functions.addMaterial, { courseID: courseId, materialJSON: materialJSON });
     if (res.status != 1) {
         console.error(res.error);
@@ -192,7 +192,7 @@ export async function updateCourseAction(courseId: CourseID, courseJSON: string)
     return res;
 }
 
-export async function createCourseAction(courseJSON: string): Promise<CallResult<{}, Error>> {
+export async function createCourseAction(courseJSON: string) {
     const res = await callFunction(Course_functions.Functions.createCourse, { courseJSON: courseJSON });
     if (res.status != 1) {
         console.error(res.error);

@@ -60,12 +60,23 @@ export const testIDs: { [key: string]: string } = {
 
 type AssignmentMode = 'edit' | 'add';
 
-interface EditAssignmentProps {
+interface AssignmentPropsBase {
     mode: AssignmentMode;
-    onSubmit: (assignment: Assignment, assignmentID?: AssignmentID) => void;
-    onDelete?: (assignmentID: AssignmentID) => void;
-    assignment?: { id: string, data: Assignment };
 }
+
+type MaterialProps = AssignmentPropsBase & (
+    {
+        mode: 'edit';
+        onSubmit: (assignment: Assignment, assignmentID: AssignmentID) => Promise<void>;
+        onDelete: (assignmentID: AssignmentID) => Promise<void>;
+        assignment: { id: string, data: Assignment };
+    } | {
+        mode: 'add';
+        onSubmit: (assignment: Assignment) => Promise<void>;
+        onDelete?: never;
+        assignment?: never;
+    }
+);
 
 
 /**
@@ -80,7 +91,7 @@ interface EditAssignmentProps {
  * 
  * @returns JSX.Element - The rendered component for the assignment editing.
  */
-const AssignmentComponent: ReactComponent<EditAssignmentProps> = ({ mode, onSubmit, onDelete, assignment }) => {
+const AssignmentComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDelete, assignment }) => {
 
     const [name, setName] = React.useState<string>(assignment && mode == 'edit' ? assignment.data.name : "");
     const [type, setType] = React.useState<AssignmentType>(assignment && mode == 'edit' ? assignment.data.type : 'quiz');

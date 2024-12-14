@@ -51,6 +51,23 @@ export async function getDownloadURL(path: string) {
 	return await storage().ref(path).getDownloadURL();
 }
 
+export async function uploadToFirebase(fileName: string, base64Data: string, path: string = 'uploads') {
+	const fileRef = storage().ref(`${path}/${fileName}`);
+	await fileRef.putString(base64Data, 'base64', { contentType: 'application/octet-stream' });
+	return fileRef.getDownloadURL();
+}
+
+export async function deleteFromFirebase(path: string, fileName: string) {
+	const fileRef = storage().ref(`${path}/${fileName}`);
+	return await fileRef.delete();
+}
+
+export async function deleteDirectoryFromFirebase(path: string) {
+	const listResult = await storage().ref(path).listAll();
+	const deletePromises = listResult.items.map(async (fileRef) => { await fileRef.delete(); });
+	return await Promise.all(deletePromises);
+}
+
 export async function callFunction<Args, Result, Error>(func: FunctionSignature<Args, Result, Error>, args: Args) {
 	const fn = getFunction(func.exportedName);
 	const data = await fn(args);

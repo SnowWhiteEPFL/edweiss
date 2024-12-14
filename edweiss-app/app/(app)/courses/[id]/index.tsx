@@ -223,47 +223,61 @@ const CoursePage: ApplicationRoute = () => {
 		);
 	}, []);
 
-	const addAssignmentCallback = useCallback((assignment: Assignment) => {
-		addAssignmentAction(id as CourseID, JSON.stringify(assignment));
+
+	const addAssignmentCallback = useCallback(async (assignment: Assignment): Promise<void> => {
 		setModalVisible(false);
+		await addAssignmentAction(id as CourseID, JSON.stringify(assignment));
 	}, [id]);
 
-	const addMaterialCallback = useCallback((material: Material) => {
-		addMaterialAction(id as CourseID, JSON.stringify(material));
+	const addMaterialCallback = useCallback(async (material: Material, deleteOnFirebase: (materialId: MaterialID) => Promise<void>): Promise<void> => {
 		setModalVisible(false);
-	}, [id]);
-
-	const updateAssignmentCallback = useCallback((assignment: Assignment, assignmentID?: AssignmentID) => {
-		if (assignmentID) {
-			updateAssignmentAction(id as CourseID, assignmentID, JSON.stringify(assignment));
+		const res = await addMaterialAction(id as CourseID, JSON.stringify(material));
+		if (res.status) {
+			try {
+				await deleteOnFirebase(res.data.materialID);
+			} catch (error) {
+				console.error(error);
+			}
 		}
+	}, [id]);
+
+	const updateAssignmentCallback = useCallback(async (assignment: Assignment, assignmentID: AssignmentID): Promise<void> => {
 		setAssignmentToEdit(null);
 		setModalEditAssignmentVisible(false);
+		await updateAssignmentAction(id as CourseID, assignmentID, JSON.stringify(assignment));
 	}, [id]);
 
-	const updateMaterialCallback = useCallback((material: Material, materialID?: MaterialID) => {
-		if (materialID) {
-			updateMaterialAction(id as CourseID, materialID, JSON.stringify(material));
-		}
+	const updateMaterialCallback = useCallback(async (material: Material, materialID: MaterialID, deleteOnFirebase: (materialId: MaterialID) => Promise<void>): Promise<void> => {
+		const json = JSON.stringify(material);
+		console.log(json);
+		console.log(JSON.parse(json));
 		setMaterialToEdit(null);
 		setModalEditMaterialVisible(false);
+		const res = await updateMaterialAction(id as CourseID, materialID, JSON.stringify(material));
+		if (res.status) {
+			try {
+				await deleteOnFirebase(materialID);
+			} catch (error) {
+				console.error(error);
+			}
+		}
 	}, [id]);
 
-	const updateCourseCallback = useCallback((course: UpdateCourseArgs) => {
-		updateCourseAction(id as CourseID, JSON.stringify(course));
+	const updateCourseCallback = useCallback(async (course: UpdateCourseArgs): Promise<void> => {
 		setModalParamVisible(false);
+		await updateCourseAction(id as CourseID, JSON.stringify(course));
 	}, [id]);
 
-	const removeAssignmentCallback = useCallback((assignmentID: AssignmentID) => {
-		removeAssignmentAction(id as CourseID, assignmentID);
+	const removeAssignmentCallback = useCallback(async (assignmentID: AssignmentID): Promise<void> => {
 		setAssignmentToEdit(null);
 		setModalEditAssignmentVisible(false);
+		await removeAssignmentAction(id as CourseID, assignmentID);
 	}, [id]);
 
-	const removeMaterialCallback = useCallback((materialID: MaterialID) => {
-		removeMaterialAction(id as CourseID, materialID);
+	const removeMaterialCallback = useCallback(async (materialID: MaterialID): Promise<void> => {
 		setMaterialToEdit(null);
 		setModalEditMaterialVisible(false);
+		await removeMaterialAction(id as CourseID, materialID);
 	}, [id]);
 
 	//Checks
@@ -342,16 +356,16 @@ const CoursePage: ApplicationRoute = () => {
 
 				{showFutureMaterials && (futureMaterials.sort((a, b) => a.data.to.seconds - b.data.to.seconds).map((material) => (
 					<TView testID={testIDs.futureMaterialView} key={material.id}>
-						<MaterialDisplay item={material.data} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} />
+						<MaterialDisplay item={material.data} courseId={id} materialId={material.id} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} />
 						<TView bb={1} mx={20} mb={12} borderColor='overlay0' />
 					</TView>
 				)))}
 
-				{currentMaterials.map((material) => (<MaterialDisplay item={material.data} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} key={material.id} />))}
+				{currentMaterials.map((material) => (<MaterialDisplay item={material.data} courseId={id} materialId={material.id} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} key={material.id} />))}
 
 				{/*<TView bb={1} my={10} borderColor='crust' />}*/}
 
-				{passedMaterials.sort((a, b) => b.data.to.seconds - a.data.to.seconds).map((material) => (<MaterialDisplay item={material.data} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} key={material.id} />))}
+				{passedMaterials.sort((a, b) => b.data.to.seconds - a.data.to.seconds).map((material) => (<MaterialDisplay item={material.data} courseId={id} materialId={material.id} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} key={material.id} />))}
 
 				<TView mb={30} />
 
@@ -383,7 +397,7 @@ const CoursePage: ApplicationRoute = () => {
 					</TTouchableOpacity>
 
 					{selectedAction === 'addAssignment' && (<AssignmentComponent mode='add' onSubmit={addAssignmentCallback} />)}
-					{selectedAction === 'addMaterial' && (<MaterialComponent mode='add' onSubmit={addMaterialCallback} />)}
+					{selectedAction === 'addMaterial' && (<MaterialComponent mode='add' courseId={id} onSubmit={addMaterialCallback} />)}
 				</TView>
 			</Modal>
 
@@ -421,7 +435,7 @@ const CoursePage: ApplicationRoute = () => {
 						<Icon name={'close'} size={iconSizes.lg} color="blue" mr={8} />
 					</TTouchableOpacity>
 					{materialToEdit && (
-						<MaterialComponent mode='edit' material={materialToEdit} onSubmit={updateMaterialCallback} onDelete={removeMaterialCallback} />
+						<MaterialComponent mode='edit' material={materialToEdit} courseId={id} onSubmit={updateMaterialCallback} onDelete={removeMaterialCallback} />
 					)}
 				</TView>
 			</Modal>
