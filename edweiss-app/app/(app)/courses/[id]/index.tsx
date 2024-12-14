@@ -217,6 +217,7 @@ const CoursePage: ApplicationRoute = () => {
 						right: 20,
 						zIndex: 1000,
 					}}
+					key='courseParameters'
 					onPress={() => setModalParamVisible(true)}
 				>
 					<Icon testID={testIDs.courseParametersIcon} name='cog' size={iconSizes.xl} />
@@ -230,6 +231,7 @@ const CoursePage: ApplicationRoute = () => {
 						right: 20,
 						zIndex: 1000,
 					}}
+					key='addElements'
 					onPress={handleButtonPress}
 				>
 					<Icon name="add-circle" size={60} color='blue' />

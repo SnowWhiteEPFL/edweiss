@@ -95,6 +95,10 @@
     "no_documents": "No documents for this course yet",
 
 
+    "document_not_saved": "Document not saved",
+    "document_not_saved_text": "You have unsaved changes.\nDo you want to save them before leaving?",
+    "upload_anyway": "Upload anyway",
+
     "cancel": "Cancel",
     "confirm_deletion": "Confirm Deletion",
     "confirm_deletion_text": "Are you sure you want to delete this material?\nThis action is irreversible."

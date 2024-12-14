@@ -54,7 +54,7 @@ export interface MaterialDocument {
 }
 
 export const MAX_MATERIAL_TITLE_LENGTH = 30;
-export const MAX_DOCUMENT_TITLE_LENGTH = 30;
+export const MAX_DOCUMENT_TITLE_LENGTH = 35;
 export const MAX_MATERIAL_DESCRIPTION_LENGTH = 300;
 
 export interface Material {

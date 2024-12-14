@@ -159,13 +159,14 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
     const [showAddDocument, setShowAddDocument] = useState<boolean>(false);
     const [isButtonDisabled, setIsButtonDisabled] = useState(true);
     const [isDocumentButtonDisabled, setIsDocumentButtonDisabled] = useState(true);
+    const [documentFieldsNoneEmpty, setDocumentFieldsNoneEmpty] = useState(false);
 
     const resetDocument = () => {
         setDocTitle('');
         setDocType('slide');
         setDocName('');
-        setDocTitleChanged(false);
         setDocData('');
+        setDocTitleChanged(false);
     }
 
     //===============================================================
@@ -180,6 +181,11 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
             setDocFormat('');
         }
     }, [docName]);
+
+    // Document Fields Validation Listener
+    useEffect(() => {
+        setDocumentFieldsNoneEmpty(docTitle !== '' && docType !== 'slide' && docName !== '' && docData !== '');
+    }, [docTitle, docType, docName, docData]);
 
     // Submit Button Validation Listener
     useEffect(() => {
@@ -335,34 +341,38 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
     };
 
     // Handle the submission of the material
-    const handleOnSubmit = async () => {
-        if (mode === 'edit') {
-            // Submit on edit mode
-            onSubmit(
-                {
-                    title: title,
-                    description: description,
-                    from: Time.fromDate(fromDate),
-                    to: Time.fromDate(toDate),
-                    docs: docs
-                } as Material,
-                material.id,
-                handleUploadDocuments
+    const handleOnSubmitHelper = async () => {
+        const materialToUpload: Material = {
+            title: title,
+            description: description,
+            from: Time.fromDate(fromDate),
+            to: Time.fromDate(toDate),
+            docs: docs
+        };
+        mode === 'edit' ? onSubmit(materialToUpload, material.id, handleUploadDocuments) : onSubmit(materialToUpload, handleUploadDocuments);
+    };
+
+    const handleOnSubmitMaterial = async () => {
+        if (documentFieldsNoneEmpty) {
+            Alert.alert(
+                t(`course:document_not_saved`),
+                t(`course:document_not_saved_text`),
+                [
+                    {
+                        text: t(`course:cancel`),
+                        style: 'cancel',
+                    },
+                    {
+                        text: t(`course:upload_anyway`),
+                        style: 'destructive',
+                        onPress: handleOnSubmitHelper,
+                    },
+                ]
             );
         } else {
-            // Submit on add mode
-            onSubmit(
-                {
-                    title: title,
-                    description: description,
-                    from: Time.fromDate(fromDate),
-                    to: Time.fromDate(toDate),
-                    docs: docs
-                },
-                handleUploadDocuments
-            );
+            handleOnSubmitHelper();
         }
-    };
+    }
 
     // Handle the deletion of a material
     const handleDeleteMaterial = async () => {
@@ -722,7 +732,7 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
                     testID={testIDs.submitTouchableOpacity}
                     backgroundColor={isButtonDisabled ? 'text' : 'blue'}
                     disabled={isButtonDisabled}
-                    onPress={handleOnSubmit}
+                    onPress={handleOnSubmitMaterial}
                     flex={1} mx={10} p={12}
                     radius={'xl'}
                 >
