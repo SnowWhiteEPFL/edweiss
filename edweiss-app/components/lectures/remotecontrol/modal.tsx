@@ -545,7 +545,7 @@ export const QuizBroadcastModal: ReactComponent<{
     const [showResultToStudent, setShowResultToStudent] = useState(false);
 
     useEffect(() => {
-        if (quizModel?.showResultToStudents !== undefined) {
+        if (quizModel?.showResultToStudents) {
             setShowResultToStudent(quizModel.showResultToStudents);
         }
     }, [quizModel?.showResultToStudents]);

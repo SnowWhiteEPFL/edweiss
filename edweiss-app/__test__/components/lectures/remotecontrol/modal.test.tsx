@@ -507,7 +507,7 @@ describe('QuizBroadcastModal', () => {
             />);
 
 
-    afterEach(() => {
+    beforeEach(() => {
         jest.clearAllMocks();
     });
 

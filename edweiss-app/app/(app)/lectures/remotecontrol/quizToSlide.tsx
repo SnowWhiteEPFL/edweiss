@@ -67,7 +67,7 @@ const QuizToSlideScreen: ApplicationRoute = () => {
 
     // Set the current broadcasted if the user just 
     // comes back from another screen
-    if (broadcasted === "" && currentLecture.event && currentLecture.event.type === "quiz") {
+    if (!broadcasted && currentLecture.event?.type === "quiz") {
         setBroadcasted(currentLecture.event.id);
     }
 
