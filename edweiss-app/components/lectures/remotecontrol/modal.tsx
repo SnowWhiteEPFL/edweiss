@@ -571,20 +571,20 @@ export const QuizBroadcastModal: ReactComponent<{
 
             setBroadLoading(true);
 
-            // Question has been answered 
+            // End of quiz activity
             try {
-                // await callFunction(LectureDisplay.Functions.markQuestionAsAnswered, {
-                //     courseId: courseId,
-                //     lectureId: lectureId,
-                //     id: id,
-                //     answered: true,
-                // });
-                await callFunction(LectureDisplay.Functions.clearQuestionEvent, {
+
+                await callFunction(LectureDisplay.Functions.markEventAsDone, {
                     courseId: courseId,
                     lectureId: lectureId,
                     id: id,
                 });
 
+                await callFunction(LectureDisplay.Functions.clearQuestionEvent, {
+                    courseId: courseId,
+                    lectureId: lectureId,
+                    id: id,
+                });
             } catch (error) { console.error("Error updating the quiz event:", error); }
 
             setBroadcasted("");

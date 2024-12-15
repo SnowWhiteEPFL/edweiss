@@ -9,8 +9,9 @@
 // ------------------------------------------------------------
 
 import LectureDisplay from 'model/lectures/lectureDoc';
-import { onAuthentifiedCall } from 'utils/firebase';
-import { CollectionOf, getDocumentAndRef } from 'utils/firestore';
+import { onSanitizedCall } from 'utils/firebase';
+import { CollectionOf, Collections, getDocument, getDocumentAndRef } from 'utils/firestore';
+import { Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 
 
@@ -21,10 +22,17 @@ type Lecture = LectureDisplay.Lecture;
 // -----------   Broadcast Question Cloud Function    ---------
 // ------------------------------------------------------------
 
-export const broadcastQuiz = onAuthentifiedCall(LectureDisplay.Functions.broadcastQuiz, async (userId, args) => {
-    if (!args.courseId || !args.lectureId || !args.id) {
-        return fail('invalid_arg');
+export const broadcastQuiz = onSanitizedCall(LectureDisplay.Functions.broadcastQuiz, {
+    courseId: Predicate.isNonEmptyString,
+    lectureId: Predicate.isNonEmptyString,
+    id: Predicate.isNonEmptyString,
+}, async (userId, args) => {
+
+    const thisUser = await getDocument(Collections.users, userId);
+    if (thisUser?.type != "professor") {
+        return fail("not_authorized");
     }
+
 
     const [lecture, lectureRef] = await getDocumentAndRef(CollectionOf<Lecture>(`courses/${args.courseId}/lectures`), args.lectureId);
 
