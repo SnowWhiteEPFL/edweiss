@@ -125,7 +125,7 @@ const QuizDisplay: React.FC<{
     setSelQuiz: (quiz: LectureQuizzes.LectureQuiz) => void;
     modalRefQuizBroadcast: React.RefObject<BottomSheetModal>;
 }> = ({ index, quizModel, pageNumber, quizID, broadcasted, setSelID, setSelQuiz, modalRefQuizBroadcast }) => {
-    const { exercise, ended, answer, showResultToStudents } = quizModel;
+    const { exercise } = quizModel;
     const isActive = broadcasted === quizID;
     return (
         <TView key={index}

@@ -281,22 +281,26 @@ const LectureViewer: React.FC<{
     lectureId: string;
 }> = ({ uri, widthPorp, heightProp, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, courseId, lectureId }) => {
 
-    return (currentEvent && currentEvent.type === "quiz") ? (
+    const isQuiz = currentEvent && currentEvent.type === "quiz";
+    const isQuestion = currentEvent && currentEvent.type === "question";
+    const questionMargin = isLandscape ? 'lg' : 'xs';
+
+    return isQuiz ? (
         <LectureQuizView courseId={courseId} lectureId={lectureId} lectureEventId={currentEvent?.id!}></LectureQuizView>
 
-    ) : (currentEvent && currentEvent.type === "question") ? (
+    ) : isQuestion ? (
         currentQuestion && <>
-            <TView justifyContent='center' alignItems='center' mt='lg' mb={isLandscape ? 'sm' : 'xs'}>
+            <TView justifyContent='center' alignItems='center' mt='lg' mb={questionMargin}>
                 <TText bold size='lg' mb='sm'>{t('showtime:question_broadcast_ans_title')}</TText>
             </TView>
 
-            <TText ml={'md'} color='overlay2' mt='xs' mb={isLandscape ? 'lg' : 'xs'} bold>{currentQuestion.username === "" ? t('showtime:anony_ask_question') : currentQuestion.username} {t('showtime:question_broadcast_modal_says')}</TText>
+            <TText ml={'md'} color='overlay2' mt='xs' mb={questionMargin} bold>{currentQuestion.username === "" ? t('showtime:anony_ask_question') : currentQuestion.username} {t('showtime:question_broadcast_modal_says')}</TText>
 
-            <TView justifyContent='center' alignItems='center' m={'md'} mb={isLandscape ? 'lg' : 'xs'}>
+            <TView justifyContent='center' alignItems='center' m={'md'} mb={questionMargin}>
                 <TText size={'lg'} color='overlay2' align='center'>« {currentQuestion.text} »</TText>
             </TView>
 
-            <TView flexDirection='column' alignItems='flex-end' mt={isLandscape ? 'md' : 'xs'}>
+            <TView flexDirection='column' alignItems='flex-end' mt={questionMargin}>
                 {currentQuestion.likes > 0 && (
                     <>
                         <TText ml={'md'} color='overlay2' mr='lg'>{currentQuestion.likes} {t('showtime:other_student')}</TText>
