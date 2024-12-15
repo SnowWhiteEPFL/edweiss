@@ -1,6 +1,7 @@
 import Memento from 'model/memento';
+import { AppUser } from 'model/users';
 import { onSanitizedCall } from 'utils/firebase';
-import { CollectionOf } from 'utils/firestore';
+import { CollectionOf, getRequiredDocument } from 'utils/firestore';
 import { Predicate } from 'utils/sanitizer';
 import { fail, ok } from 'utils/status';
 
@@ -11,6 +12,9 @@ export const shareDeck = onSanitizedCall(Memento.Functions.shareDeck, {
 }, async (userId, args) => {
     const my_deckCollection = CollectionOf<Memento.Deck>(`users/${userId}/courses/${args.courseId}/decks`);
     const other_deckCollection = CollectionOf<Memento.Deck>(`users/${args.other_user}/courses/${args.courseId}/decks`);
+
+    const current_user = await getRequiredDocument(CollectionOf<AppUser>('users'), userId, { error: "user_not_found", status: 0 });
+    const other_user = await getRequiredDocument(CollectionOf<AppUser>('users'), args.other_user, { error: "user_not_found", status: 0 });
 
     const my_deckDoc = await my_deckCollection.doc(args.deckId).get();
     let my_deck = my_deckDoc.data();
@@ -43,11 +47,17 @@ export const shareDeck = onSanitizedCall(Memento.Functions.shareDeck, {
         my_deck.name = new_name;
     }
 
-    // Add other_user to the ownerID array if only if the other_user is not already in the array
-    if (!my_deck.ownerID.includes(args.other_user)) {
-        await my_deckCollection.doc(args.deckId).update({ ownerID: [...my_deck.ownerID, args.other_user] });
-        my_deck = { ...my_deck, ownerID: [...my_deck.ownerID, args.other_user] };
+    // If other user is not already in the ownerID array, add the other user to the ownerID array but
+    // If current user is the professor, other user is the student then don't add the other user (student) to the ownerID array
+    // Because the student is not allowed to edit the deck
+    if (current_user.type === "professor" && other_user.type === "student") {
+        // Do nothing ???
     }
+    else
+        if (!my_deck.ownerID.includes(args.other_user)) {
+            await my_deckCollection.doc(args.deckId).update({ ownerID: [...my_deck.ownerID, args.other_user] });
+            my_deck = { ...my_deck, ownerID: [...my_deck.ownerID, args.other_user] };
+        }
     //await my_deckCollection.doc(args.deckId).update({ ownerID: [...my_deck.ownerID, args.other_user] });
 
     const shared_deck_with_added_owner = { ...my_deck };
