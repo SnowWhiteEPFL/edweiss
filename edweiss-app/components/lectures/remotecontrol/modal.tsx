@@ -613,7 +613,7 @@ export const QuizBroadcastModal: ReactComponent<{
             <>
 
                 <TView justifyContent='center' alignItems='center' mb='sm'>
-                    <TText bold size='lg' mb='sm'>« {quizModel?.exercise.question} »</TText>
+                    <TText bold size='lg' mb='sm' testID='brod-quiz-question-txt'>« {quizModel?.exercise.question} »</TText>
                 </TView>
 
 
@@ -622,11 +622,11 @@ export const QuizBroadcastModal: ReactComponent<{
                         {showResultToStudent ? t('showtime:hide_result_but') : t('showtime:show_result_but')}
                     </FancyButton>}
 
-                <FancyButton m='md' mb='sm' icon={broadcasted === id ? 'cloud-done-outline' : 'paper-plane-outline'} loading={broadLoading} onPress={handleQuizBroadcast} testID='brod-quest-ans-button'>
+                <FancyButton m='md' mb='sm' icon={broadcasted === id ? 'cloud-done-outline' : 'paper-plane-outline'} loading={broadLoading} onPress={handleQuizBroadcast} testID='brod-quiz-ans-button'>
                     {broadcasted === id ? t('showtime:stop_activity') : t('showtime:broadcast_quiz')}
                 </FancyButton>
 
-                <FancyButton backgroundColor='subtext0' m='md' mt='sm' onPress={onClose} outlined testID='brod-quest-close-button'>
+                <FancyButton backgroundColor='subtext0' m='md' mt='sm' onPress={onClose} outlined testID='brod-quiz-close-button'>
                     {t('showtime:close_btn')}
                 </FancyButton>
             </>
