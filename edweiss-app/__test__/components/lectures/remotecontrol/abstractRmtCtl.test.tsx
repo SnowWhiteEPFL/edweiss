@@ -18,7 +18,6 @@ import { fireEvent, render } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import React from 'react';
 import { Vibration } from 'react-native';
-import Toast from 'react-native-toast-message';
 
 
 // ------------------------------------------------------------
@@ -412,7 +411,7 @@ describe('AbstractRmtCrl Component', () => {
         });
     });
 
-    test('shows toast when Available activities button is pressed', () => {
+    test('go to Available Activities screen when Available activities button is pressed', () => {
         const { getByTestId } = render(
             <AbstractRmtCrl
                 handleRight={handleRightMock}
@@ -430,10 +429,14 @@ describe('AbstractRmtCrl Component', () => {
         );
 
         fireEvent.press(getByTestId('strc-activity-button'));
-        expect(Toast.show).toHaveBeenCalledWith({
-            type: 'success',
-            text1: 'The Available activities',
-            text2: 'Implementation comes soon'
+        expect(router.push).toHaveBeenCalledWith({
+            pathname: '/(app)/lectures/remotecontrol/quizToSlide',
+            params: {
+                courseNameString,
+                lectureIdString,
+                currentPageString: curPageProvided.toString(),
+                totalPageString: totPageProvided.toString(),
+            },
         });
     });
 
