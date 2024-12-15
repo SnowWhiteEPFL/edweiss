@@ -26,7 +26,6 @@ import CreateDeleteEditCardModal from '@/components/memento/CreateDeleteEditCard
 import { CardModalDisplay } from '@/components/memento/ModalDisplay';
 import { callFunction, CollectionOf } from '@/config/firebase';
 import { iconSizes } from '@/constants/Sizes';
-import { useAuth } from '@/contexts/auth';
 import { useUser } from '@/contexts/user';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { useRepository } from '@/hooks/repository';
@@ -58,7 +57,6 @@ const CardListScreen: ApplicationRoute = () => {
 	const [createCardModalVisible, setCreateCardModalVisible] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const { user } = useUser();
-	const { uid } = useAuth();
 	const modalRef_Card_Info = useRef<BottomSheetModal>(null); // Reference for the modal
 
 	const users = useDynamicDocs(CollectionOf<AppUser>('users'));
