@@ -282,34 +282,14 @@ const LectureViewer: React.FC<{
 }> = ({ uri, widthPorp, heightProp, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, courseId, lectureId }) => {
 
     const isQuiz = currentEvent && currentEvent.type === "quiz";
-    const isQuestion = currentEvent && currentEvent.type === "question";
-    const questionMargin = isLandscape ? 'lg' : 'xs';
+    const isQuestion = currentEvent && currentEvent.type === "question" && currentQuestion;
+
 
     return isQuiz ? (
         <LectureQuizView courseId={courseId} lectureId={lectureId} lectureEventId={currentEvent?.id!}></LectureQuizView>
 
     ) : isQuestion ? (
-        currentQuestion && <>
-            <TView justifyContent='center' alignItems='center' mt='lg' mb={questionMargin}>
-                <TText bold size='lg' mb='sm'>{t('showtime:question_broadcast_ans_title')}</TText>
-            </TView>
-
-            <TText ml={'md'} color='overlay2' mt='xs' mb={questionMargin} bold>{currentQuestion.username === "" ? t('showtime:anony_ask_question') : currentQuestion.username} {t('showtime:question_broadcast_modal_says')}</TText>
-
-            <TView justifyContent='center' alignItems='center' m={'md'} mb={questionMargin}>
-                <TText size={'lg'} color='overlay2' align='center'>« {currentQuestion.text} »</TText>
-            </TView>
-
-            <TView flexDirection='column' alignItems='flex-end' mt={questionMargin}>
-                {currentQuestion.likes > 0 && (
-                    <>
-                        <TText ml={'md'} color='overlay2' mr='lg'>{currentQuestion.likes} {t('showtime:other_student')}</TText>
-                        <TText ml={'md'} color='overlay2' mr='lg'>{t('showtime:are_interrested')}</TText>
-                    </>
-                )}
-            </TView>
-
-        </>
+        <OnScrenQuestionDisplay currentQuestion={currentQuestion} isLandscape={isLandscape} />
     ) : (<Pdf
         trustAllCerts={false}
         source={{ uri }}
@@ -327,3 +307,35 @@ const LectureViewer: React.FC<{
         }}
     />);
 }
+
+
+
+const OnScrenQuestionDisplay: React.FC<{
+    currentQuestion: Question;
+    isLandscape: boolean;
+}> = ({ currentQuestion, isLandscape }) => {
+
+    const questionMargin = isLandscape ? 'lg' : 'sm';
+
+    return <>
+        <TView justifyContent='center' alignItems='center' mt='lg' mb={questionMargin}>
+            <TText bold size='lg' mb='sm'>{t('showtime:question_broadcast_ans_title')}</TText>
+        </TView>
+
+        <TText ml={'md'} color='overlay2' mt='xs' mb={questionMargin} bold>{currentQuestion.username === "" ? t('showtime:anony_ask_question') : currentQuestion.username} {t('showtime:question_broadcast_modal_says')}</TText>
+
+        <TView justifyContent='center' alignItems='center' m={'md'} mb={questionMargin}>
+            <TText size={'lg'} color='overlay2' align='center'>« {currentQuestion.text} »</TText>
+        </TView>
+
+        <TView flexDirection='column' alignItems='flex-end' mt={questionMargin}>
+            {currentQuestion.likes > 0 && (
+                <>
+                    <TText ml={'md'} color='overlay2' mr='lg'>{currentQuestion.likes} {t('showtime:other_student')}</TText>
+                    <TText ml={'md'} color='overlay2' mr='lg'>{t('showtime:are_interrested')}</TText>
+                </>
+            )}
+        </TView>
+    </>
+};
+
