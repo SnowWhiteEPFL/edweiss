@@ -20,10 +20,8 @@ import TText from '@/components/core/TText';
 import { QuizBroadcastModal } from '@/components/lectures/remotecontrol/modal';
 import { CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
-import Colors from '@/constants/Colors';
 import { ApplicationRoute } from '@/constants/Component';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
-import useTheme from '@/hooks/theme/useTheme';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { LectureQuizzes } from '@/model/quizzes';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -128,19 +126,11 @@ const QuizDisplay: React.FC<{
     modalRefQuizBroadcast: React.RefObject<BottomSheetModal>;
 }> = ({ index, quizModel, pageNumber, quizID, broadcasted, setSelID, setSelQuiz, modalRefQuizBroadcast }) => {
     const { exercise, ended, answer, showResultToStudents } = quizModel;
-
-    const theme = useTheme()
-    const broadcastedColorBord = (theme === "light") ? 'rgba(4, 165, 229, 0.3)' : 'rgba(166, 227, 161, 0.6)';
-    const broadcastedColorBack = (theme === "light") ? 'rgba(4, 165, 229, 0.08)' : 'rgba(166, 227, 161, 0.15)';
-    const unbroadcastedColorBord = (theme === "light") ? Colors.light.surface2 : Colors.dark.surface2;
-    const unbroadcastedColorBack = (theme === "light") ? Colors.light.crust : Colors.dark.crust;
-
+    const isActive = broadcasted === quizID;
     return (
         <TView key={index}
-            style={{
-                backgroundColor: (broadcasted === quizID) ? broadcastedColorBack : unbroadcastedColorBack,
-                borderColor: (broadcasted === quizID) ? broadcastedColorBord : unbroadcastedColorBord
-            }}
+            backgroundColor={isActive ? 'sky' : 'crust'}
+            borderColor={isActive ? 'teal' : 'surface2'}
             b={'xl'}
             radius={'lg'}
             flex={1}
@@ -151,18 +141,18 @@ const QuizDisplay: React.FC<{
             <TTouchableOpacity onPress={() => { setSelID(quizID); setSelQuiz(quizModel); Vibration.vibrate(100); modalRefQuizBroadcast.current?.present() }}>
                 <TView flexDirection='row' justifyContent='space-between' ml='md' mb='xs'>
                     {/* Quiz Type Status */}
-                    <TText size={'sm'} pl={2} pt={'sm'} color='text'>{exercise.type === "MCQ" ? t('showtime:MCQ_title') : t('showtime:TF_title')}</TText>
+                    <TText size={'sm'} pl={2} pt={'sm'} color={isActive ? 'base' : 'text'}>{exercise.type === "MCQ" ? t('showtime:MCQ_title') : t('showtime:TF_title')}</TText>
 
                     {/* Page Number Status */}
                     <TView flexDirection='row' mt='sm' mr='sm'>
-                        <TText color='blue'>{pageNumber}</TText>
-                        <Icon size={'md'} name='newspaper-outline' color='blue' ml='xs' mt='xs'></Icon>
+                        <TText color={isActive ? 'base' : 'blue'}>{pageNumber}</TText>
+                        <Icon size={'md'} name='newspaper-outline' color={isActive ? 'base' : 'blue'} ml='xs' mt='xs'></Icon>
                     </TView>
                 </TView>
 
                 {/* Quiz Question Name */}
                 <TView pr={'sm'} pl={'md'} pb={'sm'} flexDirection='row' justifyContent='space-between' alignItems='flex-start'>
-                    <TText ml='md' color='overlay2'>{exercise.question}</TText>
+                    <TText ml='md' color={isActive ? 'base' : 'overlay2'}>{exercise.question}</TText>
                 </TView>
             </TTouchableOpacity>
         </TView >
