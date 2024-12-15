@@ -33,7 +33,7 @@ import { useRepository } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
 import { AppUser } from '@/model/users';
-import { checkDupplication_EmptyField, selectedCardIndices_play, sortingCards } from '@/utils/memento/utilsFunctions';
+import { allowToEditDeck, checkDupplication_EmptyField, selectedCardIndices_play, sortingCards } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Redirect, router } from 'expo-router';
 import React, { useRef, useState } from 'react';
@@ -83,6 +83,11 @@ const CardListScreen: ApplicationRoute = () => {
 	const ids_names_map = new Map<string, string>();
 	users.filter(user => user.data.type === "student").forEach(user => {
 		ids_names_map.set(user.id, user.data.name);
+	});
+
+	const ids_professor_map = new Map<string, string>();
+	users.filter(user => user.data.type === "professor").forEach(user => {
+		ids_professor_map.set(user.id, user.data.name);
 	});
 
 	const users_data_filtered_students = users.filter(user => user.data.type === "student").filter(user => user.data.courses.includes(courseId)).filter(user => user.data.name !== 'Anonymous');
@@ -184,7 +189,7 @@ const CardListScreen: ApplicationRoute = () => {
 						}}>
 							Publish Deck
 						</FancyButton>}
-						<TTouchableOpacity
+						{allowToEditDeck(current_user_type, deck.data.ownerID, ids_professor_map) && <TTouchableOpacity
 							testID='toggleButton'
 							onPress={() => {
 								setName(deck?.data.name as string);
@@ -194,7 +199,7 @@ const CardListScreen: ApplicationRoute = () => {
 							activeOpacity={0.2}
 						>
 							<Icon name={'settings'} size={30} />
-						</TTouchableOpacity>
+						</TTouchableOpacity>}
 					</>
 				}
 			/>
