@@ -283,29 +283,20 @@ const LectureViewer: React.FC<{
 
     const isQuiz = currentEvent && currentEvent.type === "quiz";
     const isQuestion = currentEvent && currentEvent.type === "question" && currentQuestion;
+    const toBeDisplayed =
+        isQuiz ? <LectureQuizView courseId={courseId} lectureId={lectureId} lectureEventId={currentEvent.id} /> :
+            isQuestion ? <OnScrenQuestionDisplay currentQuestion={currentQuestion} isLandscape={isLandscape} /> :
+                <Pdf
+                    trustAllCerts={false} source={{ uri }} renderActivityIndicator={() => <ActivityIndicator size="large" />} enablePaging onLoadComplete={(totalPages) => setNumPages(totalPages)}
+                    onPageChanged={(currentPage) => setCurrentPage(currentPage)} onError={(error) => console.log(error)} page={page} horizontal
+                    style={{
+                        flex: 1,
+                        width: Dimensions.get('window').width * widthPorp,
+                        height: Dimensions.get('window').height * heightProp,
+                    }}
+                />
 
-
-    return isQuiz ? (
-        <LectureQuizView courseId={courseId} lectureId={lectureId} lectureEventId={currentEvent?.id!}></LectureQuizView>
-
-    ) : isQuestion ? (
-        <OnScrenQuestionDisplay currentQuestion={currentQuestion} isLandscape={isLandscape} />
-    ) : (<Pdf
-        trustAllCerts={false}
-        source={{ uri }}
-        renderActivityIndicator={() => <ActivityIndicator size="large" />}
-        enablePaging
-        onLoadComplete={(totalPages) => setNumPages(totalPages)}
-        onPageChanged={(currentPage) => setCurrentPage(currentPage)}
-        onError={(error) => console.log(error)}
-        page={page}
-        horizontal
-        style={{
-            flex: 1,
-            width: Dimensions.get('window').width * widthPorp,
-            height: Dimensions.get('window').height * heightProp,
-        }}
-    />);
+    return toBeDisplayed;
 }
 
 
