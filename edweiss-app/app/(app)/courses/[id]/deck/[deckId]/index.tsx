@@ -24,13 +24,15 @@ import FancyTextInput from '@/components/input/FancyTextInput';
 import { CardListDisplay } from '@/components/memento/CardListDisplayComponent';
 import CreateDeleteEditCardModal from '@/components/memento/CreateDeleteEditCardModal';
 import { CardModalDisplay } from '@/components/memento/ModalDisplay';
-import { callFunction } from '@/config/firebase';
+import { callFunction, CollectionOf } from '@/config/firebase';
 import { iconSizes } from '@/constants/Sizes';
 import { useAuth } from '@/contexts/auth';
 import { useUser } from '@/contexts/user';
+import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { useRepository } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
+import { AppUser } from '@/model/users';
 import { checkDupplication_EmptyField, selectedCardIndices_play, sortingCards } from '@/utils/memento/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Redirect, router } from 'expo-router';
@@ -54,13 +56,17 @@ const CardListScreen: ApplicationRoute = () => {
 	const [existedDeckName, setExistedDeckName] = useState(false);
 	const [emptyField, setEmptyField] = useState(false);
 	const [createCardModalVisible, setCreateCardModalVisible] = useState(false);
+	const [loading, setLoading] = useState(false);
 	const { user } = useUser();
 	const { uid } = useAuth();
 	const modalRef_Card_Info = useRef<BottomSheetModal>(null); // Reference for the modal
 
+	const users = useDynamicDocs(CollectionOf<AppUser>('users'));
 	const [decks, handler] = useRepository(DecksRepository);
 
 	if (typeof deckId != 'string') return <Redirect href={'/'} />;
+
+	if (!users) return null;
 
 	const deck = decks?.find(deck => deck.id === deckId);
 	//const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
@@ -73,6 +79,13 @@ const CardListScreen: ApplicationRoute = () => {
 	const sortedCards = sortingCards(cards);
 
 	const current_user_type = user.type;
+
+	const ids_names_map = new Map<string, string>();
+	users.filter(user => user.data.type === "student").forEach(user => {
+		ids_names_map.set(user.id, user.data.name);
+	});
+
+	const users_data_filtered_students = users.filter(user => user.data.type === "student").filter(user => user.data.courses.includes(courseId)).filter(user => user.data.name !== 'Anonymous');
 
 	// Toggle card selection
 	const toggleCardSelection = (card: Memento.Card) => {
@@ -139,6 +152,25 @@ const CardListScreen: ApplicationRoute = () => {
 		setShowDropdown(false);
 	}
 
+	// Publish deck to all students
+	async function publishDeck() {
+		if (users_data_filtered_students.length === 0) {
+			console.log("No students to share the deck with");
+			return;
+		}
+		setLoading(true);
+
+		const studentsID = users_data_filtered_students.map(user => user.id);
+
+		// Loop through all students and share the deck with them
+		studentsID.forEach(async studentId => {
+			await callFunction(Memento.Functions.shareDeck, { deckId, other_user: studentId, courseId });
+			console.log("Deck shared with student: ", ids_names_map.get(studentId));
+		});
+
+		setLoading(false);
+	}
+
 	const error_selected = existedDeckName ? 'This name has already been used' : emptyField ? 'Please fill in the field' : undefined;
 
 	return (
@@ -147,6 +179,11 @@ const CardListScreen: ApplicationRoute = () => {
 				title={deck?.data.name}
 				right={
 					<>
+						{current_user_type == 'professor' && <FancyButton backgroundColor='green' outlined loading={loading} onPress={() => {
+							publishDeck();
+						}}>
+							Publish Deck
+						</FancyButton>}
 						<TTouchableOpacity
 							testID='toggleButton'
 							onPress={() => {
@@ -240,6 +277,7 @@ const CardListScreen: ApplicationRoute = () => {
 			{selectedCards.length > 0 && (
 				<TView mt={'md'} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
 					<FancyButton
+						outlined
 						backgroundColor='red'
 						onPress={() => {
 							deleteSelectedCards();
@@ -255,6 +293,7 @@ const CardListScreen: ApplicationRoute = () => {
 
 					<FancyButton
 						backgroundColor='green'
+						outlined
 						onPress={() => {
 							const selectedCardIndices = selectedCardIndices_play(selectedCards, cards);
 							router.push({
@@ -276,6 +315,7 @@ const CardListScreen: ApplicationRoute = () => {
 					</FancyButton>
 
 					<FancyButton
+						outlined
 						backgroundColor='blue'
 						onPress={() => {
 							cancelCardSelection();
