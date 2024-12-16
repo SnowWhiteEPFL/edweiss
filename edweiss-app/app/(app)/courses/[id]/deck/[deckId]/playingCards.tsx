@@ -88,13 +88,7 @@ const TestYourMightScreen: ApplicationRoute = () => {
 	}
 
 	// Handle next card
-	const handleNext = () => {
-		if (cards && currentCardIndex < sanitizedCardIndices.length - 1) {
-			setCurrentCardIndex((prevIndex) => prevIndex + 1);
-		} else {
-			setCurrentCardIndex(0);
-		}
-	};
+	const handleNext = () => { (cards && currentCardIndex < sanitizedCardIndices.length - 1) ? setCurrentCardIndex((prevIndex) => prevIndex + 1) : setCurrentCardIndex(0); }
 
 	// Handle previous card
 	const handlePrevious = () => {
