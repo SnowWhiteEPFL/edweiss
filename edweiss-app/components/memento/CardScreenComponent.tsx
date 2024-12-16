@@ -17,7 +17,6 @@ import { callFunction } from '@/config/firebase';
 import { useRepositoryDocument } from '@/hooks/repository';
 import Memento from '@/model/memento';
 import { CourseID } from '@/model/school/courses';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
@@ -36,10 +35,12 @@ import CreateDeleteEditCardModal from './CreateDeleteEditCardModal';
  * Card screen
  * User can see a card with a question and an answer
  * 
+ * @param {CourseID} courseId - Course id
  * @param {string} deckId - Deck id
  * @param {number} cardIndex - Card index
- * @param {boolean} isModal - boolean to check if the screen is a modal then change the style
- * @param {React.RefObject<BottomSheetModal>} modalRef - Reference to the modal
+ * @param {number[]} currentCardIndices - List of current card indices
+ * @param {React.Dispatch<React.SetStateAction<number[]>>} setCurrentCardIndices - Set current card indices
+ * @param {() => void} handleNext - Handle next card
  * 
  * @returns {ReactComponent} Screen to see a card
  */
