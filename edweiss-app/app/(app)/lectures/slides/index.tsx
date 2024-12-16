@@ -17,6 +17,7 @@ import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
 import { TranscriptModeModal } from '@/components/lectures/slides/modal';
 import StudentQuestion from '@/components/lectures/slides/StudentQuestion';
+import { LectureQuizView } from '@/components/quiz/LectureQuizComponents';
 import { CollectionOf, getDownloadURL } from '@/config/firebase';
 import { ApplicationRoute } from '@/constants/Component';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
@@ -225,7 +226,7 @@ const LectureScreen: ApplicationRoute = () => {
             {isFullscreen ?
 
                 <TView mr={'lg'} flexDirection='column' style={{ width: '100%', height: '100%', position: 'relative' }} >
-                    {LectureViewer({ uri, widthPorp: 1, heightProp: 1, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, colorScheme })}
+                    {LectureViewer({ uri, widthPorp: 1, heightProp: 1, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, courseId: courseName, lectureId, colorScheme })}
                     {ControlButtons()}
                 </TView>
 
@@ -233,7 +234,7 @@ const LectureScreen: ApplicationRoute = () => {
                 : isLandscape ?
                     <TView flexDirection={'row'} flex={1} style={{ width: '100%' }}>
                         <TView flexDirection='column' style={{ width: '60%', height: '100%', position: 'relative' }} >
-                            {LectureViewer({ uri, widthPorp: 0.6, heightProp: 1, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, colorScheme })}
+                            {LectureViewer({ uri, widthPorp: 0.6, heightProp: 1, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, courseId: courseName, lectureId, colorScheme })}
                             {ControlButtons()}
                         </TView>
                         {ContentView('40%', '100%')}
@@ -243,7 +244,7 @@ const LectureScreen: ApplicationRoute = () => {
                     :
                     <TView flexDirection={'column'} flex={1} style={{ width: '100%' }}>
                         <TView flexDirection='column' style={{ width: '100%', height: '40%', position: 'relative' }} >
-                            {LectureViewer({ uri, widthPorp: 1, heightProp: 0.6, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, colorScheme })}
+                            {LectureViewer({ uri, widthPorp: 1, heightProp: 0.6, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, courseId: courseName, lectureId, colorScheme })}
                             {ControlButtons()}
                         </TView>
                         {ContentView('100%', '60%')}
@@ -276,11 +277,20 @@ const LectureViewer: React.FC<{
     setCurrentPage: (currentPage: number) => void;
     page: number;
     isLandscape: boolean;
+    courseId: string;
+    lectureId: string;
     colorScheme: string;
-}> = ({ uri, widthPorp, heightProp, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, colorScheme }) => {
+}> = ({ uri, widthPorp, heightProp, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, courseId, lectureId, colorScheme }) => {
 
-    return (currentEvent && currentEvent.type === "invalid") ? (
-        <Pdf
+    const isQuiz = currentEvent && currentEvent.type === "quiz";
+    const isQuestion = currentEvent && currentEvent.type === "question" && currentQuestion;
+
+    if (isQuiz) {
+        return <LectureQuizView courseId={courseId} lectureId={lectureId} lectureEventId={currentEvent.id} />;
+    } else if (isQuestion) {
+        return <OnScrenQuestionDisplay currentQuestion={currentQuestion} isLandscape={isLandscape} />;
+    } else {
+        return <Pdf
             trustAllCerts={false}
             source={{ uri }}
             renderActivityIndicator={() => <ActivityIndicator size="large" />}
@@ -297,31 +307,37 @@ const LectureViewer: React.FC<{
                 height: Dimensions.get('window').height * heightProp,
             }}
         />
-    ) : (
-
-        currentQuestion && <>
-            <TView justifyContent='center' alignItems='center' mt='lg' mb={isLandscape ? 'sm' : 'xs'}>
-                <TText bold size='lg' mb='sm'>{t('showtime:question_broadcast_ans_title')}</TText>
-            </TView>
-
-
-            <TText ml={'md'} color='overlay2' mt='xs' mb={isLandscape ? 'lg' : 'xs'} bold>{currentQuestion.username === "" ? t('showtime:anony_ask_question') : currentQuestion.username} {t('showtime:question_broadcast_modal_says')}</TText>
-
-
-            <TView justifyContent='center' alignItems='center' m={'md'} mb={isLandscape ? 'lg' : 'xs'}>
-                <TText size={'lg'} color='overlay2' align='center'>« {currentQuestion.text} »</TText>
-            </TView>
-
-
-            <TView flexDirection='column' alignItems='flex-end' mt={isLandscape ? 'md' : 'xs'}>
-                {currentQuestion.likes > 0 && (
-                    <>
-                        <TText ml={'md'} color='overlay2' mr='lg'>{currentQuestion.likes} {t('showtime:other_student')}</TText>
-                        <TText ml={'md'} color='overlay2' mr='lg'>{t('showtime:are_interrested')}</TText>
-                    </>
-                )}
-            </TView>
-
-        </>
-    );
+    }
 }
+
+
+
+const OnScrenQuestionDisplay: React.FC<{
+    currentQuestion: Question;
+    isLandscape: boolean;
+}> = ({ currentQuestion, isLandscape }) => {
+
+    const questionMargin = isLandscape ? 'lg' : 'sm';
+
+    return <>
+        <TView justifyContent='center' alignItems='center' mt='lg' mb={questionMargin}>
+            <TText bold size='lg' mb='sm'>{t('showtime:question_broadcast_ans_title')}</TText>
+        </TView>
+
+        <TText ml={'md'} color='overlay2' mt='xs' mb={questionMargin} bold>{currentQuestion.username === "" ? t('showtime:anony_ask_question') : currentQuestion.username} {t('showtime:question_broadcast_modal_says')}</TText>
+
+        <TView justifyContent='center' alignItems='center' m={'md'} mb={questionMargin}>
+            <TText size={'lg'} color='overlay2' align='center'>« {currentQuestion.text} »</TText>
+        </TView>
+
+        <TView flexDirection='column' alignItems='flex-end' mt={questionMargin}>
+            {currentQuestion.likes > 0 && (
+                <>
+                    <TText ml={'md'} color='overlay2' mr='lg'>{currentQuestion.likes} {t('showtime:other_student')}</TText>
+                    <TText ml={'md'} color='overlay2' mr='lg'>{t('showtime:are_interrested')}</TText>
+                </>
+            )}
+        </TView>
+    </>
+};
+

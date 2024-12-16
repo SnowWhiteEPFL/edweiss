@@ -9,7 +9,7 @@ import { ApplicationRoute } from '@/constants/Component';
 import { pushWithParameters } from '@/hooks/routeParameters';
 import Quizzes from '@/model/quizzes';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { LectureQuizStudentViewSignature } from '../quiz/lectureQuizStudentView';
 import { TemporaryQuizProfViewSignature } from '../quiz/temporaryQuizProfView';
 
@@ -116,7 +116,9 @@ const CommunityTab: ApplicationRoute = () => {
 				</FancyButton>
 			</TScrollView>
 
+
 			<ProgressPopup handle={handle} />
+
 		</>
 	);
 };

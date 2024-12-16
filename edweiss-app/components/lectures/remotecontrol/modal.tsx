@@ -21,6 +21,7 @@ import ReactComponent from '@/constants/Component';
 import { TIME_CONSTANTS } from '@/constants/Time';
 import useTheme from '@/hooks/theme/useTheme';
 import LectureDisplay from '@/model/lectures/lectureDoc';
+import Quizzes, { LectureQuizzes } from '@/model/quizzes';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { t } from 'i18next';
 import React, { useState } from 'react';
@@ -513,6 +514,121 @@ export const QuestionBroadcastModal: ReactComponent<{
                 </FancyButton>
 
                 <FancyButton backgroundColor='subtext0' m='md' mt='sm' onPress={onClose} outlined testID='brod-quest-close-button'>
+                    {t('showtime:close_btn')}
+                </FancyButton>
+            </>
+        </ModalContainer>
+    );
+};
+
+
+
+// ------------------------------------------------------------
+// ---------------      Quiz Broadcast Modal     --------------
+// ------------------------------------------------------------
+
+export const QuizBroadcastModal: ReactComponent<{
+    modalRef: React.RefObject<BottomSheetModalMethods>;
+    id: string;
+    quizModel: LectureQuizzes.LectureQuiz;
+    courseId: string,
+    lectureId: string,
+    broadcasted: string,
+    setBroadcasted: React.Dispatch<React.SetStateAction<string>>;
+    onClose: () => void;
+}> = ({ modalRef, id, courseId, lectureId, quizModel, broadcasted, setBroadcasted, onClose }) => {
+
+
+    // Hooks
+    const [broadLoading, setBroadLoading] = useState(false);
+    const [showLoading, setShowLoading] = useState(false);
+    const [showResultToStudent, setShowResultToStudent] = useState(quizModel?.showResultToStudents);
+
+
+    async function toggleResult() {
+        setShowLoading(true);
+        const res = await callFunction(Quizzes.Functions.toggleLectureQuizResult, { lectureId: lectureId, lectureEventId: id, courseId: courseId, });
+
+        if (res.status === 1) {
+            console.log(`toggled showResultToStudent boolean`);
+        } else {
+            console.log(`Error while toggling boolean shoresultToStudent`);
+        }
+        setShowResultToStudent(!showResultToStudent)
+        setShowLoading(false);
+    }
+
+
+
+    async function handleQuizBroadcast() {
+        if (broadcasted === id) {
+
+            setBroadLoading(true);
+
+            // End of quiz activity
+            try {
+
+                const res1 = await callFunction(LectureDisplay.Functions.markEventAsDone, {
+                    courseId: courseId,
+                    lectureId: lectureId,
+                    id: id,
+                });
+
+                if (res1.status === 0) console.log('Error while marking as done the activity')
+                else {
+                    const res2 = await callFunction(LectureDisplay.Functions.clearQuestionEvent, {
+                        courseId: courseId,
+                        lectureId: lectureId,
+                        id: id,
+                    });
+
+                    if (res2.status === 0) console.log('Error while clearing the question')
+                }
+
+            } catch (error) { console.error("Error updating the quiz event:", error); }
+
+            setBroadcasted("");
+            setBroadLoading(false);
+            onClose();
+
+        } else {
+
+            // Broadcast the quiz to the audience
+            setBroadLoading(true);
+            try {
+                const res = await callFunction(LectureDisplay.Functions.broadcastQuiz, {
+                    courseId: courseId,
+                    lectureId: lectureId,
+                    id: id,
+                });
+                if (res.status === 0) console.log('Error while broadcasting the quiz')
+
+            } catch (error) { console.error("Error updating the quiz event:", error); }
+
+            setBroadcasted(id);
+            setBroadLoading(false);
+        };
+    }
+
+    return (
+        <ModalContainer modalRef={modalRef}>
+            <>
+
+                <TView justifyContent='center' alignItems='center' mb='sm'>
+                    <TText bold size='lg' mb='sm' testID='brod-quiz-question-txt'>« {quizModel?.exercise.question} »</TText>
+                </TView>
+
+
+                {broadcasted === id &&
+                    <FancyButton m='md' mb='sm' icon='bar-chart-outline' backgroundColor='green' loading={showLoading} onPress={toggleResult} testID='brod-quiz-res-button'>
+                        {showResultToStudent ? t('showtime:hide_result_but') : t('showtime:show_result_but')}
+                    </FancyButton>}
+
+                <FancyButton m='md' mb='sm' icon={broadcasted === id ? 'cloud-done-outline' : 'paper-plane-outline'} loading={broadLoading} onPress={handleQuizBroadcast} testID='brod-quiz-ans-button'>
+                    {broadcasted === id ? t('showtime:stop_activity') : t('showtime:broadcast_quiz')}
+                </FancyButton>
+
+                <FancyButton backgroundColor='subtext0' m='md' mt='sm' onPress={onClose} outlined testID='brod-quiz-close-button'>
                     {t('showtime:close_btn')}
                 </FancyButton>
             </>

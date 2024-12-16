@@ -11,11 +11,13 @@ import { Redirect } from 'expo-router';
 import { t } from 'i18next';
 import { useCallback, useEffect, useState } from 'react';
 import Hourglass from '../animations/Hourglass';
+import React, { useCallback, useEffect, useState } from 'react';
+import TSafeArea from '../core/containers/TSafeArea';
 import TView from '../core/containers/TView';
 import TActivityIndicator from '../core/TActivityIndicator';
 import TText from '../core/TText';
 
-const LectureQuizView: ReactComponent<{ courseId: string, lectureId: string, lectureEventId: string }> = ({ courseId, lectureId, lectureEventId }) => {
+export const LectureQuizView: ReactComponent<{ courseId: string, lectureId: string, lectureEventId: string }> = ({ courseId, lectureId, lectureEventId }) => {
 	const pathToEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
 	const pathToAttempts = pathToEvents + "/" + lectureEventId + "/attempts";
 
