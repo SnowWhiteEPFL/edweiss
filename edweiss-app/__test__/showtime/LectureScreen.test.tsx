@@ -40,6 +40,16 @@ const mockLectureData2 = {
     },
 };
 
+const mockLectureData3 = {
+    data: {
+        pdfUri: 'mocked-uri',
+        audioTranscript: {},
+        event: {
+            id: "1",
+            type: "quiz",
+        }
+    },
+};
 
 // Mock SyncStorage module
 jest.mock('@/config/SyncStorage', () => ({
@@ -82,6 +92,32 @@ const mockQuestionData = [
             answered: false,
         },
     },
+];
+
+
+// Mock data for `useDynamicDocs`
+const mockQuizData = [
+    {
+        id: '1',
+        data: {
+            done: false,
+            pageNumber: 1,
+            quizModel: {
+                answer: {
+                    type: "TFAnswer",
+                    value: true,
+                },
+                ended: false,
+                exercice: {
+                    answer: true,
+                    question: "Is earth flat ?",
+                    type: "TF",
+                },
+                showResultToStudents: false,
+            },
+            type: "quiz",
+        },
+    }
 ];
 
 // `t` to return the key as the translation
@@ -294,6 +330,23 @@ jest.mock('@gorhom/bottom-sheet', () => ({
         <div>{present}</div>
     )),
 }));
+
+// Mock the react native webview
+jest.mock('react-native-webview', () => {
+    const React = require('react');
+    const { View } = require('react-native');
+    return {
+        WebView: () => React.createElement(View),
+    };
+});
+
+jest.mock('@/components/quiz/LectureQuizComponents', () => {
+    const { Text } = require('react-native');
+    return {
+        LectureQuizView: () => <Text>LectureQuizView</Text>,
+    };
+});
+
 
 describe('LectureScreen Component', () => {
 
@@ -553,6 +606,41 @@ describe('LectureScreen Component Broadcasting Question to audiance', () => {
         const { rerender } = render(<LectureScreen />);
         rerender(<LectureScreen />);
         expect(screen.getByText('« Test Question 1 »')).toBeTruthy();
+    });
+
+});
+
+
+
+describe('LectureScreen Component Broadcasting Quiz to audiance', () => {
+
+    let modalRef: React.RefObject<BottomSheetModal>;
+
+    beforeEach(() => {
+        modalRef = {
+            current: {
+                present: jest.fn(),
+                dismiss: jest.fn(),
+                snapToIndex: jest.fn(),
+                snapToPosition: jest.fn(),
+                expand: jest.fn(),
+                collapse: jest.fn(),
+                close: jest.fn(),
+                forceClose: jest.fn(),
+            }
+        };
+
+        jest.clearAllMocks();
+        (usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockLectureData3]); // Mocking `usePrefetchedDynamicDoc` with minimal data
+        (useDynamicDocs as jest.Mock).mockReturnValue(mockQuizData); // Mocking `useDynamicDocs` with minimal question data
+        (useAuth as jest.Mock).mockReturnValue({ uid: 'mock-uid', });
+        (useUser as jest.Mock).mockReturnValue({ user: { name: 'Test User', }, });
+    });
+
+    it('display the correct current question on the screen', () => {
+        const { rerender } = render(<LectureScreen />);
+        rerender(<LectureScreen />);
+        expect(screen.getByText('LectureQuizView')).toBeTruthy();
     });
 
 });
