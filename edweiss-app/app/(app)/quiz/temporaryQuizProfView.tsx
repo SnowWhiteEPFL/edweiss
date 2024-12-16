@@ -135,7 +135,7 @@ export const DisplayMCQProportions: ReactComponent<{ distribution: number[], exe
 					</TText>
 
 					<TText size={"sm"} color='subtext0' mt={-8} mb={'sm'}>
-						{numberOfAttempts} {t('quiz:quiz_display.answer')}
+						{numberOfAttempts} {t('quiz:quiz_display.participants')}
 					</TText>
 
 					<For each={exercise.propositions}>

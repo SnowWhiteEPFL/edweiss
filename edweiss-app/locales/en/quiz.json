@@ -15,7 +15,8 @@
 		"false": "False",
 		"mcq" : "MCQ",
 		"tf" : "True-False",
-		"waiting_for_answers": "Waiting for students' answers."
+		"waiting_for_answers": "Waiting for students' answers.",
+		"participants": "participants"
 	},
 	"quiz_creation": {
 		"no_option" : "No options to chose from! Add propositions in order to save the MCQ.",
