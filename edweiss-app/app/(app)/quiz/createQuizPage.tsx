@@ -183,14 +183,19 @@ const CreateQuizPage: ApplicationRoute = () => {
 	if (exercises.length <= 0) {
 		return (
 			<>
+				<TView flexDirection='column' justifyContent='center' flexRowGap={'xl'} mb={'xl'}>
+					<TView>
+						<NameAndDateCustom dueDate={dueDate} onChangeDate={onChangeDate} onChangeTime={onChangeTime} setQuizName={setQuizName} setShowDate={setShowDate} setShowTime={setShowTime} showDate={showDate} showTime={showTime} />
+					</TView>
 
-				<NameAndDateCustom dueDate={dueDate} onChangeDate={onChangeDate} onChangeTime={onChangeTime} setQuizName={setQuizName} setShowDate={setShowDate} setShowTime={setShowTime} showDate={showDate} showTime={showTime}></NameAndDateCustom>
+					<TText color='subtext0' align='center'>
+						{t('quiz:quiz_creation.no_exercise_warning')}
+					</TText>
+				</TView>
 
-				<TText ml='xl' mb='xl'>
-					Quiz does not have any exercise yet.
-				</TText>
 
-				<FancyButton icon='add' backgroundColor='blue' onPress={() => addModalRef.current?.present()} />
+
+				<FancyButton style={{ borderWidth: 0 }} outlined icon='add' backgroundColor='blue' onPress={() => addModalRef.current?.present()} > Add exercise</FancyButton>
 				<AddExerciseModal modalRef={addModalRef} updateExerciseList={addToExerciseList} />
 			</>
 
@@ -214,11 +219,11 @@ const CreateQuizPage: ApplicationRoute = () => {
 
 			</TScrollView>
 			<FancyButton style={{ borderWidth: 0 }} outlined icon='add' backgroundColor='blue' onPress={() => addModalRef.current?.present()} > Add new exercise</FancyButton>
-			<TTouchableOpacity onPress={() => controlPublishModal()} ml='xl' mr='xl' py='md' m='lg' px='xl' style={{ borderWidth: 0 }} backgroundColor='blue' radius='lg' >
-				<TView flexDirection='row' flexColumnGap='md'>
-					<Icon name='cloud-done-sharp' size='xl' color='surface0' />
+			<TTouchableOpacity onPress={() => controlPublishModal()} ml='xl' mr='xl' py='md' px='xl' style={{ borderWidth: 0 }} backgroundColor='transparent' >
+				<TView flexDirection='row' justifyContent='center'>
+					<Icon name='cloud-done-sharp' size='xl' color='blue' />
 
-					<TText size='lg' ml='md' color='surface0'>
+					<TText size='md' ml='md' color='blue'>
 						Publish quiz
 					</TText>
 				</TView>
@@ -236,11 +241,28 @@ export default CreateQuizPage;
 export const NameAndDateCustom: ReactComponent<{ dueDate: Date | undefined, setQuizName: React.Dispatch<React.SetStateAction<string>>, showDate: boolean, setShowDate: React.Dispatch<React.SetStateAction<boolean>>, showTime: boolean, setShowTime: React.Dispatch<React.SetStateAction<boolean>>, onChangeDate: (date: Date | undefined) => void, onChangeTime: (date: Date | undefined) => void }> = ({ dueDate, setQuizName, showDate, setShowDate, showTime, setShowTime, onChangeDate, onChangeTime }) => {
 	return (<>
 		<RouteHeader title='Create a new quiz' />
-		<FancyTextInput mb='md' label='Quiz name' onChangeText={setQuizName} />
-		<TText> Due date : {dueDate == undefined ? "undefined" : dateToStringWithTime(dueDate)} { }</TText>
+		<FancyTextInput mb='md' label='Quiz name' onChangeText={setQuizName} icon='text' placeholder='Fill in the name' />
+		<TView ml={'md'} flexDirection='row' flexColumnGap='md' alignItems='center' justifyContent='center'>
+			<Icon name='time-sharp' />
+			<TText > Due date :
+			</TText>
 
-		<FancyButton mb='md' onPress={() => setShowDate(true)}> Change due date </FancyButton>
-		<FancyButton mb='md' onPress={() => setShowTime(true)}> Change time </FancyButton>
+			<TView flexDirection='row' flexColumnGap={'md'}>
+				<TTouchableOpacity onPress={() => setShowDate(true)} backgroundColor='base' radius={'sm'} p={'xs'}>
+					<TText bold>
+						{dateToStringWithTime(dueDate)[0]}
+					</TText>
+
+				</TTouchableOpacity>
+				<TTouchableOpacity onPress={() => setShowTime(true)} backgroundColor='base' radius={'sm'} p={'xs'}>
+					<TText bold>
+						{dateToStringWithTime(dueDate)[1]}
+					</TText>
+				</TTouchableOpacity>
+			</TView>
+
+		</TView>
+
 
 
 		{
@@ -287,12 +309,12 @@ export const NameAndDateCustom: ReactComponent<{ dueDate: Date | undefined, setQ
 	);
 };
 
-function dateToStringWithTime(date: Date | undefined): string {
+function dateToStringWithTime(date: Date | undefined): string[] {
 	if (date == undefined) {
-		return "undefined"
+		return ["undefined", "undefined"];
 	}
 	if (!(date instanceof Date) || isNaN(date.getTime())) {
-		throw new Error("Invalid Date instance.");
+		return ["error", "error"];
 	}
 
 	const day = String(date.getDate()).padStart(2, "0");
@@ -303,7 +325,7 @@ function dateToStringWithTime(date: Date | undefined): string {
 	const minutes = String(date.getMinutes()).padStart(2, "0");
 	const seconds = String(date.getSeconds()).padStart(2, "0");
 
-	return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+	return [`${day}/${month}/${year}`, ` ${hours}:${minutes}:${seconds}`];
 }
 
 
@@ -397,22 +419,33 @@ export const EditExerciseModal: ReactComponent<{ modalRef: RefObject<BottomSheet
 	return (<>
 		<ModalContainerScrollView modalRef={props.modalRef}>
 
-			<TView flexDirection='row' flexColumnGap={"md"} mb='sm'>
-				<TTouchableOpacity flex={1} radius={"xl"} p={"sm"} ml='sm' backgroundColor='red' flexDirection='row' flexColumnGap='sm' onPress={() => props.removeExerciseFromList(props.index)}>
-					<Icon name='trash-bin-sharp' size='xl' mt='md' ml='sm' />
+			<TView flexDirection='row' flexColumnGap={"xl"} mb='md' mx={'lg'}>
+				<TTouchableOpacity flex={1} radius={'lg'} p={"sm"} backgroundColor='base' flexDirection='row' flexColumnGap='sm' justifyContent='center' alignItems='center' onPress={() => props.removeExerciseFromList(props.index)}>
+					<TView >
+						<Icon name='trash-bin-sharp' color='red' size='xl' />
 
-					<TText color='text' ml='lg' mt='md' size='lg'>
-						{t('quiz:quiz_creation.delete')}
-					</TText>
+					</TView>
+					<TView>
+						<TText color='red' size='lg'>
+							{t('quiz:quiz_creation.delete')}
+						</TText>
+					</TView>
+
 				</TTouchableOpacity>
-				<TTouchableOpacity flex={1} radius={"xl"} p={"sm"} mr='sm' backgroundColor='blue' flexDirection='row' flexColumnGap='sm' onPress={() => {
+				<TTouchableOpacity flex={1} radius={"lg"} p={"sm"} backgroundColor='base' flexDirection='row' flexColumnGap='sm' justifyContent='center' alignItems='center' onPress={() => {
 					props.secondModalRef.current?.present();
 					props.modalRef.current?.close();
 				}}>
-					<Icon name='pencil-sharp' size='xl' mt='md' />
-					<TText color='text' size='lg' ml='lg'>
-						{t('quiz:quiz_creation.edit')}
-					</TText>
+
+					<TView>
+						<Icon name='pencil-sharp' color='blue' size='xl' />
+
+					</TView>
+					<TView>
+						<TText color='blue' size='lg'>
+							{t('quiz:quiz_creation.edit')}
+						</TText>
+					</TView>
 				</TTouchableOpacity>
 
 			</TView>
@@ -564,13 +597,13 @@ export const MCQFields: ReactComponent<{ addToExerciseList?: (exercise: Quizzes.
 	return (<>
 		<TView mb='sm'>
 
-			<FancyTextInput placeholder={"Which are correct?"} value={question} onChangeText={(text) => { setQuestion(text); handleQuestionInputError(text) }} label='Question' mb='sm' error={questionError}></FancyTextInput>
+			<FancyTextInput placeholder={"Which are correct?"} icon='text' value={question} onChangeText={(text) => { setQuestion(text); handleQuestionInputError(text) }} label='Question' mb='sm' error={questionError}></FancyTextInput>
 			{
 				propositions.length == 0 ?
-					<TText align='center' mb='xl' mt='xl'> {t('quiz:quiz_creation.no_option')}</TText> :
+					<TText align='center' mb='xl' mt='xl' color='subtext0'> {t('quiz:quiz_creation.no_option')}</TText> :
 					<For each={propositions}>{
 						(proposition, index) => {
-							return (<PropositionField proposition={proposition} changeProposition={changeProposition} removeProposition={removeProposition} key={proposition[0]} index={index} previousProposition={props.previousPropositions == undefined ? undefined : props.previousPropositions[index]} />)
+							return (<PropositionField proposition={proposition} changeProposition={changeProposition} removeProposition={removeProposition} key={index} index={index} previousProposition={props.previousPropositions == undefined ? undefined : props.previousPropositions[index]} />)
 						}
 					}
 
@@ -615,7 +648,18 @@ const PropositionField: ReactComponent<{ proposition: [string, boolean], changeP
 export const TFFields: ReactComponent<{ editExercise?: (exercise: Quizzes.Exercise, index: number) => void, addToExerciseList?: (exercise: Quizzes.Exercise) => void, modalRef?: RefObject<BottomSheetModalMethods>, previousQuestion?: string, previousBoolean?: boolean, index?: number }> = (props) => {
 	const [question, setQuestion] = useState<string>(props.previousQuestion == undefined ? "" : props.previousQuestion);
 	const [answer, setAnswer] = useState<boolean>(props.previousBoolean == undefined ? true : props.previousBoolean);
+	const [questionError, setQuestionError] = useState<string | undefined>(undefined);
 	const placeHolder = props.previousQuestion == undefined ? 'Is the earth flat?' : props.previousQuestion
+
+	function handleQuestionInputError(text: string) {
+		if (text.length == 0) {
+			setQuestionError("Please write a question")
+		}
+		else {
+			setQuestionError(undefined)
+		}
+
+	}
 
 	const trueSelectable: RadioSelectable<boolean> = {
 		label: "True",
@@ -628,11 +672,9 @@ export const TFFields: ReactComponent<{ editExercise?: (exercise: Quizzes.Exerci
 
 
 	function addToQuiz() {
-		if (question == "") {
-			Toast.show({
-				type: 'error',
-				text1: t(`quiz:empty_question`),
-			});
+		if (question.length == 0) {
+			setQuestionError("Please write a question")
+
 			return;
 		}
 		const exercise: Quizzes.TF = {
@@ -653,7 +695,7 @@ export const TFFields: ReactComponent<{ editExercise?: (exercise: Quizzes.Exerci
 	return (
 		<TView >
 
-			<FancyTextInput placeholder={placeHolder} onChangeText={setQuestion} label='Question' mb='lg'></FancyTextInput>
+			<FancyTextInput placeholder={placeHolder} error={questionError} icon='text' onChangeText={(text) => { setQuestion(text); handleQuestionInputError(text) }} label='Question' mb='lg' />
 			<TView ml='md' mb='md'>
 				<RadioSelectables data={[trueSelectable, falseSelectable]} onSelection={(value) => {
 					setAnswer(value)
