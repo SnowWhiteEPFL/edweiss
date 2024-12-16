@@ -54,12 +54,8 @@ const CreateDeleteEditCardModal: ReactComponent<{
     const card = cards[cardIndex];
 
     function error_selected() {
-        if (existedQuestion) {
-            return t("memento:card-creation-edition.question-existed-announcement");
-        }
-        if (emptyField) {
-            return t("memento:card-creation-edition.empty-fields-announcement");
-        }
+        if (existedQuestion) return t("memento:card-creation-edition.question-existed-announcement");
+        if (emptyField) return t("memento:card-creation-edition.empty-fields-announcement");
         return undefined;
     }
 
