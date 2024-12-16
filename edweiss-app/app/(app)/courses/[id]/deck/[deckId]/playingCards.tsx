@@ -14,16 +14,16 @@
 // ------------------------------------------------------------
 
 import TText from '@/components/core/TText';
+import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
 import FancyButton from '@/components/input/FancyButton';
 import CardScreenComponent from '@/components/memento/CardScreenComponent';
 import { ApplicationRoute } from '@/constants/Component';
 import { useRepositoryDocument } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { View, ViewProps } from 'react-native';
 import { PanGestureHandler, PanGestureHandlerStateChangeEvent, State } from 'react-native-gesture-handler';
 import { DecksRepository } from '../_layout';
@@ -42,12 +42,11 @@ const TViewWithRef = forwardRef<View, ViewProps>((props, ref) => (
  * @returns {ApplicationRoute} Screen to test the user's knowledge of the deck
  */
 const TestYourMightScreen: ApplicationRoute = () => {
-	const { id, indices } = useStringParameters(); // Get deckId from params
+	const { id: courseId, deckId, indices } = useStringParameters(); // Get deckdeckId from params
 	const [currentCardIndex, setCurrentCardIndex] = useState(0);
 	const [currentCardIndices, setCurrentCardIndices] = useState((indices ? JSON.parse(indices) : []) as number[]);
-	const modalRef = useRef<BottomSheetModal>(null); // Reference for the modal
 
-	const [deck] = useRepositoryDocument(id, DecksRepository);
+	const [deck] = useRepositoryDocument(deckId, DecksRepository);
 
 	const cards = deck?.data.cards;
 
@@ -89,11 +88,7 @@ const TestYourMightScreen: ApplicationRoute = () => {
 	}
 
 	// Handle next card
-	const handleNext = () => {
-		if (cards && currentCardIndex < sanitizedCardIndices.length - 1) {
-			setCurrentCardIndex((prevIndex) => prevIndex + 1);
-		}
-	};
+	const handleNext = () => { (cards && currentCardIndex < sanitizedCardIndices.length - 1) ? setCurrentCardIndex((prevIndex) => prevIndex + 1) : setCurrentCardIndex(0); }
 
 	// Handle previous card
 	const handlePrevious = () => {
@@ -130,13 +125,16 @@ const TestYourMightScreen: ApplicationRoute = () => {
 					</TView>
 					<PanGestureHandler onHandlerStateChange={handleGesture} testID='pan-gesture'>
 						<TViewWithRef style={{ flex: 1 }}>
-							<CardScreenComponent
-								deckId={id}
-								cardIndex={sanitizedCardIndices[currentCardIndex]}
-								currentCardIndices={currentCardIndices}
-								setCurrentCardIndices={setCurrentCardIndices}
-								modalRef={modalRef}
-							/>
+							<TScrollView>
+								<CardScreenComponent
+									courseId={courseId}
+									deckId={deckId}
+									cardIndex={sanitizedCardIndices[currentCardIndex]}
+									currentCardIndices={currentCardIndices}
+									setCurrentCardIndices={setCurrentCardIndices}
+									handleNext={handleNext}
+								/>
+							</TScrollView>
 						</TViewWithRef>
 					</PanGestureHandler>
 

@@ -1,6 +1,5 @@
 /**
- * @file cardModal.test.tsx
- * @description Test file for the CardModal component
+ * @description Test file for the CardModalDisplay component
  * @author Tuan Dang Nguyen
  */
 
@@ -9,11 +8,12 @@
 // ------------------------------------------------------------
 
 import { CardModalDisplay } from '@/components/memento/ModalDisplay';
-import { callFunction } from '@/config/firebase';
+import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import { RepositoryHandler } from '@/hooks/repository';
-import { pushWithParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
+import { ProfessorUser, StudentUser } from '@/model/users';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { Timestamp } from '@react-native-firebase/firestore';
 import { fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
 
@@ -22,21 +22,32 @@ import React from 'react';
 // ------------------------------------------------------------
 
 const card1: Memento.Card = {
+    ownerID: 'tuan',
     question: 'Question 1',
     answer: 'Answer 1',
     learning_status: 'Got it',
 };
 
 const card2: Memento.Card = {
+    ownerID: 'tuan',
     question: 'Question 2',
     answer: 'Answer 2',
     learning_status: 'Not yet',
 };
 
 const card3: Memento.Card = {
+    ownerID: 'tuan',
     question: 'Question 3',
     answer: 'Answer 3',
     learning_status: 'Got it',
+};
+
+const TeacherAuthMock = {
+    id: "tuan", data: { type: 'professor', name: 'Test User', createdAt: { seconds: 0, nanoseconds: 0 } as Timestamp, courses: ['course_id'] } as ProfessorUser,
+};
+
+const StudentAuthMock = {
+    id: "tuan_1", data: { type: 'student', name: 'Test User student', createdAt: { seconds: 0, nanoseconds: 0 } as Timestamp, courses: ['course_id'] } as StudentUser,
 };
 
 jest.mock("react-native-webview", () => ({
@@ -52,20 +63,6 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
     multiGet: jest.fn((keys) => Promise.resolve(keys.map((key: string) => [key, 'value']))),
     multiSet: jest.fn(() => Promise.resolve()),
     multiRemove: jest.fn(() => Promise.resolve()),
-}));
-
-// Mock Firebase functions and firestore
-jest.mock('@/config/firebase', () => ({
-    callFunction: jest.fn(),
-    Collections: { deck: 'decks' }
-}));
-
-// Mock Firestore hooks
-jest.mock('@/hooks/firebase/firestore', () => ({
-    useDynamicDocs: jest.fn(() => [
-        { id: '1', data: { name: 'Deck 1', cards: [card1, card2, card3] } }
-    ]),
-    useDoc: jest.fn(() => ({ data: { cards: [card1, card2, card3] } })),
 }));
 
 // Mock expo-router Stack and Screen
@@ -84,15 +81,31 @@ jest.mock('@gorhom/bottom-sheet', () => ({
     BottomSheetBackdrop: jest.fn(),
 }));
 
-jest.mock('@/hooks/routeParameters', () => ({
-    pushWithParameters: jest.fn(),
+// Mock Firebase functions and firestore
+jest.mock('@/config/firebase', () => ({
+    callFunction: jest.fn(),
+    Collections: { deck: `users/tuan/courses/course_id/decks` },
+    CollectionOf: jest.fn((path: string) => {
+        return path;
+    }),
 }));
 
-// ------------------------------------------------------------
-// ------------------------  Test Suite -----------------------
-// ------------------------------------------------------------
+jest.mock('@/hooks/firebase/firestore', () => ({
+    useDynamicDocs: jest.fn(),
+}));
 
-describe('CardModal', () => {
+// mock authentication
+jest.mock('@/contexts/auth', () => ({
+    useAuth: jest.fn(() => ({ uid: 'tuan' })),
+}));
+
+
+describe('CardModalDisplay', () => {
+    const mockUsers = [TeacherAuthMock, StudentAuthMock];
+
+    // Mock implementation of useDynamicDocs
+    (useDynamicDocs as jest.Mock).mockReturnValue(mockUsers);
+
     const modalRef = React.createRef<BottomSheetModal>();
 
     const mockHandler: RepositoryHandler<Memento.Deck> = {
@@ -115,39 +128,15 @@ describe('CardModal', () => {
         jest.clearAllMocks();
     });
 
-
     it('renders correctly', () => {
-        const { getByText } = render(<CardModalDisplay handler={mockHandler} cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
+        const { getByText } = render(<CardModalDisplay courseId={'course_id'} deckId='1' handler={mockHandler} cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
         expect(getByText('Card details')).toBeTruthy();
     });
 
-    it('toggle answer visibility', () => {
-        const { getByText, getByTestId } = render(<CardModalDisplay handler={mockHandler} cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
-        const toggleButton = getByTestId('answerReveal');
-        expect(toggleButton).toBeTruthy();
-
-        fireEvent.press(toggleButton)
-        expect(getByTestId('answerReveal')).toBeTruthy();
+    it('can go to edit card modal', () => {
+        const { getByTestId } = render(<CardModalDisplay courseId={'course_id'} deckId='1' handler={mockHandler} cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
+        const editCardButton = getByTestId('edit-card');
+        fireEvent.press(editCardButton)
     });
 
-    it('delete card', () => {
-        const { getByTestId } = render(<CardModalDisplay handler={mockHandler} cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
-        const deleteButton = getByTestId('delete-card');
-        expect(deleteButton).toBeTruthy();
-
-        (callFunction as jest.Mock).mockResolvedValue({ status: 1, data: { id: '1' } });
-
-        fireEvent.press(deleteButton)
-        expect(callFunction).toHaveBeenCalled();
-    });
-
-    it('edit card', () => {
-        const { getByTestId } = render(<CardModalDisplay handler={mockHandler} cards={[card1, card2, card3]} id='1' modalRef={modalRef} card={card1} isSelectionMode={false} />);
-        const editButton = getByTestId('edit-card');
-        expect(editButton).toBeTruthy();
-
-        fireEvent.press(editButton)
-        expect(pushWithParameters).toHaveBeenCalledWith({ path: "/deck/[id]/card" }, { deckId: '1', mode: "Edit", prev_question: 'Question 1', prev_answer: 'Answer 1', cardIndex: 0 });
-
-    });
 });

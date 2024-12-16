@@ -7,11 +7,14 @@ import { ok } from 'utils/status';
 
 export const createDeck = onSanitizedCall(Memento.Functions.createDeck, {
 	deck: Predicate.fields({
+		ownerID: Predicate.forEach(Predicate.isNonEmptyString),
 		name: Predicate.isNonEmptyString,
 		cards: Predicate.forEach(CustomPredicateMemento.isValidCard)
-	})
+	}),
+	courseId: Predicate.isNonEmptyString
 }, async (userId, args) => {
-	const deckCollection = CollectionOf<Memento.Deck>("decks");
+	//const deckCollection = CollectionOf<Memento.Deck>("decks");
+	const deckCollection = CollectionOf<Memento.Deck>(`users/${userId}/courses/${args.courseId}/decks`);
 
 	const res = await deckCollection.add(args.deck);
 
