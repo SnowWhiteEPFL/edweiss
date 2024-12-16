@@ -295,6 +295,10 @@ const CoursePage: ApplicationRoute = () => {
 					Forum
 				</FancyButton>
 
+				<FancyButton mb={'sm'} icon='school-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/deck` as any)}>
+					Memento
+				</FancyButton>
+
 				<TText testID={testIDs.courseDescription} size={16} color='text' mb={10} >{course.data.description}</TText>
 
 				{/* Section des Pending Assignments */}

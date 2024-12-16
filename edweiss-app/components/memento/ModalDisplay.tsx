@@ -7,21 +7,19 @@
 // ------------------------------------------------------------
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
-
-import { CreateEditCardScreenSignature } from '@/app/(app)/deck/[id]/card';
-import { callFunction } from '@/config/firebase';
 import ReactComponent from '@/constants/Component';
 import { RepositoryHandler } from '@/hooks/repository';
-import { pushWithParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
+import { CourseID } from '@/model/school/courses';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import TView from '../core/containers/TView';
 import Icon from '../core/Icon';
 import ModalContainer from '../core/modal/ModalContainer';
-import RichText from '../core/rich-text/RichText';
 import TText from '../core/TText';
+import CardDisplayComponent from './CardDisplayComponent';
+import CreateDeleteEditCardModal from './CreateDeleteEditCardModal';
 
 /**
  * CardModalDisplay
@@ -36,92 +34,55 @@ import TText from '../core/TText';
  * @returns {ReactComponent} CardModalDisplay component
  */
 export const CardModalDisplay: ReactComponent<{
+    courseId: CourseID;
+    deckId: string;
     handler: RepositoryHandler<Memento.Deck>;
     cards: Memento.Card[];
     id: string,
     modalRef: React.RefObject<BottomSheetModalMethods>;
     card: Memento.Card | undefined;
     isSelectionMode: boolean;
-}> = ({ handler, cards, id, modalRef, card, isSelectionMode }) => {
-
-    const [isAnswerVisible, setIsAnswerVisible] = useState(false);
+}> = ({ courseId, deckId, cards, modalRef, card, isSelectionMode }) => {
+    const [openModal, setOpenModal] = useState(false);
 
     const absolute_index = cards.indexOf(card as Memento.Card);
 
-    // Reset the visibility state when the card changes
-    useEffect(() => {
-        setIsAnswerVisible(false);
-    }, [card]);
-
-    const handleToggleAnswer = () => {
-        setIsAnswerVisible(prevState => !prevState);
-    };
-
-    async function deleteCard() {
-        if (absolute_index == null) return;
-
-        handler.modifyDocument(id, { cards: cards.filter((_, index) => index !== absolute_index) }, (deckId) => {
-            callFunction(Memento.Functions.deleteCards, { deckId: id, cardIndices: [absolute_index] });
-            console.log(`Card deleted with index ${absolute_index}`);
-            modalRef.current?.dismiss();
-        });
-
-    }
-
     return (
-        <ModalContainer modalRef={modalRef} >
-            {card && !isSelectionMode && <>
-                <TView justifyContent='center' alignItems='center' mb='sm'>
-                    <TText bold size='lg' mb='sm'>Card details</TText>
+        <>
+            <ModalContainer modalRef={modalRef} >
+                {card && !isSelectionMode && <>
+                    <TView justifyContent='center' alignItems='center' mb='sm'>
+                        <TText bold size='lg' mb='sm'>Card details</TText>
 
-                    <TTouchableOpacity
-                        testID='edit-card'
-                        style={{ position: 'absolute', alignSelf: 'flex-end' }}
-                        onPress={() => {
-                            modalRef.current?.dismiss();
-                            pushWithParameters(CreateEditCardScreenSignature, { deckId: id, mode: "Edit", prev_question: card?.question, prev_answer: card?.answer, cardIndex: absolute_index });
-                        }}
-                    >
-                        <Icon testID={`status_icon ${absolute_index}`} name={'pencil'} color={'darkBlue'} size={'lg'} mr={'lg'} />
-                    </TTouchableOpacity>
+                        <TTouchableOpacity
+                            testID='edit-card'
+                            style={{ position: 'absolute', alignSelf: 'flex-end' }}
+                            onPress={() => {
+                                modalRef.current?.dismiss();
+                                setOpenModal(true);
+                            }}
+                        >
+                            <Icon testID={`status_icon ${absolute_index}`} name={'settings'} color={'darkBlue'} size={'lg'} mr={'lg'} />
+                        </TTouchableOpacity>
+                    </TView>
 
-                    <TTouchableOpacity
-                        testID='delete-card'
-                        style={{ position: 'absolute', alignSelf: 'flex-start' }}
-                        onPress={() => {
-                            deleteCard();
-                        }}
-                    >
-                        <Icon testID={`status_icon ${absolute_index}`} name={'trash'} color={'darkBlue'} size={'lg'} ml={'lg'} />
-                    </TTouchableOpacity>
-                </TView>
+                    <CardDisplayComponent card={card} />
 
-                {/* Box for card.question */}
-                <TView m="md" p="md" borderColor="crust" style={{ borderWidth: 1 }} radius="lg" mb="sm">
-                    <TText bold mb="sm">Question:</TText>
-                    {/*<TText>{card.question}</TText>*/}
-                    <RichText>
-                        {card.question}
-                    </RichText>
-                </TView>
+                </>
+                }
+            </ModalContainer >
 
-                {/* Box for card.answer */}
-                <TTouchableOpacity testID='answerReveal' m="md" p="md" borderColor="crust" radius="lg" onPress={handleToggleAnswer}
-                    backgroundColor={isAnswerVisible ? 'transparent' : 'base'}
-                    style={{
-                        borderWidth: 1
-                    }} >
+            {card && <CreateDeleteEditCardModal
+                courseId={courseId}
+                deckId={deckId}
+                mode="Edit"
+                prev_question={card.question}
+                prev_answer={card.answer}
+                cardIndex={absolute_index}
+                visible={openModal}
+                setVisible={setOpenModal}
+            />}
+        </>
 
-                    <TText bold mb="sm">Answer:</TText>
-                    {/*<TText>{isAnswerVisible ? card.answer : 'Click to reveal the answer'}</TText>*/}
-                    <RichText>
-                        {isAnswerVisible ? card.answer : 'Click to reveal the answer'}
-                    </RichText>
-
-                </TTouchableOpacity>
-
-            </>
-            }
-        </ModalContainer >
     );
 };
