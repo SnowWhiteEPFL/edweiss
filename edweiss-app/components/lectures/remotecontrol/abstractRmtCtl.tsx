@@ -9,6 +9,7 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
+import { QuizToSlideSignature } from '@/app/(app)/lectures/remotecontrol/quizToSlide';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
@@ -16,6 +17,7 @@ import Icon from '@/components/core/Icon';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { LightDarkProps } from '@/constants/Colors';
+import { pushWithParameters } from '@/hooks/routeParameters';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { langIconMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -196,17 +198,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                         <TTouchableOpacity
                             backgroundColor='crust'
                             borderColor='text' p={10} b={1} radius={1000}
-                            onPress={() => {
-                                router.push({
-                                    pathname: '/(app)/lectures/remotecontrol/quizToSlide' as any,
-                                    params: {
-                                        courseNameString,
-                                        lectureIdString,
-                                        currentPageString: curPageProvided.toString(),
-                                        totalPageString: totPageProvided.toString(),
-                                    },
-                                })
-                            }}
+                            onPress={() => pushWithParameters(QuizToSlideSignature, { courseNameString, lectureIdString })}
                             testID='strc-activity-button'>
                             <Icon size={40} name='easel-outline' color='text'></Icon>
                         </TTouchableOpacity>
@@ -240,7 +232,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
 
             {/* Modals */}
             < LangSelectModal modalRef={modalRefLangSelect} lang={lang} setLang={setLang} onClose={() => modalRefLangSelect.current?.close()} />
-            <TimerSettingModal modalRef={modalRefTimer} currentTimer={timer} currentRecall={recall} setTimer={setTimer} setIsCritical={setIsCritical} setRecall={setRecall} onClose={() => modalRefTimer.current?.close()} />
+            < TimerSettingModal modalRef={modalRefTimer} currentTimer={timer} currentRecall={recall} setTimer={setTimer} setIsCritical={setIsCritical} setRecall={setRecall} onClose={() => modalRefTimer.current?.close()} />
         </>
     );
 };

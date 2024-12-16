@@ -22,11 +22,12 @@ import { CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { LectureQuizzes } from '@/model/quizzes';
+import { CourseID } from '@/model/school/courses';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { useLocalSearchParams } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Vibration } from 'react-native';
 
 // Types
@@ -34,13 +35,26 @@ type Lecture = LectureDisplay.Lecture;
 type Quiz = LectureDisplay.QuizLectureEvent;
 
 // ------------------------------------------------------------
+// -----------      Application Route Params       ------------
+// ------------------------------------------------------------
+
+export const QuizToSlideSignature: ApplicationRouteSignature<{
+    courseNameString: string,
+    lectureIdString: string,
+}> = {
+    path: "/(app)/lectures/remotecontrol/quizToSlide"
+}
+
+
+
+// ------------------------------------------------------------
 // ----------------    Quiz To Slide Screen     ---------------
 // ------------------------------------------------------------
 
 const QuizToSlideScreen: ApplicationRoute = () => {
     // Argument Processing
-    const { courseNameString, lectureIdString } = useLocalSearchParams();
-    const courseName = courseNameString as string;
+    const { courseNameString, lectureIdString } = useRouteParameters(QuizToSlideSignature);
+    const courseName = courseNameString as CourseID;
     const lectureId = lectureIdString as string;
 
 
@@ -49,8 +63,8 @@ const QuizToSlideScreen: ApplicationRoute = () => {
     const modalRefQuizBroadcast = useRef<BottomSheetModal>(null);
 
     //Hooks
-    const [selID, setSelID] = useState("");
-    const [selQuiz, setSelQuiz] = useState<LectureQuizzes.LectureQuiz>();
+    const [selectedQuizID, setSelectedQuizID] = useState("");
+    const [selectedQuiz, setSelectedQuiz] = useState<LectureQuizzes.LectureQuiz>();
     const [broadcasted, setBroadcasted] = useState(""); // Store the currently broadcasted quiz 
 
 
@@ -58,11 +72,12 @@ const QuizToSlideScreen: ApplicationRoute = () => {
     // Dynamic Document
     const [lectureDoc] = usePrefetchedDynamicDoc(CollectionOf<Lecture>(`courses/${courseName}/lectures`), lectureId, undefined);
     const quizDoc = useDynamicDocs(CollectionOf<Quiz>(`courses/${courseName}/lectures/${lectureId}/lectureEvents`));
+    const quizDocPending = useMemo(() => {
+        return quizDoc?.filter(quiz => !quiz.data.done).sort((a, b) => a.data.pageNumber - b.data.pageNumber) || [];
+    }, [quizDoc]);
 
     // Wait for lectureDoc to be available
     if (!lectureDoc) return <TActivityIndicator size={40} testID='quiz-slide-activity-indicator' />;
-    quizDoc?.sort((a, b) => a.data.pageNumber - b.data.pageNumber);
-    const quizDocPending = quizDoc?.filter(quiz => !quiz.data.done) || [];
     const currentLecture = lectureDoc.data;
 
     // Set the current broadcasted if the user just 
@@ -86,7 +101,7 @@ const QuizToSlideScreen: ApplicationRoute = () => {
             {quizDocPending && quizDocPending.length > 0 ? (
                 <TScrollView>
                     <For each={quizDocPending}>
-                        {(quiz, index) => <QuizDisplay index={index} pageNumber={quiz.data.pageNumber} quizID={quiz.id} quizModel={quiz.data.quizModel} broadcasted={broadcasted} setSelID={setSelID} setSelQuiz={setSelQuiz} modalRefQuizBroadcast={modalRefQuizBroadcast} />}
+                        {(quiz, index) => <QuizDisplay index={index} pageNumber={quiz.data.pageNumber} quizID={quiz.id} quizModel={quiz.data.quizModel} broadcasted={broadcasted} setSelectedQuizID={setSelectedQuizID} setSelectedQuiz={setSelectedQuiz} modalRefQuizBroadcast={modalRefQuizBroadcast} />}
                     </For>
                 </TScrollView>
             ) : (
@@ -102,7 +117,7 @@ const QuizToSlideScreen: ApplicationRoute = () => {
             )}
 
             {/* Modal */}
-            <QuizBroadcastModal modalRef={modalRefQuizBroadcast} id={selID} quizModel={selQuiz} courseId={courseName} lectureId={lectureId} broadcasted={broadcasted} setBroadcasted={setBroadcasted} onClose={() => modalRefQuizBroadcast.current?.close()} />
+            <QuizBroadcastModal modalRef={modalRefQuizBroadcast} id={selectedQuizID} quizModel={selectedQuiz!} courseId={courseName} lectureId={lectureId} broadcasted={broadcasted} setBroadcasted={setBroadcasted} onClose={() => modalRefQuizBroadcast.current?.close()} />
         </>
     );
 };
@@ -121,10 +136,10 @@ const QuizDisplay: React.FC<{
     pageNumber: number;
     quizID: string,
     broadcasted: string;
-    setSelID: (id: string) => void;
-    setSelQuiz: (quiz: LectureQuizzes.LectureQuiz) => void;
+    setSelectedQuizID: (id: string) => void;
+    setSelectedQuiz: (quiz: LectureQuizzes.LectureQuiz) => void;
     modalRefQuizBroadcast: React.RefObject<BottomSheetModal>;
-}> = ({ index, quizModel, pageNumber, quizID, broadcasted, setSelID, setSelQuiz, modalRefQuizBroadcast }) => {
+}> = ({ index, quizModel, pageNumber, quizID, broadcasted, setSelectedQuizID: setSelID, setSelectedQuiz: setSelQuiz, modalRefQuizBroadcast }) => {
     const { exercise } = quizModel;
     const isActive = broadcasted === quizID;
     return (

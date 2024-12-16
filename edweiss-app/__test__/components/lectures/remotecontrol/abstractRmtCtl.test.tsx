@@ -11,6 +11,7 @@
 
 import { AbstractRmtCrl } from '@/components/lectures/remotecontrol/abstractRmtCtl';
 import t from '@/config/i18config';
+import { pushWithParameters } from '@/hooks/routeParameters';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { langIconMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -118,6 +119,11 @@ jest.mock('@/hooks/firebase/firestore', () => ({
 // Toast message
 jest.mock('react-native-toast-message', () => ({
     show: jest.fn(),
+}));
+
+// Mock push with parameter
+jest.mock('@/hooks/routeParameters', () => ({
+    pushWithParameters: jest.fn(),
 }));
 
 
@@ -429,15 +435,7 @@ describe('AbstractRmtCrl Component', () => {
         );
 
         fireEvent.press(getByTestId('strc-activity-button'));
-        expect(router.push).toHaveBeenCalledWith({
-            pathname: '/(app)/lectures/remotecontrol/quizToSlide',
-            params: {
-                courseNameString,
-                lectureIdString,
-                currentPageString: curPageProvided.toString(),
-                totalPageString: totPageProvided.toString(),
-            },
-        });
+        expect(pushWithParameters).toHaveBeenCalledWith({ path: '/(app)/lectures/remotecontrol/quizToSlide' }, { courseNameString, lectureIdString });
     });
 
     test('go to audience live question manager when it button is pressed', () => {

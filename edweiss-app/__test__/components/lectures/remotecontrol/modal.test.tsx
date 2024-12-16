@@ -522,6 +522,7 @@ describe('QuizBroadcastModal', () => {
     test('handles broadcasting the quiz', async () => {
         const { getByTestId } = renderModal();
         const broadcastButton = getByTestId('brod-quiz-ans-button');
+        (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
 
         await act(async () => {
             fireEvent.press(broadcastButton);
@@ -535,6 +536,7 @@ describe('QuizBroadcastModal', () => {
     test('handles stopping the quiz broadcast', async () => {
         const { getByTestId } = renderModal({ broadcasted: '1' })
         const stopButton = getByTestId('brod-quiz-ans-button');
+        (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
 
         await act(async () => {
             fireEvent.press(stopButton);

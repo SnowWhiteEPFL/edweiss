@@ -283,34 +283,29 @@ const LectureViewer: React.FC<{
 
     const isQuiz = currentEvent && currentEvent.type === "quiz";
     const isQuestion = currentEvent && currentEvent.type === "question" && currentQuestion;
-    let toBeDisplayed;
 
     if (isQuiz) {
-        toBeDisplayed = <LectureQuizView courseId={courseId} lectureId={lectureId} lectureEventId={currentEvent.id} />;
+        return <LectureQuizView courseId={courseId} lectureId={lectureId} lectureEventId={currentEvent.id} />;
     } else if (isQuestion) {
-        toBeDisplayed = <OnScrenQuestionDisplay currentQuestion={currentQuestion} isLandscape={isLandscape} />;
+        return <OnScrenQuestionDisplay currentQuestion={currentQuestion} isLandscape={isLandscape} />;
     } else {
-        toBeDisplayed = (
-            <Pdf
-                trustAllCerts={false}
-                source={{ uri }}
-                renderActivityIndicator={() => <ActivityIndicator size="large" />}
-                enablePaging
-                onLoadComplete={(totalPages) => setNumPages(totalPages)}
-                onPageChanged={(currentPage) => setCurrentPage(currentPage)}
-                onError={(error) => console.log(error)}
-                page={page}
-                horizontal
-                style={{
-                    flex: 1,
-                    width: Dimensions.get('window').width * widthPorp,
-                    height: Dimensions.get('window').height * heightProp,
-                }}
-            />
-        );
+        return <Pdf
+            trustAllCerts={false}
+            source={{ uri }}
+            renderActivityIndicator={() => <ActivityIndicator size="large" />}
+            enablePaging
+            onLoadComplete={(totalPages) => setNumPages(totalPages)}
+            onPageChanged={(currentPage) => setCurrentPage(currentPage)}
+            onError={(error) => console.log(error)}
+            page={page}
+            horizontal
+            style={{
+                flex: 1,
+                width: Dimensions.get('window').width * widthPorp,
+                height: Dimensions.get('window').height * heightProp,
+            }}
+        />
     }
-
-    return toBeDisplayed;
 }
 
 

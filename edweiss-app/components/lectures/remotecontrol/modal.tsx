@@ -24,7 +24,7 @@ import LectureDisplay from '@/model/lectures/lectureDoc';
 import Quizzes, { LectureQuizzes } from '@/model/quizzes';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { t } from 'i18next';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Vibration } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { langIconMap, langNameMap } from '../../../utils/lectures/remotecontrol/utilsFunctions';
@@ -530,7 +530,7 @@ export const QuestionBroadcastModal: ReactComponent<{
 export const QuizBroadcastModal: ReactComponent<{
     modalRef: React.RefObject<BottomSheetModalMethods>;
     id: string;
-    quizModel?: LectureQuizzes.LectureQuiz;
+    quizModel: LectureQuizzes.LectureQuiz;
     courseId: string,
     lectureId: string,
     broadcasted: string,
@@ -542,13 +542,7 @@ export const QuizBroadcastModal: ReactComponent<{
     // Hooks
     const [broadLoading, setBroadLoading] = useState(false);
     const [showLoading, setShowLoading] = useState(false);
-    const [showResultToStudent, setShowResultToStudent] = useState(false);
-
-    useEffect(() => {
-        if (quizModel?.showResultToStudents) {
-            setShowResultToStudent(quizModel.showResultToStudents);
-        }
-    }, [quizModel?.showResultToStudents]);
+    const [showResultToStudent, setShowResultToStudent] = useState(quizModel?.showResultToStudents);
 
 
     async function toggleResult() {
@@ -574,17 +568,23 @@ export const QuizBroadcastModal: ReactComponent<{
             // End of quiz activity
             try {
 
-                await callFunction(LectureDisplay.Functions.markEventAsDone, {
+                const res1 = await callFunction(LectureDisplay.Functions.markEventAsDone, {
                     courseId: courseId,
                     lectureId: lectureId,
                     id: id,
                 });
 
-                await callFunction(LectureDisplay.Functions.clearQuestionEvent, {
-                    courseId: courseId,
-                    lectureId: lectureId,
-                    id: id,
-                });
+                if (res1.status === 0) console.log('Error while marking as done the activity')
+                else {
+                    const res2 = await callFunction(LectureDisplay.Functions.clearQuestionEvent, {
+                        courseId: courseId,
+                        lectureId: lectureId,
+                        id: id,
+                    });
+
+                    if (res2.status === 0) console.log('Error while clearing the question')
+                }
+
             } catch (error) { console.error("Error updating the quiz event:", error); }
 
             setBroadcasted("");
@@ -596,11 +596,13 @@ export const QuizBroadcastModal: ReactComponent<{
             // Broadcast the quiz to the audience
             setBroadLoading(true);
             try {
-                await callFunction(LectureDisplay.Functions.broadcastQuiz, {
+                const res = await callFunction(LectureDisplay.Functions.broadcastQuiz, {
                     courseId: courseId,
                     lectureId: lectureId,
                     id: id,
                 });
+                if (res.status === 0) console.log('Error while broadcasting the quiz')
+
             } catch (error) { console.error("Error updating the quiz event:", error); }
 
             setBroadcasted(id);
