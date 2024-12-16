@@ -78,5 +78,11 @@
     "successUpdateCourse": "Course updated successfully 🎉",
     "failureUpdateCourse": "Failed to update course ❌",
 
-    "field_required": "This field cannot be empty"
+    "field_required": "This field cannot be empty",
+
+    "document_error": "An error occurred while loading the document.",
+    "document_not_supported": "This document format cannot be displayed by Edweiss. \n You can download the document to view it.",
+    "of" : " of ",
+    "failure_download_document": "Failed to download document",
+    "success_download_document": "Document downloaded successfully 🎉"
 }

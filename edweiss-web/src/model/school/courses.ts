@@ -48,7 +48,7 @@ export type Assignment = AssignmentBase;
 export type MaterialType = "slides" | "exercises" | "feedbacks" | "other";
 
 export interface MaterialDocument {
-	url: string;
+	uri: string;
 	title: string;
 	type: MaterialType;
 }
