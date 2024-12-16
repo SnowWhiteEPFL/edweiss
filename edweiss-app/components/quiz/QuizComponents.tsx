@@ -95,7 +95,7 @@ export const MCQResultDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedI
 								<TText size={"sm"} bold color='subtext0'>
 									{"ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(index)}
 								</TText>
-								<TView flex={1}>
+								<TView flex={-1}>
 									<RichText>{proposition.description}</RichText>
 								</TView>
 							</TView>

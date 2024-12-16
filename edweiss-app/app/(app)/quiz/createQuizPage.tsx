@@ -1,6 +1,7 @@
 import RouteHeader from '@/components/core/header/RouteHeader';
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
 
+import ProgressPopup, { ProgressPopupHandle, useProgressPopup } from '@/components/animations/ProgressPopup';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
@@ -34,6 +35,8 @@ const CreateQuizPage: ApplicationRoute = () => {
 	const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
 	const [showDate, setShowDate] = useState<boolean>(false);
 	const [showTime, setShowTime] = useState<boolean>(false);
+	const [aiLoading, setAiLoading] = useState(false);
+	const handle = useProgressPopup();
 
 
 	const addModalRef = useRef<BottomSheetModal>(null);
@@ -196,7 +199,9 @@ const CreateQuizPage: ApplicationRoute = () => {
 
 
 				<FancyButton style={{ borderWidth: 0 }} outlined icon='add' backgroundColor='blue' onPress={() => addModalRef.current?.present()} > Add exercise</FancyButton>
+				<GenerateAiButton aiLoading={aiLoading} handle={handle} setAiLoading={setAiLoading} courseId={courseId as string} materialUrl='China-101.pdf' addToExerciseList={addToExerciseList} />
 				<AddExerciseModal modalRef={addModalRef} updateExerciseList={addToExerciseList} />
+				<ProgressPopup handle={handle} />
 			</>
 
 		)
@@ -216,21 +221,26 @@ const CreateQuizPage: ApplicationRoute = () => {
 					}
 				}
 				</For>
+				<FancyButton style={{ borderWidth: 0 }} outlined icon='add' backgroundColor='blue' onPress={() => addModalRef.current?.present()} > Add exercise</FancyButton>
+				<GenerateAiButton aiLoading={aiLoading} handle={handle} setAiLoading={setAiLoading} courseId={courseId as string} materialUrl='China-101.pdf' addToExerciseList={addToExerciseList} />
+
+				<TTouchableOpacity onPress={() => controlPublishModal()} ml='xl' mr='xl' py='md' px='xl' style={{ borderWidth: 0 }} backgroundColor='transparent' >
+					<TView flexDirection='row' justifyContent='center'>
+						<Icon name='cloud-done-sharp' size='xl' color='blue' />
+
+						<TText size='md' ml='md' color='blue'>
+							Publish quiz
+						</TText>
+					</TView>
+
+				</TTouchableOpacity>
 
 			</TScrollView>
-			<FancyButton style={{ borderWidth: 0 }} outlined icon='add' backgroundColor='blue' onPress={() => addModalRef.current?.present()} > Add new exercise</FancyButton>
-			<TTouchableOpacity onPress={() => controlPublishModal()} ml='xl' mr='xl' py='md' px='xl' style={{ borderWidth: 0 }} backgroundColor='transparent' >
-				<TView flexDirection='row' justifyContent='center'>
-					<Icon name='cloud-done-sharp' size='xl' color='blue' />
 
-					<TText size='md' ml='md' color='blue'>
-						Publish quiz
-					</TText>
-				</TView>
-
-			</TTouchableOpacity>
 			<AddExerciseModal modalRef={addModalRef} updateExerciseList={addToExerciseList} />
 			<PublishQuizModal modalRef={publishQuizModalRef} quizName={quizName} dueDate={dueDate == undefined ? "undefined" : dueDate.toDateString()} numberOfExercises={exercises.length} publishQuiz={publishQuiz} />
+			<ProgressPopup handle={handle} />
+
 		</>
 
 	);
@@ -248,13 +258,13 @@ export const NameAndDateCustom: ReactComponent<{ dueDate: Date | undefined, setQ
 			</TText>
 
 			<TView flexDirection='row' flexColumnGap={'md'}>
-				<TTouchableOpacity onPress={() => setShowDate(true)} backgroundColor='base' radius={'sm'} p={'xs'}>
+				<TTouchableOpacity onPress={() => setShowDate(true)} backgroundColor='crust' radius={'sm'} p={'xs'}>
 					<TText bold>
 						{dateToStringWithTime(dueDate)[0]}
 					</TText>
 
 				</TTouchableOpacity>
-				<TTouchableOpacity onPress={() => setShowTime(true)} backgroundColor='base' radius={'sm'} p={'xs'}>
+				<TTouchableOpacity onPress={() => setShowTime(true)} backgroundColor='crust' radius={'sm'} p={'xs'}>
 					<TText bold>
 						{dateToStringWithTime(dueDate)[1]}
 					</TText>
@@ -327,6 +337,86 @@ function dateToStringWithTime(date: Date | undefined): string[] {
 
 	return [`${day}/${month}/${year}`, ` ${hours}:${minutes}:${seconds}`];
 }
+
+const GenerateAiButton: ReactComponent<{ aiLoading: boolean, setAiLoading: React.Dispatch<React.SetStateAction<boolean>>, handle: ProgressPopupHandle, courseId: string, materialUrl: string, addToExerciseList: (exercise: Quizzes.Exercise) => void }> = ({ aiLoading, handle, setAiLoading, courseId, materialUrl, addToExerciseList }) => {
+	return (<>
+		<FancyButton icon='sparkles' loading={aiLoading} mt={10} mb={10} onPress={async () => {
+			setAiLoading(true);
+			handle.start();
+
+			console.log("Calling AI function...");
+
+			const res = await callFunction(Quizzes.Functions.generateQuizContentFromMaterial, {
+				courseId: courseId,
+				materialUrl: materialUrl
+			});
+
+			console.log(JSON.stringify(res));
+
+			if (res.status == 1) {
+				res.data.generatedExercises.forEach(exo =>
+					// console.log(exo.question);
+					// exo.propositions.forEach(prop => {
+					// 	console.log(`${prop.text}` + (prop.correct ? "(correct)" : ""));
+					// });
+					// console.log("");
+					addToExerciseList(fillMCQFromGeneratedFields(exo.question, exo.propositions))
+				);
+
+			}
+
+			setAiLoading(false);
+			handle.stop();
+		}} backgroundColor='green' outlined style={{ borderWidth: 0 }}>
+			Generate with AI
+		</FancyButton>
+
+	</>
+
+	);
+};
+
+export function fillMCQFromGeneratedFields(
+	question: string,
+	propositions: {
+		text: string;
+		correct: boolean;
+	}[]): Quizzes.Exercise {
+
+	if (propositions.length == 2) {
+		const formattedTF: Quizzes.TF = {
+			question: question,
+			answer: propositions[0].correct, // proposition[0] always corresponds to True => its boolean dictates correctness
+			type: 'TF'
+		}
+		return formattedTF;
+	}
+	else {
+		const formattedPropositions: Quizzes.MCQProposition[] = propositions.map((proposition, index) => {
+			return {
+				description: proposition.text,
+				id: index,
+				type: "MCQProposition"
+			}
+		});
+		const answersIndices: number[] = propositions.map((proposition, index) => {
+			return proposition.correct ? index : -1
+		}).filter(index => index !== -1);
+
+		const formattedMCQ: Quizzes.MCQ = {
+			answersIndices: answersIndices,
+			numberOfAnswers: answersIndices.length,
+			propositions: formattedPropositions,
+			question: question,
+			type: "MCQ"
+		}
+		return formattedMCQ;
+	}
+
+
+}
+
+
 
 
 export const PressableExercise: ReactComponent<{ exercise: Quizzes.Exercise, editExercise: (exercise: Quizzes.Exercise, index: number) => void, removeExerciseFromList: (index: number) => void, index: number, }> = ({ exercise, editExercise, index, removeExerciseFromList }) => {
