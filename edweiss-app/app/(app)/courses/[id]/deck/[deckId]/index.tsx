@@ -109,16 +109,11 @@ const CardListScreen: ApplicationRoute = () => {
 		if (selectedCards.length === 0) return;
 		const selectedCardIndices = selectedCards.map(card => cards.indexOf(card));
 
-		try {
-			handler.modifyDocument(deckId, { cards: cards.filter((_, i) => !selectedCardIndices.includes(i)) }, (deckId) => {
-				callFunction(Memento.Functions.deleteCards, { deckId: deckId, cardIndices: selectedCardIndices, courseId: courseId });
-			});
-			setSelectedCards([]); // Clear selection after deletion
-			setSelectionMode(false); // Exit selection mode
-		} catch (error) {
-			console.log("Error deleting cards:", error);
-			// Add user feedback here (e.g., alert or toast notification)
-		}
+		handler.modifyDocument(deckId, { cards: cards.filter((_, i) => !selectedCardIndices.includes(i)) }, (deckId) => {
+			callFunction(Memento.Functions.deleteCards, { deckId: deckId, cardIndices: selectedCardIndices, courseId: courseId });
+		});
+		setSelectedCards([]); // Clear selection after deletion
+		setSelectionMode(false); // Exit selection mode
 	};
 
 	const cancelCardSelection = () => {
@@ -202,11 +197,11 @@ const CardListScreen: ApplicationRoute = () => {
 				}
 			/>
 
-			<Modal visible={showDropdown} animationType='fade' onRequestClose={() => setShowDropdown(false)}>
+			<Modal testID='deckEditModal' visible={showDropdown} animationType='fade' onRequestClose={() => setShowDropdown(false)}>
 				<TView flex={1} p={20} backgroundColor='mantle'>
 					<TView flexDirection="row" justifyContent="space-between" alignItems="center" mb={'lg'}>
 						<TTouchableOpacity testID='closeButton' alignItems="flex-start" onPress={() => { setShowDropdown(false); }}>
-							<Icon name={'close'} size={iconSizes.lg} color="blue" mr={8} />
+							<Icon testID='close_deck_edit_modal' name={'close'} size={iconSizes.lg} color="blue" mr={8} />
 						</TTouchableOpacity>
 
 						<TView justifyContent='center' alignItems='center'>
@@ -248,6 +243,7 @@ const CardListScreen: ApplicationRoute = () => {
 					</TView>
 
 					<FancyButton
+						testID='updateDeckButton'
 						outlined
 						//backgroundColor='transparent'
 						backgroundColor='blue'
@@ -297,6 +293,7 @@ const CardListScreen: ApplicationRoute = () => {
 					<FancyButton
 						backgroundColor='green'
 						outlined
+						testID='shareSelectedCardsButton'
 						onPress={() => {
 							const selectedCardIndices = selectedCardIndices_play(selectedCards, cards);
 							router.push({
