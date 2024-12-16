@@ -1,7 +1,7 @@
 import { Course, CourseTimePeriod } from './courses';
 import { Room } from './schedule';
 
-interface CustomEvents {
+export interface CustomEvents {
     name: string;
     startTime: number;
     endTime?: number;
