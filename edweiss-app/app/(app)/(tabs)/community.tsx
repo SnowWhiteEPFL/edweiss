@@ -105,6 +105,10 @@ genrated by AI etc.
 					See MCQ results for prof
 				</FancyButton>
 
+				<TText>
+					This should provoke a merge conflict, that will allow me to merge from main.
+				</TText>
+
 
 
 				<FancyButton mt={10} mb={10} onPress={() => {
