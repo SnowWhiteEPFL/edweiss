@@ -45,7 +45,7 @@ const ShareScreen: ApplicationRoute = () => {
     // Filter out users who are not in the same course
     const users_data_filtered_course = Array.from(ids_names_map.entries()).filter(([id, name]) => {
         const user = users.find(user => user.id === id);
-        return user && user.data.courses && user.data.courses.includes(courseId);
+        return user?.data.courses?.includes(courseId);
     }).map(([id, name]) => ({ id, name }));
 
     // Filter out users whose name is "Anonymous"

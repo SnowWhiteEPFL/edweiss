@@ -67,7 +67,6 @@ const CardListScreen: ApplicationRoute = () => {
 	if (!users) return null;
 
 	const deck = decks?.find(deck => deck.id === deckId);
-	//const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
 
 	if (deck == undefined)
 		return <Redirect href={'/'} />;
@@ -169,7 +168,17 @@ const CardListScreen: ApplicationRoute = () => {
 		setLoading(false);
 	}
 
-	const error_selected = existedDeckName ? 'This name has already been used' : emptyField ? 'Please fill in the field' : undefined;
+	function error_selected() {
+		if (existedDeckName) return 'This name has already been used';
+		if (emptyField) return 'Please fill in the field';
+		return undefined;
+	}
+
+	function playingTextSelection() {
+		if (cards.length === 0) return "No cards to play"
+		if (selectedCards.length == 0) return "Play all cards"
+		return "Play selected cards"
+	}
 
 	return (
 		<>
@@ -236,7 +245,7 @@ const CardListScreen: ApplicationRoute = () => {
 							placeholder='Enter the new name of the deck'
 							icon='bulb-outline'
 							label='Deck Name'
-							error={error_selected}
+							error={error_selected()}
 							multiline
 							numberOfLines={3}
 						/>
@@ -367,8 +376,7 @@ const CardListScreen: ApplicationRoute = () => {
 						})
 					}}
 				>
-					{cards.length === 0 ? "No cards to play" :
-						selectedCards.length == 0 ? "Play all cards" : "Play selected cards"}
+					{playingTextSelection()}
 				</FancyButton>
 
 				<FancyButton
@@ -376,7 +384,6 @@ const CardListScreen: ApplicationRoute = () => {
 					textColor='crust'
 					onPress={() => {
 						setCreateCardModalVisible(true);
-						//pushWithParameters(CreateEditCardScreenSignature, { deckId: deckId, courseId: courseId, mode: "Create", prev_question: "", prev_answer: "", cardIndex: NaN });
 					}}
 					icon='create-outline'
 				>

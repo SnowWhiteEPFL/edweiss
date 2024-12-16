@@ -10,7 +10,6 @@ export const DecksRepository = createRepository<Memento.Deck>("my-decks");
 const MementoLayout: ApplicationLayout = () => {
 	const { id: courseId } = useStringParameters();
 	const { uid } = useAuth();
-	//const collection = CollectionOf<Memento.Deck>(`courses/${courseId}/decks`);
 	const collection = CollectionOf<Memento.Deck>(`users/${uid}/courses/${courseId}/decks`);
 	return <RepositoryLayout repository={DecksRepository} collection={collection} extender={courseId} />;
 };
