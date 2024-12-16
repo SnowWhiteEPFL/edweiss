@@ -55,7 +55,7 @@ const QuizToSlideScreen: ApplicationRoute = () => {
     // Argument Processing
     const { courseNameString, lectureIdString } = useRouteParameters(QuizToSlideSignature);
     const courseName = courseNameString as CourseID;
-    const lectureId = lectureIdString as string;
+    const lectureId = lectureIdString;
 
 
 
