@@ -45,10 +45,10 @@ export interface AssignmentBase {
 
 export type Assignment = AssignmentBase;
 
-export type MaterialType = "slides" | "exercises" | "feedbacks" | "other";
+export type MaterialType = "slide" | "exercise" | "image" | "feedback" | "other";
 
 export interface MaterialDocument {
-	url: string;
+	uri: string;
 	title: string;
 	type: MaterialType;
 }

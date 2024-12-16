@@ -44,5 +44,9 @@
     "description_label": "Description",
     "description_placeholder": "Ce cours est une introduction au monde de l'informatique",
     "credits_label": "Crédits",
-    "update_changes": "Mettre à jour les changements"
+    "update_changes": "Mettre à jour les changements",
+
+    "document_error": "Une erreur est survenue lors du chargement du document.",
+    "document_not_supported": "Ce type de document n'est pas supporté par Edweiss.",
+    "of": " sur "
 }
