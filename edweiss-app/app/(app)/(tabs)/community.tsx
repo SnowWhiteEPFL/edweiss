@@ -1,3 +1,4 @@
+import ProgressPopup, { useProgressPopup } from '@/components/animations/ProgressPopup';
 import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
@@ -62,6 +63,11 @@ only text. It can be fetched from Firebase,
 genrated by AI etc.
 `);
 
+
+
+	const handle = useProgressPopup();
+	const [loading, setLoading] = useState(false);
+
 	return (
 		<>
 			<RouteHeader title={"Community"} />
@@ -105,7 +111,17 @@ genrated by AI etc.
 					See MCQ results for prof
 				</FancyButton>
 
+				<FancyButton backgroundColor='green' loading={loading} onPress={() => {
+					setLoading(true);
+					handle.start();
 
+					setTimeout(() => {
+						setLoading(false);
+						handle.stop();
+					}, 8000);
+				}} icon='sparkles' outlined style={{ borderWidth: 0 }}>
+					Generate with AI (popup demo)
+				</FancyButton>
 
 				<FancyButton mt={10} mb={10} onPress={() => {
 					router.push({
@@ -138,7 +154,9 @@ genrated by AI etc.
 					{richText}
 				</RichText>
 
-			</TScrollView >
+			</TScrollView>
+
+			<ProgressPopup handle={handle} />
 		</>
 	);
 };
