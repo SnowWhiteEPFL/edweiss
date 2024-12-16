@@ -27,7 +27,7 @@ import LectureDisplay from '@/model/lectures/lectureDoc';
 import { LectureQuizzes } from '@/model/quizzes';
 import { CourseID } from '@/model/school/courses';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Vibration } from 'react-native';
 
 // Types
@@ -76,16 +76,15 @@ const QuizToSlideScreen: ApplicationRoute = () => {
         return quizDoc?.filter(quiz => !quiz.data.done).sort((a, b) => a.data.pageNumber - b.data.pageNumber) || [];
     }, [quizDoc]);
 
+    const currentLecture = lectureDoc?.data;
+    useEffect(() => {
+        if (!broadcasted && currentLecture?.event?.type === "quiz") {
+            setBroadcasted(currentLecture.event.id);
+        }
+    }, [currentLecture])
+
     // Wait for lectureDoc to be available
     if (!lectureDoc) return <TActivityIndicator size={40} testID='quiz-slide-activity-indicator' />;
-    const currentLecture = lectureDoc.data;
-
-    // Set the current broadcasted if the user just 
-    // comes back from another screen
-    if (!broadcasted && currentLecture.event?.type === "quiz") {
-        setBroadcasted(currentLecture.event.id);
-    }
-
 
 
 
