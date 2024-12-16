@@ -53,14 +53,14 @@ const ShareScreen: ApplicationRoute = () => {
 
 
     async function shareDeck(user: UserID) {
-        const res = await callFunction(Memento.Functions.shareDeck, { deckId, other_user: user, courseId });
+        await callFunction(Memento.Functions.shareDeck, { deckId, other_user: user, courseId });
         setIsLoading(false);
         router.back();
     }
 
     async function shareCard(user: UserID, cardIndices: number[]) {
         console.log('Sharing card', cardIndices);
-        const res = await callFunction(Memento.Functions.shareCards, { deckId: deckId, cardIndices: cardIndices, other_user: user, courseId });
+        await callFunction(Memento.Functions.shareCards, { deckId: deckId, cardIndices: cardIndices, other_user: user, courseId });
         setIsLoading(false);
         router.back();
     }
