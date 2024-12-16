@@ -1,6 +1,5 @@
 import t from '@/config/i18config';
 import ReactComponent from '@/constants/Component';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { SvgProps, SvgXml } from 'react-native-svg';
@@ -19,14 +18,15 @@ export type SVGImageProps = { uri: string } & SvgProps & AdditionalProps;
  */
 const SVGImage: ReactComponent<SVGImageProps> = ({ uri, width, height, color, title, onError, onLoad, fallback }) => {
 
-    const [svgData, setSvgData] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [svgData, setSvgData] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const fetchSvg = async () => {
             try {
-                const response = await axios.get(uri);
-                setSvgData(response.data);
+                const response = await fetch(uri);
+                const svgText = await response.text();
+                setSvgData(svgText);
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching SVG: ', error);

@@ -54,7 +54,6 @@
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/stack": "^6.4.1",
     "@testing-library/jest-native": "^5.4.3",
-    "axios": "^1.7.9",
     "expo": "~51.0.39",
     "expo-build-properties": "~0.12.5",
     "expo-calendar": "~13.0.5",
