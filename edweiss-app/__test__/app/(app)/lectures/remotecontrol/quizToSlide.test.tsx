@@ -3,9 +3,9 @@ import TView from '@/components/core/containers/TView';
 import { useAuth } from '@/contexts/auth';
 import { useUser } from '@/contexts/user';
 import { useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { useRouteParameters } from '@/hooks/routeParameters';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { fireEvent, render, screen } from '@testing-library/react-native';
-import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
 
@@ -274,6 +274,11 @@ jest.mock('@gorhom/bottom-sheet', () => ({
     )),
 }));
 
+
+jest.mock('@/hooks/routeParameters', () => ({
+    useRouteParameters: jest.fn(),
+}));
+
 describe('Quiz To Slide Test Suites', () => {
 
     let modalRef: React.RefObject<BottomSheetModal>;
@@ -297,7 +302,7 @@ describe('Quiz To Slide Test Suites', () => {
         (useDynamicDocs as jest.Mock).mockReturnValue(mockQuizData); // Mocking `useDynamicDocs` with minimal question data
         (useAuth as jest.Mock).mockReturnValue({ uid: 'mock-uid', });
         (useUser as jest.Mock).mockReturnValue({ user: { name: 'Test User', }, });
-        (useLocalSearchParams as jest.Mock).mockReturnValue({ courseNameString: 'testCourse', lectureIdString: 'testLectureId' });
+        (useRouteParameters as jest.Mock).mockReturnValue({ courseNameString: 'testCourse', lectureIdString: 'testLectureId' });
     });
 
 
