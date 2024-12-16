@@ -93,7 +93,7 @@ const ProgressPopupInner: ReactComponent<ProgressPopupProps> = ({
 				Animated.parallel([
 					Animated.timing(progressionAnim, {
 						toValue: index == messages.length - 1 ? ((index - 0.5) / (messages.length - 1)) : (index / (messages.length - 1)),
-						duration: index == 0 ? 0 : (index == messages.length - 1 ? stepDuration : stepDuration),
+						duration: index == 0 ? 0 : stepDuration,
 						useNativeDriver: false,
 						easing: easeInOutQuint
 					}),
@@ -299,5 +299,3 @@ const ProgressPopupInner: ReactComponent<ProgressPopupProps> = ({
 		</Animated.View>
 	);
 };
-
-// export default ProgressPopupInner;
