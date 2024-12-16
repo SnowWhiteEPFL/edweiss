@@ -1,66 +1,22 @@
+import ProgressPopup, { useProgressPopup } from '@/components/animations/ProgressPopup';
 import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
-import RichText from '@/components/core/rich-text/RichText';
 import FancyButton from '@/components/input/FancyButton';
-import FancyTextInput from '@/components/input/FancyTextInput';
+import { callFunction } from '@/config/firebase';
 import { ApplicationRoute } from '@/constants/Component';
 import { pushWithParameters } from '@/hooks/routeParameters';
+import Quizzes from '@/model/quizzes';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { LectureQuizStudentViewSignature } from '../quiz/lectureQuizStudentView';
 import { TemporaryQuizProfViewSignature } from '../quiz/temporaryQuizProfView';
 
 const CommunityTab: ApplicationRoute = () => {
-	/**
-	 * This is only a demo editor, don't use this as an example of
-	 * how to render rich texts.
-	 */
-	const [richText, setRichText] = useState(`# Intro to Rich Text
-### Titles
-As you can see in the editor above, use # to define titles.
-### Math expressions
-The most beautiful formula: $e^{i\\pi} + 1 = 0$
-The actual most beautiful formula: $$\\int\\limits f(t)g(t) dt = \\int\\limits f(t) dt \\cdot \\int\\limits g(t) dt$$
-### Code
-${"```typescript"}
-const a: number = 15;
-const str = "Hello, world!";
-console.log(a + b);
+	const [aiLoading, setAiLoading] = useState(false);
 
-/*
-Multi line comments! Amazing
-*/
-function add(a, b) {
-	return a + b;
-}
-${"```"}
-${"```python"}
-# Comments with LaTeX,
-# $S = \\sum x_i$
-def sum(array):
-	return array.sum(type='fast')
-${"```"}
-${"```java"}
-package fox.holo;
-
-public class Main {
-	public static void main(String[] args) {
-		System.out.println("Hello, world!");
-	}
-}
-${"```"}
-${"```rust"}
-fn add(a: i32, b: i32) -> i32 {
-	a + b
-}
-${"```"}
-I think you can see now how powerful it is
-to be able to represent all of this using
-only text. It can be fetched from Firebase,
-genrated by AI etc.
-`);
+	const handle = useProgressPopup();
 
 	return (
 		<>
@@ -105,11 +61,35 @@ genrated by AI etc.
 					See MCQ results for prof
 				</FancyButton>
 
-				<TText>
-					This should provoke a merge conflict, that will allow me to merge from main.
-				</TText>
 
+				<FancyButton icon='sparkles' loading={aiLoading} mt={10} mb={10} onPress={async () => {
+					setAiLoading(true);
+					handle.start();
 
+					console.log("Calling AI function...");
+
+					const res = await callFunction(Quizzes.Functions.generateQuizContentFromMaterial, {
+						courseId: "edweiss-demo",
+						materialUrl: "China-101.pdf"
+					});
+
+					console.log(JSON.stringify(res));
+
+					if (res.status == 1) {
+						res.data.generatedExercises.forEach(exo => {
+							console.log(exo.question);
+							exo.propositions.forEach(prop => {
+								console.log(`  - ${prop.text}` + (prop.correct ? "(correct)" : ""));
+							});
+							console.log("");
+						});
+					}
+
+					setAiLoading(false);
+					handle.stop();
+				}} backgroundColor='green' outlined style={{ borderWidth: 0 }}>
+					Generate with AI
+				</FancyButton>
 
 				<FancyButton mt={10} mb={10} onPress={() => {
 					router.push({
@@ -134,15 +114,9 @@ genrated by AI etc.
 				}} >
 					<TText> Go to ShowTime</TText>
 				</FancyButton>
+			</TScrollView>
 
-
-				<FancyTextInput value={richText} onChangeText={setRichText} placeholder='Use Markdown and LaTeX' icon='document-text' label='Rich text' multiline />
-
-				<RichText px={'sm'}>
-					{richText}
-				</RichText>
-
-			</TScrollView >
+			<ProgressPopup handle={handle} />
 		</>
 	);
 };

@@ -64,11 +64,11 @@ export const updateMaterial = onSanitizedCall(Functions.updateMaterial, {
         try {
             updatedFields.docs = materialData.docs.map((doc: MaterialDocument) => {
                 assertNonEmptyString(doc.title, "invalid_doc_title");
-                assertNonEmptyString(doc.url, "invalid_doc_url");
+                assertNonEmptyString(doc.uri, "invalid_doc_uri");
                 assertNonEmptyString(doc.type, "invalid_doc_type");
                 return {
                     title: doc.title,
-                    url: doc.url,
+                    uri: doc.uri,
                     type: doc.type as MaterialType,
                 };
             });
