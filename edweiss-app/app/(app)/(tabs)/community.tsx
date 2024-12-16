@@ -17,7 +17,6 @@ const CommunityTab: ApplicationRoute = () => {
 	const [aiLoading, setAiLoading] = useState(false);
 
 	const handle = useProgressPopup();
-	const [loading, setLoading] = useState(false);
 
 	return (
 		<>
@@ -62,8 +61,9 @@ const CommunityTab: ApplicationRoute = () => {
 					See MCQ results for prof
 				</FancyButton>
 
-				<FancyButton loading={aiLoading} mt={10} mb={10} onPress={async () => {
+				<FancyButton icon='sparkles' loading={aiLoading} mt={10} mb={10} onPress={async () => {
 					setAiLoading(true);
+					handle.start();
 
 					console.log("Calling AI function...");
 
@@ -85,20 +85,9 @@ const CommunityTab: ApplicationRoute = () => {
 					}
 
 					setAiLoading(false);
-				}} backgroundColor='peach'>
+					handle.stop();
+				}} backgroundColor='green' outlined style={{ borderWidth: 0 }}>
 					Generate with AI
-        </FancyButton>
-        
-				<FancyButton backgroundColor='green' loading={loading} onPress={() => {
-					setLoading(true);
-					handle.start();
-
-					setTimeout(() => {
-						setLoading(false);
-						handle.stop();
-					}, 8000);
-				}} icon='sparkles' outlined style={{ borderWidth: 0 }}>
-					Popup demo
 				</FancyButton>
 
 				<FancyButton mt={10} mb={10} onPress={() => {
@@ -124,13 +113,6 @@ const CommunityTab: ApplicationRoute = () => {
 				}} >
 					<TText> Go to ShowTime</TText>
 				</FancyButton>
-
-				<FancyTextInput value={richText} onChangeText={setRichText} placeholder='Use Markdown and LaTeX' icon='document-text' label='Rich text' multiline />
-
-				<RichText px={'sm'}>
-					{richText}
-				</RichText>
-
 			</TScrollView>
 
 			<ProgressPopup handle={handle} />
