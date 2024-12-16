@@ -14,7 +14,8 @@
 		"true" : "True",
 		"false": "False",
 		"mcq" : "MCQ",
-		"tf" : "True-False"
+		"tf" : "True-False",
+		"waiting_for_answers": "Waiting for students' answers."
 	},
 	"quiz_creation": {
 		"no_option" : "No options added!",

@@ -1,6 +1,5 @@
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
 
-import TSafeArea from '@/components/core/containers/TSafeArea';
 import TView from '@/components/core/containers/TView';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import FancyButton from '@/components/input/FancyButton';
@@ -16,10 +15,10 @@ export const LectureQuizStudentViewSignature: ApplicationRouteSignature<{
 	courseId: string, lectureId: string, lectureEventId: string
 	prefetchedQuiz: Document<LectureDisplay.QuizLectureEvent> | undefined
 }> = {
-	path: "/(app)/quiz/lectureQuizStudentViewPage" as any
+	path: "/(app)/quiz/lectureQuizStudentView"
 }
 
-const LectureQuizStudentViewPage: ApplicationRoute = () => {
+const lectureQuizStudentViewPage: ApplicationRoute = () => {
 	const { courseId, lectureId, lectureEventId, prefetchedQuiz } = useRouteParameters(LectureQuizStudentViewSignature);
 
 	const pathToLectureEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
@@ -31,51 +30,56 @@ const LectureQuizStudentViewPage: ApplicationRoute = () => {
 	return (<LectureQuizStudentView courseId={courseId} lectureEventId={lectureEventId} lectureId={lectureId} pathToAttempts={pathToAttempts} pathToLectureEvents={pathToLectureEvents} quizEvent={quizEvent as Document<LectureDisplay.QuizLectureEvent>} />)
 
 };
-export default LectureQuizStudentViewPage;
+export default lectureQuizStudentViewPage;
 
 
 
 export const LectureQuizDisplay: ReactComponent<{ studentAnswer: QuizzesAttempts.Answer | undefined, exercise: Quizzes.Exercise, onUpdate: (answer: number[] | boolean | undefined, id: number) => void, send: () => void, testId: string }> = ({ studentAnswer, exercise, onUpdate, send, testId }) => {
 	if (exercise.type == "MCQ" && studentAnswer != undefined) {
 		return (
-			<TSafeArea>
-				<TView>
-					<MCQDisplay key={exercise.question + "display"} exercise={exercise} selectedIds={studentAnswer.value as number[]} onUpdate={onUpdate} exId={0} />
-				</TView >
-				<FancyButton
-					mt={"md"} mb={"md"}
-					onPress={() => {
-						if (send != undefined) {
-							send();
-						}
-						//router.back();
-					}}
-					icon='save-sharp'
-					testID='submit'>
-					Submit and exit
-				</FancyButton>
-			</TSafeArea>
+			<TView justifyContent='center' style={{ height: "100%" }}>
+				<TView backgroundColor="base" radius='lg' mx={'md'} p={"md"}>
+					<MCQDisplay key={exercise.question + "display"} exercise={exercise} selectedIds={studentAnswer.value as number[]} onUpdate={onUpdate} exId={0} disableBottomBar />
+					<FancyButton
+						onPress={() => {
+							if (send != undefined) {
+								send();
+							}
+							//router.back();
+						}}
+						outlined
+						style={{ borderWidth: 0 }}
+						icon='save-sharp'
+						testID='submit'>
+						Submit
+					</FancyButton>
+				</TView>
+			</TView>
+
 		);
 	}
 	else if (exercise.type == "TF" && studentAnswer != undefined) { // if type == "TF"
 		return (
-			<TSafeArea>
-				<TView>
-					<TFDisplay key={exercise.question + "display"} exercise={exercise} selected={studentAnswer.value as boolean | undefined} onUpdate={onUpdate} exId={0} />
-				</TView >
-				<FancyButton
-					mt={"md"} mb={"md"}
-					onPress={() => {
-						if (send != undefined) {
-							send();
-						}
-						//router.back();
-					}}
-					icon='save-sharp'
-					testID='submit'>
-					Submit and exit
-				</FancyButton>
-			</TSafeArea >
+
+			<TView justifyContent='center' style={{ height: "100%" }}>
+				<TView backgroundColor="base" radius='lg' mx={'md'} p={"md"}>
+					<TFDisplay key={exercise.question + "display"} exercise={exercise} selected={studentAnswer.value as boolean | undefined} onUpdate={onUpdate} exId={0} disableBottomBar />
+					<FancyButton
+						onPress={() => {
+							if (send != undefined) {
+								send();
+							}
+							//router.back();
+						}}
+						outlined
+						style={{ borderWidth: 0 }}
+						icon='save-sharp'
+						testID='submit'>
+						Submit
+					</FancyButton>
+				</TView>
+			</TView>
+
 		);
 	} else {
 		return <TActivityIndicator />
@@ -86,22 +90,23 @@ export const LectureQuizResultDisplay: ReactComponent<{ studentAnswer: QuizzesAt
 
 	if (exercise.type == "MCQ" && studentAnswer != undefined) {
 		return (
-			<TSafeArea>
-				<TView>
-					<MCQResultDisplay key={exercise.question + "result"} exercise={exercise} selectedIds={studentAnswer.value as number[]} results={result.value as number[]} />
 
-				</TView >
-			</TSafeArea>
+			<TView justifyContent='center' style={{ height: "100%" }}>
+				<TView backgroundColor="base" radius='lg' mx={'md'} p={"md"}>
+					<MCQResultDisplay key={exercise.question + "result"} exercise={exercise} selectedIds={studentAnswer.value as number[]} results={result.value as number[]} disableBottomBar />
+
+				</TView>
+			</TView>
 		);
 	}
 	else if (exercise.type == "TF" && studentAnswer != undefined) { // if type == "TF"
 		return (
-			<TSafeArea>
-				<TView>
-					<TFResultDisplay key={exercise.question + "result"} exercise={exercise} selected={studentAnswer.value as boolean | undefined} result={result.value as boolean} />
+			<TView justifyContent='center' style={{ height: "100%" }}>
+				<TView backgroundColor="base" radius='lg' mx={'md'} p={"md"}>
+					<TFResultDisplay key={exercise.question + "result"} exercise={exercise} selected={studentAnswer.value as boolean | undefined} result={result.value as boolean} disableBottomBar />
 
 				</TView>
-			</TSafeArea>
+			</TView>
 		);
 	} else {
 		return <TActivityIndicator />

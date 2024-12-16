@@ -1,4 +1,5 @@
 
+import { Color } from '@/constants/Colors'
 import React from 'react'
 import TText from '../core/TText'
 import TTouchableOpacity from '../core/containers/TTouchableOpacity'
@@ -9,6 +10,7 @@ export interface RadioSelectable<ValueType> {
 	readonly label: string
 	readonly description?: string
 	readonly inlineDescription?: string
+	readonly color?: Color
 }
 
 interface SelectablesProps<ValueType> {
@@ -16,7 +18,7 @@ interface SelectablesProps<ValueType> {
 	readonly data: RadioSelectable<ValueType>[],
 	readonly onSelection: (value: ValueType) => void,
 	readonly hasInlineDescription?: boolean,
-	readonly disabled?: boolean
+	readonly disabled?: boolean,
 }
 
 function RadioSelectables<ValueType>(props: SelectablesProps<ValueType>) {
@@ -24,19 +26,17 @@ function RadioSelectables<ValueType>(props: SelectablesProps<ValueType>) {
 		<TView style={{ width: '100%' }}>
 			{
 				props.data.map(v =>
-					<Element key={v.value as React.Key} disabled={props.disabled} hasInlineDescription={props.hasInlineDescription} selectable={v} selectedValue={props.value} setSelected={props.onSelection} />
+					<Element key={v.value as React.Key} disabled={props.disabled} hasInlineDescription={props.hasInlineDescription} selectable={v} selectedValue={props.value} setSelected={props.onSelection} color={v.color} />
 				)
 			}
 		</TView>
 	)
 }
 
-function Element<ValueType>(props: { disabled?: boolean, hasInlineDescription?: boolean, selectable: RadioSelectable<ValueType>, selectedValue: ValueType | undefined, setSelected: (s: ValueType) => void }) {
+function Element<ValueType>({ color = "blue", ...props }: { disabled?: boolean, hasInlineDescription?: boolean, selectable: RadioSelectable<ValueType>, selectedValue: ValueType | undefined, setSelected: (s: ValueType) => void, color?: Color }) {
 	const selected = props.selectedValue != undefined && props.selectedValue === props.selectable.value;
 
 	const disabled = props.disabled;
-	// const circleColor = disabled ? "gray" : Style.vibrantBlue;
-	const circleColor = "blue";
 
 	return (
 		<TTouchableOpacity
@@ -47,16 +47,16 @@ function Element<ValueType>(props: { disabled?: boolean, hasInlineDescription?: 
 					props.setSelected(props.selectable.value)
 			}}
 		>
-			<TView style={{ display: 'flex', flexDirection: 'row', margin: 12 }}>
+			<TView alignItems='center' style={{ display: 'flex', flexDirection: 'row', margin: 12 }}>
 
-				<TView borderColor={circleColor} style={{ borderWidth: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 999, width: 18, height: 18 }}>
-					<TView backgroundColor={selected ? circleColor : 'transparent'} style={{ borderRadius: 999, width: 9, height: 9 }}>
+				<TView borderColor={color} style={{ borderWidth: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 999, width: 18, height: 18 }}>
+					<TView backgroundColor={selected ? color : 'transparent'} style={{ borderRadius: 999, width: 9, height: 9 }}>
 
 					</TView>
 				</TView>
 
-				<TView style={{ marginLeft: 12, marginTop: -2 }}>
-					<TText color='text' style={{ fontSize: 16, lineHeight: 24, marginBottom: 2, fontWeight: props.hasInlineDescription ? 'normal' : 'normal' }}>
+				<TView style={{ marginLeft: 12 }}>
+					<TText color='text' style={{ fontSize: 16, lineHeight: 24, fontWeight: props.hasInlineDescription ? 'normal' : 'normal' }}>
 						{props.selectable.label} <TText style={{ fontWeight: 'normal', color: "#777" }}>    {props.selectable.inlineDescription}</TText>
 					</TText>
 

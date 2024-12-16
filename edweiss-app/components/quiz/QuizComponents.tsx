@@ -10,7 +10,7 @@ import TText from '../core/TText';
 import CoolCheckBox from '../input/CoolCheckBox';
 import RadioSelectables, { RadioSelectable } from '../input/RadioSelectables';
 
-export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: number[], onUpdate: (answer: number[] | boolean | undefined, id: number) => void, exId: number, }> = memo(({ exercise, selectedIds, onUpdate, exId }) => {
+export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: number[], onUpdate: (answer: number[] | boolean | undefined, id: number) => void, exId: number, disableBottomBar?: boolean }> = memo(({ exercise, selectedIds, onUpdate, exId, disableBottomBar }) => {
 	const handleSelection = (propId: number) => {
 		requestAnimationFrame(() => {
 			let newAnswer;
@@ -32,20 +32,36 @@ export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: nu
 
 
 	return (
-		<TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"}>
+		<TView mb={"xs"} bb={disableBottomBar ? 0 : 1} borderColor='surface0' radius={'lg'} pb={"md"} mx={12}>
 
-			<TView mb={"md"} p={"md"}>
-				<RichText>
-					{`${exercise.question} — ${exercise.numberOfAnswers} ${t('quiz:quiz_display.answer')}`}
-				</RichText>
+			<TView mb={12} p={"sm"}>
+				{/* <RichText>
+					{`${exercise.question}`}
+				</RichText> */}
+				<TText>
+					{`${exercise.question}`}
+				</TText>
+				<TText size={"sm"} color='subtext0' bold>
+					{exercise.numberOfAnswers + " " + t('quiz:quiz_display.answer')}
+				</TText>
 			</TView>
 
-			<For each={exercise.propositions} key={exercise.question}>
+			<For each={exercise.propositions}>
 				{(proposition, index) =>
-					<CoolCheckBox key={proposition.id} value={selectedIds.includes(index)} onChange={b => {
-						handleSelection(index)
+					<CoolCheckBox
+						key={proposition.id} value={selectedIds.includes(index)} onChange={b => {
+							handleSelection(index)
 
-					}} label={<RichText>{proposition.description}</RichText>} />
+						}} label={
+							<TView flexDirection='row' flexColumnGap={12} alignItems='center'>
+								<TText size={"sm"} bold color='subtext0'>
+									{"ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(index)}
+								</TText>
+								<TView flex={1}>
+									<RichText>{proposition.description}</RichText>
+								</TView>
+							</TView>
+						} />
 				}
 
 			</For>
@@ -53,32 +69,45 @@ export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: nu
 	);
 });
 
-export const MCQResultDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: number[], results: number[]; }> = ({ exercise, selectedIds, results }) => {
+export const MCQResultDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: number[], results: number[], disableBottomBar?: boolean }> = ({ exercise, selectedIds, results, disableBottomBar }) => {
 	return (
-		<TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"}>
 
-			<TView mb={"xs"} p={"md"}>
-				<RichText size={"lg"}>
-					{exercise.question}
-				</RichText>
+		<TView mb={"xs"} bb={disableBottomBar ? 0 : 1} borderColor='surface0' radius={'lg'} pb={"md"} mx={12}>
+
+			<TView mb={12} p={"sm"}>
+				<TText>
+					{`${exercise.question}`}
+				</TText>
+				<TText size={"sm"} color='subtext0' bold>
+					{exercise.numberOfAnswers + " " + t('quiz:quiz_display.answer')}
+				</TText>
 			</TView>
 
-			<For each={exercise.propositions} key={exercise.question}>
+			<For each={exercise.propositions}>
 				{(proposition, index) =>
-					<TView key={exercise.question + proposition.id}
-						backgroundColor={checkResultColor(checkMCQPropositionCorrect(selectedIds, results, index))}
-						mb={"md"} mr={"md"} ml={"md"} p={"sm"} px={"md"}
-						radius={"xl"}>
-						<TText key={exercise.question + proposition.id} color={textColor(checkResultColor(checkMCQPropositionCorrect(selectedIds, results, index)))}>
-							{proposition.description}
-						</TText>
-					</TView>}
+					<CoolCheckBox
+						borderWidth={2}
+						key={proposition.id} value={selectedIds.includes(index)} disabled
+						activeColor={checkResultColor(checkMCQPropositionCorrect(selectedIds, results, index))}
+						iconName={checkMCQPropositionCorrect(selectedIds, results, index) == "wrong" ? "close" : "checkmark"}
+						label={
+							<TView flexDirection='row' flexColumnGap={12} alignItems='center'>
+								<TText size={"sm"} bold color='subtext0'>
+									{"ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(index)}
+								</TText>
+								<TView flex={1}>
+									<RichText>{proposition.description}</RichText>
+								</TView>
+							</TView>
+						} />
+				}
+
 			</For>
 		</TView>
 	);
 };
 
-export const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean | undefined, onUpdate: (answer: number[] | boolean | undefined, id: number) => void, exId: number; }> = memo(({ exercise, selected, onUpdate, exId }) => {
+export const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean | undefined, onUpdate: (answer: number[] | boolean | undefined, id: number) => void, exId: number, disableBottomBar?: boolean }> = memo(({ exercise, selected, onUpdate, exId, disableBottomBar }) => {
 	// selected represents the option (true or false) selected by the student, in this exercise.
 
 	const handleSelection = (value: boolean) => {
@@ -101,48 +130,50 @@ export const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean
 	}
 
 	return (
-		<TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"} pb={"xl"}>
-
-			<TView mb={"md"} radius={"xl"} p={"md"}>
-				<RichText size={"lg"}>
+		<TView bb={disableBottomBar ? 0 : 1} borderColor='surface0' mx={12} radius={'lg'} pb={"md"}>
+			<TView p={"sm"}>
+				<TText>
 					{exercise.question}
-				</RichText>
+				</TText>
 			</TView>
 
-			<RadioSelectables data={[trueSelectable, falseSelectable]} onSelection={(value) => {
-
-				handleSelection(value)
-			}} value={selected} />
-
+			<TView ml={'sm'}>
+				<RadioSelectables data={[trueSelectable, falseSelectable]} onSelection={(value) => {
+					handleSelection(value)
+				}} value={selected} />
+			</TView>
 		</TView>
 
 	);
 });
 
 
-export const TFResultDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean | undefined, result: boolean; }> = ({ exercise, selected, result }) => {
+export const TFResultDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean | undefined, result: boolean, disableBottomBar?: boolean }> = ({ exercise, selected, result, disableBottomBar }) => {
+	const trueSelectable: RadioSelectable<boolean> = {
+		label: t('quiz:quiz_display.true'),
+		value: true,
+		color: checkResultColor(checkTFCorrect(selected, true, result))
+	}
+	const falseSelectable: RadioSelectable<boolean> = {
+		label: t('quiz:quiz_display.false'),
+		value: false,
+		color: checkResultColor(checkTFCorrect(selected, false, result))
+	}
 	return (
-		<TView mb={"xs"} bb={1} borderColor='surface0' m={"md"} radius={'lg'} p={"md"} pb={"xl"}>
 
-			<TView mb={"lg"} radius={"xl"} p={"md"}>
-				<TText size={"lg"}>
+		<TView bb={disableBottomBar ? 0 : 1} borderColor='surface0' mx={12} radius={'lg'} pb={"md"}>
+			<TView p={"sm"}>
+				<TText>
 					{exercise.question}
 				</TText>
 			</TView>
 
-			<TView flexDirection='row' flexColumnGap={"xl"}>
-				<TView flex={1} radius={"xl"} p={"md"} backgroundColor={checkResultColor(checkTFCorrect(selected, true, result))} testID='true'>
-					<TText align='center' color={textColor(checkResultColor(checkTFCorrect(selected, true, result)))}>
-						{t('quiz:quiz_display.true')}
-					</TText>
-				</TView>
-
-				<TView flex={1} radius={"xl"} p={"md"} backgroundColor={checkResultColor(checkTFCorrect(selected, false, result))} testID='false'>
-					<TText align='center' color={textColor(checkResultColor(checkTFCorrect(selected, false, result)))}>
-						{t('quiz:quiz_display.false')}
-					</TText>
-				</TView>
-
+			<TView ml={'sm'}>
+				<RadioSelectables data={[trueSelectable, falseSelectable]} disabled
+					onSelection={() => { }}
+					value={selected}
+				// color={checkResultColor(checkTFCorrect(selected, true, result))}
+				/>
 			</TView>
 		</TView>
 

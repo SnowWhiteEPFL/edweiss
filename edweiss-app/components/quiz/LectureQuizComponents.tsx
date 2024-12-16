@@ -8,8 +8,9 @@ import { useDoc, useDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/fires
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
 import { Redirect } from 'expo-router';
+import { t } from 'i18next';
 import { useCallback, useEffect, useState } from 'react';
-import TSafeArea from '../core/containers/TSafeArea';
+import Hourglass from '../animations/Hourglass';
 import TView from '../core/containers/TView';
 import TActivityIndicator from '../core/TActivityIndicator';
 import TText from '../core/TText';
@@ -22,15 +23,26 @@ const LectureQuizView: ReactComponent<{ courseId: string, lectureId: string, lec
 	const [quizEvent, _] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEventBase>(pathToEvents), lectureEventId as string, undefined);
 
 	return (
-		<>{(quizEvent == undefined || quizEvent.data.type != 'quiz') && <>
-			<TActivityIndicator />
-		</>}
-			{user.type == "professor" && <>
-				<LectureQuizProfView courseId={courseId} lectureId={lectureId} lectureEventId={lectureEventId} quizEvent={quizEvent as Document<LectureDisplay.QuizLectureEvent>} pathToAttempts={pathToAttempts} />
-			</>}
-			{user.type == "student" && <>
-				<LectureQuizStudentView courseId={courseId} lectureId={lectureId} lectureEventId={lectureEventId} quizEvent={quizEvent as Document<LectureDisplay.QuizLectureEvent>} pathToAttempts={pathToAttempts} pathToLectureEvents={pathToEvents} />
-			</>}
+		<>
+			{
+				(quizEvent == undefined || quizEvent.data.type != 'quiz') &&
+				<>
+					<TActivityIndicator />
+				</>
+			}
+
+			{
+				user.type == "professor" &&
+				<>
+					<LectureQuizProfView courseId={courseId} lectureId={lectureId} lectureEventId={lectureEventId} quizEvent={quizEvent as Document<LectureDisplay.QuizLectureEvent>} pathToAttempts={pathToAttempts} />
+				</>
+			}
+			{
+				user.type == "student" &&
+				<>
+					<LectureQuizStudentView courseId={courseId} lectureId={lectureId} lectureEventId={lectureEventId} quizEvent={quizEvent as Document<LectureDisplay.QuizLectureEvent>} pathToAttempts={pathToAttempts} pathToLectureEvents={pathToEvents} />
+				</>
+			}
 		</>
 	);
 };
@@ -75,24 +87,35 @@ export const LectureQuizProfView: ReactComponent<{ courseId: string, lectureId: 
 
 	return (
 		<>
-			<TSafeArea>
-				{quiz?.showResultToStudents && studentAttempts.length > 0 && <>
-					<TView mb='lg'>
-						<SingleDistributionDisplay exercise={quiz.exercise} exerciseAttempts={studentAttemptsData} />
-					</TView>
-				</>
-				}
-				{quizEvent != undefined && !quiz?.showResultToStudents && <>
-					<TView>
-						<TText> Quiz is live! </TText>
-					</TView>
-				</>
-				}
-				{/* ------- must be put in the remote control ------- */}
-				{/* <FancyButton loading={loading} onPress={toggleResult}>
+			{/* <TSafeArea> */}
+
+			{(quiz?.showResultToStudents && studentAttempts.length > 0) && <>
+				{/* <TView mb='lg'> */}
+				{/* <RichText>{`
+					Hello you,
+
+
+					Hello me
+					`}</RichText> */}
+
+				<SingleDistributionDisplay exercise={quiz.exercise} exerciseAttempts={studentAttemptsData} />
+				{/* </TView> */}
+			</>
+			}
+			{quizEvent != undefined && !quiz?.showResultToStudents && <>
+				<TView justifyContent='center' alignItems='center' style={{ height: "100%" }}>
+					<TText mb={"md"} size={40} pt={40} bold align='center'>Quiz is live!</TText>
+					<TText mb={"xl"} color='overlay1' align='center'>{t('quiz:quiz_display.waiting_for_answers')}</TText>
+
+					<Hourglass />
+				</TView>
+			</>
+			}
+			{/* ------- must be put in the remote control ------- */}
+			{/* <FancyButton loading={loading} onPress={toggleResult}>
 					{quiz?.showResultToStudents ? "Show quiz to students" : "Show results to students"}
 				</FancyButton> */}
-			</TSafeArea>
+			{/* </TSafeArea> */}
 
 		</>
 	);

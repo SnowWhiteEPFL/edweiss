@@ -206,7 +206,7 @@ const CreateQuizPage: ApplicationRoute = () => {
 				<For each={exercises}>{
 					(exercise, index) => {
 						return (<>
-							<PressableExercise index={index} editExercise={editExercise} removeExerciseFromList={removeExerciseFromList} exercise={exercise} key={index}></PressableExercise>
+							<PressableExercise index={index} editExercise={editExercise} removeExerciseFromList={removeExerciseFromList} exercise={exercise} key={exercise.question}></PressableExercise>
 						</>)
 					}
 				}
@@ -570,7 +570,7 @@ export const MCQFields: ReactComponent<{ addToExerciseList?: (exercise: Quizzes.
 					<TText align='center' mb='xl' mt='xl'> {t('quiz:quiz_creation.no_option')}</TText> :
 					<For each={propositions}>{
 						(proposition, index) => {
-							return (<PropositionField proposition={proposition} changeProposition={changeProposition} removeProposition={removeProposition} key={index} index={index} previousProposition={props.previousPropositions == undefined ? undefined : props.previousPropositions[index]} />)
+							return (<PropositionField proposition={proposition} changeProposition={changeProposition} removeProposition={removeProposition} key={proposition[0]} index={index} previousProposition={props.previousPropositions == undefined ? undefined : props.previousPropositions[index]} />)
 						}
 					}
 
