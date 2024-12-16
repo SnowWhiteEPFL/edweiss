@@ -7,13 +7,12 @@
 // ------------------------------------------------------------
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
-
 import ReactComponent from '@/constants/Component';
 import { RepositoryHandler } from '@/hooks/repository';
 import Memento from '@/model/memento';
 import { CourseID } from '@/model/school/courses';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import TView from '../core/containers/TView';
 import Icon from '../core/Icon';
