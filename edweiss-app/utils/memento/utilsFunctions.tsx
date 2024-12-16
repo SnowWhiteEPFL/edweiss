@@ -114,3 +114,7 @@ export const userIdToName = (userId: UserID) => {
 
     return ids_names_map.get(userId);
 }
+
+export const allowToEditDeck = (current_user_type: string, ownerIds: UserID[], ids_professor_map: Map<string, string>) => {
+    return current_user_type == 'professor' || !ownerIds.some(id => ids_professor_map.has(id));
+}

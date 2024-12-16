@@ -1,5 +1,6 @@
 import RouteHeader from '@/components/core/header/RouteHeader';
 import { ApplicationRoute } from '@/constants/Component';
+import React from 'react';
 
 import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
@@ -71,6 +72,7 @@ const CreateLectureQuizPage: ApplicationRoute = () => {
 		}
 
 		const newLectureQuiz: LectureDisplay.QuizLectureEvent = {
+			id: "",
 			done: false,
 			pageNumber: 1,
 			quizModel: newQuiz,

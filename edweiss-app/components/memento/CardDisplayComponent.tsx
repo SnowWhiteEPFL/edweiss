@@ -1,4 +1,5 @@
 import ReactComponent from '@/constants/Component';
+import React from 'react';
 
 import TText from '@/components/core/TText';
 import TView from '@/components/core/containers/TView';
@@ -26,7 +27,7 @@ const CardDisplayComponent: ReactComponent<{
     return (
         <>
             {/* Box for card.question */}
-            <TView m="md" p="md" borderColor="crust" style={{ borderWidth: 1 }} radius="lg" mb="sm">
+            <TView testID='question_view' m="md" p="md" borderColor="crust" style={{ borderWidth: 1 }} radius="lg" mb="sm">
                 <TView style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                     <TText bold>Question:</TText>
                     <Icon

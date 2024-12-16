@@ -25,6 +25,8 @@ import TText from '../core/TText';
 /**
  * CardListDisplay
  * 
+ * @param {CourseID} courseId - The course ID
+ * @param {string} deckId - The deck ID
  * @param {Memento.Card} card - The card to display
  * @param {boolean} isSelected - Whether the card is selected
  * @param {Function} toggleSelection - Function to toggle card selection
@@ -52,8 +54,7 @@ export const CardListDisplay: React.FC<{
     const cardIndex = deck?.data.cards.findIndex(c => c.question == card.question);
 
     async function updateCard(new_status: Memento.LearningStatus) {
-        if (deck == undefined || cardIndex == undefined)
-            return;
+        if (deck == undefined || cardIndex == undefined) return;
 
         const newCards = deck.data.cards;
         newCards[cardIndex] = { ...card, learning_status: new_status };
@@ -84,9 +85,6 @@ export const CardListDisplay: React.FC<{
         >
             <TView flexDirection='row' justifyContent='space-between'>
                 <TView testID={`cardQuestionIndex_${cardIndex}`} flex={1} mr='md'>
-                    {/*<TText bold color='text' ellipsizeMode='tail' numberOfLines={1}>
-                        {card.question}
-                    </TText>*/}
                     <RichText px={'sm'} color={isSelected ? 'crust' : 'text'}>
                         {card.question}
                     </RichText>

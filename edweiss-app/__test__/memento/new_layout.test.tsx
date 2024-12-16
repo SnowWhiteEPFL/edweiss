@@ -1,4 +1,4 @@
-import MementoLayout from '@/app/(app)/deck/_layout';
+import MementoLayout from '@/app/(app)/courses/[id]/deck/_layout';
 import { render } from '@testing-library/react-native';
 
 // Mock AsyncStorage
@@ -36,6 +36,10 @@ jest.mock('@/config/firebase', () => ({
     callFunction: jest.fn(),
     Collections: { deck: 'decks' },
     CollectionOf: jest.fn(() => 'decks'),
+}));
+
+jest.mock('@/hooks/routeParameters', () => ({
+    useStringParameters: jest.fn(() => ({ id: 'course_id' }))
 }));
 
 // Mock the RepositoryLayout component

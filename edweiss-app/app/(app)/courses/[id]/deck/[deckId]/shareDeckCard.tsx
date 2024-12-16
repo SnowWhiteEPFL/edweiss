@@ -1,4 +1,5 @@
 import { ApplicationRoute } from '@/constants/Component';
+import React from 'react';
 
 import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
@@ -16,7 +17,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 
 const ShareScreen: ApplicationRoute = () => {
-    const { id: courseId, deckId, type } = useStringParameters();
+    const { id: courseId, deckId, type, indices_of_cards_to_share } = useStringParameters();
     const { uid } = useAuth();
     const { user } = useUser();
     const [loading, setIsLoading] = useState(false);
@@ -25,6 +26,8 @@ const ShareScreen: ApplicationRoute = () => {
 
     const users = useDynamicDocs(CollectionOf<AppUser>('users'));
     if (!users) return null;
+
+    const cards_indices = (indices_of_cards_to_share ? JSON.parse(indices_of_cards_to_share) : []) as number[]
 
     // Only take into accounts users who are the same type as the current user
     // type of current user = user.type
@@ -42,7 +45,7 @@ const ShareScreen: ApplicationRoute = () => {
     // Filter out users who are not in the same course
     const users_data_filtered_course = Array.from(ids_names_map.entries()).filter(([id, name]) => {
         const user = users.find(user => user.id === id);
-        return user && user.data.courses && user.data.courses.includes(courseId);
+        return user?.data.courses?.includes(courseId);
     }).map(([id, name]) => ({ id, name }));
 
     // Filter out users whose name is "Anonymous"
@@ -50,12 +53,16 @@ const ShareScreen: ApplicationRoute = () => {
 
 
     async function shareDeck(user: UserID) {
-        const res = await callFunction(Memento.Functions.shareDeck, { deckId, other_user: user, courseId });
+        await callFunction(Memento.Functions.shareDeck, { deckId, other_user: user, courseId });
         setIsLoading(false);
         router.back();
     }
 
-    async function shareCard(user: UserID) {
+    async function shareCard(user: UserID, cardIndices: number[]) {
+        console.log('Sharing card', cardIndices);
+        await callFunction(Memento.Functions.shareCards, { deckId: deckId, cardIndices: cardIndices, other_user: user, courseId });
+        setIsLoading(false);
+        router.back();
     }
 
     return (
@@ -74,8 +81,8 @@ const ShareScreen: ApplicationRoute = () => {
                         style={{ alignSelf: 'center' }}
                         onPress={() => {
                             setIsLoading(true);
-                            if (type === 'Deck') shareDeck(user.id);
-                            else if (type === 'Card') shareCard(user.id);
+                            if (type == 'Deck') shareDeck(user.id);
+                            else if (type == 'Card') shareCard(user.id, cards_indices);
                         }}>
                         <TView alignItems='center'>
                             <TText>{user.name}</TText>

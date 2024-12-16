@@ -1,3 +1,4 @@
+import ProgressPopup, { useProgressPopup } from '@/components/animations/ProgressPopup';
 import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
@@ -6,8 +7,11 @@ import RichText from '@/components/core/rich-text/RichText';
 import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
 import { ApplicationRoute } from '@/constants/Component';
+import { pushWithParameters } from '@/hooks/routeParameters';
 import { router } from 'expo-router';
 import { useState } from 'react';
+import { LectureQuizStudentViewSignature } from '../quiz/lectureQuizStudentView';
+import { TemporaryQuizProfViewSignature } from '../quiz/temporaryQuizProfView';
 
 const CommunityTab: ApplicationRoute = () => {
 	/**
@@ -59,6 +63,11 @@ only text. It can be fetched from Firebase,
 genrated by AI etc.
 `);
 
+
+
+	const handle = useProgressPopup();
+	const [loading, setLoading] = useState(false);
+
 	return (
 		<>
 			<RouteHeader title={"Community"} />
@@ -78,6 +87,41 @@ genrated by AI etc.
 					My Todos
 				</FancyButton>
 
+				<FancyButton mt={10} mb={10} onPress={() => router.push({ pathname: '/(app)/quiz/createQuizPage', params: { courseId: "edweiss-demo" } })} backgroundColor='green'>
+					Create quiz
+				</FancyButton>
+
+				<FancyButton mt={10} mb={10} onPress={() => router.push({ pathname: '/(app)/quiz/createLectureQuizPage', params: { courseId: "edweiss-demo", lectureId: "xgy30FeIOHAnKtSfPjAe" } })} backgroundColor='cherry'>
+					Create lecture quiz
+				</FancyButton>
+
+				<FancyButton mt={10} mb={10} onPress={() => pushWithParameters(LectureQuizStudentViewSignature, { courseId: "edweiss-demo", lectureId: "xgy30FeIOHAnKtSfPjAe", lectureEventId: "kPaqoWkLLY96B1pBkaeR", prefetchedQuiz: undefined })} backgroundColor='lavender'>
+					Complete TF lecture quiz
+				</FancyButton>
+
+				<FancyButton mt={10} mb={10} onPress={() => pushWithParameters(LectureQuizStudentViewSignature, { courseId: "edweiss-demo", lectureId: "xgy30FeIOHAnKtSfPjAe", lectureEventId: "vP0yhuu9eVdATOqZV59Q", prefetchedQuiz: undefined })} backgroundColor='lavender'>
+					Complete MCQ lecture quiz
+				</FancyButton>
+
+				<FancyButton mt={10} mb={10} onPress={() => pushWithParameters(TemporaryQuizProfViewSignature, { courseId: "edweiss-demo", lectureId: "xgy30FeIOHAnKtSfPjAe", lectureEventId: "kPaqoWkLLY96B1pBkaeR", prefetchedQuizEvent: undefined })} backgroundColor='lavender'>
+					See TF results for prof
+				</FancyButton>
+
+				<FancyButton mt={10} mb={10} onPress={() => pushWithParameters(TemporaryQuizProfViewSignature, { courseId: "edweiss-demo", lectureId: "xgy30FeIOHAnKtSfPjAe", lectureEventId: "vP0yhuu9eVdATOqZV59Q", prefetchedQuizEvent: undefined })} backgroundColor='lavender'>
+					See MCQ results for prof
+				</FancyButton>
+
+				<FancyButton backgroundColor='green' loading={loading} onPress={() => {
+					setLoading(true);
+					handle.start();
+
+					setTimeout(() => {
+						setLoading(false);
+						handle.stop();
+					}, 8000);
+				}} icon='sparkles' outlined style={{ borderWidth: 0 }}>
+					Generate with AI (popup demo)
+				</FancyButton>
 
 				<FancyButton mt={10} mb={10} onPress={() => {
 					router.push({
@@ -111,6 +155,8 @@ genrated by AI etc.
 				</RichText>
 
 			</TScrollView>
+
+			<ProgressPopup handle={handle} />
 		</>
 	);
 };

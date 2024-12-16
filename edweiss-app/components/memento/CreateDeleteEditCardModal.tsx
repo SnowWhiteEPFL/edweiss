@@ -53,7 +53,11 @@ const CreateDeleteEditCardModal: ReactComponent<{
     const cards = deck.data.cards;
     const card = cards[cardIndex];
 
-    const error_selected = existedQuestion ? t("memento:card-creation-edition.question-existed-announcement") : emptyField ? t("memento:card-creation-edition.empty-fields-announcement") : undefined;
+    function error_selected() {
+        if (existedQuestion) return t("memento:card-creation-edition.question-existed-announcement");
+        if (emptyField) return t("memento:card-creation-edition.empty-fields-announcement");
+        return undefined;
+    }
 
     // Create a new card
     async function createCard() {
@@ -90,8 +94,7 @@ const CreateDeleteEditCardModal: ReactComponent<{
 
     // Update a card with a new question and answer
     async function updateCard(new_Question: string, new_Answer: string) {
-        if (deck == undefined || card == undefined)
-            return;
+        if (deck == undefined || card == undefined) return;
 
         if (checkDupplication_EmptyField(
             deck.data.cards.some(card => card.question === new_Question) && new_Question != prev_question,
@@ -126,7 +129,7 @@ const CreateDeleteEditCardModal: ReactComponent<{
     }
 
     return (
-        <Modal visible={visible} animationType='fade' onRequestClose={() => setVisible(false)}>
+        <Modal testID={`${mode}_modal`} visible={visible} animationType='fade' onRequestClose={() => setVisible(false)}>
             <TView flex={1} p={20} backgroundColor='mantle'>
                 <TScrollView>
 
@@ -172,7 +175,7 @@ const CreateDeleteEditCardModal: ReactComponent<{
                             placeholder={t("memento:card-creation-edition.content.question.placeholder")}
                             icon='help-sharp'
                             label={t("memento:card-creation-edition.content.question.label")}
-                            error={error_selected}
+                            error={error_selected()}
                             multiline
                             numberOfLines={3}
 
@@ -213,7 +216,7 @@ const CreateDeleteEditCardModal: ReactComponent<{
                 </TScrollView>
 
                 <FancyButton
-                    testID='createCardButton'
+                    testID={`${mode}CardButton`}
                     outlined
                     backgroundColor='blue'
                     textColor='blue'

@@ -97,8 +97,7 @@ const DeckScreen: ApplicationRoute = () => {
 		const deck = {
 			ownerID: [uid],
 			name: deckName,
-			cards: [],
-			public: false
+			cards: []
 		}
 		handler.addDocument(deck, callFunction(Memento.Functions.createDeck, { deck, courseId }));
 		setDeckName(""); // Clear the input field after successful creation
