@@ -85,9 +85,6 @@ export const CardListDisplay: React.FC<{
         >
             <TView flexDirection='row' justifyContent='space-between'>
                 <TView testID={`cardQuestionIndex_${cardIndex}`} flex={1} mr='md'>
-                    {/*<TText bold color='text' ellipsizeMode='tail' numberOfLines={1}>
-                        {card.question}
-                    </TText>*/}
                     <RichText px={'sm'} color={isSelected ? 'crust' : 'text'}>
                         {card.question}
                     </RichText>
