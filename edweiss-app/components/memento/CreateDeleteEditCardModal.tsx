@@ -90,8 +90,7 @@ const CreateDeleteEditCardModal: ReactComponent<{
 
     // Update a card with a new question and answer
     async function updateCard(new_Question: string, new_Answer: string) {
-        if (deck == undefined || card == undefined)
-            return;
+        if (deck == undefined || card == undefined) return;
 
         if (checkDupplication_EmptyField(
             deck.data.cards.some(card => card.question === new_Question) && new_Question != prev_question,
@@ -126,7 +125,7 @@ const CreateDeleteEditCardModal: ReactComponent<{
     }
 
     return (
-        <Modal visible={visible} animationType='fade' onRequestClose={() => setVisible(false)}>
+        <Modal testID={`${mode}_modal`} visible={visible} animationType='fade' onRequestClose={() => setVisible(false)}>
             <TView flex={1} p={20} backgroundColor='mantle'>
                 <TScrollView>
 
@@ -213,7 +212,7 @@ const CreateDeleteEditCardModal: ReactComponent<{
                 </TScrollView>
 
                 <FancyButton
-                    testID='createCardButton'
+                    testID={`${mode}CardButton`}
                     outlined
                     backgroundColor='blue'
                     textColor='blue'
