@@ -98,6 +98,12 @@ const config = {
 			{
 				"initialOrientation": "DEFAULT"
 			}
+		],
+		[
+			"expo-document-picker",
+			{
+				"iCloudContainerEnvironment": "Production"
+			}
 		]
 	],
 	"experiments": {
