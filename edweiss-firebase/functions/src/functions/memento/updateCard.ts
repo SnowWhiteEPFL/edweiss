@@ -8,9 +8,10 @@ import { ok } from 'utils/status';
 export const updateCard = onSanitizedCall(Memento.Functions.updateCard, {
 	cardIndex: Predicate.isPositive,
 	deckId: Predicate.isNonEmptyString,
-	newCard: CustomPredicateMemento.isValidCard
+	newCard: CustomPredicateMemento.isValidCard,
+	courseId: Predicate.isNonEmptyString
 }, async (userId, args) => {
-	const deckCollection = CollectionOf<Memento.Deck>("decks");
+	const deckCollection = CollectionOf<Memento.Deck>(`users/${userId}/courses/${args.courseId}/decks`);
 	const deckDoc = await deckCollection.doc(args.deckId).get();
 	const cards = deckDoc.data()?.cards;
 	const new_cards = cards?.map((card, index) =>

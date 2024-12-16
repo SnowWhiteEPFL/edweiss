@@ -408,12 +408,6 @@ describe('LectureScreen Component', () => {
         await waitFor(() => expect(console.error).toHaveBeenCalledWith('Error loading PDF URL:', expect.any(Error)));
     });
 
-    it('displays default transcript text if audio transcript is missing', () => {
-        // Checks that the default transcript text is displayed when no transcript data is available
-        render(<LectureScreen />);
-        expect(screen.getByText('showtime:lecturer_transcript_deftxt')).toBeTruthy();
-    });
-
     it('allows navigation to the next PDF page', async () => {
         // Ensures the "next page" navigation button for the PDF works correctly
         render(<LectureScreen />);

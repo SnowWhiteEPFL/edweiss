@@ -41,6 +41,7 @@ namespace LectureDisplay {
 		quizModel: LectureQuizzes.LectureQuiz;
 	}
 
+	export type ActualLectureEvent = QuizLectureEvent;
 
 	export interface QuestionLectureEvent extends LectureEventBase {
 		type: "question";

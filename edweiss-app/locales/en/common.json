@@ -17,5 +17,7 @@
 		"seconds": "seconds",
 
 		"ago": "{{time}} ago"
-	}
+	},
+
+	"errorOccurred": "An error occurred"
 }
