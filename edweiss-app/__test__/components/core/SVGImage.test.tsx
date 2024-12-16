@@ -1,6 +1,5 @@
 import SVGImage from '@/components/core/SVGImage';
 import { render, waitFor } from '@testing-library/react-native';
-import axios from 'axios';
 import { TextProps } from 'react-native';
 
 jest.mock('@/components/core/TText.tsx', () => {
@@ -33,12 +32,22 @@ jest.mock('@/config/i18config', () =>
     })
 );
 
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
-
 describe('SVGImage Component', () => {
+
+    beforeEach(() => {
+        (global.fetch as jest.Mock) = jest.fn(() =>
+            Promise.resolve({
+                ok: true,
+                text: () => Promise.resolve('<svg><circle cx="50" cy="50" r="40" /></svg>'), // Données simulées
+            } as unknown as Response)
+        );
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
     it('renders a loading spinner while fetching SVG', async () => {
-        mockedAxios.get.mockImplementationOnce(() => new Promise(() => { })); // Simule une requête en cours
 
         const screen = render(
             <SVGImage uri="mocked-uri" width={100} height={100} />
@@ -49,7 +58,7 @@ describe('SVGImage Component', () => {
 
     it('renders an error message when fetching fails', async () => {
 
-        mockedAxios.get.mockRejectedValueOnce(new Error('Network Error'));
+        global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
 
         const screen = render(
             <SVGImage uri="mocked-uri" width={100} height={100} />
@@ -60,8 +69,6 @@ describe('SVGImage Component', () => {
     });
 
     it('renders the SVG when fetching succeeds', async () => {
-        const svgContent = '<svg><circle cx="50" cy="50" r="40" /></svg>';
-        mockedAxios.get.mockResolvedValueOnce({ data: svgContent });
 
         const screen = render(
             <SVGImage uri="mocked-uri" width={100} height={100} />
@@ -72,7 +79,6 @@ describe('SVGImage Component', () => {
 
     it('calls onError when the SVG rendering fails', async () => {
         const onErrorMock = jest.fn();
-        mockedAxios.get.mockResolvedValueOnce({ data: '<invalid-svg>' });
 
         const screen = render(
             <SVGImage uri="mocked-uri" width={100} height={100} onError={onErrorMock} />
