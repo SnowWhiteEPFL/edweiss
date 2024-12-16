@@ -210,7 +210,7 @@ const CardListScreen: ApplicationRoute = () => {
 				<TView flex={1} p={20} backgroundColor='mantle'>
 					<TView flexDirection="row" justifyContent="space-between" alignItems="center" mb={'lg'}>
 						<TTouchableOpacity testID='closeButton' alignItems="flex-start" onPress={() => { setShowDropdown(false); }}>
-							<Icon testID='close_deck_edit_modal' name={'close'} size={iconSizes.lg} color="blue" mr={8} />
+							<Icon testID='close_deck_edit_modal' name={'close'} size={iconSizes.lg} color="blue" mr={'sm'} />
 						</TTouchableOpacity>
 
 						<TView justifyContent='center' alignItems='center'>
@@ -227,7 +227,7 @@ const CardListScreen: ApplicationRoute = () => {
 								}
 							});
 						}}>
-							<Icon name={'share-social'} size={iconSizes.lg} color="blue" mr={8} />
+							<Icon name={'share-social'} size={iconSizes.lg} color="blue" mr={'sm'} />
 						</TTouchableOpacity>
 
 					</TView>
