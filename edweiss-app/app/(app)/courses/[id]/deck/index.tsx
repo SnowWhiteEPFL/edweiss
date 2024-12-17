@@ -29,7 +29,6 @@ import { CourseID } from '@/model/school/courses';
 import { AppUser } from '@/model/users';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert } from 'react-native';
 import { DecksRepository } from './_layout';
 
 // ------------------------------------------------------------
@@ -56,23 +55,6 @@ const DeckScreen: ApplicationRoute = () => {
 
 	const users = useDynamicDocs(CollectionOf<AppUser>('users'));
 	if (!users) return undefined;
-
-	async function generateByAI() {
-		const res = await callFunction(Memento.Functions.createDeckFromMaterial, {
-			courseId,
-			materialUrl: "China-101.pdf"
-		});
-
-		console.log(res);
-
-		if (res.status == 1) {
-			Alert.alert("All good, generated. Check Firebase.");
-		} else {
-			Alert.alert(`ERROR: ${JSON.stringify(res)}`);
-		}
-
-		setLoading(false);
-	}
 
 	// For each users, map user.id to user.data.name
 	const ids_names_map = new Map<string, string>();
