@@ -321,6 +321,14 @@ const CoursePage: ApplicationRoute = () => {
 			{/* ScrollView pour permettre le défilement */}
 			<TScrollView testID={testIDs.scrollView} p={16} backgroundColor="mantle" >
 
+				<FancyButton mb={'sm'} icon='chatbubbles-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/forum` as any)}>
+					Forum
+				</FancyButton>
+
+				<FancyButton mb={'sm'} icon='school-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/deck` as any)}>
+					Memento
+				</FancyButton>
+
 				<TText testID={testIDs.courseDescription} size={16} color='text' mb={10} >{course.data.description}</TText>
 
 				{/* Section des Pending Assignments */}
