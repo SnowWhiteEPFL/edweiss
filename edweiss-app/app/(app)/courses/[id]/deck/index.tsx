@@ -58,7 +58,6 @@ const DeckScreen: ApplicationRoute = () => {
 	if (!users) return undefined;
 
 	async function generateByAI() {
-		setLoading(true);
 		const res = await callFunction(Memento.Functions.createDeckFromMaterial, {
 			courseId,
 			materialUrl: "China-101.pdf"
@@ -147,10 +146,6 @@ const DeckScreen: ApplicationRoute = () => {
 
 			<TScrollView>
 
-				<FancyButton loading={loading} onPress={generateByAI} backgroundColor='cherry'>
-					Generate by AI
-				</FancyButton>
-
 				<FancyTextInput
 					value={deckName}
 					onChangeText={n => {
@@ -209,6 +204,20 @@ const DeckScreen: ApplicationRoute = () => {
 					/>)
 				)}
 			</TScrollView>
+
+			<FancyButton
+				icon='sparkles'
+				loading={loading}
+				onPress={() => {
+					router.push(`courses/${courseId}/deck/aiGenerateDeck` as any)
+				}}
+				backgroundColor='green'
+				outlined
+				mb={'md'}
+				style={{ alignSelf: 'flex-end', borderWidth: 0 }}
+			>
+				Generate with AI
+			</FancyButton>
 		</>
 	);
 };
