@@ -17,10 +17,6 @@ const CommunityTab: ApplicationRoute = () => {
 	const [aiLoading, setAiLoading] = useState(false);
 
 	const handle = useProgressPopup();
-
-
-
-	const handle = useProgressPopup();
 	const [loading, setLoading] = useState(false);
 
 	return (
@@ -34,7 +30,7 @@ const CommunityTab: ApplicationRoute = () => {
 					</TText>
 				</TView>
 
-				<FancyButton mt={10} mb={10} onPress={() => router.push("/deck")} backgroundColor='pink'>
+				<FancyButton mt={10} mb={10} onPress={() => router.push("/deck" as any)} backgroundColor='pink'>
 					Memento App
 				</FancyButton>
 
