@@ -90,8 +90,8 @@ const MaterialDisplay: ReactComponent<{ item: Material, courseId: CourseID, mate
         <TView mt={10} mb={10}>
             <TView flexDirection='row' justifyContent='space-between'>
                 <TText testID={testIDs.materialTitle} mb={10} size={18} color='darkBlue' bold>{item.title}</TText>
-                {isTeacher && <TTouchableOpacity onPress={onTeacherClick}>
-                    <Icon name='create' size={iconSizes.md} color='blue' />
+                {isTeacher && <TTouchableOpacity testID='editMaterial' onPress={onTeacherClick}>
+                    <Icon testID='editMaterialIcon' name='create' size={iconSizes.md} color='blue' />
                 </TTouchableOpacity>}
             </TView>
             <TText testID={testIDs.materialTitle} mb={4} size={14} color='darkBlue' bold>{formatDateRange(item.from.seconds, item.to.seconds)}</TText>
