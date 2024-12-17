@@ -104,7 +104,9 @@ const SchedulePoint: ReactComponent<{ color: Color, time: string, name: string, 
 const CourseDisplay: ReactComponent<{ course: Document<Course> }> = ({ course }) => {
 	const assignments = useDocs(CollectionOf<Assignment>(`courses/${course.id}/assignments`));
 
-	const validAssignment = assignments && assignments.length > 0 ? assignments : undefined
+	const validAssignment = assignments && assignments.length > 0
+		? assignments.filter(assignment => assignment.data.dueDate.seconds > Math.floor(new Date().getTime() / 1000))
+		: undefined;
 
 	return (
 		<TTouchableOpacity onPress={() => router.push(`/courses/${course.id}`)} radius={'md'} backgroundColor='base' mx={'md'} p={'md'} mb={"md"}>

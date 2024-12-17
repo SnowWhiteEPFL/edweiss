@@ -208,36 +208,19 @@ const CoursePage: ApplicationRoute = () => {
 
 	const renderProfessorModifButton = useCallback(() => {
 		return (
-			<>
-				<TTouchableOpacity
-					testID={testIDs.courseParametersTouchable}
-					style={{
-						position: 'absolute',
-						top: 10,
-						right: 20,
-						zIndex: 1000,
-					}}
-					key='courseParameters'
-					onPress={() => setModalParamVisible(true)}
-				>
-					<Icon testID={testIDs.courseParametersIcon} name='cog' size={iconSizes.xl} />
-				</TTouchableOpacity>
-
-				<TTouchableOpacity
-					testID={testIDs.addElementsTouchable}
-					style={{
-						position: 'absolute',
-						bottom: 20,
-						right: 20,
-						zIndex: 1000,
-					}}
-					key='addElements'
-					onPress={handleButtonPress}
-				>
-					<Icon name="add-circle" size={60} color='blue' />
-				</TTouchableOpacity>
-			</>
-
+			<TTouchableOpacity
+				testID={testIDs.addElementsTouchable}
+				style={{
+					position: 'absolute',
+					bottom: 20,
+					right: 20,
+					zIndex: 1000,
+				}}
+				key='addElements'
+				onPress={handleButtonPress}
+			>
+				<Icon name="add-circle" size={60} color='blue' />
+			</TTouchableOpacity>
 		);
 	}, []);
 
@@ -312,27 +295,33 @@ const CoursePage: ApplicationRoute = () => {
 				align="center"
 				isBold
 				right={
-					<FancyButton mb={'sm'} icon='chatbubbles-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/forum` as any)}>
-						Forum
-					</FancyButton>
+					<TTouchableOpacity
+						testID={testIDs.courseParametersTouchable}
+						key='courseParameters'
+						onPress={() => setModalParamVisible(true)}
+					>
+						<Icon testID={testIDs.courseParametersIcon} name='cog' size={iconSizes.lg} />
+					</TTouchableOpacity>
 				}
 			/>
 
 			{/* ScrollView pour permettre le défilement */}
-			<TScrollView testID={testIDs.scrollView} p={16} backgroundColor="mantle" >
+			<TScrollView testID={testIDs.scrollView} pb={16} px={16} backgroundColor="mantle" >
 
-				<FancyButton mb={'sm'} icon='chatbubbles-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/forum` as any)}>
-					Forum
-				</FancyButton>
+				<TView alignItems='center' flexDirection='row' mb={'sm'} justifyContent='center'>
+					<FancyButton icon='chatbubbles-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/forum` as any)}>
+						Forum
+					</FancyButton>
+					<FancyButton icon='school-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/deck` as any)}>
+						Memento
+					</FancyButton>
+				</TView>
 
-				<FancyButton mb={'sm'} icon='school-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/deck` as any)}>
-					Memento
-				</FancyButton>
 
 				<TText testID={testIDs.courseDescription} size={16} color='text' mb={10} >{course.data.description}</TText>
 
 				{/* Section des Pending Assignments */}
-				<TText mb={10} size={18} color='darkBlue' bold testID={testIDs.upcomingAssignments} >{t(`course:upcoming_assignment_title`)}</TText>
+				<TText mb={10} mt={20} size={18} color='darkBlue' bold testID={testIDs.upcomingAssignments} >{t(`course:upcoming_assignment_title`)}</TText>
 
 				<For
 					each={upcomingAssignments && upcomingAssignments.length > 0 ? upcomingAssignments : undefined}
@@ -343,7 +332,7 @@ const CoursePage: ApplicationRoute = () => {
 				</For>
 
 				{/* Bouton vers les Passed Assignments */}
-				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} alignItems='center' onPress={() => pushWithParameters(ArchiveRouteSignature, { courseId: course.id, assignments: previousAssignments })}>
+				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} mt={5} alignItems='center' onPress={() => pushWithParameters(ArchiveRouteSignature, { courseId: course.id, assignments: previousAssignments })}>
 					<TView flexDirection='row' mt={8} mb={16} >
 						<Icon
 							testID={testIDs.previousAssignmentsIcon}
@@ -356,34 +345,39 @@ const CoursePage: ApplicationRoute = () => {
 					</TView>
 				</TTouchableOpacity>
 
-				<TText testID={testIDs.materialsTitle} mb={10} size={18} color='darkBlue' bold >{t(`course:materials_title`)}</TText>
+				<TView flexDirection='row' mb={10} mt={20} alignItems='center'>
+					<TText testID={testIDs.materialsTitle} mr={100} size={18} color='darkBlue' bold >{t(`course:materials_title`)}</TText>
 
-				{/* Bouton pour afficher/masquer les "futureMaterials" */}
-				<TTouchableOpacity testID={testIDs.toggleFutureMaterialsTouchable} alignItems='flex-start' onPress={toggleFutureMaterials}>
-					<TView flexDirection='row' mt={8} mb={8} >
-						<Icon
-							testID={testIDs.toggleFutureMaterialsIcon}
-							name={showFutureMaterials ? 'chevron-down' : 'chevron-forward'}
-							size={iconSizes.sm}
-							color='blue'
-							mr={8}
-						/>
-						<TText testID={testIDs.toggleFutureMaterialsText} color='blue' align="center">
-							{showFutureMaterials ? t('course:hide_future_materials') : t('course:show_future_materials')}
-						</TText>
-					</TView>
-				</TTouchableOpacity>
+					{/* Bouton pour afficher/masquer les "futureMaterials" */}
+					<TTouchableOpacity testID={testIDs.toggleFutureMaterialsTouchable} onPress={toggleFutureMaterials}>
+						<TView flexDirection='row' alignItems='center' mt={8} mb={8} >
+							<Icon
+								testID={testIDs.toggleFutureMaterialsIcon}
+								name={showFutureMaterials ? 'chevron-down' : 'chevron-forward'}
+								size={iconSizes.sm}
+								color='blue'
+								mr={8}
+							/>
+							<TText testID={testIDs.toggleFutureMaterialsText} color='blue' align="center">
+								{showFutureMaterials ? t('course:hide_future_materials') : t('course:show_future_materials')}
+							</TText>
+						</TView>
+					</TTouchableOpacity>
+				</TView>
 
-				{showFutureMaterials && (futureMaterials.sort((a, b) => a.data.to.seconds - b.data.to.seconds).map((material) => (
+
+				{showFutureMaterials && (futureMaterials.length > 0 ? (futureMaterials.sort((a, b) => a.data.to.seconds - b.data.to.seconds).map((material) => (
 					<TView testID={testIDs.futureMaterialView} key={material.id}>
-						<MaterialDisplay item={material.data} courseId={id} materialId={material.id} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} />
+						<MaterialDisplay key={material.data.title} item={material.data} courseId={id} materialId={material.id} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} />
 						<TView bb={1} mx={20} mb={12} borderColor='overlay0' />
 					</TView>
-				)))}
+				))) :
+					<TText size={16} color='text' mb={10} >{t('course:no_future_materials')}</TText>
+				)}
 
-				{currentMaterials.map((material) => (<MaterialDisplay item={material.data} courseId={id} materialId={material.id} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} key={material.id} />))}
+				{currentMaterials.map((material) => (<MaterialDisplay key={material.data.title} item={material.data} courseId={id} materialId={material.id} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} />))}
 
-				{passedMaterials.sort((a, b) => b.data.to.seconds - a.data.to.seconds).map((material) => (<MaterialDisplay item={material.data} courseId={id} materialId={material.id} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} key={material.id} />))}
+				{passedMaterials.sort((a, b) => b.data.to.seconds - a.data.to.seconds).map((material) => (<MaterialDisplay key={material.data.title} item={material.data} courseId={id} materialId={material.id} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} />))}
 
 				<TView mb={30} />
 
@@ -449,11 +443,11 @@ const CoursePage: ApplicationRoute = () => {
 				onRequestClose={() => setModalEditMaterialVisible(false)}
 			>
 				<TView flex={1} p={20} backgroundColor='mantle'>
-					<TTouchableOpacity alignItems="flex-start" onPress={() => { setModalEditMaterialVisible(false); }}>
+					<TTouchableOpacity key={'docButton'} alignItems="flex-start" onPress={() => { setModalEditMaterialVisible(false); }}>
 						<Icon name={'close'} size={iconSizes.lg} color="blue" mr={8} />
 					</TTouchableOpacity>
 					{materialToEdit && (
-						<MaterialComponent mode='edit' material={materialToEdit} courseId={id} onSubmit={updateMaterialCallback} onDelete={removeMaterialCallback} />
+						<MaterialComponent key={'document'} mode='edit' material={materialToEdit} courseId={id} onSubmit={updateMaterialCallback} onDelete={removeMaterialCallback} />
 					)}
 				</TView>
 			</Modal>

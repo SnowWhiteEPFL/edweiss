@@ -51,7 +51,7 @@ export async function getDownloadURL(path: string) {
 	return await storage().ref(path).getDownloadURL();
 }
 
-export async function uploadToFirebase(fileName: string, base64Data: string, path: string = 'uploads') {
+export async function uploadToFirebase(fileName: string, base64Data: string, path: string) {
 	const fileRef = storage().ref(`${path}/${fileName}`);
 	await fileRef.putString(base64Data, 'base64', { contentType: 'application/octet-stream' });
 	return fileRef.getDownloadURL();
