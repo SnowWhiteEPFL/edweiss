@@ -1,10 +1,12 @@
 import ReactComponent from '@/constants/Component';
 
+import { DocumentRouteSignature } from '@/app/(app)/courses/[id]/materials/[materialId]';
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { iconSizes } from '@/constants/Sizes';
 import { IconType } from '@/constants/Style';
+import { pushWithParameters } from '@/hooks/routeParameters';
 import { Material, MaterialType } from '@/model/school/courses';
 import { getIconName, getIconTestID, getTestID, getTextTestID } from '@/utils/courses/materialDisplay';
 import { Time } from '@/utils/time';
@@ -14,8 +16,9 @@ import Icon from '../core/Icon';
 
 // Icons
 export const icons: { [key: string]: IconType } = {
-    slidesIcon: 'albums-outline',
+    slideIcon: 'albums-outline',
     exerciseIcon: 'document-text-outline',
+    imageIcon: 'image-outline',
     feedbackIcon: 'arrow-undo-outline',
     otherIcon: 'attach-outline',
 };
@@ -24,18 +27,21 @@ export const icons: { [key: string]: IconType } = {
 export const testIDs = {
     materialTitle: 'material-title',
     materialDescription: 'material-description',
-    slidesTouchable: 'slides-touchable',
-    slidesIcon: 'slides-icon',
-    slidesText: 'slides-text',
-    exercisesTouchable: 'exercises-touchable',
-    exercisesIcon: 'exercises-icon',
-    exercisesText: 'exercises-text',
+    slideTouchable: 'slide-touchable',
+    slideIcon: 'slide-icon',
+    slideText: 'slide-text',
+    exerciseTouchable: 'exercise-touchable',
+    exerciseIcon: 'exercise-icon',
+    exerciseText: 'exercise-text',
+    imageTouchable: 'other-touchable',
+    imageIcon: 'others-icon',
+    imageText: 'other-text',
     otherTouchable: 'other-touchable',
     otherIcon: 'others-icon',
     otherText: 'other-text',
-    feedbacksTouchable: 'feedbacks-touchable',
-    feedbacksIcon: 'feedbacks-icon',
-    feedbacksText: 'feedbacks-text',
+    feedbackTouchable: 'feedback-touchable',
+    feedbackIcon: 'feedback-icon',
+    feedbackText: 'feedback-text',
 };
 
 /**
@@ -68,10 +74,11 @@ const MaterialDisplay: ReactComponent<{ item: Material, isTeacher?: boolean, onT
 
     // Type-safe order mapping
     const order: Record<MaterialType, number> = {
-        slides: 1,
-        exercises: 2,
-        other: 3,
-        feedbacks: 4,
+        slide: 1,
+        exercise: 2,
+        image: 3,
+        other: 4,
+        feedback: 5,
     };
 
     // Sort using the type-safe order mapping
@@ -92,7 +99,7 @@ const MaterialDisplay: ReactComponent<{ item: Material, isTeacher?: boolean, onT
 
             {sortedDocs.map((doc) => (
                 <TTouchableOpacity
-                    key={doc.url}
+                    key={doc.uri}
                     testID={getTestID(doc.type)}
                     flexDirection="row"
                     alignItems="center"
@@ -100,7 +107,7 @@ const MaterialDisplay: ReactComponent<{ item: Material, isTeacher?: boolean, onT
                     mb={10}
                     bb={1}
                     borderColor="crust"
-                    onPress={() => console.log(`Click on ${item.title}`)}
+                    onPress={() => { console.log(`Click on ${doc.title}`); pushWithParameters(DocumentRouteSignature, { document: doc }) }}
                 >
                     <Icon
                         testID={getIconTestID(doc.type)}
