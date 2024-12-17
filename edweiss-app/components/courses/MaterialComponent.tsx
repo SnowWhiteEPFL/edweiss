@@ -384,7 +384,7 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
                     {
                         text: t(`course:upload_anyway`),
                         style: 'destructive',
-                        onPress: async () => { await handleOnSubmitHelper(); },
+                        onPress: () => { handleOnSubmitHelper(); },
                     },
                 ]
             );
