@@ -67,6 +67,24 @@ export const testIDs: { [key: string]: string } = {
     fromTimePicker: 'from-time-picker',
     toDatePicker: 'to-date-picker',
     toTimePicker: 'to-time-picker',
+
+    documentsView: 'documents-view',
+    documentsTitle: 'documents-title',
+    addDocumentButton: 'add-document-button',
+    addDocumentIcon: 'add-document-icon',
+    addDocumentText: 'add-document-text',
+    addDocumentView: 'add-document-view',
+    docTitleInput: 'doc-title-input',
+    docTypeInput: 'doc-type-input',
+    browseView: 'browse-view',
+    browseTouchableOpacity: 'browse-touchabl-opacity',
+    browseIcon: 'browse-icon',
+    browseText: 'browse-text',
+    fileName: 'file-name',
+    saveUploadButton: 'save-upload-button',
+    documentsDisplay: 'documents-display',
+
+
     finishViews: 'finish-views',
     submitTouchableOpacity: 'submit-touchable-opacity',
     submitView: 'submit-view',
@@ -177,14 +195,12 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
     useEffect(() => {
         if (docName) {
             setDocFormat(docName.substring(docName.lastIndexOf('.') + 1).toLowerCase())
-        } else {
-            setDocFormat('');
         }
     }, [docName]);
 
     // Document Fields Validation Listener
     useEffect(() => {
-        setDocumentFieldsNoneEmpty(docTitle !== '' && docType !== 'slide' && docName !== '' && docData !== '');
+        setDocumentFieldsNoneEmpty(docTitle !== '' || docType !== 'slide' || docName !== '' || docData !== '');
     }, [docTitle, docType, docName, docData]);
 
     // Submit Button Validation Listener
@@ -284,7 +300,7 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
 
             // Read the file data
             const base64Data = await FileSystem.readAsStringAsync(uri, {
-                encoding: FileSystem.EncodingType.Base64,
+                encoding: 'base64',
             });
 
             console.log('Encoded File Data ready to be uploaded.');
@@ -314,12 +330,15 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
         if (materialId) {
             try {
                 // Upload the documents to the server
+                console.log('Uploading documents...');
+                console.log('Documents to upload:', documentsData);
+                console.log('Documents to delete:', deletedDocs);
                 documentsData.forEach(async (docToUpload) => {
                     await uploadToFirebase(docToUpload.uri, docToUpload.dataBase64, `courses/${courseId}/materials/${materialId}`);
                 });
                 // Delete the deleted documents from the server
                 deletedDocs.forEach(async (docToDelete) => {
-                    deleteFromFirebase(`courses/${courseId}/materials/${materialId}`, docToDelete.uri);
+                    await deleteFromFirebase(`courses/${courseId}/materials/${materialId}`, docToDelete.uri);
                 });
             } catch (error) {
                 console.error('Error uploading document:', error);
@@ -395,8 +414,6 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
                             } catch (error) {
                                 console.error('Error deleting material:', error);
                             }
-                        } else {
-                            console.error('Cannot delete a material that has not been created yet.');
                         }
                     },
                 },
@@ -706,7 +723,7 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
                         <DocumentDisplay
                             doc={doc}
                             isTeacher
-                            onDelete={handleOnDeleteDocument}
+                            onDelete={(docToDelete) => { console.log(`click on ${docToDelete.title}`); handleOnDeleteDocument(docToDelete); }}
                         />
                     )}
                     </For>

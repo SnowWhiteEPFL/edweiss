@@ -51,7 +51,7 @@ const DocumentDisplay: React.FC<DocumentDisplayProps> = ({ doc, isTeacher = fals
                 flex={1}
                 flexDirection="row"
                 alignItems="center"
-                onPress={onPress}
+                onPress={() => { console.log(`Click on ${doc.title}`); onPress && onPress(); }}
             >
                 <Icon
                     testID={getIconTestID(doc.type)}
@@ -68,7 +68,7 @@ const DocumentDisplay: React.FC<DocumentDisplayProps> = ({ doc, isTeacher = fals
                 </TText>
 
             </TTouchableOpacity>
-            {isTeacher && onDelete && <TTouchableOpacity onPress={() => onDelete(doc)}>
+            {isTeacher && onDelete && <TTouchableOpacity testID='delete' onPress={() => onDelete(doc)}>
                 <Icon name='trash' size={iconSizes.md} color='red' />
             </TTouchableOpacity>}
         </TView>
