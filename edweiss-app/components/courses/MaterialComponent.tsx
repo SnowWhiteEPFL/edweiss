@@ -384,7 +384,7 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
                     {
                         text: t(`course:upload_anyway`),
                         style: 'destructive',
-                        onPress: handleOnSubmitHelper,
+                        onPress: async () => { await handleOnSubmitHelper(); },
                     },
                 ]
             );
@@ -406,15 +406,17 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
                 {
                     text: t(`course:delete`),
                     style: 'destructive',
-                    onPress: async () => {
-                        if (mode === 'edit') {
-                            try {
-                                await onDelete(material.id);
-                                deleteDirectoryFromFirebase(`courses/${courseId}/materials/${material.id}`);
-                            } catch (error) {
-                                console.error('Error deleting material:', error);
+                    onPress: () => {
+                        (async () => {
+                            if (mode === 'edit') {
+                                try {
+                                    await onDelete(material.id);
+                                    deleteDirectoryFromFirebase(`courses/${courseId}/materials/${material.id}`);
+                                } catch (error) {
+                                    console.error('Error deleting material:', error);
+                                }
                             }
-                        }
+                        })();
                     },
                 },
             ]
