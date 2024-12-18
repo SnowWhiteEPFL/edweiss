@@ -295,7 +295,7 @@ const CoursePage: ApplicationRoute = () => {
 				align="center"
 				isBold
 				right={
-					<TTouchableOpacity
+					userIsProfessor && <TTouchableOpacity
 						testID={testIDs.courseParametersTouchable}
 						key='courseParameters'
 						onPress={() => setModalParamVisible(true)}
