@@ -10,7 +10,7 @@ import { pushWithParameters } from '@/hooks/routeParameters';
 import Quizzes from '@/model/quizzes';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { LectureQuizStudentViewSignature } from '../quiz/lectureQuizStudentView';
+import { LectureQuizStudentViewSignature } from '../quiz/lectureQuizStudentViewPage';
 import { TemporaryQuizProfViewSignature } from '../quiz/temporaryQuizProfView';
 
 const CommunityTab: ApplicationRoute = () => {
@@ -29,9 +29,6 @@ const CommunityTab: ApplicationRoute = () => {
 					</TText>
 				</TView>
 
-				<FancyButton mt={10} mb={10} onPress={() => router.push("/deck")} backgroundColor='pink'>
-					Memento App
-				</FancyButton>
 
 				<FancyButton mt={'md'} mb={'md'} onPress={() => router.push(`/(app)/todo`)}>
 					My Todos
