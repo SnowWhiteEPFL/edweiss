@@ -10,7 +10,7 @@ import { pushWithParameters } from '@/hooks/routeParameters';
 import Quizzes from '@/model/quizzes';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { LectureQuizStudentViewSignature } from '../quiz/lectureQuizStudentView';
+import { LectureQuizStudentViewSignature } from '../quiz/lectureQuizStudentViewPage';
 import { TemporaryQuizProfViewSignature } from '../quiz/temporaryQuizProfView';
 
 const CommunityTab: ApplicationRoute = () => {
@@ -30,9 +30,7 @@ const CommunityTab: ApplicationRoute = () => {
 					</TText>
 				</TView>
 
-				<FancyButton mt={10} mb={10} onPress={() => router.push("/deck" as any)} backgroundColor='pink'>
-					Memento App
-				</FancyButton> */}
+
 
 				<FancyButton mt={'md'} mb={'md'} onPress={() => router.push(`/(app)/todo`)}>
 					My Todos
@@ -61,6 +59,7 @@ const CommunityTab: ApplicationRoute = () => {
 				<FancyButton mt={10} mb={10} onPress={() => pushWithParameters(TemporaryQuizProfViewSignature, { courseId: "edweiss-demo", lectureId: "xgy30FeIOHAnKtSfPjAe", lectureEventId: "vP0yhuu9eVdATOqZV59Q", prefetchedQuizEvent: undefined })} backgroundColor='lavender'>
 					See MCQ results for prof
 				</FancyButton>
+
 
 				<FancyButton icon='sparkles' loading={aiLoading} mt={10} mb={10} onPress={async () => {
 					setAiLoading(true);

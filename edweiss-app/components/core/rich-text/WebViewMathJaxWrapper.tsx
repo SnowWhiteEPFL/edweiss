@@ -1,7 +1,8 @@
 import ReactComponent from '@/constants/Component';
 import React, { useMemo, useState } from 'react';
-import { View, ViewStyle } from 'react-native';
-import { WebView, WebViewProps } from 'react-native-webview';
+import { ViewStyle } from 'react-native';
+import AutoHeightWebView from 'react-native-autoheight-webview';
+import { WebViewProps } from 'react-native-webview';
 
 const mathjaxConfigPayload = JSON.stringify({
 	messageStyle: 'none',
@@ -31,8 +32,15 @@ const WebViewMathJaxWrapper: ReactComponent<WebViewJaxWrapperProps> = (props) =>
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 		${props.disableMathJax ? `
 			<div id="jax-content">${props.source}</div>
+
 			<script type="text/javascript">
-				window.ReactNativeWebView.postMessage(String(document.getElementById("jax-content").scrollHeight));
+				// window.addEventListener('load', (event) => {
+					// console.log('page is fully loaded');
+				// 	setTimeout(() => {
+				// 		window.ReactNativeWebView.postMessage(String(document.getElementById("jax-content").scrollHeight));
+				// 	}, 16);
+				// });
+
 				
 				// element.scrollHeight
 				// window.ReactNativeWebView.postMessage(String(document.documentElement.scrollHeight));
@@ -53,20 +61,38 @@ const WebViewMathJaxWrapper: ReactComponent<WebViewJaxWrapperProps> = (props) =>
 		`}
 	`, [props.source]);
 
+	// const onProductDetailsWebViewMessage = event => {
+	// 	setWebviewHeight(Number(event.nativeEvent.data) / PixelRatio.get())
+	// }
+
 	return (
-		<View style={[{ height }, props.style]}>
-			<WebView
-				textInteractionEnabled={false}
-				scrollEnabled={false}
-				overScrollMode='never'
-				showsVerticalScrollIndicator={false}
-				source={{ html }}
-				onMessage={message => setHeight(Number(message.nativeEvent.data))}
-				cacheEnabled
-				// cacheMode='LOAD_CACHE_ELSE_NETWORK'
-				{...props.webview}
-			/>
-		</View>
+		// <View style={[{}, props.style]}>
+		<AutoHeightWebView
+			style={props.style}
+			textInteractionEnabled={false}
+			scrollEnabled={false}
+			overScrollMode='never'
+			showsVerticalScrollIndicator={false}
+			source={{ html }}
+			onContentSizeChange={event => {
+				console.log("Content size change :", event);
+			}}
+			onSizeUpdated={size => console.log("Size height: ", size.height)}
+			// onMessage={message => {
+			// 	setHeight(Number(message.nativeEvent.data))
+			// const newHeight = Number(message.nativeEvent.data);
+			// setHeight(Number(message.nativeEvent.data) / PixelRatio.get())
+			// setHeight(newHeight);
+			// console.log(newHeight);
+			// }}
+			// cacheEnabled
+			// scalesPageToFit={true}
+			// injectedJavaScript='window.ReactNativeWebView.postMessage(document.body.scrollHeight)'
+			// viewportContent={'width=device-width, user-scalable=no'}
+			// cacheMode='LOAD_CACHE_ELSE_NETWORK'
+			{...props.webview}
+		/>
+		// </View>
 	);
 };
 

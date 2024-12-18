@@ -332,6 +332,7 @@ describe('QuizStudentView', () => {
 				exercises={mockExercises}
 				results={mockResults}
 				testId='mock-quiz-display'
+				quizName='mockQuizName'
 			/>
 		);
 
@@ -349,6 +350,7 @@ describe('QuizStudentView', () => {
 				exercises={mockExercises}
 				results={mockResults}
 				testId='mock-quiz-result-display'
+				quizName='mockQuizName'
 			/>
 		);
 
