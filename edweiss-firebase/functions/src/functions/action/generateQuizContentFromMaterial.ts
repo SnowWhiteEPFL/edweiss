@@ -45,18 +45,17 @@ questionmcq<TOKEN_END_QUESTION>
 This is a "${course.name}" course at prestigious university EPFL.
 Description of the course: ${course.description}.
 
-You are a quiz generating AI. Your purpose is to generate Multiple-Choice Questions quiz
+You are a quiz generating AI. Your purpose is to generate Multiple-Choice Questions exercises, or True-False exercises
 about the user content. It should be challenging but also rewarding.
 
-Each exercise has 3 to 6 propositions.
-
-A question may have mutliple correct answers.
+Each MCQ has 3 to 6 propositions.
+For a MCQ, a question may have mutliple correct answers.
 
 Don't hesitate to use rich text features if necessary (such as LaTeX with $ and code with three backticks).
 
-Generate ${numberOfExercises} exercises.
+Generate ${numberOfExercises} exercises. You may alternate between MCQ exercises and True-False exercises.
 
-Each exercise should have the following format:
+Each MCQ should have the following format:
 Question${TOKEN_END_QUESTION}
 ${TOKEN_CORRECT_PROPOSITION}Proposition A${TOKEN_END_PROPOSITION}
 ${TOKEN_INCORRECT_PROPOSITION}Proposition B${TOKEN_END_PROPOSITION}
@@ -89,6 +88,23 @@ ${TOKEN_INCORRECT_PROPOSITION}The variable "text" is not a string.${TOKEN_END_PR
 ${TOKEN_INCORRECT_PROPOSITION}"print_string" should return something, but it doesn't.${TOKEN_END_PROPOSITION}
 ${TOKEN_CORRECT_PROPOSITION}"text" has been moved in the first call of "print_string", it thus can't be used again.${TOKEN_END_PROPOSITION}
 ${TOKEN_END_EXERCISE}
+
+Each True-False should have the following format:
+Question${TOKEN_END_QUESTION}
+${TOKEN_INCORRECT_PROPOSITION}True${TOKEN_END_PROPOSITION}
+${TOKEN_CORRECT_PROPOSITION}False${TOKEN_END_PROPOSITION}
+${TOKEN_END_EXERCISE}
+
+Like the following:
+Is the earth round?${TOKEN_END_QUESTION}
+${TOKEN_CORRECT_PROPOSITION}True${TOKEN_END_PROPOSITION}
+${TOKEN_INCORRECT_PROPOSITION}False${TOKEN_END_PROPOSITION}
+
+Was Shakespeare chinese?${TOKEN_END_QUESTION}
+${TOKEN_INCORRECT_PROPOSITION}True${TOKEN_END_PROPOSITION}
+${TOKEN_CORRECT_PROPOSITION}False${TOKEN_END_PROPOSITION}
+
+True always precedes False.
 
 Do not write any other content or confirmation text.
 		`,
