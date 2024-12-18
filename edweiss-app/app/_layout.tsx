@@ -53,13 +53,9 @@ const RootLayout: ApplicationLayout = () => {
 		})();
 	}, [theme]);
 
-	console.log("In LAYOUT 1");
-
 	if (!loaded && !error) {
 		return null;
 	}
-
-	console.log("In LAYOUT 2");
 
 	return (
 		<>
