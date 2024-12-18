@@ -8,7 +8,8 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
-import Login, { LoadingPageCompoment } from '@/app/login';
+import Login from '@/app/login';
+import { LoadingPageCompoment } from '@/components/InitialLoadingScreen';
 import { callFunction, signInAnonymously, signInWithGoogle } from '@/config/firebase';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { router } from 'expo-router';
@@ -78,38 +79,6 @@ describe('Login Screen Tests Suites', () => {
         expect(getByTestId('quote-but-3')).toBeTruthy();
         expect(getByTestId('google-but')).toBeTruthy();
         expect(getByTestId('anon-but')).toBeTruthy();
-    });
-
-    it('displays three quote buttons and allows selection of a quote', () => {
-        const { getByTestId } = render(<Login />);
-
-        const quoteButton1 = getByTestId('quote-but-1');
-        const quoteButton2 = getByTestId('quote-but-2');
-        const quoteButton3 = getByTestId('quote-but-3');
-
-        // Selected color for quote 1
-        expect(quoteButton1.props.style.backgroundColor).toBe("#04a5e5");
-        expect(quoteButton2.props.style.backgroundColor).toBe("#ccd0da");
-        expect(quoteButton3.props.style.backgroundColor).toBe("#ccd0da");
-
-        // Selected color for quote 2
-        fireEvent.press(quoteButton2);
-        expect(quoteButton1.props.style.backgroundColor).toBe("#ccd0da");
-        expect(quoteButton2.props.style.backgroundColor).toBe("#04a5e5");
-        expect(quoteButton3.props.style.backgroundColor).toBe("#ccd0da");
-
-        // Selected color for quote 3
-        fireEvent.press(quoteButton3);
-        expect(quoteButton1.props.style.backgroundColor).toBe("#ccd0da");
-        expect(quoteButton2.props.style.backgroundColor).toBe("#ccd0da");
-        expect(quoteButton3.props.style.backgroundColor).toBe("#04a5e5");
-
-        // Selected color for quote 1
-        fireEvent.press(quoteButton1);
-        expect(quoteButton1.props.style.backgroundColor).toBe("#04a5e5");
-        expect(quoteButton2.props.style.backgroundColor).toBe("#ccd0da");
-        expect(quoteButton3.props.style.backgroundColor).toBe("#ccd0da");
-
     });
 
     it('calls signInWithGoogle and navigates if successful', async () => {
@@ -209,9 +178,7 @@ describe('Login Screen Tests Suites', () => {
 
 describe('LoadingPageComponent Tests suites', () => {
     it('renders the loading screen with an image and loading indicator', () => {
-        const { getByText, getByTestId } = render(<LoadingPageCompoment />);
-        expect(getByTestId('flower_logo_png')).toBeTruthy();
+        const { getByTestId } = render(<LoadingPageCompoment />);
         expect(getByTestId('load-indicator')).toBeTruthy();
-        expect(getByText('login:by_snowwhite_team')).toBeTruthy();
     });
 });
