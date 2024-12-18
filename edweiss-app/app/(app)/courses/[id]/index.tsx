@@ -331,7 +331,7 @@ const CoursePage: ApplicationRoute = () => {
 				)}
 				</For>
 
-				{/* Bouton vers les Passed Assignments */}
+				{/* Bouton to the Passed Assignments */}
 				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} mt={5} alignItems='center' onPress={() => pushWithParameters(ArchiveRouteSignature, { courseId: course.id, assignments: previousAssignments })}>
 					<TView flexDirection='row' mt={8} mb={16} >
 						<Icon
