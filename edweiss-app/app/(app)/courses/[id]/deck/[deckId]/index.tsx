@@ -186,7 +186,7 @@ const CardListScreen: ApplicationRoute = () => {
 				title={deck?.data.name}
 				right={
 					<>
-						{current_user_type == 'professor' && <FancyButton backgroundColor='green' outlined loading={loading} onPress={() => {
+						{current_user_type == 'professor' && <FancyButton backgroundColor='transparent' textColor='green' loading={loading} onPress={() => {
 							publishDeck();
 						}}>
 							Publish Deck
