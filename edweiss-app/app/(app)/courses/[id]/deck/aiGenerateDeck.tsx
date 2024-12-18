@@ -1,15 +1,18 @@
+import ProgressPopup, { useProgressPopup } from '@/components/animations/ProgressPopup';
 import TScrollView from '@/components/core/containers/TScrollView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import MaterialDisplay from '@/components/courses/MaterialDisplay';
+import SmthWrongComponent from '@/components/memento/SmthWrongComponent';
 import { callFunction, CollectionOf } from '@/config/firebase';
 import { ApplicationRoute } from '@/constants/Component';
 import { timeInMS } from '@/constants/Time';
 import { useDynamicDocs } from '@/hooks/firebase/firestore';
+import { useRepository } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
 import Memento from '@/model/memento';
 import { Material } from '@/model/school/courses';
 import React, { useMemo } from 'react';
-import { Alert } from 'react-native';
+import { DecksRepository } from './_layout';
 
 const AiGenerateScreen: ApplicationRoute = () => {
 
@@ -17,6 +20,10 @@ const AiGenerateScreen: ApplicationRoute = () => {
     const materialCollection = useDynamicDocs(
         CollectionOf<Material>(`courses/${courseId}/materials`)
     ) || [];
+    const [decks, handler] = useRepository(DecksRepository);
+    const handle = useProgressPopup();
+
+    if (!decks) return <SmthWrongComponent message='Oops, Error loading decks ... ' />;
 
     const currentMaterials = useMemo(() => {
         return materialCollection.filter((material) => {
@@ -36,17 +43,15 @@ const AiGenerateScreen: ApplicationRoute = () => {
     }, [materialCollection, timeInMS.SECOND]);
 
     const generateByAI = async (materialUrl: string) => {
+        console.log("Generating deck from material: ", materialUrl);
         const res = await callFunction(Memento.Functions.createDeckFromMaterial, {
             courseId,
             materialUrl: materialUrl
         });
 
-        console.log(res);
-
         if (res.status == 1) {
-            Alert.alert("All good, generated. Check Firebase.");
-        } else {
-            Alert.alert(`ERROR: ${JSON.stringify(res)}`);
+            const deck = res.data.deck;
+            handler.addDocument(deck, Promise.resolve({ status: 1, data: { id: res.data.id } }));
         }
 
     }
@@ -55,10 +60,12 @@ const AiGenerateScreen: ApplicationRoute = () => {
         <>
             <RouteHeader title="Automate Deck creation" isBold align='center' />
             <TScrollView p={16} backgroundColor="mantle">
-                {currentMaterials.map((material) => (<MaterialDisplay item={material.data} key={material.id} />))}
+                {currentMaterials.map((material) => (<MaterialDisplay item={material.data} courseId={courseId} materialId={material.id} handle={handle} aiGenerateDeck={generateByAI} key={material.id} />))}
 
-                {passedMaterials.sort((a, b) => b.data.to.seconds - a.data.to.seconds).map((material) => (<MaterialDisplay item={material.data} key={material.id} />))}
+                {passedMaterials.sort((a, b) => b.data.to.seconds - a.data.to.seconds).map((material) => (<MaterialDisplay item={material.data} courseId={courseId} materialId={material.id} handle={handle} aiGenerateDeck={generateByAI} key={material.id} />))}
             </TScrollView>
+
+            <ProgressPopup handle={handle} />
         </>
     )
 };
