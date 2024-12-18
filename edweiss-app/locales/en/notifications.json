@@ -9,5 +9,8 @@
     "all_time": "Older",
     "unread": "Unread",
     "read": "Read",
-    "delete": "Delete"
+    "delete": "Delete",
+
+    "new_assignment_due": "New Assignment Due",
+    "is_now_available": "is now available!"
 }

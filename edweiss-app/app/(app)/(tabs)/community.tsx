@@ -17,6 +17,7 @@ const CommunityTab: ApplicationRoute = () => {
 	const [aiLoading, setAiLoading] = useState(false);
 
 	const handle = useProgressPopup();
+	const [loading, setLoading] = useState(false);
 
 	return (
 		<>
@@ -28,6 +29,7 @@ const CommunityTab: ApplicationRoute = () => {
 						Explore and experiment in community.tsx !
 					</TText>
 				</TView>
+
 
 
 				<FancyButton mt={'md'} mb={'md'} onPress={() => router.push(`/(app)/todo`)}>
@@ -115,7 +117,6 @@ const CommunityTab: ApplicationRoute = () => {
 
 
 			<ProgressPopup handle={handle} />
-
 		</>
 	);
 };

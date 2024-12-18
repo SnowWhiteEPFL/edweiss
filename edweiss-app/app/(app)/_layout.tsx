@@ -1,3 +1,4 @@
+import { LoadingPageCompoment } from '@/components/InitialLoadingScreen';
 import { ApplicationLayout } from '@/constants/Component';
 
 import { useAuth } from '@/contexts/auth';
@@ -5,7 +6,6 @@ import { CoursesProvider } from '@/contexts/courses';
 import { useUser } from '@/contexts/user';
 import { Redirect, Stack } from 'expo-router';
 import React from 'react';
-import { LoadingPageCompoment } from '../login';
 
 const AppLayout: ApplicationLayout = () => {
 	const { isUserLoggedIn: userLoggedIn, isLoading } = useAuth();

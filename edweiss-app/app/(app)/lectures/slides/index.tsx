@@ -226,7 +226,9 @@ const LectureScreen: ApplicationRoute = () => {
             {isFullscreen ?
 
                 <TView mr={'lg'} flexDirection='column' style={{ width: '100%', height: '100%', position: 'relative' }} >
+
                     {LectureViewer({ uri, widthPorp: 1, heightProp: 1, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, courseId: courseName, lectureId, colorScheme })}
+
                     {ControlButtons()}
                 </TView>
 
@@ -234,7 +236,9 @@ const LectureScreen: ApplicationRoute = () => {
                 : isLandscape ?
                     <TView flexDirection={'row'} flex={1} style={{ width: '100%' }}>
                         <TView flexDirection='column' style={{ width: '60%', height: '100%', position: 'relative' }} >
+
                             {LectureViewer({ uri, widthPorp: 0.6, heightProp: 1, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, courseId: courseName, lectureId, colorScheme })}
+
                             {ControlButtons()}
                         </TView>
                         {ContentView('40%', '100%')}
@@ -244,7 +248,9 @@ const LectureScreen: ApplicationRoute = () => {
                     :
                     <TView flexDirection={'column'} flex={1} style={{ width: '100%' }}>
                         <TView flexDirection='column' style={{ width: '100%', height: '40%', position: 'relative' }} >
+
                             {LectureViewer({ uri, widthPorp: 1, heightProp: 0.6, currentEvent, currentQuestion, setNumPages, setCurrentPage, page, isLandscape, courseId: courseName, lectureId, colorScheme })}
+
                             {ControlButtons()}
                         </TView>
                         {ContentView('100%', '60%')}

@@ -12,6 +12,7 @@
     "materials_title": "Materials",
     "hide_future_materials": "Hide future materials",
     "show_future_materials": "Show future materials",
+    "no_future_materials": "No future materials for the moment",
 
     "archived_assignments": "Archived Assignments",
     "no_past_assignment": "No past assignments for the moment",
@@ -84,5 +85,22 @@
     "document_not_supported": "This document format cannot be displayed by Edweiss. \n You can download the document to view it.",
     "of" : " of ",
     "failure_download_document": "Failed to download document",
-    "success_download_document": "Document downloaded successfully 🎉"
+    "success_download_document": "Document downloaded successfully 🎉",
+
+    "documents_title": "Documents",
+    "add_document": "Add Document",
+    "document_title_label": "Title",
+    "document_title_placeholder": "Document title",
+    "browse_document": "browse",
+    "save_upload": "Save",
+    "no_documents": "No documents for this course yet",
+
+
+    "document_not_saved": "Document not saved",
+    "document_not_saved_text": "You have unsaved changes.\nDo you want to save them before leaving?",
+    "upload_anyway": "Upload anyway",
+
+    "cancel": "Cancel",
+    "confirm_deletion": "Confirm Deletion",
+    "confirm_deletion_text": "Are you sure you want to delete this material?\nThis action is irreversible."
 }

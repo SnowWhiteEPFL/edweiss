@@ -173,7 +173,7 @@ const NotificationsPage: ApplicationRoute = () => {
                             source={require('../../../assets/images/no-notification.png')} // chemin relatif de l'image
                             style={{ width: width * 0.9, height: height * 0.5, resizeMode: 'contain' }}
                         />
-                        <TText testID={testIDs.noNotifTitle} mb={25} bold size={30}>{t(`notifications:no_notifs_yet`)}</TText>
+                        <TText testID={testIDs.noNotifTitle} mb={25} py={20} bold size={30}>{t(`notifications:no_notifs_yet`)}</TText>
                         <TText testID={testIDs.noNotifText} align='center' mx={20} size={18} color='darkNight'>{t(`notifications:no_notifs_text`)}</TText>
                     </TView>
                 }

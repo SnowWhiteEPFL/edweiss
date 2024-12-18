@@ -59,6 +59,7 @@ describe('SVGImage Component', () => {
     it('renders an error message when fetching fails', async () => {
 
         global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
+
         const screen = render(
             <SVGImage uri="mocked-uri" width={100} height={100} />
         );
@@ -68,7 +69,6 @@ describe('SVGImage Component', () => {
     });
 
     it('renders the SVG when fetching succeeds', async () => {
-        const svgContent = '<svg><circle cx="50" cy="50" r="40" /></svg>';
 
         const screen = render(
             <SVGImage uri="mocked-uri" width={100} height={100} />
