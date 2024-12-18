@@ -16,7 +16,6 @@ export const toggleLectureQuizResult = onSanitizedCall(Quizzes.Functions.toggleL
 		return fail("not_authorized");
 	}
 
-
 	const [doc, ref] = await getDocumentAndRef(CollectionOf<LectureDisplay.ActualLectureEvent>("courses/" + args.courseId + "/lectures/" + args.lectureId + "/lectureEvents"), args.lectureEventId);
 
   if (doc.type == "quiz") {

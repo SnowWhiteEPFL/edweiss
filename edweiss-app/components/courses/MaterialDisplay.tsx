@@ -7,11 +7,11 @@ import t from '@/config/i18config';
 import { iconSizes } from '@/constants/Sizes';
 import { IconType } from '@/constants/Style';
 import { pushWithParameters } from '@/hooks/routeParameters';
-import { Material, MaterialType } from '@/model/school/courses';
-import { getIconName, getIconTestID, getTestID, getTextTestID } from '@/utils/courses/materialDisplay';
+import { CourseID, Material, MaterialID, MaterialType } from '@/model/school/courses';
 import { Time } from '@/utils/time';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
+import DocumentDisplay from './DocumentDisplay';
 
 
 // Icons
@@ -54,7 +54,7 @@ export const testIDs = {
  * 
  * @returns JSX.Element - The rendered component for the assignment display.
  */
-const MaterialDisplay: ReactComponent<{ item: Material, isTeacher?: boolean, onTeacherClick?: () => void; }> = ({ item, isTeacher = false, onTeacherClick }) => {
+const MaterialDisplay: ReactComponent<{ item: Material, courseId: CourseID, materialId: MaterialID, isTeacher?: boolean, onTeacherClick?: () => void; }> = ({ item, courseId, materialId, isTeacher = false, onTeacherClick }) => {
 
     const formatDateRange = (fromSeconds: number, toSeconds: number) => {
 
@@ -90,38 +90,15 @@ const MaterialDisplay: ReactComponent<{ item: Material, isTeacher?: boolean, onT
         <TView mt={10} mb={10}>
             <TView flexDirection='row' justifyContent='space-between'>
                 <TText testID={testIDs.materialTitle} mb={10} size={18} color='darkBlue' bold>{item.title}</TText>
-                {isTeacher && <TTouchableOpacity onPress={onTeacherClick}>
-                    <Icon name='create' size={iconSizes.md} color='blue' />
+                {isTeacher && <TTouchableOpacity testID='editMaterial' onPress={onTeacherClick}>
+                    <Icon testID='editMaterialIcon' name='create' size={iconSizes.md} color='blue' />
                 </TTouchableOpacity>}
             </TView>
             <TText testID={testIDs.materialTitle} mb={4} size={14} color='darkBlue' bold>{formatDateRange(item.from.seconds, item.to.seconds)}</TText>
             <TText testID={testIDs.materialDescription} lineHeight='md' align='auto' size={15} color='darkNight' py={12} textBreakStrategy='highQuality'>{item.description}</TText>
 
             {sortedDocs.map((doc) => (
-                <TTouchableOpacity
-                    key={doc.uri}
-                    testID={getTestID(doc.type)}
-                    flexDirection="row"
-                    alignItems="center"
-                    py={10}
-                    mb={10}
-                    bb={1}
-                    borderColor="crust"
-                    onPress={() => { console.log(`Click on ${doc.title}`); pushWithParameters(DocumentRouteSignature, { document: doc }) }}
-                >
-                    <Icon
-                        testID={getIconTestID(doc.type)}
-                        name={getIconName(doc.type)}
-                        size={iconSizes.md}
-                    />
-                    <TText
-                        testID={getTextTestID(doc.type)}
-                        size={16}
-                        ml={10}
-                    >
-                        {doc.title}
-                    </TText>
-                </TTouchableOpacity>
+                <DocumentDisplay doc={doc} isTeacher={isTeacher} onDelete={undefined} key={doc.uri} onPress={() => pushWithParameters(DocumentRouteSignature, { courseId: courseId, materialId: materialId, document: doc })} />
             ))}
         </TView>
     );

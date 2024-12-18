@@ -241,7 +241,7 @@ describe('AssignmentDisplay', () => {
 
         // Vérifie que router.push a bien été appelé avec les bons paramètres
         expect(pushSpy).toHaveBeenCalledWith({
-            pathname: '/(app)/quiz/temporaryQuizStudentView',
+            pathname: '/(app)/quiz/quizStudentView',
             params: {
                 quizId: '1',
                 courseId: 'default-course-id',

@@ -25,12 +25,11 @@ const SVGImage: ReactComponent<SVGImageProps> = ({ uri, width, height, color, ti
         const fetchSvg = async () => {
             try {
                 const response = await fetch(uri);
-                const svgText = await response.text();
-                setSvgData(svgText);
-                setLoading(false);
+                const svgData = await response.text();
+                setSvgData(svgData);
             } catch (error) {
                 console.error('Error fetching SVG: ', error);
-                console.debug(svgData);
+            } finally {
                 setLoading(false);
             }
         };

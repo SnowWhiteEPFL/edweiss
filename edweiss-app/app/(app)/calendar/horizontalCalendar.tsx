@@ -70,7 +70,7 @@ export const horizontaCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate
                                         const todoParams = event.todo
                                             ? { todo: JSON.stringify(event.todo) } // Serialize the object
                                             : {};
-                                        const assignmentPath = `/(app)/quiz/temporaryQuizStudentView`;
+                                        const assignmentPath = `/(app)/quiz/quizStudentView`;
                                         const assignmentParams = { quizId: event.assignmentID, courseId: event.course?.id }
 
                                         return (

@@ -1,6 +1,7 @@
 import { callFunction } from '@/config/firebase';
 import NotifList from '@/model/notifs';
 import { CourseID } from '@/model/school/courses';
+import { UserID } from '@/model/users';
 
 export async function markAsUnreadAction(id: string) {
     if (!id) return;
@@ -14,11 +15,12 @@ export async function markAsReadAction(id: string) {
     if (res.status == 0) { console.log('Notification failed to mark as read'); }
 }
 
-export async function pushNotifAction(id: string, type: string, title: string, message: string, read: boolean, courseID?: CourseID | null, date?: string) {
-    if (!id) return;
+export async function pushNotifAction(type: string, title: string, message: string, users?: UserID[], courseID?: CourseID) {
     try {
-        const res = await callFunction(NotifList.Functions.pushNotif, { type: type, title: title, message: message, date: date, read: read, courseID: courseID });
-        if (res.status == 0) { console.log('Notification failed to push'); }
+        console.log('Pushing notification : ', type, title, message, users, courseID);
+        const res = await callFunction(NotifList.Functions.pushNotif, { type: type, title: title, message: message, userIds: users, courseID: courseID });
+        console.log('Notification pushed : ', res);
+        if (res.status == 0) { console.log('Notification failed to push : ', res.error); }
     }
     catch (error) { console.error('Error pushing notification:', error); }
 }
