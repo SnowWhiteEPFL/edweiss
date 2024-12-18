@@ -87,9 +87,9 @@ const StudentQuestion: ReactComponent<{ courseName: string, lectureId: string, q
                         <TView ml={'md'}>
                             <Avatar size={30} name={anonym ? undefined : username} uid={anonym ? undefined : userID} />
                         </TView>
-                        <TView flex={1} flexDirection='row' alignItems='flex-end' justifyContent='space-between'>
-                            <TText mb={'xs'} size={'sm'} pl={2} pt={'sm'}>{anonym ? "Anonymous" : username}</TText>
-                            <TText size={'xs'}>{Time.agoTimestamp(postedTime)}</TText>
+                        <TView flex={1} flexDirection='column' >
+                            <TText size={'sm'} pt={'sm'}>{anonym ? "Anonymous" : username}</TText>
+                            <TText color='subtext0' mb={'xs'} size={10}>{Time.agoTimestamp(postedTime)}</TText>
                         </TView>
                     </TView>
                     <TText pl={'md'}>
