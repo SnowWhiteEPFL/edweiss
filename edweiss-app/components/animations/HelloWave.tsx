@@ -15,7 +15,7 @@ const HelloWave: ReactComponent<{}> = () => {
 
 	rotationAnimation.value = withRepeat(
 		withSequence(withTiming(25, { duration: 150 }), withTiming(0, { duration: 150 })),
-		4
+		40
 	);
 
 	const animatedStyle = useAnimatedStyle(() => ({
@@ -33,7 +33,7 @@ export default HelloWave;
 
 const styles = StyleSheet.create({
 	text: {
-		fontSize: 28,
+		fontSize: 24,
 		lineHeight: 32,
 		marginTop: -6,
 	},
