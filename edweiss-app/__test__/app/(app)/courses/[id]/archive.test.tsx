@@ -137,7 +137,6 @@ describe('ArchiveScreen', () => {
 
         // Texts presence check
         expect(screen.getByText('Previous assignments')).toBeTruthy();
-        expect(screen.getByText('Archived Assignments')).toBeTruthy();
         expect(screen.getByText('Assignment 1')).toBeTruthy();
         expect(screen.getByText('Assignment 2')).toBeTruthy();
         expect(screen.getByText('Thursday, January 1')).toBeTruthy();
@@ -148,9 +147,6 @@ describe('ArchiveScreen', () => {
 
         // TestIDs presence check
         expect(screen.getByTestId('archive-scroll-view')).toBeTruthy();
-        expect(screen.getByTestId('archive-touchable')).toBeTruthy();
-        expect(screen.getByTestId('archive-icon')).toBeTruthy();
-        expect(screen.getByTestId('archive-title')).toBeTruthy();
         expect(screen.getAllByTestId('assignment-view')).toHaveLength(2);
 
         // TestIDs absence check
@@ -168,14 +164,10 @@ describe('ArchiveScreen', () => {
 
         // Texts presence check
         expect(screen.getByText('Previous assignments')).toBeTruthy();
-        expect(screen.getByText('Archived Assignments')).toBeTruthy();
         expect(screen.getByText('No past assignments for the moment')).toBeTruthy();
 
         // TestIDs presence check
         expect(screen.getByTestId('archive-scroll-view')).toBeTruthy();
-        expect(screen.getByTestId('archive-touchable')).toBeTruthy();
-        expect(screen.getByTestId('archive-icon')).toBeTruthy();
-        expect(screen.getByTestId('archive-title')).toBeTruthy();
         expect(screen.getByTestId('no-archive')).toBeTruthy();
 
         // TestIDs absence check

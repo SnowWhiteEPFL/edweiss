@@ -13,7 +13,7 @@ import { getDownloadURL } from '@/config/firebase';
 import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
-import { MaterialDocument } from '@/model/school/courses';
+import { CourseID, MaterialDocument, MaterialID } from '@/model/school/courses';
 import { Image } from 'expo-image';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
@@ -48,6 +48,8 @@ export const testIDs = {
 
 
 export const DocumentRouteSignature: ApplicationRouteSignature<{
+    courseId: CourseID,
+    materialId: MaterialID,
     document: MaterialDocument,
 }> = {
     path: `/courses/[id]/materials/[materialId]`
@@ -61,7 +63,7 @@ type DocumentFormat = 'pdf' | 'jpg' | 'png' | 'jpeg' | 'gif' | 'webp' | 'svg' | 
 // ------------------------------------------------------------
 
 const DocumentScreen: ApplicationRoute = () => {
-    const { document } = useRouteParameters(DocumentRouteSignature);
+    const { courseId, materialId, document } = useRouteParameters(DocumentRouteSignature);
 
     const docFormat: DocumentFormat = document.uri.substring(document.uri.lastIndexOf('.') + 1).toLowerCase();
 
@@ -79,7 +81,7 @@ const DocumentScreen: ApplicationRoute = () => {
 
     const getUrl = async () => {
         try {
-            const url = await getDownloadURL(document.uri);
+            const url = await getDownloadURL(`courses/${courseId}/materials/${materialId}/${document.uri}`);
             setUrl(url);
             setHasError(false); // Reset any existing error
         } catch (error) {
@@ -261,7 +263,7 @@ const DocumentScreen: ApplicationRoute = () => {
     // ------------------------------------------------------------
     const displayPageNumber = () => (
         <TView testID={testIDs.pageNumView} backgroundColor='transparent' radius={5} px={10} py={5} style={{ position: 'absolute', top: 10, left: 10, backgroundColor: 'rgba(128, 128, 128, 0.2)' }}>
-            <TText testID={testIDs.pageNumText} bold color='text'>
+            <TText testID={testIDs.pageNumText} bold color='constantBlack'>
                 {currentPage + t('course:of') + numPages}
             </TText>
         </TView>

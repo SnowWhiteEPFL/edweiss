@@ -55,6 +55,7 @@ export const HorizontalCalendar = ({ eventsByDate }: { eventsByDate: EventsByDat
                         <TView justifyContent='center' alignItems='center' b={1} borderColor='overlay1' style={{ width: '9%', height: 80 }}>
                             <TText>{hour}</TText>
                         </TView>
+
                         <NewComponent daysOfWeek={daysOfWeek} eventsByDate={eventsByDate} hour={hour} user={user} />
                     </TView>
                 ))}

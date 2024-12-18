@@ -70,11 +70,12 @@ export const updateMaterial = onSanitizedCall(Functions.updateMaterial, {
                     title: doc.title,
                     uri: doc.uri,
                     type: doc.type as MaterialType,
-                };
+                } as MaterialDocument;
             });
         } catch (error) {
+            console.debug('HERRRE7', error)
             console.error("Invalid document fields in docs array:", error);
-            return fail("invalid_docs");
+            return fail(error);
         }
     }
 
