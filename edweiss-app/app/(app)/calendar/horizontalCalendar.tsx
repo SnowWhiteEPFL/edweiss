@@ -1,7 +1,7 @@
 import { calculateTopOffset, formatDateToReadable, formatTime, getDaysOfWeekFromMonday } from '@/components/calendar/functions';
+import TText from '@/components/core/TText';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
-import TText from '@/components/core/TText';
 import { useAuth } from '@/contexts/auth';
 import { router } from 'expo-router';
 import { ScrollView } from 'react-native';
@@ -79,7 +79,7 @@ export const horizontaCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate
                                                     if (event.type == "Course") {
                                                         router.push({ pathname: pathname as any, params });
                                                     } else if (event.type == "Todo") {
-                                                        router.push({ pathname: '/(app)/todo', params: todoParams });
+                                                        router.push({ pathname: '/(app)/(tabs)/todos', params: todoParams });
                                                     }
                                                     else {
                                                         router.push({ pathname: assignmentPath, params: assignmentParams });
