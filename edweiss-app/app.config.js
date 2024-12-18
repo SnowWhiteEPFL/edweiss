@@ -9,7 +9,7 @@ const config = {
 	"splash": {
 		"image": "./assets/images/splash.png",
 		"resizeMode": "contain",
-		"backgroundColor": "#ffffff",
+		"backgroundColor": "#e6e9ef",
 	},
 	"ios": {
 		"supportsTablet": true,
