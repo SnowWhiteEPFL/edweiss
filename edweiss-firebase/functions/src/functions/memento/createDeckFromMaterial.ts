@@ -125,7 +125,7 @@ export const createDeckFromMaterial = onSanitizedCall(Memento.Functions.createDe
 			try {
 				const res = await deckCollection.add(clean(deck));
 				step = "8";
-				return ok({ id: res.id });
+				return ok({ id: res.id, deck: deck });
 			} catch (e) {
 				return fail("firebase-error");
 			}
