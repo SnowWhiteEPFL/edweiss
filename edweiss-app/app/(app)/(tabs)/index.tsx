@@ -8,6 +8,7 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import Icon from '@/components/core/Icon';
 import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
+import { quizIcon, submissionIcon } from '@/components/courses/AssignmentDisplay';
 import { CollectionOf, Document } from '@/config/firebase';
 import t from '@/config/i18config';
 import { Color, courseColors } from '@/constants/Colors';
@@ -104,13 +105,19 @@ const SchedulePoint: ReactComponent<{ color: Color, time: string, name: string, 
 const CourseDisplay: ReactComponent<{ course: Document<Course> }> = ({ course }) => {
 	const assignments = useDocs(CollectionOf<Assignment>(`courses/${course.id}/assignments`));
 
-	const validAssignment = assignments && assignments.length > 0 ? assignments : undefined
+	const validAssignment = assignments && assignments.length > 0 ? assignments.filter(a => {
+		return Time.toDate(a.data.dueDate).getTime() > new Date().getTime();
+	}).sort((a, b) => {
+		return Time.toDate(a.data.dueDate).getTime() - Time.toDate(b.data.dueDate).getTime();
+	}) : undefined
 
 	return (
 		<TTouchableOpacity onPress={() => router.push(`/courses/${course.id}`)} radius={'md'} backgroundColor='base' mx={'md'} p={'md'} mb={"md"}>
-			<TText>
-				{course.data.name}
+			<TText size={"sm"} bold color='subtext0' mb={"sm"}>
+				{/* {course.data.name} */}
+				COM301 - Computer Security and Privacy
 			</TText>
+
 			<For each={validAssignment}
 				fallback={<TText size={'sm'} color='overlay1'>{t("home:no_assignments")}</TText>}
 			>
@@ -121,13 +128,16 @@ const CourseDisplay: ReactComponent<{ course: Document<Course> }> = ({ course })
 };
 
 const AssignmentDisplay: ReactComponent<{ assignment: Document<Assignment> }> = ({ assignment }) => {
+	const urgent = Time.toDate(assignment.data.dueDate).getTime() - (1000 * 60 * 60 * 24 * 1) <= new Date().getTime();
+
 	return (
-		<TView flexColumnGap={'md'} flexDirection='row' justifyContent='space-between'>
-			<TText numberOfLines={1} style={{ flex: 1 }}>
+		<TView mb={2} flexColumnGap={'md'} flexDirection='row' alignItems='center' justifyContent='space-between'>
+			<Icon color={urgent ? 'yellow' : 'subtext0'} name={assignment.data.type == "quiz" ? quizIcon : submissionIcon} />
+			<TText color={urgent ? 'yellow' : 'text'} numberOfLines={1} style={{ flex: 1 }}>
 				{assignment.data.name}
 			</TText>
-			<TText color='subtext0'>
-				{Time.toDate(assignment.data.dueDate).toLocaleString()}
+			<TText color={urgent ? 'yellow' : 'subtext0'} size={"sm"}>
+				{Time.toDate(assignment.data.dueDate).toLocaleDateString()}
 			</TText>
 		</TView>
 	);
