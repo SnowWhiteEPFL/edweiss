@@ -13,9 +13,9 @@ describe('Utility Functions', () => {
     });
 
     test('calculateTopOffset calculates offset correctly', () => {
-        expect(calculateTopOffset('00:30')).toBe(40); // 30 minutes -> 40px offset
-        expect(calculateTopOffset('01:00')).toBe(0); // 60 minutes -> 80px offset
-        expect(calculateTopOffset('01:30')).toBe(40); // 90 minutes -> 120px offset
+        expect(calculateTopOffset('00:30')).toBe(40);
+        expect(calculateTopOffset('01:00')).toBe(0);
+        expect(calculateTopOffset('01:30')).toBe(40);
     });
 
     test('formatTime formats time correctly', () => {
