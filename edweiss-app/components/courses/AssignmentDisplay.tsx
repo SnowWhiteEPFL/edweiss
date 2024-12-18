@@ -1,7 +1,7 @@
 import ReactComponent from '@/constants/Component';
 
-import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
+import TView from '@/components/core/containers/TView';
 import t from '@/config/i18config';
 import { Color } from '@/constants/Colors';
 import { iconSizes } from '@/constants/Sizes';
@@ -11,13 +11,13 @@ import { saveTodo } from '@/utils/courses/saveToDo';
 import { router } from 'expo-router';
 import { useCallback, useRef } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
-import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
+import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 
 
 // Icons
-const submissionIcon = 'clipboard-outline';
-const quizIcon = 'help-circle-outline';
+export const submissionIcon = 'clipboard-outline';
+export const quizIcon = 'help-circle-outline';
 
 // Tests Tags
 export const testIDs = {
