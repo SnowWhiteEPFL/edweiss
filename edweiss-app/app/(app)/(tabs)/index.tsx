@@ -114,8 +114,7 @@ const CourseDisplay: ReactComponent<{ course: Document<Course> }> = ({ course })
 	return (
 		<TTouchableOpacity onPress={() => router.push(`/courses/${course.id}`)} radius={'md'} backgroundColor='base' mx={'md'} p={'md'} mb={"md"}>
 			<TText size={"sm"} bold color='subtext0' mb={"sm"}>
-				{/* {course.data.name} */}
-				COM301 - Computer Security and Privacy
+				{course.data.name}
 			</TText>
 
 			<For each={validAssignment}
