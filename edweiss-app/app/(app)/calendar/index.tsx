@@ -33,8 +33,6 @@ export const getNavigationDetails = (user: any, courseItem: { id: string; data: 
   };
 };
 
-const HOUR_BLOCK_HEIGHT = 80; // Height of an hour block
-
 const EventsPerDayScreen = () => {
   const [isPortrait, setIsPortrait] = useState(true); // State to track orientation
   const [loading, setLoading] = useState(true); // State to track loading status
@@ -71,7 +69,7 @@ const EventsPerDayScreen = () => {
 
           if (!allEvents[dateKey]) allEvents[dateKey] = [];
           allEvents[dateKey].push({
-            name: `Todos: ${todo.name}`,
+            name: `Todos: ${String(todo.name)}`,
             startTime: dueDate.getHours() * 60 + dueDate.getMinutes(),
             todo: { id: todoDoc.id, data: todoDoc.data() },
             type: "Todo",
@@ -114,7 +112,7 @@ const EventsPerDayScreen = () => {
 
             if (!allEvents[dateKey]) allEvents[dateKey] = [];
             allEvents[dateKey].push({
-              name: `Assignment: ${assignment.name}`,
+              name: `Assignment: ${String(assignment.name)}`,
               startTime: dueDate.getHours() * 60 + dueDate.getMinutes(),
               type: "Assignment",
               assignmentID: assignmentDoc.id,
@@ -143,20 +141,18 @@ const EventsPerDayScreen = () => {
     </TView>
   );
 
-  // Function to render horizontal view
-  function HorizontalTableView() {
-    return (
-      <TView flex={1}>
-        {loading ? <TText align='center' p={100}>Loading...</TText> : <HorizontalCalendar eventsByDate={eventsByDate} />}
-      </TView>
-    );
-  }
-
   return (
     <TView flex={1}>
-      {isPortrait ? renderPortraitView() : HorizontalTableView()}
+      {isPortrait ? renderPortraitView() : <HorizontalTableView loading={loading} eventsByDate={eventsByDate} />}
     </TView>
   );
 };
+
+// Function to render horizontal view
+const HorizontalTableView = ({ loading, eventsByDate }: { loading: boolean; eventsByDate: EventsByDate }) => (
+  <TView flex={1}>
+    {loading ? <TText align='center' p={100}>Loading...</TText> : <HorizontalCalendar eventsByDate={eventsByDate} />}
+  </TView>
+);
 
 export default EventsPerDayScreen;

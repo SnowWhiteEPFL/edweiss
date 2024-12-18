@@ -4,6 +4,7 @@ import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import { useAuth } from '@/contexts/auth';
 import { router } from 'expo-router';
+import React from 'react';
 import { ScrollView } from 'react-native';
 import { EventsByDate, getNavigationDetails } from '.';
 
@@ -21,7 +22,7 @@ import { EventsByDate, getNavigationDetails } from '.';
  * const eventsByDate = {
  *   '2023-10-01': [
  *     { name: 'Event 1', startTime: 60, endTime: 120, type: 'Course', period: 'Morning', course: { id: 1 }, assignmentID: 123 },
- *     { name: 'Event 2', startTime: 180, endTime: 240, type: 'Todo', todo: { id: 1 } }
+ *     { name: 'Event 2', startTime: 180, endTime: 240, type: 'To do', to do: { id: 1 } }
  *   ],
  *   '2023-10-02': [
  *     { name: 'Event 3', startTime: 300, endTime: 360, type: 'Assignment', assignmentID: 456, course: { id: 2 } }
@@ -30,7 +31,7 @@ import { EventsByDate, getNavigationDetails } from '.';
  * 
  * <HorizontalCalendar eventsByDate={eventsByDate} />
  */
-export const horizontaCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
+export const HorizontalCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
     const auth = useAuth();
     const user = auth.authUser;
     const daysOfWeek = getDaysOfWeekFromMonday(); // Get days of the week starting from Monday
@@ -38,7 +39,6 @@ export const horizontaCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate
 
     return (
         <>
-            {/* Render the days of the week */}
             <TView pt={25} flexDirection='row'>
                 <TView style={{ width: '9%' }} />
                 {daysOfWeek.map((day) => (
@@ -49,61 +49,13 @@ export const horizontaCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate
                     </TView>
                 ))}
             </TView>
-            {/* Render the hours and events */}
             <ScrollView style={{ flexDirection: 'column' }}>
                 {hours.map((hour) => (
                     <TView key={hour} flexDirection='row'>
                         <TView justifyContent='center' alignItems='center' b={1} borderColor='overlay1' style={{ width: '9%', height: 80 }}>
                             <TText>{hour}</TText>
                         </TView>
-                        {daysOfWeek.map((day, colIndex) => {
-                            const events = eventsByDate[day]?.filter(
-                                (event) => event.startTime >= parseInt(hour) * 60 &&
-                                    event.startTime < (parseInt(hour) + 1) * 60
-                            );
-                            return (
-                                <TView key={`${hour}-${colIndex}`} flex={1} b={1} borderColor='overlay2' style={{ height: 80 }}>
-                                    {events?.map((event, index) => {
-                                        const eventDuration = event.endTime ? event.endTime - event.startTime : 0; // Calculate duration in minutes
-                                        const eventHeight = ((eventDuration / 60) * 80) > 80 ? ((eventDuration / 60) * 80) : 80; // Convert to pixels
-                                        const { pathname, params } = event.period && event.course ? getNavigationDetails(user, event.course, event.period, index) : { pathname: '', params: {} };
-                                        const todoParams = event.todo
-                                            ? { todo: JSON.stringify(event.todo) } // Serialize the object
-                                            : {};
-                                        const assignmentPath = `/(app)/quiz/temporaryQuizStudentView`;
-                                        const assignmentParams = { quizId: event.assignmentID, courseId: event.course?.id }
-
-                                        return (
-                                            <TTouchableOpacity
-                                                onPress={() => {
-                                                    if (event.type == "Course") {
-                                                        router.push({ pathname: pathname as any, params });
-                                                    } else if (event.type == "Todo") {
-                                                        router.push({ pathname: '/(app)/todo', params: todoParams });
-                                                    }
-                                                    else {
-                                                        router.push({ pathname: assignmentPath, params: assignmentParams });
-                                                    }
-                                                }}
-                                                key={index}
-                                                radius={4}
-                                                backgroundColor='flamingo'
-                                                b={1}
-                                                borderColor='red'
-                                                style={{
-                                                    top: calculateTopOffset(formatTime(event.startTime)), // Event offset
-                                                    height: eventHeight, // Event height
-                                                }}
-                                            >
-                                                <TText size={'xs'} color='constantBlack'>
-                                                    {event.name}
-                                                </TText>
-                                            </TTouchableOpacity>
-                                        );
-                                    })}
-                                </TView>
-                            );
-                        })}
+                        <NewComponent daysOfWeek={daysOfWeek} eventsByDate={eventsByDate} hour={hour} user={user} />
                     </TView>
                 ))}
             </ScrollView>
@@ -111,4 +63,59 @@ export const horizontaCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate
     );
 };
 
-export default horizontaCalendar;
+const NewComponent = ({ daysOfWeek, eventsByDate, hour, user }: { daysOfWeek: string[], eventsByDate: EventsByDate, hour: string, user: any }) => {
+    return (
+        <>
+            {daysOfWeek.map((day, colIndex) => {
+                const events = eventsByDate[day]?.filter(
+                    (event) => event.startTime >= parseInt(hour) * 60 &&
+                        event.startTime < (parseInt(hour) + 1) * 60
+                );
+                return (
+                    <TView key={`${hour}-${colIndex}`} flex={1} b={1} borderColor='overlay2' style={{ height: 80 }}>
+                        {events?.map((event, index) => {
+                            const eventDuration = event.endTime ? event.endTime - event.startTime : 0; // Calculate duration in minutes
+                            const eventHeight = ((eventDuration / 60) * 80) > 80 ? ((eventDuration / 60) * 80) : 80; // Convert to pixels
+                            const { pathname, params } = event.period && event.course ? getNavigationDetails(user, event.course, event.period, index) : { pathname: '', params: {} };
+                            const todoParams = event.todo
+                                ? { todo: JSON.stringify(event.todo) } // Serialize the object
+                                : {};
+                            const assignmentPath = `/(app)/quiz/quizStudentView`;
+                            const assignmentParams = { quizId: event.assignmentID, courseId: event.course?.id }
+
+                            return (
+                                <TTouchableOpacity
+                                    key={`${day}-${hour}-${index}`}
+                                    onPress={() => {
+                                        if (event.type == "Course") {
+                                            router.push({ pathname: pathname as any, params });
+                                        } else if (event.type == "Todo") {
+                                            router.push({ pathname: '/(app)/todo', params: todoParams });
+                                        }
+                                        else {
+                                            router.push({ pathname: assignmentPath, params: assignmentParams });
+                                        }
+                                    }}
+                                    radius={4}
+                                    backgroundColor='flamingo'
+                                    b={1}
+                                    borderColor='red'
+                                    style={{
+                                        top: calculateTopOffset(formatTime(event.startTime)), // Event offset
+                                        height: eventHeight, // Event height
+                                    }}
+                                >
+                                    <TText size={'xs'} color='constantBlack'>
+                                        {event.name}
+                                    </TText>
+                                </TTouchableOpacity>
+                            );
+                        })}
+                    </TView>
+                );
+            })}
+        </>
+    );
+}
+
+export default HorizontalCalendar;
