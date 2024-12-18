@@ -23,8 +23,6 @@ const AiGenerateScreen: ApplicationRoute = () => {
     const [decks, handler] = useRepository(DecksRepository);
     const handle = useProgressPopup();
 
-    if (!decks) return <SmthWrongComponent message='Oops, Error loading decks ... ' />;
-
     const currentMaterials = useMemo(() => {
         return materialCollection.filter((material) => {
             const fromTime = material.data.from.seconds * timeInMS.SECOND;
@@ -41,6 +39,8 @@ const AiGenerateScreen: ApplicationRoute = () => {
             return toTime < currentTime;
         });
     }, [materialCollection, timeInMS.SECOND]);
+
+    if (!decks) return <SmthWrongComponent message='Oops, Error loading decks ... ' />;
 
     const generateByAI = async (materialUrl: string) => {
         console.log("Generating deck from material: ", materialUrl);
