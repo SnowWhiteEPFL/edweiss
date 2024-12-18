@@ -1,4 +1,4 @@
-import { FunctionFolder, FunctionOf } from './functions';
+import { FunctionFolder, FunctionOf, NoError } from './functions';
 import LectureDisplay from './lectures/lectureDoc';
 import { Assignment, CourseID } from './school/courses';
 
@@ -49,7 +49,8 @@ namespace Quizzes {
         createQuiz: FunctionOf<{ quiz: Quizzes.Quiz; courseId: CourseID; }, { id: string; }, "empty_quiz" | "invalid_name" | "not_authorized">("createQuiz"),
         updateQuiz: FunctionOf<{ quiz: Quizzes.Quiz; courseId: CourseID; path: string }, { id: string; }, "not_authorized">("updateQuiz"),
         createLectureQuiz: FunctionOf<{ lectureQuiz: LectureDisplay.QuizLectureEvent; courseId: CourseID; lectureId: string }, { id: string }, "empty_quiz">("createLectureQuiz"),
-        toggleLectureQuizResult: FunctionOf<{ courseId: CourseID; lectureId: string, lectureEventId: string, }, { id: string }, "not_authorized" | "wrong_ids">("toggleLectureQuizResult")
+        toggleLectureQuizResult: FunctionOf<{ courseId: CourseID; lectureId: string, lectureEventId: string, }, { id: string }, "not_authorized" | "wrong_ids">("toggleLectureQuizResult"),
+        generateQuizContentFromMaterial: FunctionOf<{ courseId: CourseID, materialUrl: string }, { generatedExercises: { question: string, propositions: { text: string, correct: boolean }[] }[] }, NoError>("generateQuizContentFromMaterial")
     });
 
 }

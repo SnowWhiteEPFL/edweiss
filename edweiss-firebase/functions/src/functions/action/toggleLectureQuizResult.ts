@@ -3,7 +3,7 @@ import Quizzes from 'model/quizzes';
 import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, Collections, getDocument, getDocumentAndRef } from 'utils/firestore';
 import { Predicate, tag } from 'utils/sanitizer';
-import { fail, INVALID_COURSE_ID, ok } from 'utils/status';
+import { INVALID_COURSE_ID, fail, ok } from 'utils/status';
 
 export const toggleLectureQuizResult = onSanitizedCall(Quizzes.Functions.toggleLectureQuizResult, {
 	courseId: tag(Predicate.isNonEmptyString, INVALID_COURSE_ID),
@@ -16,8 +16,10 @@ export const toggleLectureQuizResult = onSanitizedCall(Quizzes.Functions.toggleL
 		return fail("not_authorized");
 	}
 
-	const [doc, ref] = await getDocumentAndRef(CollectionOf<LectureDisplay.LectureEvent>("courses/" + args.courseId + "/lectures/" + args.lectureId + "/lectureEvents"), args.lectureEventId);
-	if (doc.type == "quiz") {
+
+	const [doc, ref] = await getDocumentAndRef(CollectionOf<LectureDisplay.ActualLectureEvent>("courses/" + args.courseId + "/lectures/" + args.lectureId + "/lectureEvents"), args.lectureEventId);
+
+  if (doc.type == "quiz") {
 		doc.quizModel.showResultToStudents = !doc.quizModel.showResultToStudents;
 		await ref.set(doc);
 		return ok({ id: ref.id });

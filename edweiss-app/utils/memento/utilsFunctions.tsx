@@ -4,9 +4,12 @@
  * @author Tuan Dang Nguyen
  */
 
+import { CollectionOf } from '@/config/firebase';
 import { Color } from '@/constants/Colors';
 import { IconType } from '@/constants/Style';
+import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import Memento from '@/model/memento';
+import { AppUser, UserID } from '@/model/users';
 
 /**
  * sortingCards
@@ -78,18 +81,15 @@ export const checkDupplication_EmptyField = (
     isEmptyField: boolean,
     setExistedQuestion: (value: React.SetStateAction<boolean>) => void,
     setEmptyField: (value: React.SetStateAction<boolean>) => void,
-    setIsLoading: (value: React.SetStateAction<boolean>) => void
 ) => {
     if (isDupplicate) {
         setExistedQuestion(true);
-        setIsLoading(false);
         if (isEmptyField) setEmptyField(true);
         return 0;  // Prevent creation if a duplicate is found
     }
 
     if (isEmptyField) {
         setEmptyField(true);
-        setIsLoading(false);
         return 0;
     }
 
@@ -101,3 +101,20 @@ export const selectedCardIndices_play = (selectedCards: Memento.Card[], cards: M
         ? selectedCards.map(card => cards.indexOf(card)) // Get indices of selected cards
         : Array.from(cards.keys()); // Use indices of all cards if none are
 };
+
+export const userIdToName = (userId: UserID) => {
+    const users = useDynamicDocs(CollectionOf<AppUser>('users'));
+    if (!users) return undefined;
+
+    // For each users, map user.id to user.data.name
+    const ids_names_map = new Map<string, string>();
+    users.forEach(user => {
+        ids_names_map.set(user.id, user.data.name);
+    });
+
+    return ids_names_map.get(userId);
+}
+
+export const allowToEditDeck = (current_user_type: string, ownerIds: UserID[], ids_professor_map: Map<string, string>) => {
+    return current_user_type == 'professor' || !ownerIds.some(id => ids_professor_map.has(id));
+}

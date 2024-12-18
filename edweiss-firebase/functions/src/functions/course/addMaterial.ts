@@ -63,7 +63,7 @@ export const addMaterial = onSanitizedCall(Functions.addMaterial, {
     assertIsBetween(materialData.description.length, 0, MAX_MATERIAL_DESCRIPTION_LENGTH, "material_description_too_long");
 
     for (const [index, doc] of materialData.docs.entries()) {
-        if (!doc.url || !doc.title) {
+        if (!doc.uri || !doc.title) {
             console.error(`Missing fields in document at index ${index}:`, doc);
             return fail("invalid_material_doc");
         }
@@ -77,7 +77,7 @@ export const addMaterial = onSanitizedCall(Functions.addMaterial, {
         from: materialData.from,
         to: materialData.to,
         docs: materialData.docs.map((doc) => ({
-            url: doc.url,
+            uri: doc.uri,
             title: doc.title,
             type: doc.type,
         })),

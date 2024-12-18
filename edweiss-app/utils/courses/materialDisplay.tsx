@@ -4,9 +4,10 @@ import { MaterialType } from '@/model/school/courses';
 
 export const getTestID = (type: MaterialType): string => {
     const mapping = {
-        slides: testIDs.slidesTouchable,
-        exercises: testIDs.exercisesTouchable,
-        feedbacks: testIDs.feedbacksTouchable,
+        slide: testIDs.slideTouchable,
+        exercise: testIDs.exerciseTouchable,
+        image: testIDs.imageTouchable,
+        feedback: testIDs.feedbackTouchable,
         other: testIDs.otherTouchable,
     };
     return mapping[type] || testIDs.otherTouchable;
@@ -14,9 +15,10 @@ export const getTestID = (type: MaterialType): string => {
 
 export const getIconName = (type: MaterialType): IconType => {
     const mapping = {
-        slides: icons.slidesIcon,
-        exercises: icons.exerciseIcon,
-        feedbacks: icons.feedbackIcon,
+        slide: icons.slideIcon,
+        exercise: icons.exerciseIcon,
+        image: icons.imageIcon,
+        feedback: icons.feedbackIcon,
         other: icons.otherIcon,
     };
     return mapping[type] || icons.otherIcon;
@@ -24,9 +26,10 @@ export const getIconName = (type: MaterialType): IconType => {
 
 export const getIconTestID = (type: MaterialType): string => {
     const mapping = {
-        slides: testIDs.slidesIcon,
-        exercises: testIDs.exercisesIcon,
-        feedbacks: testIDs.feedbacksIcon,
+        slide: testIDs.slideIcon,
+        exercise: testIDs.exerciseIcon,
+        image: testIDs.imageIcon,
+        feedback: testIDs.feedbackIcon,
         other: testIDs.otherIcon,
     };
     return mapping[type] || testIDs.otherIcon;
@@ -34,9 +37,10 @@ export const getIconTestID = (type: MaterialType): string => {
 
 export const getTextTestID = (type: MaterialType): string => {
     const mapping = {
-        slides: testIDs.slidesText,
-        exercises: testIDs.exercisesText,
-        feedbacks: testIDs.feedbacksText,
+        slide: testIDs.slideText,
+        exercise: testIDs.exerciseText,
+        image: testIDs.imageText,
+        feedback: testIDs.feedbackText,
         other: testIDs.otherText,
     };
     return mapping[type] || testIDs.otherText;
