@@ -10,7 +10,6 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
-import ProgressPopup, { useProgressPopup } from '@/components/animations/ProgressPopup';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
@@ -45,8 +44,6 @@ import { DecksRepository } from './_layout';
 const DeckScreen: ApplicationRoute = () => {
 	const { id: courseId } = useStringParameters();
 	const { uid } = useAuth();
-	const handle = useProgressPopup();
-	const [loading, setLoading] = useState(false);
 
 	const [deckName, setDeckName] = useState("");
 	const [existedDeckName, setExistedDeckName] = useState(false);
@@ -124,20 +121,6 @@ const DeckScreen: ApplicationRoute = () => {
 		setSelectionMode(true); // Activate selection mode on long press
 	};
 
-	const generateByAI = async (materialUrl: string) => {
-		console.log("Generating deck from material: ", materialUrl);
-		const res = await callFunction(Memento.Functions.createDeckFromMaterial, {
-			courseId,
-			materialUrl: materialUrl
-		});
-
-		if (res.status == 1) {
-			const deck = res.data.deck;
-			handler.addDocument(deck, Promise.resolve({ status: 1, data: { id: res.data.id } }));
-		}
-
-	}
-
 	return (
 		<>
 			<RouteHeader title={`${courseId}: Memento`} />
@@ -205,17 +188,7 @@ const DeckScreen: ApplicationRoute = () => {
 
 			<FancyButton
 				icon='sparkles'
-				loading={loading}
-				onPress={async () => {
-					setLoading(true);
-					handle.start();
-
-					//router.push(`courses/${courseId}/deck/aiGenerateDeck` as any)
-					await generateByAI("China-101.pdf")
-
-					setLoading(false);
-					handle.stop();
-				}}
+				onPress={() => router.push(`courses/${courseId}/deck/aiGenerateDeck` as any)}
 				backgroundColor='green'
 				outlined
 				mb={'md'}
@@ -223,8 +196,6 @@ const DeckScreen: ApplicationRoute = () => {
 			>
 				Generate with AI
 			</FancyButton>
-
-			<ProgressPopup handle={handle} />
 
 		</>
 	);
