@@ -1,12 +1,14 @@
-import { callFunction } from '@/config/firebase';
+import { callFunction, CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import { CallResult } from '@/model/functions';
-import { AssignmentID, Course_functions, CourseID, MaterialID } from '@/model/school/courses';
-import { ProfessorID, StudentID } from '@/model/users';
+import { Assignment, AssignmentID, Course_functions, CourseID, Material, MaterialID, UpdateCourseArgs } from '@/model/school/courses';
+import { ProfessorID, StudentID, UserID } from '@/model/users';
+import { pushNotifAction } from '@/utils/notifs/notifsActionsFunctions';
+import { getDocs, query, where } from '@react-native-firebase/firestore';
 import Toast from 'react-native-toast-message';
 
-export async function addAssignmentAction(courseId: CourseID, assignmentJSON: string) {
-    const res = await callFunction(Course_functions.Functions.addAssignment, { courseID: courseId, assignmentJSON: assignmentJSON });
+export async function addAssignmentAction(courseId: CourseID, assignment: Assignment) {
+    const res = await callFunction(Course_functions.Functions.addAssignment, { courseID: courseId, assignmentJSON: JSON.stringify(assignment) });
     if (res.status != 1) {
         console.error(res.error);
         Toast.show({
@@ -19,11 +21,35 @@ export async function addAssignmentAction(courseId: CourseID, assignmentJSON: st
         type: 'success',
         text1: t(`course:successAddAssignment`),
     });
+
+    try {
+        // Étape 1 : Récupérer tous les userIds inscrits au cours
+        const usersCollection = CollectionOf<UserID>(`users`);
+        const q = query(usersCollection, where("courses", "array-contains", courseId));
+        const querySnapshot = await getDocs(q);
+
+        // Étape 2 : Parcourir chaque utilisateur et envoyer la notification
+        const userIds: string[] = [];
+        querySnapshot.forEach((doc) => {
+            userIds.push(doc.id);
+        });
+
+        pushNotifAction(
+            assignment.type,
+            t(`notifications:new_assignment_due`),
+            `${assignment.name} ` + t(`notifications:is_now_available`),
+            userIds,
+            courseId
+        );
+    } catch (error) {
+        console.error("Erreur lors de l'envoi des notifications :", error);
+    }
+
     return res;
 }
 
-export async function addMaterialAction(courseId: CourseID, materialJSON: string) {
-    const res = await callFunction(Course_functions.Functions.addMaterial, { courseID: courseId, materialJSON: materialJSON });
+export async function addMaterialAction(courseId: CourseID, material: Material) {
+    const res = await callFunction(Course_functions.Functions.addMaterial, { courseID: courseId, materialJSON: JSON.stringify(material) });
     if (res.status != 1) {
         console.error(res.error);
         Toast.show({
@@ -141,8 +167,8 @@ export async function removeProfessorAction(courseId: CourseID, professorId: Pro
     return res;
 }
 
-export async function updateAssignmentAction(courseId: CourseID, assignmentId: AssignmentID, assignmentJSON: string): Promise<CallResult<{}, Error>> {
-    const res = await callFunction(Course_functions.Functions.updateAssignment, { courseID: courseId, assignmentID: assignmentId, assignmentJSON: assignmentJSON });
+export async function updateAssignmentAction(courseId: CourseID, assignmentId: AssignmentID, assignment: Assignment): Promise<CallResult<{}, Error>> {
+    const res = await callFunction(Course_functions.Functions.updateAssignment, { courseID: courseId, assignmentID: assignmentId, assignmentJSON: JSON.stringify(assignment) });
     if (res.status != 1) {
         console.error(res.error);
         Toast.show({
@@ -158,8 +184,8 @@ export async function updateAssignmentAction(courseId: CourseID, assignmentId: A
     return res;
 }
 
-export async function updateMaterialAction(courseId: CourseID, materialId: MaterialID, materialJSON: string): Promise<CallResult<{}, Error>> {
-    const res = await callFunction(Course_functions.Functions.updateMaterial, { courseID: courseId, materialID: materialId, materialJSON: materialJSON });
+export async function updateMaterialAction(courseId: CourseID, materialId: MaterialID, material: Material): Promise<CallResult<{}, Error>> {
+    const res = await callFunction(Course_functions.Functions.updateMaterial, { courseID: courseId, materialID: materialId, materialJSON: JSON.stringify(material) });
     if (res.status != 1) {
         console.error(res.error);
         Toast.show({
@@ -175,8 +201,8 @@ export async function updateMaterialAction(courseId: CourseID, materialId: Mater
     return res;
 }
 
-export async function updateCourseAction(courseId: CourseID, courseJSON: string): Promise<CallResult<{}, Error>> {
-    const res = await callFunction(Course_functions.Functions.updateCourse, { courseID: courseId, courseJSON: courseJSON });
+export async function updateCourseAction(courseId: CourseID, course: UpdateCourseArgs): Promise<CallResult<{}, Error>> {
+    const res = await callFunction(Course_functions.Functions.updateCourse, { courseID: courseId, courseJSON: JSON.stringify(course) });
     if (res.status != 1) {
         console.error(res.error);
         Toast.show({
@@ -192,8 +218,8 @@ export async function updateCourseAction(courseId: CourseID, courseJSON: string)
     return res;
 }
 
-export async function createCourseAction(courseJSON: string) {
-    const res = await callFunction(Course_functions.Functions.createCourse, { courseJSON: courseJSON });
+export async function createCourseAction(course: UpdateCourseArgs) {
+    const res = await callFunction(Course_functions.Functions.createCourse, { courseJSON: JSON.stringify(course) });
     if (res.status != 1) {
         console.error(res.error);
         return { ...res, error: new Error(res.error) };

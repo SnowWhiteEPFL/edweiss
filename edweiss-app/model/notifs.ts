@@ -1,6 +1,7 @@
 import { FunctionFolder, FunctionOf } from './functions';
 import { CourseID } from './school/courses';
 import { Timestamp } from './time';
+import { UserID } from './users';
 
 namespace NotifList {
 
@@ -18,7 +19,7 @@ namespace NotifList {
     export const Functions = FunctionFolder("notifs", {
         markAsUnread: FunctionOf<{ id: string; }, {}, 'invalid_arg' | 'firebase_error'>("markAsUnread"),
         markAsRead: FunctionOf<{ id: string; }, {}, 'invalid_arg' | 'firebase_error'>("markAsRead"),
-        pushNotif: FunctionOf<{ type: string, title: string, message: string, date: string, read: boolean, courseID: CourseID | null; }, {}, 'invalid_arg' | 'firebase_error'>("pushNotif"),
+        pushNotif: FunctionOf<{ type: string, title: string, message: string, userIds?: UserID[], courseID?: CourseID; }, {}, 'invalid_arg' | 'firebase_error'>("pushNotif"),
         deleteNotif: FunctionOf<{ id: string; }, {}, 'invalid_arg' | 'firebase_error'>("deleteNotif"),
     });
 }

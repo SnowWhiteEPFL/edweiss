@@ -227,12 +227,12 @@ const CoursePage: ApplicationRoute = () => {
 
 	const addAssignmentCallback = useCallback(async (assignment: Assignment): Promise<void> => {
 		setModalVisible(false);
-		await addAssignmentAction(id as CourseID, JSON.stringify(assignment));
+		await addAssignmentAction(id as CourseID, assignment);
 	}, [id]);
 
 	const addMaterialCallback = useCallback(async (material: Material, deleteOnFirebase: (materialId: MaterialID) => Promise<void>): Promise<void> => {
 		setModalVisible(false);
-		const res = await addMaterialAction(id as CourseID, JSON.stringify(material));
+		const res = await addMaterialAction(id as CourseID, material);
 		if (res.status) {
 			try {
 				await deleteOnFirebase(res.data.materialID);
@@ -245,7 +245,7 @@ const CoursePage: ApplicationRoute = () => {
 	const updateAssignmentCallback = useCallback(async (assignment: Assignment, assignmentID: AssignmentID): Promise<void> => {
 		setAssignmentToEdit(null);
 		setModalEditAssignmentVisible(false);
-		await updateAssignmentAction(id as CourseID, assignmentID, JSON.stringify(assignment));
+		await updateAssignmentAction(id as CourseID, assignmentID, assignment);
 	}, [id]);
 
 	const updateMaterialCallback = useCallback(async (material: Material, materialID: MaterialID, deleteOnFirebase: (materialId: MaterialID) => Promise<void>): Promise<void> => {
@@ -254,7 +254,7 @@ const CoursePage: ApplicationRoute = () => {
 		console.log(JSON.parse(json));
 		setMaterialToEdit(null);
 		setModalEditMaterialVisible(false);
-		const res = await updateMaterialAction(id as CourseID, materialID, JSON.stringify(material));
+		const res = await updateMaterialAction(id as CourseID, materialID, material);
 		if (res.status) {
 			try {
 				await deleteOnFirebase(materialID);
@@ -266,7 +266,7 @@ const CoursePage: ApplicationRoute = () => {
 
 	const updateCourseCallback = useCallback(async (course: UpdateCourseArgs): Promise<void> => {
 		setModalParamVisible(false);
-		await updateCourseAction(id as CourseID, JSON.stringify(course));
+		await updateCourseAction(id as CourseID, course);
 	}, [id]);
 
 	const removeAssignmentCallback = useCallback(async (assignmentID: AssignmentID): Promise<void> => {
