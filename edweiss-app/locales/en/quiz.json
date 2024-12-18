@@ -14,18 +14,20 @@
 		"true" : "True",
 		"false": "False",
 		"mcq" : "MCQ",
-		"tf" : "True-False"
+		"tf" : "True-False",
+		"waiting_for_answers": "Waiting for students' answers.",
+		"participants": "participants",
+		"quiz_live":"Quiz is live!"
 	},
 	"quiz_creation": {
-		"no_option" : "No options added!",
+		"no_option" : "No options to chose from! Add propositions in order to save the MCQ.",
 		"save" : "Save",
 		"add_new_proposition" : "Add new proposition",
 		"edit" : "Edit",
 		"delete" : "Delete",
 		"confirm": "Confirm",
-		"are_you_sure": "Are you certain you want to publish this quiz?"
+		"are_you_sure": "Are you certain you want to publish this quiz?",
+		"no_exercise_warning": "This quiz does not have any exercise yet. Add exercises in order to publish."
 	}
-
-
 
 }

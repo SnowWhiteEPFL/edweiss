@@ -6,7 +6,6 @@ import Quizzes, { QuizzesAttempts } from '@/model/quizzes';
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 
-import TSafeArea from '@/components/core/containers/TSafeArea';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
 import For from '@/components/core/For';
@@ -23,7 +22,7 @@ const QuizStudentViewPage: ApplicationRoute = () => {
     const pathToAssignments = "courses/" + courseId + "/assignments"
     const pathToAttempts = pathToAssignments + "/" + quizId + "/attempts";
     const { uid } = useAuth();
-    const [quiz, loading] = usePrefetchedDynamicDoc(CollectionOf<Quizzes.Quiz>(pathToAssignments), quizId as string, undefined);
+    const [quiz, _] = usePrefetchedDynamicDoc(CollectionOf<Quizzes.Quiz>(pathToAssignments), quizId as string, undefined);
     const previousAttempt = useDoc(CollectionOf<QuizzesAttempts.QuizAttempt>(pathToAttempts), uid);
     const [studentAnswers, setStudentAnswers] = useState<QuizzesAttempts.Answer[]>([]);
 
@@ -76,8 +75,7 @@ const QuizStudentViewPage: ApplicationRoute = () => {
     if (quiz.data.showResultToStudents && previousAttempt != undefined) {
         return (
             <>
-                <RouteHeader title={quiz.data.name} />
-                <QuizResultDisplay key={quiz.id + "result"} studentAnswers={previousAttempt.data.answers} exercises={exercises} results={quiz.data.answers} testId='quiz-result-display'></QuizResultDisplay>
+                <QuizResultDisplay key={quiz.id + "result"} studentAnswers={previousAttempt.data.answers} exercises={exercises} results={quiz.data.answers} testId='quiz-result-display' quizName={quiz.data.name}></QuizResultDisplay>
             </>);
     }
     else if (!quiz.data.showResultToStudents) {
@@ -97,45 +95,40 @@ export default QuizStudentViewPage;
 export const QuizDisplay: ReactComponent<{ studentAnswers: QuizzesAttempts.Answer[], exercises: Quizzes.Exercise[], onUpdate: (answer: number[] | boolean | undefined, id: number) => void, send: () => void, testId: string }> = ({ studentAnswers, exercises, onUpdate, send, testId }) => {
     return ( // for now, returns a scroll view instead of the "tiktok" format
 
-        <TSafeArea>
-            <TScrollView testID={testId}>
-                <TText>
-                    {/*JSON.stringify(studentAnswers.map(a => a.value))*/}
-                </TText>
-                <For each={exercises} key={"QuizDisplay"}>
-                    {
-                        (thisExercise, index) => {
-                            if (thisExercise.type == "MCQ" && studentAnswers[index] != undefined) {
+        <TScrollView testID={testId}>
+            <For each={exercises}>
+                {
+                    (thisExercise, index) => {
+                        if (thisExercise.type == "MCQ" && studentAnswers[index] != undefined) {
 
-                                return (<MCQDisplay key={thisExercise.question + "display"} exercise={thisExercise} selectedIds={studentAnswers[index].value as number[]} onUpdate={onUpdate} exId={index} />);
-                            }
-                            else if (thisExercise.type == "TF" && studentAnswers[index] != undefined) { // if type == "TF"
-                                return (<TFDisplay key={thisExercise.question + "display"} exercise={thisExercise} selected={studentAnswers[index].value as boolean | undefined} onUpdate={onUpdate} exId={index} />);
-                            } else {
-                                return (<TActivityIndicator />);
-                            }
+                            return (<MCQDisplay key={thisExercise.question} exercise={thisExercise} selectedIds={studentAnswers[index].value as number[]} onUpdate={onUpdate} exId={index} />);
+                        }
+                        else if (thisExercise.type == "TF" && studentAnswers[index] != undefined) { // if type == "TF"
+                            return (<TFDisplay key={thisExercise.question} exercise={thisExercise} selected={studentAnswers[index].value as boolean | undefined} onUpdate={onUpdate} exId={index} />);
+                        } else {
+                            return (<TActivityIndicator key={thisExercise.question} />);
                         }
                     }
-                </For>
+                }
+            </For>
 
-                <FancyButton
-                    mt={"md"} mb={"md"}
-                    onPress={() => {
-                        send();
-                        router.back();
-                    }}
-                    icon='save-sharp'
-                    testID='submit'>
-                    Submit and exit
-                </FancyButton>
+            <FancyButton
+                mt={"md"} mb={"md"}
+                onPress={() => {
+                    send();
+                    router.back();
+                }}
+                icon='save-sharp'
+                testID='submit'>
+                Submit and exit
+            </FancyButton>
 
-            </TScrollView>
-        </TSafeArea >
+        </TScrollView>
 
     );
 };
 
-export const QuizResultDisplay: ReactComponent<{ studentAnswers: QuizzesAttempts.Answer[], results: QuizzesAttempts.Answer[], exercises: Quizzes.Exercise[], testId: string }> = ({ studentAnswers, results, exercises, testId }) => {
+export const QuizResultDisplay: ReactComponent<{ studentAnswers: QuizzesAttempts.Answer[], results: QuizzesAttempts.Answer[], exercises: Quizzes.Exercise[], testId: string, quizName: string }> = ({ studentAnswers, results, exercises, testId, quizName }) => {
 
     let score = 0;
     for (let index = 0; index < results.length; index++) {
@@ -153,43 +146,51 @@ export const QuizResultDisplay: ReactComponent<{ studentAnswers: QuizzesAttempts
 
     return ( // for now, returns a scroll view instead of the "tiktok" format
         <>
-            <RouteHeader disabled />
-            <TSafeArea>
-                <TScrollView testID={testId}>
-
-                    <TView p={'xl'}>
-                        <TText size={'xl'}>
-                            Your score : {score}/{exercises.length}
+            <RouteHeader
+                title={quizName}
+                right={
+                    <TView py={2} px={10} radius={"md"} backgroundColor='base'>
+                        <TText color='green' size={"sm"} bold>
+                            Score {score}/{exercises.length}
                         </TText>
                     </TView>
+                }
+            />
 
-                    <For each={exercises} key={"QuizResultDisplay"}>
-                        {
-                            (thisExercise, index) => {
-                                if (thisExercise.type == "MCQ" && studentAnswers[index] != undefined) {
+            <TScrollView testID={testId}>
 
-                                    return (<MCQResultDisplay key={thisExercise.question + "result"} exercise={thisExercise} selectedIds={studentAnswers[index].value as number[]} results={results[index].value as number[]} />);
-                                }
-                                else if (thisExercise.type == "TF" && studentAnswers[index] != undefined) { // if type == "TF"
-                                    return (<TFResultDisplay key={thisExercise.question + "result"} exercise={thisExercise} selected={studentAnswers[index].value as boolean | undefined} result={results[index].value as boolean} />);
-                                } else {
-                                    return (<TActivityIndicator />);
-                                }
+                {/* <TView p={'xl'}>
+                    <TText size={'xl'}>
+                        Your score : {score}/{exercises.length}
+                    </TText>
+                </TView> */}
+
+                <For each={exercises}>
+                    {
+                        (thisExercise, index) => {
+                            if (thisExercise.type == "MCQ" && studentAnswers[index] != undefined) {
+
+                                return (<MCQResultDisplay key={thisExercise.question} exercise={thisExercise} selectedIds={studentAnswers[index].value as number[]} results={results[index].value as number[]} />);
+                            }
+                            else if (thisExercise.type == "TF" && studentAnswers[index] != undefined) { // if type == "TF"
+                                return (<TFResultDisplay key={thisExercise.question} exercise={thisExercise} selected={studentAnswers[index].value as boolean | undefined} result={results[index].value as boolean} />);
+                            } else {
+                                return (<TActivityIndicator key={thisExercise.question} />);
                             }
                         }
-                    </For>
+                    }
+                </For>
 
-                    <FancyButton
-                        mt={"md"} mb={"md"}
-                        onPress={() => {
-                            router.back();
-                        }}
-                        testID='exit-result'>
-                        Exit
-                    </FancyButton>
+                <FancyButton
+                    mt={"md"} mb={"md"}
+                    onPress={() => {
+                        router.back();
+                    }}
+                    testID='exit-result'>
+                    Exit
+                </FancyButton>
 
-                </TScrollView>
-            </TSafeArea >
+            </TScrollView>
         </>
     );
 };
