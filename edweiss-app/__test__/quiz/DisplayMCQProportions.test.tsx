@@ -107,6 +107,11 @@ jest.mock('@react-native-firebase/storage', () => ({
 	})),
 }));
 
+jest.mock('react-native-autoheight-webview', () => {
+	const { View } = require('react-native');
+	return () => <View />; // Mock AutoHeightWebView as a simple empty View
+});
+
 describe('DisplayMCQProportions', () => {
 	const mockDistribution = [40, 25, 20, 15]; // example distribution for MCQ propositions
 	const mockMCQExercise: Quizzes.MCQ = {
@@ -123,15 +128,20 @@ describe('DisplayMCQProportions', () => {
 	};
 
 	it('renders the MCQ question and distribution for each proposition', () => {
-		const { getByText } = render(<DisplayMCQProportions distribution={mockDistribution} exercise={mockMCQExercise} numberOfAttempts={1} />);
+		const screen = render(<DisplayMCQProportions distribution={mockDistribution} exercise={mockMCQExercise} numberOfAttempts={1} />);
 
 		// Check if question is rendered
-		expect(getByText('What is the capital of France?')).toBeTruthy();
+		expect(screen.getByText('What is the capital of France?')).toBeTruthy();
 
 		// Check if each proposition's distribution is rendered correctly
-		expect(getByText('Proposition 1 : 40 %')).toBeTruthy();
-		expect(getByText('Proposition 2 : 25 %')).toBeTruthy();
-		expect(getByText('Proposition 3 : 20 %')).toBeTruthy();
-		expect(getByText('Proposition 4 : 15 %')).toBeTruthy();
+		expect(screen.getByText(/Option\s+A/)).toBeTruthy();
+		expect(screen.getByText(/Option\s+B/)).toBeTruthy();
+		expect(screen.getByText(/Option\s+C/)).toBeTruthy();
+		expect(screen.getByText(/Option\s+D/)).toBeTruthy();
+		expect(screen.getByText(/40\s*%/)).toBeTruthy();
+		expect(screen.getByText(/25\s*%/)).toBeTruthy();
+		expect(screen.getByText(/20\s*%/)).toBeTruthy();
+		expect(screen.getByText(/15\s*%/)).toBeTruthy();
+
 	});
 });

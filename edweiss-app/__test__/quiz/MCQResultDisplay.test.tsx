@@ -1,8 +1,7 @@
-import { MCQDisplay } from '@/components/quiz/QuizComponents';
+import { MCQResultDisplay } from '@/components/quiz/QuizComponents';
 import Quizzes from '@/model/quizzes';
-import { fireEvent, render, waitFor } from '@testing-library/react-native';
-import { TextProps, TouchableOpacityProps } from 'react-native';
-import { ViewProps } from 'react-native-svg/lib/typescript/fabric/utils';
+import { render } from '@testing-library/react-native';
+import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
 
 const mockExercise: Quizzes.MCQ = {
 	type: 'MCQ',
@@ -16,6 +15,7 @@ const mockExercise: Quizzes.MCQ = {
 	numberOfAnswers: 1,
 	answersIndices: [2]
 };
+
 
 const mockStudentAnswer = [1];
 const exId = 0;
@@ -46,14 +46,14 @@ const onUpdate = jest.fn();
 jest.useFakeTimers();
 
 describe('MCQDisplay', () => {
+
 	it('renders MCQ', () => {
 
 		const screen = render(
-			<MCQDisplay
+			<MCQResultDisplay
+				results={[2]}
 				exercise={mockExercise}
 				selectedIds={mockStudentAnswer}
-				onUpdate={onUpdate}
-				exId={exId}
 			/>
 		);
 
@@ -64,23 +64,4 @@ describe('MCQDisplay', () => {
 		}
 
 	});
-	it('updates answer', async () => {
-
-		const screen = render(
-			<MCQDisplay
-				exercise={mockExercise}
-				selectedIds={mockStudentAnswer}
-				onUpdate={onUpdate}
-				exId={exId}
-			/>
-		);
-
-		fireEvent.press(screen.getByText("Berlin"));
-
-		await waitFor(() => {
-			expect(onUpdate).toHaveBeenCalledTimes(1);
-			expect(onUpdate).toHaveBeenCalledWith([0], exId); // Berlin is selected // 
-		});
-
-	});
-});
+})

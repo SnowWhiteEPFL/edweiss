@@ -106,6 +106,11 @@ jest.mock('@react-native-firebase/storage', () => ({
 	})),
 }));
 
+jest.mock('react-native-autoheight-webview', () => {
+	const { View } = require('react-native');
+	return () => <View />; // Mock AutoHeightWebView as a simple empty View
+});
+
 const mockMCQ: Quizzes.MCQ = {
 	type: 'MCQ',
 	question: 'What is the capital of France?',

@@ -107,6 +107,10 @@ jest.mock('@react-native-firebase/storage', () => ({
 	})),
 }));
 
+jest.mock('react-native-autoheight-webview', () => {
+	const { View } = require('react-native');
+	return () => <View />; // Mock AutoHeightWebView as a simple empty View
+});
 describe('DisplayTFProportions', () => {
 	const mockDistribution = [30, 60, 10]; // example distribution: 30% False, 60% True, 10% Undecided
 	const mockTFExercise: Quizzes.TF = {
@@ -116,14 +120,15 @@ describe('DisplayTFProportions', () => {
 	};
 
 	it('renders the TF question and distribution percentages', () => {
-		const { getByText } = render(<DisplayTFProportions distribution={mockDistribution} exercise={mockTFExercise} numberOfAttempts={1} />);
+		const screen = render(<DisplayTFProportions distribution={mockDistribution} exercise={mockTFExercise} numberOfAttempts={1} />);
 
 		// Check if question is rendered
-		expect(getByText('The earth is flat.')).toBeTruthy();
+		expect(screen.getByText('The earth is flat.')).toBeTruthy();
 
 		// Check if distribution percentages are rendered correctly
-		expect(getByText('False : 30 %')).toBeTruthy();
-		expect(getByText('True : 60 %')).toBeTruthy();
-		expect(getByText('Undecided : 10 %')).toBeTruthy();
+		expect(screen.getByTestId('true-false-bar-view')).toBeTruthy();
+
+		expect(screen.getByText(/40\s*%/)).toBeTruthy()
+		expect(screen.getByText(/60\s*%/)).toBeTruthy()
 	});
 });

@@ -354,7 +354,10 @@ describe('QuizStudentView', () => {
 			/>
 		);
 
-		expect(screen.getByText(/Your score : 1\/2/)).toBeTruthy();
+		expect(screen.getByText(/Score\s+1\s*\/\s*2/)).toBeTruthy();
+
+
+
 	});
 
 });
