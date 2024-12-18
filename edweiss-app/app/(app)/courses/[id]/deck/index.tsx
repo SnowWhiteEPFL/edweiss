@@ -18,6 +18,7 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
+import SmthWrongComponent from '@/components/memento/SmthWrongComponent';
 import { callFunction, CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
@@ -55,7 +56,7 @@ const DeckScreen: ApplicationRoute = () => {
 	const [decks, handler] = useRepository(DecksRepository);
 
 	const users = useDynamicDocs(CollectionOf<AppUser>('users'));
-	if (!users) return undefined;
+	if (!users) return <SmthWrongComponent message='Oops, Error loading users ... ' />;
 
 	// For each users, map user.id to user.data.name
 	const ids_names_map = new Map<string, string>();
@@ -124,10 +125,17 @@ const DeckScreen: ApplicationRoute = () => {
 	};
 
 	const generateByAI = async (materialUrl: string) => {
-		await callFunction(Memento.Functions.createDeckFromMaterial, {
+		console.log("Generating deck from material: ", materialUrl);
+		const res = await callFunction(Memento.Functions.createDeckFromMaterial, {
 			courseId,
 			materialUrl: materialUrl
 		});
+
+		if (res.status == 1) {
+			const deck = res.data.deck;
+			handler.addDocument(deck, Promise.resolve({ status: 1, data: { id: res.data.id } }));
+		}
+
 	}
 
 	return (

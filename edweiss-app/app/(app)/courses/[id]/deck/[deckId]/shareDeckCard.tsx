@@ -9,6 +9,7 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import Icon from '@/components/core/Icon';
 import TText from '@/components/core/TText';
 import FancyTextInput from '@/components/input/FancyTextInput';
+import SmthWrongComponent from '@/components/memento/SmthWrongComponent';
 import { callFunction, CollectionOf } from '@/config/firebase';
 import { useAuth } from '@/contexts/auth';
 import { useUser } from '@/contexts/user';
@@ -30,7 +31,7 @@ const ShareScreen: ApplicationRoute = () => {
     const [deck, handler] = useRepositoryDocument(deckId, DecksRepository);
     const users = useDynamicDocs(CollectionOf<AppUser>('users'));
 
-    if (!users || !deck) return null;
+    if (!users || !deck) return <SmthWrongComponent message='Oops, Error loading users or deck ... ' />;
 
     const cards = deck.data.cards;
 
