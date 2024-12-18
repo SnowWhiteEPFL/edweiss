@@ -4,8 +4,8 @@ import TView from '@/components/core/containers/TView';
 
 import Icon from '@/components/core/Icon';
 import TText from '@/components/core/TText';
-import { Course, CourseTimePeriod } from '@/model/school/courses';
 import { CustomEvents } from '@/model/school/Events';
+import { Course, CourseTimePeriod } from '@/model/school/courses';
 import { getCurrentTimeInMinutes } from '@/utils/calendar/getCurrentTimeInMinutes';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -203,7 +203,7 @@ const verticalCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
                 </ScrollView>
 
                 <TTouchableOpacity
-                    onPress={() => router.push('/(app)/todo')}
+                    onPress={() => router.push('/(app)/(tabs)/todos')}
                     p={10} radius={100}
                     backgroundColor='base'
                     m='md' mt={'sm'} mb={'sm'}

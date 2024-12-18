@@ -8,7 +8,7 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
-import TodoListScreen from '@/app/(app)/todo';
+import TodoListScreen from '@/app/(app)/(tabs)/todos';
 import t from '@/config/i18config';
 import { useAuth } from '@/contexts/auth';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';

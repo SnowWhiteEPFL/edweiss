@@ -11,7 +11,7 @@ export const LectureQuizStudentViewSignature: ApplicationRouteSignature<{
 	courseId: string, lectureId: string, lectureEventId: string
 	prefetchedQuiz: Document<LectureDisplay.QuizLectureEvent> | undefined
 }> = {
-	path: "/(app)/quiz/lectureQuizStudentView"
+	path: "/(app)/quiz/lectureQuizStudentViewPage"
 }
 
 const lectureQuizStudentViewPage: ApplicationRoute = () => {
