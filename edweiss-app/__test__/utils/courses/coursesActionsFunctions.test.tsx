@@ -82,9 +82,9 @@ describe('Courses Actions Functions', () => {
         section: 'IN',
         credits: 3,
     }
-    const mockAssignmentJSON = JSON.stringify(mockAssignment.data);
-    const mockMaterialJSON = JSON.stringify(mockMaterial.data);
-    const mockCourseJSON = JSON.stringify(mockCourse);
+    const mockAssignmentData: Assignment = mockAssignment.data;
+    const mockMaterialData: Material = mockMaterial.data;
+    const mockCourseData: UpdateCourseArgs = mockCourse;
 
     // Reset mocks before each test
     beforeEach(() => {
@@ -94,20 +94,20 @@ describe('Courses Actions Functions', () => {
     describe('addAssignmentAction', () => {
         it('should call callFunction with the correct parameters', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
-            await addAssignmentAction(mockCourseId, mockAssignmentJSON);
-            expect(callFunction).toHaveBeenCalledWith(Course_functions.Functions.addAssignment, { courseID: mockCourseId, assignmentJSON: mockAssignmentJSON });
+            await addAssignmentAction(mockCourseId, mockAssignmentData);
+            expect(callFunction).toHaveBeenCalledWith(Course_functions.Functions.addAssignment, { courseID: mockCourseId, assignmentJSON: JSON.stringify(mockAssignmentData) });
         });
 
         it('should log an error message if adding assignment fails (status 0)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 0 });
             console.error = jest.fn();
-            await addAssignmentAction(mockCourseId, mockAssignmentJSON);
+            await addAssignmentAction(mockCourseId, mockAssignmentData);
             expect(console.error).toHaveBeenCalled();
         });
 
         it('should toast a success message if adding assignment succed (status 1)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
-            await addAssignmentAction(mockCourseId, mockAssignmentJSON);
+            await addAssignmentAction(mockCourseId, mockAssignmentData);
             expect(Toast.show).toHaveBeenCalledWith({
                 type: 'success',
                 text1: 'Assignment added successfully 🎉',
@@ -116,7 +116,7 @@ describe('Courses Actions Functions', () => {
 
         it('should toast a failure message if adding assignment fails (status 0)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 0 });
-            await addAssignmentAction(mockCourseId, mockAssignmentJSON);
+            await addAssignmentAction(mockCourseId, mockAssignmentData);
             expect(Toast.show).toHaveBeenCalledWith({
                 type: 'error',
                 text1: 'Failed to add assignment ❌',
@@ -124,7 +124,7 @@ describe('Courses Actions Functions', () => {
         });
 
         it('should return status 0 on wrong call', async () => {
-            const res = await addAssignmentAction('', mockAssignmentJSON);
+            const res = await addAssignmentAction('', mockAssignmentData);
             expect(res.status).toBe(0);
         });
     });
@@ -133,20 +133,20 @@ describe('Courses Actions Functions', () => {
     describe('addMaterialAction', () => {
         it('should call callFunction with the correct parameters', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
-            await addMaterialAction(mockCourseId, mockMaterialJSON);
-            expect(callFunction).toHaveBeenCalledWith(Course_functions.Functions.addMaterial, { courseID: mockCourseId, materialJSON: mockMaterialJSON });
+            await addMaterialAction(mockCourseId, mockMaterialData);
+            expect(callFunction).toHaveBeenCalledWith(Course_functions.Functions.addMaterial, { courseID: mockCourseId, materialJSON: JSON.stringify(mockMaterialData) });
         });
 
         it('should log an error message if adding material fails (status 0)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 0 });
             console.error = jest.fn();
-            await addMaterialAction(mockCourseId, mockMaterialJSON);
+            await addMaterialAction(mockCourseId, mockMaterialData);
             expect(console.error).toHaveBeenCalled();
         });
 
         it('should toast a success message if adding material succed (status 1)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
-            await addMaterialAction(mockCourseId, mockMaterialJSON);
+            await addMaterialAction(mockCourseId, mockMaterialData);
             expect(Toast.show).toHaveBeenCalledWith({
                 type: 'success',
                 text1: 'Material added successfully 🎉',
@@ -155,7 +155,7 @@ describe('Courses Actions Functions', () => {
 
         it('should toast a failure message if adding material fails (status 0)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 0 });
-            await addMaterialAction(mockCourseId, mockMaterialJSON);
+            await addMaterialAction(mockCourseId, mockMaterialData);
             expect(Toast.show).toHaveBeenCalledWith({
                 type: 'error',
                 text1: 'Failed to add material ❌',
@@ -163,7 +163,7 @@ describe('Courses Actions Functions', () => {
         });
 
         it('should return status 0 on wrong call', async () => {
-            const res = await addMaterialAction('', mockMaterialJSON);
+            const res = await addMaterialAction('', mockMaterialData);
             expect(res.status).toBe(0);
         });
     });
@@ -375,18 +375,18 @@ describe('Courses Actions Functions', () => {
     describe('updateAssignmentAction', () => {
         it('should call callFunction with the correct parameters', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
-            await updateAssignmentAction(mockCourseId, mockAssignment.id, mockAssignmentJSON);
-            expect(callFunction).toHaveBeenCalledWith(Course_functions.Functions.updateAssignment, { courseID: mockCourseId, assignmentID: mockAssignment.id, assignmentJSON: mockAssignmentJSON });
+            await updateAssignmentAction(mockCourseId, mockAssignment.id, mockAssignmentData);
+            expect(callFunction).toHaveBeenCalledWith(Course_functions.Functions.updateAssignment, { courseID: mockCourseId, assignmentID: mockAssignment.id, assignmentJSON: JSON.stringify(mockAssignmentData) });
         });
         it('should log an error message if updating assignment fails (status 0)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 0 });
             console.error = jest.fn();
-            await updateAssignmentAction(mockCourseId, mockAssignment.id, mockAssignmentJSON);
+            await updateAssignmentAction(mockCourseId, mockAssignment.id, mockAssignmentData);
             expect(console.error).toHaveBeenCalled();
         });
         it('should toast a success message if updating assignment succeeds (status 1)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
-            await updateAssignmentAction(mockCourseId, mockAssignment.id, mockAssignmentJSON);
+            await updateAssignmentAction(mockCourseId, mockAssignment.id, mockAssignmentData);
             expect(Toast.show).toHaveBeenCalledWith({
                 type: 'success',
                 text1: 'Assignment updated successfully 🎉',
@@ -394,14 +394,14 @@ describe('Courses Actions Functions', () => {
         });
         it('should toast a failure message if updating assignment fails (status 0)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 0 });
-            await updateAssignmentAction(mockCourseId, mockAssignment.id, mockAssignmentJSON);
+            await updateAssignmentAction(mockCourseId, mockAssignment.id, mockAssignmentData);
             expect(Toast.show).toHaveBeenCalledWith({
                 type: 'error',
                 text1: 'Failed to update assignment ❌',
             });
         });
         it('should return status 0 on wrong call', async () => {
-            const res = await updateAssignmentAction('', mockAssignment.id, mockAssignmentJSON);
+            const res = await updateAssignmentAction('', mockAssignment.id, mockAssignmentData);
             expect(res.status).toBe(0);
         });
     });
@@ -409,18 +409,18 @@ describe('Courses Actions Functions', () => {
     describe('updateMaterialAction', () => {
         it('should call callFunction with the correct parameters', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
-            await updateMaterialAction(mockCourseId, mockMaterial.id, mockMaterialJSON);
-            expect(callFunction).toHaveBeenCalledWith(Course_functions.Functions.updateMaterial, { courseID: mockCourseId, materialID: mockMaterial.id, materialJSON: mockMaterialJSON });
+            await updateMaterialAction(mockCourseId, mockMaterial.id, mockMaterialData);
+            expect(callFunction).toHaveBeenCalledWith(Course_functions.Functions.updateMaterial, { courseID: mockCourseId, materialID: mockMaterial.id, materialJSON: JSON.stringify(mockMaterialData) });
         });
         it('should log an error message if updating material fails (status 0)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 0 });
             console.error = jest.fn();
-            await updateMaterialAction(mockCourseId, mockMaterial.id, mockMaterialJSON);
+            await updateMaterialAction(mockCourseId, mockMaterial.id, mockMaterialData);
             expect(console.error).toHaveBeenCalled();
         });
         it('should toast a success message if updating material succeeds (status 1)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
-            await updateMaterialAction(mockCourseId, mockMaterial.id, mockMaterialJSON);
+            await updateMaterialAction(mockCourseId, mockMaterial.id, mockMaterialData);
             expect(Toast.show).toHaveBeenCalledWith({
                 type: 'success',
                 text1: 'Material updated successfully 🎉',
@@ -428,14 +428,14 @@ describe('Courses Actions Functions', () => {
         });
         it('should toast a failure message if updating material fails (status 0)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 0 });
-            await updateMaterialAction(mockCourseId, mockMaterial.id, mockMaterialJSON);
+            await updateMaterialAction(mockCourseId, mockMaterial.id, mockMaterialData);
             expect(Toast.show).toHaveBeenCalledWith({
                 type: 'error',
                 text1: 'Failed to update material ❌',
             });
         });
         it('should return status 0 on wrong call', async () => {
-            const res = await updateMaterialAction('', mockMaterial.id, mockMaterialJSON);
+            const res = await updateMaterialAction('', mockMaterial.id, mockMaterialData);
             expect(res.status).toBe(0);
         });
     });
@@ -443,18 +443,18 @@ describe('Courses Actions Functions', () => {
     describe('updateCourseAction', () => {
         it('should call callFunction with the correct parameters', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
-            await updateCourseAction(mockCourseId, mockCourseJSON);
-            expect(callFunction).toHaveBeenCalledWith(Course_functions.Functions.updateCourse, { courseID: mockCourseId, courseJSON: mockCourseJSON });
+            await updateCourseAction(mockCourseId, mockCourseData);
+            expect(callFunction).toHaveBeenCalledWith(Course_functions.Functions.updateCourse, { courseID: mockCourseId, courseJSON: JSON.stringify(mockCourseData) });
         });
         it('should log an error message if updating course fails (status 0)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 0 });
             console.error = jest.fn();
-            await updateCourseAction(mockCourseId, mockCourseJSON);
+            await updateCourseAction(mockCourseId, mockCourseData);
             expect(console.error).toHaveBeenCalled();
         });
         it('should toast a success message if updating course succeeds (status 1)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
-            await updateCourseAction(mockCourseId, mockCourseJSON);
+            await updateCourseAction(mockCourseId, mockCourseData);
             expect(Toast.show).toHaveBeenCalledWith({
                 type: 'success',
                 text1: 'Course updated successfully 🎉',
@@ -462,14 +462,14 @@ describe('Courses Actions Functions', () => {
         });
         it('should toast a failure message if updating course fails (status 0)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 0 });
-            await updateCourseAction(mockCourseId, mockCourseJSON);
+            await updateCourseAction(mockCourseId, mockCourseData);
             expect(Toast.show).toHaveBeenCalledWith({
                 type: 'error',
                 text1: 'Failed to update course ❌',
             });
         });
         it('should return status 0 on wrong call', async () => {
-            const res = await updateCourseAction('', mockCourseJSON);
+            const res = await updateCourseAction('', mockCourseData);
             expect(res.status).toBe(0);
         });
     });
@@ -477,18 +477,14 @@ describe('Courses Actions Functions', () => {
     describe('createCourseAction', () => {
         it('should call callFunction with the correct parameters', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
-            await createCourseAction(mockCourseJSON);
-            expect(callFunction).toHaveBeenCalledWith(Course_functions.Functions.createCourse, { courseJSON: mockCourseJSON });
+            await createCourseAction(mockCourseData);
+            expect(callFunction).toHaveBeenCalledWith(Course_functions.Functions.createCourse, { courseJSON: JSON.stringify(mockCourseData) });
         });
         it('should log an error message if creating course fails (status 0)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 0 });
             console.error = jest.fn();
-            await createCourseAction(mockCourseJSON);
+            await createCourseAction(mockCourseData);
             expect(console.error).toHaveBeenCalled();
-        });
-        it('should return status 0 on wrong call', async () => {
-            const res = await createCourseAction('');
-            expect(res.status).toBe(0);
         });
     });
 });
