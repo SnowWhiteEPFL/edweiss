@@ -35,9 +35,7 @@ export const MCQDisplay: ReactComponent<{ exercise: Quizzes.MCQ, selectedIds: nu
 		<TView mb={"xs"} bb={disableBottomBar ? 0 : 1} borderColor='surface0' radius={'lg'} pb={"md"} mx={12}>
 
 			<TView mb={12} p={"sm"}>
-				{/* <RichText>
-					{`${exercise.question}`}
-				</RichText> */}
+
 				<TText>
 					{`${exercise.question}`}
 				</TText>
@@ -137,7 +135,7 @@ export const TFDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: boolean
 				</TText>
 			</TView>
 
-			<TView ml={'sm'}>
+			<TView ml={'sm'} testID='radio-selectables-view'>
 				<RadioSelectables data={[trueSelectable, falseSelectable]} onSelection={(value) => {
 					handleSelection(value)
 				}} value={selected} />
@@ -168,11 +166,10 @@ export const TFResultDisplay: ReactComponent<{ exercise: Quizzes.TF, selected: b
 				</TText>
 			</TView>
 
-			<TView ml={'sm'}>
+			<TView ml={'sm'} testID='radio-selectables-view'>
 				<RadioSelectables data={[trueSelectable, falseSelectable]} disabled
 					onSelection={() => { }}
 					value={selected}
-				// color={checkResultColor(checkTFCorrect(selected, true, result))}
 				/>
 			</TView>
 		</TView>

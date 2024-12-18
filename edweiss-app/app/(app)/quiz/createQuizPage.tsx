@@ -188,7 +188,15 @@ const CreateQuizPage: ApplicationRoute = () => {
 			<>
 				<TView flexDirection='column' justifyContent='center' flexRowGap={'xl'} mb={'xl'}>
 					<TView>
-						<NameAndDateCustom dueDate={dueDate} onChangeDate={onChangeDate} onChangeTime={onChangeTime} setQuizName={setQuizName} setShowDate={setShowDate} setShowTime={setShowTime} showDate={showDate} showTime={showTime} />
+						<NameAndDateCustom
+							dueDate={dueDate}
+							onChangeDate={onChangeDate}
+							onChangeTime={onChangeTime}
+							setQuizName={setQuizName}
+							setShowDate={setShowDate}
+							setShowTime={setShowTime}
+							showDate={showDate}
+							showTime={showTime} />
 					</TView>
 
 					<TText color='subtext0' align='center'>
@@ -216,7 +224,7 @@ const CreateQuizPage: ApplicationRoute = () => {
 				<For each={exercises}>{
 					(exercise, index) => {
 						return (<>
-							<PressableExercise index={index} editExercise={editExercise} removeExerciseFromList={removeExerciseFromList} exercise={exercise} key={exercise.question}></PressableExercise>
+							<PressableExercise index={index} editExercise={editExercise} removeExerciseFromList={removeExerciseFromList} exercise={exercise} key={exercise.question} />
 						</>)
 					}
 				}
@@ -355,11 +363,7 @@ const GenerateAiButton: ReactComponent<{ aiLoading: boolean, setAiLoading: React
 
 			if (res.status == 1) {
 				res.data.generatedExercises.forEach(exo =>
-					// console.log(exo.question);
-					// exo.propositions.forEach(prop => {
-					// 	console.log(`${prop.text}` + (prop.correct ? "(correct)" : ""));
-					// });
-					// console.log("");
+
 					addToExerciseList(fillMCQFromGeneratedFields(exo.question, exo.propositions))
 				);
 
@@ -426,7 +430,13 @@ export const PressableExercise: ReactComponent<{ exercise: Quizzes.Exercise, edi
 		<TTouchableOpacity onLongPress={() => { console.log("in pressable : " + exercise.question); editModalRef.current?.present() }}>
 			{exercise.type == "MCQ" ? <MCQResultDisplay exercise={exercise} results={exercise.answersIndices} selectedIds={exercise.answersIndices}></MCQResultDisplay> : <TFResultDisplay selected={exercise.answer} exercise={exercise as Quizzes.TF} result={exercise.answer}></TFResultDisplay>}
 		</TTouchableOpacity>
-		<EditExerciseModal exercise={exercise} removeExerciseFromList={removeExerciseFromList} editExercise={editExercise} index={index} modalRef={editModalRef} secondModalRef={secondModalRef}></EditExerciseModal>
+		<EditExerciseModal
+			exercise={exercise}
+			removeExerciseFromList={removeExerciseFromList}
+			editExercise={editExercise}
+			index={index}
+			modalRef={editModalRef}
+			secondModalRef={secondModalRef} />
 
 	</>
 	);

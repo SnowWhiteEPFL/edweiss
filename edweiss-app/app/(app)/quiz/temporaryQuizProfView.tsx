@@ -27,10 +27,10 @@ const TemporaryQuizProfView: ApplicationRoute = () => {
 	const pathToEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
 	const pathToAttempts = pathToEvents + "/" + lectureEventId + "/attempts";
 
-	const [quizEvent, _] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEventBase>(pathToEvents), lectureEventId as string, prefetchedQuizEvent);
+	const [quizEvent, _] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.ActualLectureEvent>(pathToEvents), lectureEventId as string, prefetchedQuizEvent);
 
 
-	return (<LectureQuizProfView courseId={courseId} lectureEventId={lectureEventId} lectureId={lectureId} pathToAttempts={pathToAttempts} quizEvent={quizEvent as Document<LectureDisplay.QuizLectureEvent>}></LectureQuizProfView>);
+	return (<LectureQuizProfView pathToAttempts={pathToAttempts} quizEvent={quizEvent as Document<LectureDisplay.QuizLectureEvent>}></LectureQuizProfView>);
 
 };
 export default TemporaryQuizProfView;
@@ -40,7 +40,7 @@ export const ResultProfView: ReactComponent<{ studentAttempts: QuizzesAttempts.A
 	return (<SingleDistributionDisplay exercise={quiz.exercise} exerciseAttempts={studentAttempts} />)
 
 };
-export const SingleDistributionDisplay: ReactComponent<{ exercise: Quizzes.Exercise, exerciseAttempts: QuizzesAttempts.Answer[], }> = ({ exercise, exerciseAttempts }) => {
+export const SingleDistributionDisplay: ReactComponent<{ exercise: Quizzes.Exercise, exerciseAttempts: QuizzesAttempts.Answer[], testID?: string }> = ({ exercise, exerciseAttempts, testID }) => {
 
 	if (exercise.type == 'MCQ') {
 		const distribution = getMCQDistribution(exerciseAttempts as QuizzesAttempts.MCQAnswersIndices[], exercise.propositions.length);
@@ -78,7 +78,7 @@ export const DisplayTFProportions: ReactComponent<{ distribution: number[]; exer
 					{numberOfAttempts} {t('quiz:quiz_display.answer')}
 				</TText>
 
-				<TView mt={24}>
+				<TView mt={24} testID='true-false-bar-view'>
 					<DisplayTrueFalseBars exercise={exercise} percentage={distribution[1]} />
 				</TView>
 
@@ -161,8 +161,7 @@ export const DisplayMCQProportions: ReactComponent<{ distribution: number[], exe
 				</TView>
 			</TView >
 		</>
-		// <TSafeArea>
-		// </TSafeArea >
+
 
 	);
 };
@@ -196,7 +195,8 @@ export function getMCQDistribution(studentAttempts: QuizzesAttempts.MCQAnswersIn
 
 export function getTFDistribution(studentAttempts: QuizzesAttempts.TFAnswer[]): number[] {
 	const numberOfAttempts = studentAttempts.length;
-	let TFDistribution = [0, 0, 0]; // Index 0 for False, Index 1 for True
+	let TFDistribution = [0, 0]; // Index 0 for False, Index 1 for True
+	let validAttempts = 0;
 	if (studentAttempts == undefined || studentAttempts.length <= 0) {
 		return TFDistribution
 	}
@@ -210,16 +210,18 @@ export function getTFDistribution(studentAttempts: QuizzesAttempts.TFAnswer[]): 
 		// Increment the appropriate count in the tfDistribution array
 		if (selectedAnswer == true) {
 			TFDistribution[1] += 1; // Increment True count
+			validAttempts++
 		} else if (selectedAnswer == false) {
 			TFDistribution[0] += 1; // Increment False count
+			validAttempts++
 		}
 		else if (selectedAnswer == undefined) {
-			TFDistribution[2] += 1; // Undefined (unanswered)
+			//TFDistribution[2] += 1; // Undefined (unanswered)
 		} else {
 			console.log(`Warning: in TF, Invalid value found in attempt`);
 		}
 	}
 
 	// Convert the distribution to percentages
-	return TFDistribution.map(p => (p * 100) / numberOfAttempts);
+	return TFDistribution.map(p => (p * 100) / validAttempts);
 }
