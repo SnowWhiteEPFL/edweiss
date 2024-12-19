@@ -8,7 +8,7 @@ import { Color } from '@/constants/Colors';
 import { ApplicationRoute } from '@/constants/Component';
 import { Course, Course_functions, CourseTimePeriod } from '@/model/school/courses';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 
 
