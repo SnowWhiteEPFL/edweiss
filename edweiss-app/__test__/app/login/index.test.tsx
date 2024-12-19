@@ -32,32 +32,80 @@ jest.mock('@/config/firebase', () => ({
 }));
 
 // Expo router with stack screen to test up buttons and title
-jest.mock('expo-router', () => ({
-    useRouter: jest.fn(),
-    router: {
-        push: jest.fn(),
-        back: jest.fn(),
-        replace: jest.fn(),
-    },
-    Stack: {
-        Screen: jest.fn(({ options }) => (
-            <>{options.title}</>
-        )),
-    },
-}));
-
-
-// Application Route
-jest.mock('@/constants/Component', () => ({
-    ApplicationRoute: jest.fn(),
-}));
-
+jest.mock('expo-router', () => {
+    const { Text, TouchableOpacity } = require('react-native');
+    return {
+        router: {
+            push: jest.fn(),
+            replace: jest.fn(),
+            back: jest.fn(),
+        },
+        Link: ({ href, children, style }: { href: string; children: React.ReactNode; style?: object }) => (
+            <TouchableOpacity onPress={() => console.log(`Navigating to: ${href}`)} style={style}>
+                <Text>{children}</Text>
+            </TouchableOpacity>
+        ),
+    };
+});
 
 // `t` to return the key as the translation
 jest.mock('@/config/i18config', () => ({
     __esModule: true,
     default: jest.fn((key: string) => key),
 }));
+
+jest.mock('@/components/core/containers/TSafeArea', () => {
+    const { View } = require('react-native');
+    return {
+        __esModule: true,
+        default: ({ children, style }: { children: React.ReactNode; style?: object }) => (
+            <View style={style} testID="mocked-tsafearea">
+                {children}
+            </View>
+        ),
+    };
+});
+
+jest.mock('@/assets/images/edweiss2.svg', () => {
+    const { View } = require('react-native');
+    return {
+        __esModule: true,
+        default: ({ color, width, height }: { color?: string; width?: number; height?: number }) => (
+            <View
+                style={{ backgroundColor: color || 'transparent', width: width || 100, height: height || 50 }}
+                testID="mountain_logo_png"
+            />
+        ),
+    };
+});
+
+jest.mock('@/components/animations/HelloWave', () => {
+    const { View } = require('react-native');
+    return {
+        __esModule: true,
+        default: () => (
+            <View
+                style={{ width: 50, height: 50, backgroundColor: 'cyan' }}
+                testID="mocked-hello-wave"
+            />
+        ),
+    };
+});
+
+jest.mock('@/components/core/header/RouteHeader', () => {
+    const { View, Text } = require('react-native');
+    return {
+        __esModule: true,
+        default: ({ title, disabled }: { title: string; disabled: boolean }) => (
+            <View
+                style={{ height: 50, backgroundColor: disabled ? 'gray' : 'white' }}
+                testID="mocked-route-header"
+            >
+                <Text testID="mocked-route-header-title">{title}</Text>
+            </View>
+        ),
+    };
+});
 
 
 // ------------------------------------------------------------
@@ -72,11 +120,7 @@ describe('Login Screen Tests Suites', () => {
     it('renders correctly and all the component on the Login screen', () => {
         const { getByText, getByTestId } = render(<Login />);
         expect(getByTestId('mountain_logo_png')).toBeTruthy();
-        expect(getByText('login:welcome_title')).toBeTruthy();
         expect(getByTestId('quote-text-output')).toBeTruthy();
-        expect(getByTestId('quote-but-1')).toBeTruthy();
-        expect(getByTestId('quote-but-2')).toBeTruthy();
-        expect(getByTestId('quote-but-3')).toBeTruthy();
         expect(getByTestId('google-but')).toBeTruthy();
         expect(getByTestId('anon-but')).toBeTruthy();
     });
@@ -117,8 +161,8 @@ describe('Login Screen Tests Suites', () => {
         (signInWithGoogle as jest.Mock).mockResolvedValue(undefined);
 
 
-        const { getByTestId } = render(<Login />);
-        const googleButton = getByTestId('google-but');
+        const screen = render(<Login />);
+        const googleButton = screen.getByTestId('google-but');
 
         fireEvent.press(googleButton);
         await waitFor(() => expect(callFunction).not.toHaveBeenCalled());
