@@ -93,7 +93,7 @@ const NewComponent = ({ daysOfWeek, eventsByDate, hour, user }: { daysOfWeek: st
                                         if (event.type == "Course") {
                                             router.push({ pathname: pathname as any, params });
                                         } else if (event.type == "Todo") {
-                                            router.push({ pathname: '/(app)/todo', params: todoParams });
+                                            router.push({ pathname: '/(app)/todos', params: todoParams });
                                         }
                                         else {
                                             router.push({ pathname: assignmentPath, params: assignmentParams });
@@ -121,4 +121,4 @@ const NewComponent = ({ daysOfWeek, eventsByDate, hour, user }: { daysOfWeek: st
     );
 }
 
-export default HorizontalCalendar;
+export default horizontaCalendar;

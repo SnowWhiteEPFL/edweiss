@@ -133,7 +133,7 @@ const verticalCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
                                     const todoParams = event.todo
                                         ? { todo: JSON.stringify(event.todo) } // Serialize the object
                                         : {};
-                                    const assignmentPath = `/(app)/quiz/temporaryQuizStudentView`;
+                                    const assignmentPath = `/(app)/quiz/quizStudentView`;
                                     const assignmentParams = { quizId: event.assignmentID, courseId: event.course?.id }
 
                                     return (
@@ -142,7 +142,7 @@ const verticalCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
                                                 if (event.type == "Course") {
                                                     router.push({ pathname: pathname as any, params });
                                                 } else if (event.type == "Todo") {
-                                                    router.push({ pathname: '/(app)/todo', params: todoParams });
+                                                    router.push({ pathname: '/(app)/todos', params: todoParams });
                                                 }
                                                 else {
                                                     router.push({ pathname: assignmentPath, params: assignmentParams });
