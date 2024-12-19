@@ -1,10 +1,13 @@
 import ReactComponent from '@/constants/Component';
 
+import { CreateQuizPageSignature } from '@/app/(app)/quiz/createQuizPage';
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { IconType } from '@/constants/Style';
+import { pushWithParameters } from '@/hooks/routeParameters';
 import { Assignment, AssignmentID, AssignmentType, MAX_ASSIGNMENT_NAME_LENGTH } from '@/model/school/courses';
+import { addAssignmentAction } from '@/utils/courses/coursesActionsFunctions';
 import { Time } from '@/utils/time';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useEffect, useState } from 'react';
@@ -70,8 +73,10 @@ type MaterialProps = AssignmentPropsBase & (
         onSubmit: (assignment: Assignment, assignmentID: AssignmentID) => Promise<void>;
         onDelete: (assignmentID: AssignmentID) => Promise<void>;
         assignment: { id: string, data: Assignment };
+        courseId?: never
     } | {
         mode: 'add';
+        courseId: string
         onSubmit: (assignment: Assignment) => Promise<void>;
         onDelete?: never;
         assignment?: never;
@@ -91,8 +96,7 @@ type MaterialProps = AssignmentPropsBase & (
  * 
  * @returns JSX.Element - The rendered component for the assignment editing.
  */
-const AssignmentComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDelete, assignment }) => {
-
+const AssignmentComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, onDelete, assignment, courseId }) => {
     const [name, setName] = React.useState<string>(assignment && mode == 'edit' ? assignment.data.name : "");
     const [type, setType] = React.useState<AssignmentType>(assignment && mode == 'edit' ? assignment.data.type : 'quiz');
     const [dueDate, setDueDate] = React.useState<Date>(assignment && mode == 'edit' ? Time.toDate(assignment.data.dueDate) : new Date());
@@ -152,7 +156,7 @@ const AssignmentComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, on
                     <FancyTextInput
                         testID={testIDs.nameInput}
                         value={name}
-                        onChangeText={n => { setNameChanged(true); setName(n) }}
+                        onChangeText={n => { setNameChanged(true); setName(n); console.log(n) }}
                         placeholder={t(`course:name_placeholder`)}
                         icon={icons.nameIcon}
                         label={t(`course:name_label`)}
@@ -245,8 +249,13 @@ const AssignmentComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, on
                     testID={testIDs.submitTouchableOpacity}
                     backgroundColor={isButtonDisabled ? 'text' : 'blue'}
                     disabled={isButtonDisabled}
-                    onPress={() => assignment ? onSubmit({ name, type, dueDate: Time.fromDate(dueDate) }, assignment.id) : onSubmit({ name, type, dueDate: Time.fromDate(dueDate) })}
-                    flex={1} mx={10} p={12} radius={'xl'}
+                    onPress={() =>
+                        assignment ?
+                            onSubmit({ name, type, dueDate: Time.fromDate(dueDate) }, assignment.id)
+                            : type === 'submission' ? (onSubmit({ name, type, dueDate: Time.fromDate(dueDate) }), addAssignmentAction(courseId, { name, type, dueDate: Time.fromDate(dueDate) }))
+                                : (onSubmit({ name, type, dueDate: Time.fromDate(dueDate) }), pushWithParameters(CreateQuizPageSignature, { courseId: courseId, previousDueDate: dueDate, previousQuizName: name })
+                                )
+                    } flex={1} mx={10} p={12} radius={'xl'}
                 >
                     <TView
                         testID={testIDs.submitView}
@@ -281,7 +290,7 @@ const AssignmentComponent: ReactComponent<MaterialProps> = ({ mode, onSubmit, on
                         </TView>
                     </TTouchableOpacity>
                 }
-            </TView>
+            </TView >
         </>
     );
 };

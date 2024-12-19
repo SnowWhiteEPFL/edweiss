@@ -1,11 +1,11 @@
-import TemporaryQuizProfView from '@/app/(app)/quiz/temporaryQuizProfView';
+import { LectureQuizStudentView } from '@/components/quiz/LectureQuizComponents';
 import { Document } from '@/config/firebase';
-import { useDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { useAuth } from '@/contexts/auth';
+import { useDoc } from '@/hooks/firebase/firestore';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import Quizzes, { LectureQuizzes, LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
 import { render } from '@testing-library/react-native';
-import { ActivityIndicatorProperties, ScrollViewProps, ViewProps } from 'react-native';
-
+import { ActivityIndicatorProperties, ScrollViewProps, TextProps, ViewProps } from 'react-native';
 jest.mock('@/contexts/auth', () => ({
 	useAuth: jest.fn(),
 }));
@@ -138,6 +138,10 @@ jest.mock('../../components/core/containers/TView.tsx', () => {
 	const { View } = require('react-native');
 	return (props: ViewProps) => <View {...props} />;
 });
+jest.mock('../../components/core/TText.tsx', () => {
+	const { Text } = require('react-native');
+	return (props: TextProps) => <Text {...props} />;
+});
 
 jest.mock('../../components/quiz/QuizComponents.tsx', () => ({
 	MCQDisplay: jest.fn(() => <></>),
@@ -155,22 +159,17 @@ jest.mock('expo-router', () => ({
 	},
 }));
 
-// jest.mock('@/config/i18config', () => ({
-// 	__esModule: true, // This ensures it's treated as a module with a default export
-// 	default: jest.fn((key: string) => key), // Mock `t` to return the key as the translation
+jest.mock('@/config/i18config', () => ({
+	__esModule: true, // This ensures it's treated as a module with a default export
+	default: jest.fn((key: string) => key), // Mock `t` to return the key as the translation
+}));
+
+// jest.mock('@/app/(app)/quiz/lectureQuizStudentViewPage', () => ({
+// 	__esModule: true,
+// 	LectureQuizDisplay: jest.fn(() => <View />),
+// 	LectureQuizResultDisplay: jest.fn(() => <View />)
 // }));
 
-jest.mock('@/config/i18config', () =>
-	jest.fn((str: string) => {
-		if (str === 'quiz:quiz_display.quiz_live') return 'Quiz is live!';
-		else if (str === 'quiz:quiz_display.waiting_for_answers') return "Waiting for students' answers.";
-		else if (str === 'quiz:quiz_display.true') return 'True'
-		else if (str === 'quiz:quiz_display.false') return 'False'
-		else if (str === 'quiz:quiz_display.participants') return "participants"
-
-		else return str;
-	})
-);
 
 jest.mock('../../components/core/header/RouteHeader', () => {
 	const { Text, View } = require('react-native');
@@ -182,32 +181,16 @@ jest.mock('../../components/core/header/RouteHeader', () => {
 	);
 });
 
-const mockOnUpdate = jest.fn()
-jest.mock('../../components/quiz/QuizComponents.tsx', () => {
-	const { TouchableOpacity, Text, View } = require('react-native');
-	return {
-		MCQDisplay: ({ onUpdate }: { onUpdate: (selectedIds: number[] | boolean | undefined, exId: number) => void }) => (
-			<TouchableOpacity onPress={() => onUpdate([2], 0)} testID="mcq-display" >
-				<Text>MCQ Display</Text>
-			</TouchableOpacity >
-		),
-		TFDisplay: ({ onUpdate }: { onUpdate: (selectedIds: number[] | boolean | undefined, exId: number) => void }) => (
-			<TouchableOpacity onPress={() => onUpdate(true, 1)} testID="tf-display">
-				<Text>TF Display</Text>
-			</TouchableOpacity>
-		),
-		MCQResultDisplay: () => (
-			<View testID="mcq-result-display">
-				<Text>MCQ Result Display</Text>
-			</View>
-		),
-		TFResultDisplay: () => (
-			<View testID="tf-result-display">
-				<Text>TF Result Display</Text>
-			</View>
-		),
-	}
+jest.mock('../../components/core/rich-text/RichText.tsx', () => {
+	const { Text } = require('react-native');
+	return (props: TextProps) => <Text {...props} />;
 });
+
+// jest.mock('../../components/quiz/LectureQuizComponents', () => ({
+// 	LectureQuizDisplay: jest.fn(),
+// 	LectureQuizResultDisplay: jest.fn()
+// }));
+
 
 const mockMCQ: Quizzes.MCQ = {
 	type: 'MCQ',
@@ -282,6 +265,7 @@ const mockEvent: LectureDisplay.QuizLectureEvent = {
 	pageNumber: 0,
 	type: "quiz"
 }
+
 const mockAttemptsData: QuizzesAttempts.QuizAttempt[] = [
 	{ attempts: 2, answers: mockStudentAnswers1 },
 	{ attempts: 1, answers: mockStudentAnswers2 },
@@ -293,48 +277,79 @@ const mockAttemptsDoc: Document<LectureQuizzesAttempts.LectureQuizAttempt>[] = [
 	{ data: { type: "TFAnswer", value: undefined }, id: 'C' }
 ]
 
-describe('TemporaryQuizProfView', () => {
-	const mockQuizId = 'quiz123';
-	const mockPath = '/mock/path';
+const mockEventDoc: Document<LectureDisplay.QuizLectureEvent> = { data: mockEvent, id: "mockId" }
 
+const mockPathToAttempts = 'mockPathToAttempts'
+describe('LectureQuizStudentView', () => {
 	beforeEach(() => {
-		//(useLocalSearchParams as jest.Mock).mockReturnValue({ params: { courseId: "courseId", lectureId: "lectureId", lectureEventId: "lectureEventId", prefetchedQuizEvent: "prefetchedQuizEvent" } });
 		jest.clearAllMocks();
 	});
 
-	it('renders ResultProfView when quiz shows results to students and attempts are available', () => {
-		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([{ data: mockEvent }, false]);
-		(useDocs as jest.Mock).mockReturnValue(mockAttemptsDoc);
+	it('returns an activity indicator if quiz event is undefined', () => {
+		(useAuth as jest.Mock).mockReturnValue("uid");
+		(useDoc as jest.Mock).mockReturnValue({ data: { type: "TFAnswer", value: true }, id: 'uid' });
 
-		const screen = render(<TemporaryQuizProfView />);
 
-		expect(screen.getByTestId('true-false-bar-view')).toBeTruthy();
-	});
+		const screen = render(<LectureQuizStudentView
+			courseId='courseId'
+			lectureEventId='lectureEventId'
+			lectureId='lectureId'
+			pathToAttempts={mockPathToAttempts}
+			quizEvent={undefined}
+		/>)
 
-	it('renders "Quiz is live!" message when quiz is ongoing and results are not shown to students', () => {
-		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([{ data: { ...mockEvent, quizModel: { ...mockEvent.quizModel, showResultToStudents: false } } }, false]);
-		(useDocs as jest.Mock).mockReturnValue([]);
+		expect(screen.getByTestId('undefined-quizEvent-loading')).toBeTruthy()
 
-		const screen = render(<TemporaryQuizProfView />);
+	})
 
-		expect(screen.getByTestId('waiting-view')).toBeTruthy();
-	});
+	it('returns LectureQuizResultDisplay if quiz event is defined, attempt is defined, showResultToStudents == true', () => {
+		(useAuth as jest.Mock).mockReturnValue("uid");
+		(useDoc as jest.Mock).mockReturnValue({ data: { type: "TFAnswer", value: true }, id: 'uid' });
 
-	it('renders error message when quiz data is undefined', () => {
-		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([undefined, false]);
-		(useDocs as jest.Mock).mockReturnValue(undefined);
+		const screen = render(<LectureQuizStudentView
+			courseId='courseId'
+			lectureEventId='lectureEventId'
+			lectureId='lectureId'
+			pathToAttempts={mockPathToAttempts}
+			quizEvent={mockEventDoc}
+		/>)
 
-		const screen = render(<TemporaryQuizProfView />);
 
-		expect(screen.getByTestId('undefined-quiz-loading-prof')).toBeTruthy();
-	});
+		expect(screen.getByTestId('lecture-quiz-result-display-view')).toBeTruthy()
 
-	// it('navigates back if quiz has ended', () => {
-	// 	(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([{ data: { ...mockQuiz, ended: true } }, false]);
-	// 	(useDocs as jest.Mock).mockReturnValue([]);
+	})
+	it('returns LectureQuizDisplay if quiz event is defined, attempt is defined, showResultToStudents == false', () => {
+		(useAuth as jest.Mock).mockReturnValue("uid");
+		(useDoc as jest.Mock).mockReturnValue({ data: { type: "TFAnswer", value: true }, id: 'uid' });
 
-	// 	render(<TemporaryQuizProfView />);
+		const screen = render(<LectureQuizStudentView
+			courseId='courseId'
+			lectureEventId='lectureEventId'
+			lectureId='lectureId'
+			pathToAttempts={mockPathToAttempts}
+			quizEvent={{ ...mockEventDoc, data: { ...mockEventDoc.data, quizModel: { ...mockEventDoc.data.quizModel, showResultToStudents: false } } }}
+		/>)
 
-	// 	expect(router.back).toHaveBeenCalled();
-	// });
+
+		expect(screen.getByTestId('lecture-quiz-display-view')).toBeTruthy()
+
+	})
+
+	it('returns loading if quiz event is defined, attempt is unddefined, showResultToStudents == true', () => {
+		(useAuth as jest.Mock).mockReturnValue("uid");
+		(useDoc as jest.Mock).mockReturnValue(undefined);
+
+		const screen = render(<LectureQuizStudentView
+			courseId='courseId'
+			lectureEventId='lectureEventId'
+			lectureId='lectureId'
+			pathToAttempts={mockPathToAttempts}
+			quizEvent={mockEventDoc}
+		/>)
+
+		expect(screen.getByTestId('no-previous-attempt')).toBeTruthy()
+
+	})
+
+
 })

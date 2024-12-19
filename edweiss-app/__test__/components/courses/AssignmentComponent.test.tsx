@@ -102,7 +102,7 @@ describe('Add Assignment', () => {
     const mockOnSubmit = jest.fn();
 
     it('should render the component', () => {
-        const screen = render(<AssignmentComponent mode='add' onSubmit={mockOnSubmit} />);
+        const screen = render(<AssignmentComponent courseId='courseId' mode='add' onSubmit={mockOnSubmit} />);
 
         expect(screen.getByTestId(testIDs.addAssignmentTitle).props.children).toBe('Add Assignment');
         expect(screen.getByTestId(testIDs.addAssignmentDescription).props.children).toBe('Enter the details for the new assignment');
@@ -133,7 +133,7 @@ describe('Add Assignment', () => {
     });
 
     it('should NOT call onSubmit when the submitTouchableOpacity is pressed but fields not filled', () => {
-        const screen = render(<AssignmentComponent mode='add' onSubmit={mockOnSubmit} />);
+        const screen = render(<AssignmentComponent courseId='courseId' mode='add' onSubmit={mockOnSubmit} />);
 
         fireEvent.press(screen.getByTestId(testIDs.submitTouchableOpacity));
 
@@ -146,7 +146,7 @@ describe('Add Assignment', () => {
         const defaultDate1 = new Date(2012, 3, 4, 12, 34, 56);
         const expectedTime1 = defaultDate1.toTimeString().split(':').slice(0, 2).join(':');
 
-        const screen = render(<AssignmentComponent mode='add' onSubmit={mockOnSubmit} />);
+        const screen = render(<AssignmentComponent courseId='courseId' mode='add' onSubmit={mockOnSubmit} />);
 
         fireEvent.changeText(screen.getByTestId(testIDs.nameInput), 'Assignment 5');
 
@@ -170,7 +170,7 @@ describe('Add Assignment', () => {
         // Mock the dismissed event
         setMockEventType('dismissed');
 
-        const screen = render(<AssignmentComponent mode='add' onSubmit={mockOnSubmit} />);
+        const screen = render(<AssignmentComponent courseId='courseId' mode='add' onSubmit={mockOnSubmit} />);
 
         fireEvent.press(screen.getByTestId(testIDs.dateTouchableOpacity));
         fireEvent.press(screen.getByTestId(testIDs.timeTouchableOpacity));

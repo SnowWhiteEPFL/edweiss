@@ -1,5 +1,6 @@
-import TemporaryQuizProfView from '@/app/(app)/quiz/temporaryQuizProfView';
+import LectureQuizStudentViewPage from '@/app/(app)/quiz/lectureQuizStudentViewPage';
 import { Document } from '@/config/firebase';
+import { useAuth } from '@/contexts/auth';
 import { useDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import Quizzes, { LectureQuizzes, LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
@@ -147,7 +148,7 @@ jest.mock('../../components/quiz/QuizComponents.tsx', () => ({
 jest.mock('expo-router', () => ({
 	...jest.requireActual('expo-router'),
 	useLocalSearchParams: jest.fn(() => {
-		return { params: JSON.stringify({ courseId: "courseId", lectureId: "lectureId", lectureEventId: "lectureEventId", prefetchedQuizEvent: "prefetchedQuizEvent" }) };
+		return { params: JSON.stringify({ courseId: "courseId", lectureId: "lectureId", lectureEventId: "lectureEventId", prefetchedQuizEvent: undefined }) };
 	}),
 	router: {
 		push: jest.fn(),
@@ -155,22 +156,11 @@ jest.mock('expo-router', () => ({
 	},
 }));
 
-// jest.mock('@/config/i18config', () => ({
-// 	__esModule: true, // This ensures it's treated as a module with a default export
-// 	default: jest.fn((key: string) => key), // Mock `t` to return the key as the translation
-// }));
+jest.mock('@/config/i18config', () => ({
+	__esModule: true, // This ensures it's treated as a module with a default export
+	default: jest.fn((key: string) => key), // Mock `t` to return the key as the translation
+}));
 
-jest.mock('@/config/i18config', () =>
-	jest.fn((str: string) => {
-		if (str === 'quiz:quiz_display.quiz_live') return 'Quiz is live!';
-		else if (str === 'quiz:quiz_display.waiting_for_answers') return "Waiting for students' answers.";
-		else if (str === 'quiz:quiz_display.true') return 'True'
-		else if (str === 'quiz:quiz_display.false') return 'False'
-		else if (str === 'quiz:quiz_display.participants') return "participants"
-
-		else return str;
-	})
-);
 
 jest.mock('../../components/core/header/RouteHeader', () => {
 	const { Text, View } = require('react-native');
@@ -293,48 +283,23 @@ const mockAttemptsDoc: Document<LectureQuizzesAttempts.LectureQuizAttempt>[] = [
 	{ data: { type: "TFAnswer", value: undefined }, id: 'C' }
 ]
 
-describe('TemporaryQuizProfView', () => {
-	const mockQuizId = 'quiz123';
-	const mockPath = '/mock/path';
+describe('LectureQuizStudnetViewPage', () => {
 
 	beforeEach(() => {
 		//(useLocalSearchParams as jest.Mock).mockReturnValue({ params: { courseId: "courseId", lectureId: "lectureId", lectureEventId: "lectureEventId", prefetchedQuizEvent: "prefetchedQuizEvent" } });
 		jest.clearAllMocks();
 	});
 
-	it('renders ResultProfView when quiz shows results to students and attempts are available', () => {
+	it('renders lecture quiz student view', () => {
+		(useAuth as jest.Mock).mockReturnValue("uid");
 		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([{ data: mockEvent }, false]);
 		(useDocs as jest.Mock).mockReturnValue(mockAttemptsDoc);
 
-		const screen = render(<TemporaryQuizProfView />);
 
-		expect(screen.getByTestId('true-false-bar-view')).toBeTruthy();
+		const screen = render(<LectureQuizStudentViewPage />);
+
+		expect(screen.getByTestId('lecture-quiz-student-view-view')).toBeTruthy();
 	});
 
-	it('renders "Quiz is live!" message when quiz is ongoing and results are not shown to students', () => {
-		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([{ data: { ...mockEvent, quizModel: { ...mockEvent.quizModel, showResultToStudents: false } } }, false]);
-		(useDocs as jest.Mock).mockReturnValue([]);
 
-		const screen = render(<TemporaryQuizProfView />);
-
-		expect(screen.getByTestId('waiting-view')).toBeTruthy();
-	});
-
-	it('renders error message when quiz data is undefined', () => {
-		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([undefined, false]);
-		(useDocs as jest.Mock).mockReturnValue(undefined);
-
-		const screen = render(<TemporaryQuizProfView />);
-
-		expect(screen.getByTestId('undefined-quiz-loading-prof')).toBeTruthy();
-	});
-
-	// it('navigates back if quiz has ended', () => {
-	// 	(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([{ data: { ...mockQuiz, ended: true } }, false]);
-	// 	(useDocs as jest.Mock).mockReturnValue([]);
-
-	// 	render(<TemporaryQuizProfView />);
-
-	// 	expect(router.back).toHaveBeenCalled();
-	// });
 })

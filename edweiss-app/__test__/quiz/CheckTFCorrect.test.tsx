@@ -10,6 +10,10 @@ jest.mock('../../components/core/containers/TTouchableOpacity.tsx', () => {
 		</TouchableOpacity>
 	);
 });
+jest.mock('react-native-autoheight-webview', () => {
+	const { View } = require('react-native');
+	return () => <View />; // Mock AutoHeightWebView as a simple empty View
+});
 jest.mock('../../components/core/containers/TView.tsx', () => {
 	const { View } = require('react-native');
 	return (props: ViewProps) => <View {...props} />;

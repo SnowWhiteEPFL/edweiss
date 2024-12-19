@@ -1,8 +1,9 @@
 import { calculateTopOffset, formatDateToReadable, formatTime, getDaysOfWeekFromMonday } from '@/components/calendar/functions';
+import TText from '@/components/core/TText';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
-import TText from '@/components/core/TText';
-import { useAuth } from '@/contexts/auth';
+
+import { useUser } from '@/contexts/user';
 import { router } from 'expo-router';
 import React from 'react';
 import { ScrollView } from 'react-native';
@@ -31,9 +32,9 @@ import { EventsByDate, getNavigationDetails } from '.';
  * 
  * <HorizontalCalendar eventsByDate={eventsByDate} />
  */
-export const HorizontalCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
-    const auth = useAuth();
-    const user = auth.authUser;
+
+export const horizontaCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
+    const { user } = useUser();
     const daysOfWeek = getDaysOfWeekFromMonday(); // Get days of the week starting from Monday
     const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`); // Generate an array of hours from 0:00 to 23:00
 
@@ -55,6 +56,7 @@ export const HorizontalCalendar = ({ eventsByDate }: { eventsByDate: EventsByDat
                         <TView justifyContent='center' alignItems='center' b={1} borderColor='overlay1' style={{ width: '9%', height: 80 }}>
                             <TText>{hour}</TText>
                         </TView>
+
 
                         <NewComponent daysOfWeek={daysOfWeek} eventsByDate={eventsByDate} hour={hour} user={user} />
                     </TView>

@@ -213,4 +213,10 @@ describe('DeckScreen', () => {
         });
     });
 
+    it('can click on generate with AI button', async () => {
+        const { getByText } = render(<DeckScreen />);
+        fireEvent.press(getByText('Generate with AI'));
+
+    });
+
 });

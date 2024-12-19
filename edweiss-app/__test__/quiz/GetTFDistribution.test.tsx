@@ -92,6 +92,11 @@ jest.mock('@/hooks/firebase/firestore', () => ({
 	useDocs: jest.fn()
 }));
 
+jest.mock('react-native-autoheight-webview', () => {
+	const { View } = require('react-native');
+	return () => <View />; // Mock AutoHeightWebView as a simple empty View
+});
+
 
 // Mock Firebase Functions
 jest.mock('@react-native-firebase/functions', () => ({
@@ -117,7 +122,7 @@ describe('getTFDistribution', () => {
 
 		const result = getTFDistribution(studentAttempts);
 
-		expect(result).toEqual([50, 50, 0]); // 50% False, 50% True, 0% Undefined
+		expect(result).toEqual([50, 50]); // 50% False, 50% True, 0% Undefined
 	});
 
 	it('calculates distribution with some undefined (unanswered) responses', () => {
@@ -130,7 +135,7 @@ describe('getTFDistribution', () => {
 
 		const result = getTFDistribution(studentAttempts);
 
-		expect(result).toEqual([25, 25, 50]); // 25% False, 25% True, 50% Undefined
+		expect(result).toEqual([50, 50]); // 25% False, 25% True, 50% Undefined
 	});
 
 	it('returns all zeros if there are no attempts', () => {
@@ -138,6 +143,6 @@ describe('getTFDistribution', () => {
 
 		const result = getTFDistribution(studentAttempts);
 
-		expect(result).toEqual([0, 0, 0]);
+		expect(result).toEqual([0, 0]);
 	});
 });

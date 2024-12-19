@@ -16,12 +16,11 @@
 import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
-import FancyButton from '@/components/input/FancyButton';
 import CardScreenComponent from '@/components/memento/CardScreenComponent';
+import SmthWrongComponent from '@/components/memento/SmthWrongComponent';
 import { ApplicationRoute } from '@/constants/Component';
 import { useRepositoryDocument } from '@/hooks/repository';
 import { useStringParameters } from '@/hooks/routeParameters';
-import { router } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import React, { forwardRef, useEffect, useState } from 'react';
 import { View, ViewProps } from 'react-native';
@@ -65,21 +64,7 @@ const TestYourMightScreen: ApplicationRoute = () => {
 
 	if (sanitizedCardIndices.length === 0) {
 		return (
-			<TView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-				<TText mb={20}>This is awkward ... It seems like you have no chosen cards to play</TText>
-				<FancyButton
-					onPress={() => router.back()}
-					style={{
-						width: '20%', // Adjust to desired button width
-						height: 'auto', // Adjust to desired button height
-						justifyContent: 'center', // Centers content vertically
-						alignItems: 'center', // Centers content horizontally
-						borderRadius: 10, // Optional rounded corners
-					}}
-				>
-					Back
-				</FancyButton>
-			</TView>
+			<SmthWrongComponent message='This is awkward ... It seems like you have no chosen cards to play' />
 		);
 	}
 

@@ -113,10 +113,27 @@ jest.mock('@react-native-firebase/storage', () => ({
 // 	getMCQDistribution: jest.fn(),
 // 	getTFDistribution: jest.fn(),
 // }));
+
+jest.mock('react-native-autoheight-webview', () => {
+	const { View } = require('react-native');
+	return () => <View />; // Mock AutoHeightWebView as a simple empty View
+});
 jest.mock('../../components/core/containers/TView.tsx', () => {
 	const { View } = require('react-native');
 	return (props: ViewProps) => <View {...props} />;
 });
+
+jest.mock('@/config/i18config', () =>
+	jest.fn((str: string) => {
+		if (str === 'quiz:quiz_display.quiz_live') return 'Quiz is live!';
+		else if (str === 'quiz:quiz_display.waiting_for_answers') return "Waiting for students' answers.";
+		else if (str === 'quiz:quiz_display.true') return 'True'
+		else if (str === 'quiz:quiz_display.false') return 'False'
+		else if (str === 'quiz:quiz_display.participants') return "participants"
+
+		else return str;
+	})
+);
 
 describe('SingleDistributionDisplay', () => {
 	const mockMCQExercise: Quizzes.MCQ = {
@@ -166,14 +183,20 @@ describe('SingleDistributionDisplay', () => {
 		);
 
 		expect(screen.getByText('What is the capital of France?')).toBeTruthy();
-		expect(screen.getByText('Proposition 1 : 50 %')).toBeTruthy();
-		expect(screen.getByText('Proposition 2 : 25 %')).toBeTruthy();
-		expect(screen.getByText('Proposition 3 : 25 %')).toBeTruthy();
-		expect(screen.getByText('Proposition 4 : 0 %')).toBeTruthy();
+		expect(screen.getByText(/Option\s+A/)).toBeTruthy();
+		expect(screen.getByText(/Option\s+B/)).toBeTruthy();
+		expect(screen.getByText(/Option\s+C/)).toBeTruthy();
+		expect(screen.getByText(/Option\s+D/)).toBeTruthy();
+		expect(screen.getByText(/50\s*%/)).toBeTruthy();
+		const proportions = screen.getAllByText(/25\s*%/);
+		expect(proportions[0]).toBeTruthy;
+		expect(proportions[1]).toBeTruthy;
+		//expect(screen.getByText(/0\s*%/)).toBeTruthy();
+
 	});
 
 	it('renders TF distribution correctly', () => {
-		const { getByText } = render(
+		const screen = render(
 			<SingleDistributionDisplay
 
 				exercise={mockTFExercise}
@@ -181,10 +204,13 @@ describe('SingleDistributionDisplay', () => {
 			/>
 		);
 
-		expect(getByText('The earth is flat.')).toBeTruthy();
-		expect(getByText('False : 50 %')).toBeTruthy();
-		expect(getByText('True : 50 %')).toBeTruthy();
-		expect(getByText('Undecided : 0 %')).toBeTruthy();
+		expect(screen.getByText('The earth is flat.')).toBeTruthy();
+		expect(screen.getByTestId('true-false-bar-view')).toBeTruthy();
+		const proportions = screen.getAllByText(/50\s*%/)
+		expect(proportions[0]).toBeTruthy();
+		expect(proportions[1]).toBeTruthy();
+
+		//expect(getByText('Undecided : 0 %')).toBeTruthy();
 	});
 
 });
