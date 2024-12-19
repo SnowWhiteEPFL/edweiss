@@ -13,9 +13,6 @@ export const createDeckFromMaterial = onSanitizedCall(Memento.Functions.createDe
 	materialUrl: Predicate.isNonEmptyString,
 }, async (userId, args) => {
 	const course = await getRequiredDocument(Collections.courses, args.courseId, COURSE_NOT_FOUND);
-	// const material = await getRequiredDocument(CollectionOf<Material>(`courses/${args.courseId}/materials`), args.materialId, fail('material_not_found'));
-
-	// const doc = material.docs[0];
 
 	const deckCollection = CollectionOf<Memento.Deck>(`users/${userId}/courses/${args.courseId}/decks`);
 
@@ -136,19 +133,3 @@ export const createDeckFromMaterial = onSanitizedCall(Memento.Functions.createDe
 
 	return fail("wrong-material-type");
 });
-
-
-
-// return [split[0].trim(), split[1].trim()] as const;
-// const cards: { question: string, answer: string }[] = [];
-// for (let i = 0; i < flashcardElements.length; i += 2) {
-// 	const question = flashcardElements[i];
-// 	if (i == flashcardElements.length - 1)
-// 		continue;
-// 	const answer = flashcardElements[i + 1];
-
-// 	cards.push({
-// 		question,
-// 		answer
-// 	});
-// }
