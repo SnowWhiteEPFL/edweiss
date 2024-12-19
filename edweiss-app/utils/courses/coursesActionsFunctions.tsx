@@ -1,10 +1,9 @@
-import { callFunction, CollectionOf } from '@/config/firebase';
+import { callFunction } from '@/config/firebase';
 import t from '@/config/i18config';
 import { CallResult } from '@/model/functions';
 import { Assignment, AssignmentID, Course_functions, CourseID, Material, MaterialID, UpdateCourseArgs } from '@/model/school/courses';
-import { ProfessorID, StudentID, UserID } from '@/model/users';
+import { ProfessorID, StudentID } from '@/model/users';
 import { pushNotifAction } from '@/utils/notifs/notifsActionsFunctions';
-import { getDocs, query, where } from '@react-native-firebase/firestore';
 import Toast from 'react-native-toast-message';
 
 export async function addAssignmentAction(courseId: CourseID, assignment: Assignment) {
@@ -22,28 +21,13 @@ export async function addAssignmentAction(courseId: CourseID, assignment: Assign
         text1: t(`course:successAddAssignment`),
     });
 
-    try {
-        // Étape 1 : Récupérer tous les userIds inscrits au cours
-        const usersCollection = CollectionOf<UserID>(`users`);
-        const q = query(usersCollection, where("courses", "array-contains", courseId));
-        const querySnapshot = await getDocs(q);
-
-        // Étape 2 : Parcourir chaque utilisateur et envoyer la notification
-        const userIds: string[] = [];
-        querySnapshot.forEach((doc) => {
-            userIds.push(doc.id);
-        });
-
-        pushNotifAction(
-            assignment.type,
-            t(`notifications:new_assignment_due`),
-            `${assignment.name} ` + t(`notifications:is_now_available`),
-            userIds,
-            courseId
-        );
-    } catch (error) {
-        console.error("Erreur lors de l'envoi des notifications :", error);
-    }
+    // Sends a notification to all users subscribed to the course
+    pushNotifAction(
+        assignment.type,
+        t(`notifications:new_assignment_due`),
+        `${assignment.name} ` + t(`notifications:is_now_available`),
+        courseId
+    );
 
     return res;
 }
