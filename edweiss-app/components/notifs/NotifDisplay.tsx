@@ -105,7 +105,7 @@ type dateSection = 'today' | 'thisWeek' | 'thisMonth' | 'thisYear' | 'older';
  * 
  * @returns JSX.Element - The rendered component for the notification display.
  */
-const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSection: dateSection, index: number, key: React.Key | null | undefined; }> = ({ item, id, dateSection, index, key }) => {
+const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSection: dateSection, index: number; }> = ({ item, id, dateSection, index }) => {
 
     // Define swipeableRefs
     const swipeableRefs = useRef<(Swipeable | null)[]>([]);
@@ -139,7 +139,7 @@ const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSect
     return (
         <Swipeable
             testID={testIDs.swipeableComponent}
-            key={key}
+            key={id}
             ref={(ref) => { swipeableRefs.current[index] = ref; }}
             renderLeftActions={renderLeftActions}  // Render actions on swipe
             renderRightActions={renderRightActions}  // Render actions on swipe
@@ -169,11 +169,11 @@ const NotifDisplay: ReactComponent<{ item: NotifList.Notif, id: string, dateSect
                     })()}
 
                     <TView testID={testIDs.notifGlobalView} flex={1} bb={1} ml={10} borderColor='crust'>
-                        <TView testID={testIDs.notifTitleDateView} flexDirection='row' alignItems="center" justifyContent='space-between'>
+                        <TView testID={testIDs.notifTitleDateView} flex={1} flexDirection='row' alignItems="center" justifyContent='space-between'>
                             {/* // Title */}
-                            <TText testID={testIDs.notifTitle} size={14} bold={!item.read} >{item.title}</TText>
+                            <TText testID={testIDs.notifTitle} numberOfLines={1} size={14} bold={!item.read} >{item.title}</TText>
                             {/* // Date */}
-                            <TText testID={testIDs.notifDate} align='right' bold={!item.read} size={12} >
+                            <TText testID={testIDs.notifDate} numberOfLines={1} align='right' bold={!item.read} size={12} >
                                 {(() => {
                                     const date = item.date ? new Date(item.date.seconds * timeInMS.SECOND) : new Date();
                                     const options: Intl.DateTimeFormatOptions = {};
