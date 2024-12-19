@@ -1,85 +1,36 @@
-import RouteHeader from '@/components/core/header/RouteHeader';
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
+import React from 'react';
 
 import For from '@/components/core/For';
-import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
 import TSafeArea from '@/components/core/containers/TSafeArea';
 import TView from '@/components/core/containers/TView';
+import { LectureQuizProfView } from '@/components/quiz/LectureQuizComponents';
 import { CollectionOf, Document } from '@/config/firebase';
-import { useDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
 import LectureDisplay from '@/model/lectures/lectureDoc';
-import Quizzes, { LectureQuizzes, LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
-import { router } from 'expo-router';
-import { useEffect } from 'react';
+import Quizzes, { LectureQuizzes, QuizzesAttempts } from '@/model/quizzes';
+import { t } from 'i18next';
 
 export const TemporaryQuizProfViewSignature: ApplicationRouteSignature<{
 	courseId: string, lectureId: string, lectureEventId: string
-	prefetchedQuizEvent: Document<LectureDisplay.LectureEvent> | undefined
+	prefetchedQuizEvent: Document<LectureDisplay.QuizLectureEvent> | undefined
 }> = {
 	path: "/(app)/quiz/temporaryQuizProfView" as any
 }
 
 const TemporaryQuizProfView: ApplicationRoute = () => {
 	const { courseId, lectureId, lectureEventId, prefetchedQuizEvent } = useRouteParameters(TemporaryQuizProfViewSignature)
+
+
 	const pathToEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
-	const pathToAttempts = pathToEvents + "/" + lectureEventId + "/attempts"
+	const pathToAttempts = pathToEvents + "/" + lectureEventId + "/attempts";
 
-	const [quizEvent, loading] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.LectureEvent>(pathToEvents), lectureEventId as string, prefetchedQuizEvent);
-	const studentAttempts = useDocs(CollectionOf<LectureQuizzesAttempts.LectureQuizAttempt>(pathToAttempts));
+	const [quizEvent, _] = usePrefetchedDynamicDoc(CollectionOf<LectureDisplay.ActualLectureEvent>(pathToEvents), lectureEventId as string, prefetchedQuizEvent);
 
-	const quiz = quizEvent?.data.quizModel
 
-	useEffect(() => {
-		if (quiz?.exercise == undefined) {
-			return;
-		}
-		else if (quizEvent?.data.done) {
-			router.back();
-		}
-	}, [quizEvent]);
-	if (quizEvent == undefined || studentAttempts == undefined) {
-		return <TActivityIndicator testID='undefined-quiz-loading-prof' />;
-	}
-
-	if (quiz?.showResultToStudents && studentAttempts.length > 0) {
-		const studentAttemptsData = studentAttempts.map(doc => doc.data);
-		if (studentAttemptsData == undefined) {
-			return <TActivityIndicator testID='attempts-empty' />
-		}
-
-		return (
-			<>
-				<TSafeArea>
-					<SingleDistributionDisplay exercise={quiz.exercise} exerciseAttempts={studentAttemptsData} />
-				</TSafeArea>
-
-			</>
-		);
-	}
-	else if (quizEvent != undefined && !quizEvent.data.quizModel.showResultToStudents) {
-		return (
-			<>
-				<RouteHeader disabled />
-				<TSafeArea>
-					<TView>
-						<TText> Quiz is live! </TText>
-					</TView>
-				</TSafeArea>
-
-			</>
-		);
-	}
-	else {
-		return (
-			<TView>
-				<TText>
-					An error occured!
-				</TText>
-			</TView>
-		);
-	}
+	return (<LectureQuizProfView pathToAttempts={pathToAttempts} quizEvent={quizEvent as Document<LectureDisplay.QuizLectureEvent>}></LectureQuizProfView>);
 
 };
 export default TemporaryQuizProfView;
@@ -89,7 +40,7 @@ export const ResultProfView: ReactComponent<{ studentAttempts: QuizzesAttempts.A
 	return (<SingleDistributionDisplay exercise={quiz.exercise} exerciseAttempts={studentAttempts} />)
 
 };
-export const SingleDistributionDisplay: ReactComponent<{ exercise: Quizzes.Exercise, exerciseAttempts: QuizzesAttempts.Answer[], }> = ({ exercise, exerciseAttempts }) => {
+export const SingleDistributionDisplay: ReactComponent<{ exercise: Quizzes.Exercise, exerciseAttempts: QuizzesAttempts.Answer[], testID?: string }> = ({ exercise, exerciseAttempts, testID }) => {
 
 	if (exercise.type == 'MCQ') {
 		const distribution = getMCQDistribution(exerciseAttempts as QuizzesAttempts.MCQAnswersIndices[], exercise.propositions.length);
@@ -112,87 +63,105 @@ export const SingleDistributionDisplay: ReactComponent<{ exercise: Quizzes.Exerc
 	}
 };
 export const DisplayTFProportions: ReactComponent<{ distribution: number[]; exercise: Quizzes.TF, numberOfAttempts: number }> = ({ distribution, exercise, numberOfAttempts }) => {
-	return (
-
-		<TView mb={'md'}>
-			<TText size={'lg'}>
-				{exercise.question}
-			</TText>
-
-			<DisplayTrue exercise={exercise} percentage={distribution[1]} />
-			<DisplayFalse exercise={exercise} percentage={distribution[0]} />
-
-			<TText>
-				Number of answers : {numberOfAttempts}
-			</TText>
+	return (<TSafeArea>
+		<TView mb={'md'} justifyContent='center' style={{ height: "100%" }}>
+			<TView backgroundColor="base" radius='lg' mx={'md'} p={"md"}>
 
 
-			{/* <TText>
-				Undecided : {distribution[2]} %
-			</TText> */}
-		</TView>
+				<TView >
+					<TText size={18} mb={'sm'} bold>
+						{exercise.question}
+					</TText>
+				</TView>
 
-	);
-};
-
-const DisplayTrue: ReactComponent<{ exercise: Quizzes.TF, percentage: number }> = (props) => {
-
-	return (
-		<TView style={{ position: "relative" }}>
-			<TView backgroundColor={props.exercise.answer ? 'green' : 'peach'} style={{ width: `${props.percentage}%` }} radius='xs' p='md' ml='sm'>
-				<TText style={{ position: 'absolute' }} color='overlay0'>
-					True : {props.percentage} %
+				<TText size={"sm"} color='subtext0' mt={-8}>
+					{numberOfAttempts} {t('quiz:quiz_display.answer')}
 				</TText>
+
+				<TView mt={24} testID='true-false-bar-view'>
+					<DisplayTrueFalseBars exercise={exercise} percentage={distribution[1]} />
+				</TView>
+
 			</TView>
 		</TView>
+	</TSafeArea>
 
 	);
-
-
 };
 
-const DisplayFalse: ReactComponent<{ exercise: Quizzes.TF, percentage: number }> = (props) => {
+const DisplayTrueFalseBars: ReactComponent<{ exercise: Quizzes.TF, percentage: number }> = (props) => {
 
 	return (
-		<TView style={{ position: "relative" }}>
+		<TView flexDirection='row' flexColumnGap={'md'} alignItems='center' mb={"sm"}>
+			<TText size={"sm"} bold color='green'>
+				{t('quiz:quiz_display.true')}
+			</TText>
 
-			<TView backgroundColor={props.exercise.answer ? 'peach' : 'green'} style={{ width: `${props.percentage}%` }} radius='xs' p='md' ml='sm'>
-				<TText style={{ position: 'absolute' }} color='overlay0'>
-					False : {props.percentage} %
-				</TText>
+			<TView flex={1} backgroundColor='peach' radius='md' style={{ position: "relative", overflow: "hidden" }}>
+				<TView backgroundColor={props.exercise.answer ? 'green' : 'peach'} style={{ width: `${props.percentage}%` }} py={"md"}>
+
+				</TView>
+
+				<TView flexDirection='row' justifyContent='space-between' alignItems='center' px={"sm"} style={{ position: "absolute", width: "100%", height: "100%" }}>
+					<TText size={'sm'} bold color='crust'>
+						{props.percentage}%
+					</TText>
+
+					<TText size={'sm'} bold color='crust'>
+						{100 - props.percentage}%
+					</TText>
+				</TView>
 			</TView>
+
+			<TText size={"sm"} bold color='peach'>
+				{t('quiz:quiz_display.false')}
+			</TText>
 		</TView>
 
 	);
 
 
 };
+
 
 export const DisplayMCQProportions: ReactComponent<{ distribution: number[], exercise: Quizzes.MCQ, numberOfAttempts: number }> = ({ distribution, exercise, numberOfAttempts }) => {
 	return (
-		<TView mb={'md'}>
-			<TText size={'lg'}>
-				{exercise.question}
-			</TText>
-			<For each={distribution}>
-				{(percentage, propositionIndex) => {
-					//console.log(distribution.length)
-					return (
-						<TView style={{ position: "relative" }}>
-							<TView backgroundColor='blue' style={{ width: `${percentage}%` }} radius='xs' p='md' ml='sm' mb='sm'>
-							</TView>
+		<>
+			<TView justifyContent='center' alignItems='center' style={{ height: "100%" }}>
+				<TView backgroundColor="base" radius='lg' mx={'md'} p={"md"}>
 
-							<TText style={{ position: 'absolute' }} color='overlay0' mt='sm' ml='sm'>
-								{`Proposition ${propositionIndex + 1} : ${percentage} %`}
-							</TText>
-						</TView>
-					);
-				}}
-			</For>
-			<TText>
-				Number of answers : {numberOfAttempts}
-			</TText>
-		</TView>
+					<TText size={18} mb={'sm'} bold>
+						{exercise.question}
+					</TText>
+
+					<TText size={"sm"} color='subtext0' mt={-8} mb={'sm'}>
+						{numberOfAttempts} {t('quiz:quiz_display.participants')}
+					</TText>
+
+					<For each={exercise.propositions}>
+						{(proposition, propositionIndex) => {
+							return (
+								<TView style={{ position: "relative" }} key={proposition.id} flexDirection='row' flexColumnGap={'md'} alignItems='center' mb={"sm"}>
+
+									<TText color='overlay0' size={'sm'} bold>
+										Option {"ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(propositionIndex)}
+									</TText>
+
+									<TView backgroundColor='blue' style={{ width: `${distribution[propositionIndex]}%` }} radius='xs' py='md'>
+									</TView>
+
+									<TText color='overlay0' size={'sm'} bold>
+										{distribution[propositionIndex]}%
+									</TText>
+
+								</TView>
+							);
+						}}
+					</For>
+				</TView>
+			</TView >
+		</>
+
 
 	);
 };
@@ -226,7 +195,8 @@ export function getMCQDistribution(studentAttempts: QuizzesAttempts.MCQAnswersIn
 
 export function getTFDistribution(studentAttempts: QuizzesAttempts.TFAnswer[]): number[] {
 	const numberOfAttempts = studentAttempts.length;
-	let TFDistribution = [0, 0, 0]; // Index 0 for False, Index 1 for True
+	let TFDistribution = [0, 0]; // Index 0 for False, Index 1 for True
+	let validAttempts = 0;
 	if (studentAttempts == undefined || studentAttempts.length <= 0) {
 		return TFDistribution
 	}
@@ -240,16 +210,18 @@ export function getTFDistribution(studentAttempts: QuizzesAttempts.TFAnswer[]): 
 		// Increment the appropriate count in the tfDistribution array
 		if (selectedAnswer == true) {
 			TFDistribution[1] += 1; // Increment True count
+			validAttempts++
 		} else if (selectedAnswer == false) {
 			TFDistribution[0] += 1; // Increment False count
+			validAttempts++
 		}
 		else if (selectedAnswer == undefined) {
-			TFDistribution[2] += 1; // Undefined (unanswered)
+			//TFDistribution[2] += 1; // Undefined (unanswered)
 		} else {
 			console.log(`Warning: in TF, Invalid value found in attempt`);
 		}
 	}
 
 	// Convert the distribution to percentages
-	return TFDistribution.map(p => (p * 100) / numberOfAttempts);
+	return TFDistribution.map(p => (p * 100) / validAttempts);
 }

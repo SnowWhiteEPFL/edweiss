@@ -14,7 +14,7 @@ import { fail, ok } from 'utils/status';
 import Functions = Course_functions.Functions;
 
 
-const validTypes: MaterialType[] = ["slides", "exercises", "feedbacks", "other"];
+const validTypes: MaterialType[] = ["slide", "exercise", "image", "feedback", "other"];
 
 
 /**
@@ -45,6 +45,8 @@ export const addMaterial = onSanitizedCall(Functions.addMaterial, {
     }
     //-------------------------------------------------------------------------------------------------
 
+    console.log("Adding material to course:", args.courseID);
+
     // Parse the material JSON
     let materialData: Material;
     try {
@@ -63,11 +65,11 @@ export const addMaterial = onSanitizedCall(Functions.addMaterial, {
     assertIsBetween(materialData.description.length, 0, MAX_MATERIAL_DESCRIPTION_LENGTH, "material_description_too_long");
 
     for (const [index, doc] of materialData.docs.entries()) {
-        if (!doc.url || !doc.title) {
+        if (!doc.uri || !doc.title) {
             console.error(`Missing fields in document at index ${index}:`, doc);
             return fail("invalid_material_doc");
         }
-        assertIsIn(doc.type, validTypes, "invalid_material_type");
+        assertIsIn(doc.type, validTypes, "invalid_document_type");
     }
 
     // Construct the material object to be inserted
@@ -77,7 +79,7 @@ export const addMaterial = onSanitizedCall(Functions.addMaterial, {
         from: materialData.from,
         to: materialData.to,
         docs: materialData.docs.map((doc) => ({
-            url: doc.url,
+            uri: doc.uri,
             title: doc.title,
             type: doc.type,
         })),

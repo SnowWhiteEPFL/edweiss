@@ -9,6 +9,7 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
+import { QuizToSlideSignature } from '@/app/(app)/lectures/remotecontrol/quizToSlide';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
@@ -16,13 +17,13 @@ import Icon from '@/components/core/Icon';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { LightDarkProps } from '@/constants/Colors';
+import { pushWithParameters } from '@/hooks/routeParameters';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import { langIconMap } from '@/utils/lectures/remotecontrol/utilsFunctions';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Vibration } from 'react-native';
-import Toast from 'react-native-toast-message';
 import { LangSelectModal, TimerSettingModal } from './modal';
 
 // types
@@ -197,11 +198,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                         <TTouchableOpacity
                             backgroundColor='crust'
                             borderColor='text' p={10} b={1} radius={1000}
-                            onPress={() => Toast.show({
-                                type: 'success',
-                                text1: 'The Available activities',
-                                text2: 'Implementation comes soon'
-                            })}
+                            onPress={() => pushWithParameters(QuizToSlideSignature, { courseNameString, lectureIdString })}
                             testID='strc-activity-button'>
                             <Icon size={40} name='easel-outline' color='text'></Icon>
                         </TTouchableOpacity>
@@ -212,11 +209,17 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
                         <TTouchableOpacity
                             backgroundColor='crust'
                             borderColor='text' p={10} b={1} mr={'md'} radius={1000}
-                            onPress={() => Toast.show({
-                                type: 'success',
-                                text1: 'The Audiance  Questions',
-                                text2: 'Implementation comes soon'
-                            })}
+                            onPress={() =>
+                                router.push({
+                                    pathname: '/(app)/lectures/remotecontrol/questionToSlide' as any,
+                                    params: {
+                                        courseNameString,
+                                        lectureIdString,
+                                        currentPageString: curPageProvided.toString(),
+                                        totalPageString: totPageProvided.toString(),
+                                    },
+                                })
+                            }
                             testID='strc-chat-button'>
                             <Icon size={40} name='chatbubbles-outline' color='text'></Icon>
                         </TTouchableOpacity>
@@ -229,7 +232,7 @@ export const AbstractRmtCrl: React.FC<AbstractRmtCrlProps & LightDarkProps> = ({
 
             {/* Modals */}
             < LangSelectModal modalRef={modalRefLangSelect} lang={lang} setLang={setLang} onClose={() => modalRefLangSelect.current?.close()} />
-            <TimerSettingModal modalRef={modalRefTimer} currentTimer={timer} currentRecall={recall} setTimer={setTimer} setIsCritical={setIsCritical} setRecall={setRecall} onClose={() => modalRefTimer.current?.close()} />
+            < TimerSettingModal modalRef={modalRefTimer} currentTimer={timer} currentRecall={recall} setTimer={setTimer} setIsCritical={setIsCritical} setRecall={setRecall} onClose={() => modalRefTimer.current?.close()} />
         </>
     );
 };

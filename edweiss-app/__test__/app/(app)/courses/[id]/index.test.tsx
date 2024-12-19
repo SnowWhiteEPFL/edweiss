@@ -4,11 +4,19 @@ import { useAuth } from '@/contexts/auth';
 import { useDoc, useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import { Timestamp } from '@/model/time';
 import { ProfessorUser, StudentUser } from '@/model/users';
+import { updateCourseAction, updateMaterialAction } from '@/utils/courses/coursesActionsFunctions';
 import { fireEvent, render } from "@testing-library/react-native";
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { TextProps, TouchableOpacityProps, ViewProps } from 'react-native';
+import { PdfProps } from 'react-native-pdf';
 
+jest.mock('@/utils/courses/coursesActionsFunctions', () => {
+    return {
+        updateCourseAction: jest.fn(),
+        updateMaterialAction: jest.fn(),
+    };
+});
 
 jest.mock('@/components/core/containers/TView.tsx', () => {
     const { View } = require('react-native');
@@ -133,6 +141,35 @@ jest.mock('@/components/core/TActivityIndicator', () => {
     };
 });
 
+//====================== Mock PDF ===========================
+jest.mock('react-native/Libraries/Settings/Settings', () => ({
+    get: jest.fn(),
+    set: jest.fn(),
+}));
+jest.mock('react-native-pdf', () => {
+    const React = require('react');
+    return (props: PdfProps) => {
+        const { onLoadComplete, onPageChanged } = props;
+
+        React.useEffect(() => {
+            if (onLoadComplete) {
+                onLoadComplete(10, "1", { height: 100, width: 100 }, []); // Mock total pages as 10 with additional required arguments
+            }
+        }, [onLoadComplete]);
+
+        React.useEffect(() => {
+            if (onPageChanged) {
+                onPageChanged(3, 10); // Mock current page as 1 and total pages as 10
+            }
+        }, [onPageChanged]);
+
+        return React.createElement('Pdf', {
+            ...props
+        });
+    };
+});
+//==========================================================
+
 
 // Mock Date
 const fixedDate = new Date('2025-01-01T00:02:00Z'); // 1st of January 2025
@@ -214,7 +251,7 @@ describe('CoursePage with assignments', () => {
                             description: "Description of Material 1",
                             from: { seconds: seconds3, nanoseconds: 0 },
                             to: { seconds: seconds4, nanoseconds: 0 },
-                            docs: [{ url: "url1", title: "Document 1", type: "slides" }, { url: "url1.1", title: "Document 1.1", type: "exercises" }],
+                            docs: [{ uri: "uri1", title: "Document 1", type: "slide" }, { uri: "uri1.1", title: "Document 1.1", type: "exercise" }],
                         },
                     },
                     {
@@ -224,7 +261,7 @@ describe('CoursePage with assignments', () => {
                             description: "Description of Material 2",
                             from: { seconds: seconds5, nanoseconds: 0 },
                             to: { seconds: seconds6, nanoseconds: 0 },
-                            docs: [{ url: "url2", title: "Document 2", type: "exercises" }],
+                            docs: [{ uri: "uri2", title: "Document 2", type: "exercise" }],
                         },
                     },
                     {
@@ -234,7 +271,7 @@ describe('CoursePage with assignments', () => {
                             description: "Description of Material 3",
                             from: { seconds: seconds7, nanoseconds: 0 },
                             to: { seconds: seconds8, nanoseconds: 0 },
-                            docs: [{ url: "url3", title: "Document 3", type: "other" }],
+                            docs: [{ uri: "uri3", title: "Document 3", type: "other" }],
                         },
                     },
                 ];
@@ -296,10 +333,10 @@ describe('CoursePage with assignments', () => {
         expect(screen.queryByTestId('feedbacks-touchable')).toBeNull();
 
         //Fire events
-        fireEvent.press(screen.getByTestId('slides-touchable'));
-        expect(console.log).toHaveBeenCalledWith('Click on Material 1');
-        fireEvent.press(screen.getAllByTestId('exercises-touchable')[0]); // Press the first exercises-touchable
-        expect(console.log).toHaveBeenCalledWith('Click on Material 2');
+        fireEvent.press(screen.getByTestId('slide-touchable'));
+        expect(console.log).toHaveBeenCalledWith('Click on Document 1');
+        fireEvent.press(screen.getAllByTestId('exercise-touchable')[0]); // Press the first exercises-touchable
+        expect(console.log).toHaveBeenCalledWith('Click on Document 2');
     });
 
     test('should display future Materials when the \"Show future materials\" is clicked', () => {
@@ -320,7 +357,7 @@ describe('CoursePage with assignments', () => {
         expect(screen.getByTestId('future-material-view')).toBeTruthy();
 
         fireEvent.press(screen.getByTestId('other-touchable'));
-        expect(console.log).toHaveBeenCalledWith('Click on Material 3');
+        expect(console.log).toHaveBeenCalledWith('Click on Document 3');
     });
 });
 
@@ -437,7 +474,7 @@ describe('Navigate to PreviousPage', () => {
                             description: "Description of Material 1",
                             from: { seconds: 0, nanoseconds: 0 },
                             to: { seconds: 10000, nanoseconds: 0 },
-                            docs: [{ url: "url1", title: "Document 1", type: "slides" }],
+                            docs: [{ uri: "uri1", title: "Document 1", type: "slide" }],
                         },
                     },
                     {
@@ -447,7 +484,7 @@ describe('Navigate to PreviousPage', () => {
                             description: "Description of Material 2",
                             from: { seconds: 120000, nanoseconds: 0 },
                             to: { seconds: 120000 + 1, nanoseconds: 0 },
-                            docs: [{ url: "url2", title: "Document 2", type: "exercices" }],
+                            docs: [{ uri: "uri2", title: "Document 2", type: "exercice" }],
                         },
                     },
                     {
@@ -457,7 +494,7 @@ describe('Navigate to PreviousPage', () => {
                             description: "Description of Material 3",
                             from: { seconds: -120000 - 1, nanoseconds: 0 },
                             to: { seconds: -120000, nanoseconds: 0 },
-                            docs: [{ url: "url3", title: "Document 3", type: "other" }],
+                            docs: [{ uri: "uri3", title: "Document 3", type: "other" }],
                         },
                     },
                 ];
@@ -614,4 +651,170 @@ describe("Renders buttons when user is a teacher", () => {
         expect(screen.getByTestId('add-elements-touchable')).toBeTruthy();
         fireEvent.press(screen.getByTestId('add-elements-touchable'));
     });
+
+    test("when teacher wants to add an Assignment", async () => {
+
+        const screen = render(<CoursePage />);
+
+        expect(screen.getByTestId('add-elements-touchable')).toBeTruthy();
+        expect(screen.getByTestId('plus_button')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('add-elements-touchable'));
+        expect(screen.getByTestId('actionModal')).toBeTruthy();
+        expect(screen.getByTestId('animatedViewActionSelection')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('add-assignment-bouton'));
+
+        expect(screen.getByTestId('addElementView')).toBeTruthy();
+        expect(screen.getByTestId('go-back-button')).toBeTruthy();
+        expect(screen.getByTestId('go-back-button-icon')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('go-back-button'));
+    });
+
+    test("when teacher wants to add a Material", async () => {
+
+        const screen = render(<CoursePage />);
+
+        expect(screen.getByTestId('add-elements-touchable')).toBeTruthy();
+        expect(screen.getByTestId('plus_button')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('add-elements-touchable'));
+        expect(screen.getByTestId('actionModal')).toBeTruthy();
+        expect(screen.getByTestId('animatedViewActionSelection')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('add-material-bouton'));
+        expect(screen.getByTestId('addModal')).toBeTruthy();
+        expect(screen.getByTestId('addElementView')).toBeTruthy();
+        expect(screen.getByTestId('go-back-button')).toBeTruthy();
+    });
+
+    test("when teacher wants to modify course parameters click on go back", async () => {
+
+        const screen = render(<CoursePage />);
+
+        expect(screen.getByTestId('course-parameters-touchable')).toBeTruthy();
+        expect(screen.getByTestId('course-parameters-icon')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('course-parameters-touchable'));
+        expect(screen.getByTestId('paramModal')).toBeTruthy();
+        expect(screen.getByTestId('go-back-opacity')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('go-back-opacity'));
+    });
+
+    test("when teacher wants to modify course parameters click on finish", async () => {
+
+        (updateCourseAction as jest.Mock).mockReturnValue(Promise.resolve());
+
+        const screen = render(<CoursePage />);
+
+        expect(screen.getByTestId('course-parameters-touchable')).toBeTruthy();
+        expect(screen.getByTestId('course-parameters-icon')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('course-parameters-touchable'));
+        expect(screen.getByTestId('paramModal')).toBeTruthy();
+        expect(screen.getByTestId('finish-touchable-opacity')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('finish-touchable-opacity'));
+    });
 });
+
+
+describe('Navigate to PreviousPage', () => {
+
+    beforeEach(() => {
+        setupTeacherMockUseAuth();
+        (useDoc as jest.Mock).mockReturnValue({ id: 'TeacherID', data: { type: 'professor', name: 'Test User', createdAt: { seconds: 0, nanoseconds: 0 } as Timestamp, courses: ['courseID'] } as ProfessorUser });
+        (useLocalSearchParams as jest.Mock).mockReturnValue({ id: 'default-id' });
+        jest.spyOn(console, 'log').mockImplementation(() => { });
+
+        // Mock des données de cours
+        (usePrefetchedDynamicDoc as jest.Mock).mockImplementation(() => [{
+            id: "course-id-123", // ID du cours
+            data: {
+                name: "Course 101",
+                description: "This is a mocked course description",
+                professors: ["TeacherID"],
+                assistants: ["StudentID"],
+                periods: [],
+                section: "IN",
+                credits: 8,
+                started: true,
+            },
+        }]);
+
+        (useDynamicDocs as jest.Mock).mockImplementation((collectionPath) => {
+
+            if (collectionPath.includes('assignments')) {
+                return [
+                    {
+                        id: "1",
+                        data: {
+                            name: "Assignment 1",
+                            type: "quiz",
+                            dueDate: { seconds: 0, nanoseconds: 0 },
+                            color: "darkNight"
+                        }
+                    },
+                ];
+            } else if (collectionPath.includes('materials')) {
+                return [
+                    {
+                        id: "materialID_1",
+                        data: {
+                            title: "Material 1",
+                            description: "Description of Material 1",
+                            from: { seconds: 0, nanoseconds: 0 },
+                            to: { seconds: 10000, nanoseconds: 0 },
+                            docs: [{ uri: "uri1", title: "Document 1", type: "slide" }],
+                        },
+                    }
+                ];
+            }
+            fail('Invalid collection path');
+        });
+    });
+
+    test('should open edit material modal and close it', () => {
+
+        // Render the CoursePage component
+        const screen = render(
+            <CoursePage />
+        );
+
+        expect(screen.getByTestId('editMaterial')).toBeTruthy();
+        expect(screen.getByTestId('editMaterialIcon')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('editMaterial'));
+        expect(screen.getByTestId('editMaterialModal')).toBeTruthy();
+        expect(screen.getByTestId('editMaterialView')).toBeTruthy();
+        expect(screen.getByTestId('go-back-button')).toBeTruthy();
+        expect(screen.getByTestId('go-back-button-icon')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('go-back-button'));
+    });
+
+    test('should delet material', () => {
+
+        // Render the CoursePage component
+        const screen = render(
+            <CoursePage />
+        );
+
+        expect(screen.getByTestId('editMaterial')).toBeTruthy();
+        expect(screen.getByTestId('editMaterialIcon')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('editMaterial'));
+        expect(screen.getByTestId('editMaterialModal')).toBeTruthy();
+        expect(screen.getByTestId('editMaterialView')).toBeTruthy();
+        expect(screen.getByTestId('delete-touchable-opacity')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('delete-touchable-opacity'));
+    });
+
+    test('should save changes material', () => {
+
+        (updateMaterialAction as jest.Mock).mockReturnValue(Promise.resolve({ res: { status: 1 } }));
+
+        // Render the CoursePage component
+        const screen = render(
+            <CoursePage />
+        );
+
+        expect(screen.getByTestId('editMaterial')).toBeTruthy();
+        expect(screen.getByTestId('editMaterialIcon')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('editMaterial'));
+        expect(screen.getByTestId('editMaterialModal')).toBeTruthy();
+        expect(screen.getByTestId('editMaterialView')).toBeTruthy();
+        expect(screen.getByTestId('submit-touchable-opacity')).toBeTruthy();
+        fireEvent.press(screen.getByTestId('submit-touchable-opacity'));
+    });
+}); 

@@ -9,10 +9,13 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
-import { LangSelectModal, TimerSettingModal } from '@/components/lectures/remotecontrol/modal';
+import { LangSelectModal, QuestionBroadcastModal, QuizBroadcastModal, TimerSettingModal } from '@/components/lectures/remotecontrol/modal';
+import { callFunction } from '@/config/firebase';
+
 import LectureDisplay from '@/model/lectures/lectureDoc';
+import { LectureQuizzes } from '@/model/quizzes';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { fireEvent, render } from '@testing-library/react-native';
+import { act, fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
 import Toast from 'react-native-toast-message';
 
@@ -118,6 +121,10 @@ jest.mock('@/hooks/firebase/firestore', () => ({
     ])
 }));
 
+// Mock the call function
+jest.mock('@/config/firebase', () => ({
+    callFunction: jest.fn(),
+}));
 
 // ------------------------------------------------------------
 // -------------     LangSelectModal Tests suites     ---------
@@ -393,3 +400,176 @@ describe('TimerSettingModal', () => {
         expect(mockSetTimer).not.toHaveBeenCalled();
     });
 });
+
+
+// ------------------------------------------------------------
+// -----      Question Broadcast Modal Test Suites       ------
+// ------------------------------------------------------------
+
+describe('QuestionBroadcastModal', () => {
+    const mockModalRef = { current: null };
+    const mockSetBroadcasted = jest.fn();
+    const mockOnClose = jest.fn();
+
+    const renderModal = (props = {}) =>
+        render(
+            <QuestionBroadcastModal
+                modalRef={mockModalRef}
+                id="1"
+                courseId="course1"
+                lectureId="lecture1"
+                question="Sample question?"
+                username="John Doe"
+                likes={5}
+                broadcasted=""
+                setBroadcasted={mockSetBroadcasted}
+                onClose={mockOnClose}
+                {...props}
+            />
+        );
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('renders correctly', () => {
+        const { getByTestId, getByText } = renderModal();
+        expect(getByText('John Doe')).toBeTruthy();
+        expect(getByText('5')).toBeTruthy();
+        expect(getByTestId('brod-quest-ans-button')).toBeTruthy();
+        expect(getByTestId('brod-quest-close-button')).toBeTruthy();
+    });
+
+    test('calls handleQuestionBroadcast when broadcast button is pressed', async () => {
+        const { getByTestId } = renderModal();
+        const broadcastButton = getByTestId('brod-quest-ans-button');
+        await act(async () => {
+            fireEvent.press(broadcastButton);
+        });
+        expect(mockOnClose).toHaveBeenCalled();
+        expect(mockSetBroadcasted).toHaveBeenCalledWith("1");
+    });
+
+    test('calls handleQuestionBroadcast when broadcast button is pressed again to mark as answered', async () => {
+        const { getByTestId } = renderModal({ broadcasted: "1" });
+        const broadcastButton = getByTestId('brod-quest-ans-button');
+        await act(async () => {
+            fireEvent.press(broadcastButton);
+        });
+        expect(mockOnClose).toHaveBeenCalled();
+        expect(mockSetBroadcasted).toHaveBeenCalledWith("");
+    });
+
+    test('calls onClose when the close button is pressed', () => {
+        const { getByTestId } = renderModal();
+        const closeButton = getByTestId('brod-quest-close-button');
+        fireEvent.press(closeButton);
+        expect(mockOnClose).toHaveBeenCalled();
+    });
+});
+
+
+// ------------------------------------------------------------
+// -------      Quiz Broadcast Modal Test Suites       --------
+// ------------------------------------------------------------
+
+describe('QuizBroadcastModal', () => {
+    const mockOnClose = jest.fn();
+    const mockSetBroadcasted = jest.fn();
+    const mockModalRef = { current: null };
+
+    const quizModel = {
+        answer: {
+            type: "TFAnswer",
+            value: true,
+        },
+        ended: false,
+        exercise: {
+            answer: true,
+            question: "Is earth flat ?",
+            type: "TF",
+        },
+        showResultToStudents: false,
+    } as LectureQuizzes.LectureQuiz;
+
+    const renderModal = (props = {}) =>
+        render(
+            <QuizBroadcastModal
+                modalRef={mockModalRef}
+                id="1"
+                courseId="course1"
+                lectureId="lecture1"
+                quizModel={quizModel}
+                broadcasted=""
+                setBroadcasted={mockSetBroadcasted}
+                onClose={mockOnClose}
+                {...props}
+            />);
+
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('renders correctly with the quiz question', () => {
+        const { getByTestId, getByText } = renderModal();
+
+        expect(getByText('« Is earth flat ? »')).toBeTruthy();
+        expect(getByTestId('brod-quiz-close-button')).toBeTruthy();
+        expect(getByTestId('brod-quiz-ans-button')).toBeTruthy();
+    });
+
+    test('handles broadcasting the quiz', async () => {
+        const { getByTestId } = renderModal();
+        const broadcastButton = getByTestId('brod-quiz-ans-button');
+        (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
+
+        await act(async () => {
+            fireEvent.press(broadcastButton);
+        });
+
+        expect(callFunction).toHaveBeenCalledWith({ "exportedName": "lectures_broadcastQuiz", "originalName": "broadcastQuiz", "path": "lectures/broadcastQuiz" },
+            { "courseId": "course1", "id": "1", "lectureId": "lecture1" });
+        expect(mockSetBroadcasted).toHaveBeenCalledWith('1');
+    });
+
+    test('handles stopping the quiz broadcast', async () => {
+        const { getByTestId } = renderModal({ broadcasted: '1' })
+        const stopButton = getByTestId('brod-quiz-ans-button');
+        (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
+
+        await act(async () => {
+            fireEvent.press(stopButton);
+        });
+
+        expect(callFunction).toHaveBeenCalledWith({ "exportedName": "lectures_markEventAsDone", "originalName": "markEventAsDone", "path": "lectures/markEventAsDone" },
+            { "courseId": "course1", "id": "1", "lectureId": "lecture1" });
+
+        expect(callFunction).toHaveBeenCalledWith({ "exportedName": "lectures_clearQuestionEvent", "originalName": "clearQuestionEvent", "path": "lectures/clearQuestionEvent" },
+            { "courseId": "course1", "id": "1", "lectureId": "lecture1" });
+        expect(mockSetBroadcasted).toHaveBeenCalledWith('');
+        expect(mockOnClose).toHaveBeenCalled();
+    });
+
+    test('toggles showing results to students', async () => {
+        const { getByTestId } = renderModal({ broadcasted: '1' })
+        const toggleButton = getByTestId('brod-quiz-res-button');
+        (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
+
+        await act(async () => {
+            fireEvent.press(toggleButton);
+        });
+
+        expect(callFunction).toHaveBeenCalledWith({ "exportedName": "action_toggleLectureQuizResult", "originalName": "toggleLectureQuizResult", "path": "action/toggleLectureQuizResult" },
+            { "courseId": "course1", "lectureEventId": "1", "lectureId": "lecture1" },);
+    });
+
+    test('closes the modal when close button is pressed', () => {
+        const { getByTestId } = renderModal();
+        const closeButton = getByTestId('brod-quiz-close-button');
+
+        fireEvent.press(closeButton);
+        expect(mockOnClose).toHaveBeenCalled();
+    });
+});
+

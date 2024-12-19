@@ -45,15 +45,16 @@ export interface AssignmentBase {
 
 export type Assignment = AssignmentBase;
 
-export type MaterialType = "slides" | "exercises" | "feedbacks" | "other";
+export type MaterialType = "slide" | "exercise" | "image" | "feedback" | "other";
 
 export interface MaterialDocument {
-	url: string;
+	uri: string;
 	title: string;
 	type: MaterialType;
 }
 
 export const MAX_MATERIAL_TITLE_LENGTH = 30;
+export const MAX_DOCUMENT_TITLE_LENGTH = 35;
 export const MAX_MATERIAL_DESCRIPTION_LENGTH = 300;
 
 export interface Material {

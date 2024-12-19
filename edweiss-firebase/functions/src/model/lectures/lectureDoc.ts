@@ -18,7 +18,8 @@ import { Timestamp } from '../time';
 
 namespace LectureDisplay {
 
-	export type LectureEventType = "quiz";
+
+	export type LectureEvent = "quiz" | "question" | "invalid";
 	export type AvailableLangs = "english" | "french" | "spanish" | "italian" | "german" | "brazilian" | "arabic" | "chinese" | "vietanames" | "hindi";
 	export type QuestionID = string & {};
 	export type TranscriptLangMode = 'original' | AvailableLangs;
@@ -27,18 +28,25 @@ namespace LectureDisplay {
 		[langNumber: number]: string;
 	};
 
-	interface LectureEventBase {
-		type: LectureEventType;
+	export interface LectureEventBase {
+		type: LectureEvent;
 		done: boolean;
+		id: string;
 		pageNumber: number;
 	}
 
 	export interface QuizLectureEvent extends LectureEventBase {
 		type: "quiz";
+		pageNumber: number;
 		quizModel: LectureQuizzes.LectureQuiz;
 	}
 
-	export type LectureEvent = QuizLectureEvent
+	export type ActualLectureEvent = QuizLectureEvent;
+
+	export interface QuestionLectureEvent extends LectureEventBase {
+		type: "question";
+	}
+
 	export interface Question {
 		text: string,
 		userID: string,
@@ -46,6 +54,7 @@ namespace LectureDisplay {
 		anonym: boolean,
 		likes: number,
 		postedTime: Timestamp,
+		answered: boolean,
 	}
 	export interface Like {
 		createdAt: Timestamp
@@ -56,12 +65,19 @@ namespace LectureDisplay {
 		nbOfPages: number;
 		availableToStudents: boolean;
 		audioTranscript: { [pageNumber: number]: MultiLangTranscript; };
+		event?: LectureEventBase;
 	}
 
 	export const Functions = FunctionFolder("lectures", {
 		addAudioTranscript: FunctionOf<{ courseId: string, lectureId: string, pageNumber: number, transcription: string; }, {}, 'invalid_arg' | 'error_firebase' | 'successfully_added'>("addAudioTranscript"),
+		markQuestionAsAnswered: FunctionOf<{ id: string, courseId: string, lectureId: string, answered: boolean }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("markQuestionAsAnswered"),
+		broadcastQuestion: FunctionOf<{ id: string, courseId: string, lectureId: string }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("broadcastQuestion"),
+		broadcastQuiz: FunctionOf<{ id: string, courseId: string, lectureId: string }, { id: string; }, 'not_authorized' | 'error_firebase'>("broadcastQuiz"),
+		clearQuestionEvent: FunctionOf<{ id: string, courseId: string, lectureId: string }, { id: string; }, 'invalid_id' | 'error_firebase' | 'empty_question'>("clearQuestionEvent"),
 		createQuestion: FunctionOf<{ courseId: string, lectureId: string, question: string, anonym: boolean; }, { id: QuestionID; }, 'invalid_arg' | 'error_firebase' | 'empty_question' | 'user_not_found' | 'not_in_course'>("createQuestion"),
 		likeQuestion: FunctionOf<{ id: QuestionID, courseId: string, lectureId: string, liked: boolean; }, NoResult, 'invalid_id'>("likeQuestion"),
+		markEventAsDone: FunctionOf<{ id: string, courseId: string, lectureId: string }, { id: string; }, 'wrong_ids' | 'not_authorized'>("markEventAsDone"),
+
 	});
 }
 

@@ -5,13 +5,7 @@
  * @author Adamm Alaoui & Youssef Laraki
  */
 
-// ------------------------------------------------------------
-// --------------- Import Modules & Components ----------------
-// ------------------------------------------------------------
-
-import TActivityIndicator from '@/components/core/TActivityIndicator';
 import TText from '@/components/core/TText';
-import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
@@ -20,14 +14,15 @@ import t from '@/config/i18config';
 import { ApplicationRoute } from '@/constants/Component';
 import { useAuth } from '@/contexts/auth';
 import { Auth } from '@/model/users';
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 import React, { useState } from 'react';
-import { Image, useWindowDimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 
-
-// ------------------------------------------------------------
-// --------------------  Main Login Screen    -----------------
-// ------------------------------------------------------------
+import EdweissLogo from '@/assets/images/edweiss2.svg';
+import HelloWave from '@/components/animations/HelloWave';
+import TSafeArea from '@/components/core/containers/TSafeArea';
+import Colors from '@/constants/Colors';
+import useTheme from '@/hooks/theme/useTheme';
 
 const Login: ApplicationRoute = () => {
 	const auth = useAuth();
@@ -36,10 +31,8 @@ const Login: ApplicationRoute = () => {
 	const { width, height } = useWindowDimensions();
 	const [loadingGoogle, setLoadingGoogle] = useState(false);
 	const [loadingAnon, setLoadingAnon] = useState(false);
-	const [quoteN, setQuoteN] = useState(1);
 
-	// Generic SignIn method
-	async function signInGeneric(setLoading: React.Dispatch<React.SetStateAction<boolean>>, signInMethod: () => Promise<any>) {
+	async function signIn(setLoading: React.Dispatch<React.SetStateAction<boolean>>, signInMethod: () => Promise<any>) {
 		setLoading(true);
 
 		const res = await signInMethod();
@@ -56,91 +49,54 @@ const Login: ApplicationRoute = () => {
 		}
 	}
 
-	// Get the color depending on the active state
-	function getColor(quoteNumber: number) {
-		return quoteN === quoteNumber ? 'sky' : 'surface0';
-	}
-
-	// Generate the quotes name
-	function generateQuotes() {
-		return `login:quotes_${quoteN}`
-	}
+	const theme = useTheme();
 
 	return (
 		<>
-
 			<RouteHeader disabled title='Login' />
 
+			<TSafeArea style={{ flex: 1, backgroundColor: Colors[theme].mantle }}>
+				<TView flex={1} justifyContent='flex-start'>
+					<TView my={144} alignItems='center'>
+						<EdweissLogo color={Colors[theme].text} width={width * 0.6} />
+						<TView flexDirection='row' mt={-8} style={{ width: width * 0.6 }}>
+							<TView backgroundColor='red' flex={1} py={2} />
+							<TView backgroundColor='yellow' flex={1} py={2} />
+							<TView backgroundColor='green' flex={1} py={2} />
+							<TView backgroundColor='blue' flex={1} py={2} />
+						</TView>
+					</TView>
 
-			<TView style={{ flex: 1, backgroundColor: 'white' }} pl={'lg'} pr={'lg'}>
+					<TView px={"md"}>
+						<TView flexDirection='row' alignItems='center' flexColumnGap={6} mb={"sm"}>
+							{/* <TText size={"xl"} bold>{t(`login:welcome_title`)}</TText> */}
 
-				<TView flex={1} justifyContent='flex-start' alignItems='center'>
-					<Image
-						source={require('../../assets/images/mountain_logo.png')}
-						style={{ width: width * 0.8, height: height * 0.45, resizeMode: 'contain' }}
-						testID='mountain_logo_png'
-					/>
-					<TText mb={25} bold size={50}>{t(`login:welcome_title`)}</TText>
-					<TText align='center' size={18} color='darkNight' testID='quote-text-output'>{t(generateQuotes() as any)}</TText>
-
-					<TView flexDirection='row' justifyContent='space-between' style={{ width: '75%' }} mr={20} ml={20} mt={30}>
-						<TTouchableOpacity borderColor='subtext0' b={1} backgroundColor={getColor(1)} radius={'md'} onPress={() => setQuoteN(1)} testID='quote-but-1'>
-							<TText>            </TText>
-						</TTouchableOpacity>
-						<TTouchableOpacity borderColor='subtext0' b={1} backgroundColor={getColor(2)} radius={'md'} onPress={() => setQuoteN(2)} testID='quote-but-2'>
-							<TText>            </TText>
-						</TTouchableOpacity>
-						<TTouchableOpacity borderColor='subtext0' b={1} backgroundColor={getColor(3)} radius={'md'} onPress={() => setQuoteN(3)} testID='quote-but-3'>
-							<TText>            </TText>
-						</TTouchableOpacity>
+							<TText size={"xl"} bold>Hello,</TText>
+							<TText size={"xl"} bold color='mauve' mr={4}>you</TText>
+							<HelloWave />
+						</TView>
+						<TText align='justify' color='subtext0' lineHeight={24} testID='quote-text-output'>
+							{t("login:quotes_1")}
+						</TText>
 					</TView>
 				</TView>
 
-				<FancyButton onPress={() => signInGeneric(setLoadingGoogle, signInWithGoogle)} loading={loadingGoogle} icon='logo-google' mb={'md'} testID='google-but'>
+				<FancyButton onPress={() => signIn(setLoadingGoogle, signInWithGoogle)} loading={loadingGoogle} disabled={loadingGoogle || loadingAnon} icon='logo-google' mb={'md'} testID='google-but'>
 					{t(`login:continue_with_google`)}
 				</FancyButton>
 
-				<FancyButton onPress={() => signInGeneric(setLoadingAnon, signInAnonymously)} loading={loadingAnon} icon='shield-half-outline' mb={'lg'} outlined testID='anon-but'>
+				<FancyButton onPress={() => signIn(setLoadingAnon, signInAnonymously)} loading={loadingAnon} disabled={loadingGoogle || loadingAnon} icon='eye-off-outline' outlined style={{ borderWidth: 0 }} backgroundColor='mauve' testID='anon-but'>
 					{t(`login:continue_annymous`)}
 				</FancyButton>
 
-
-
-			</TView>
+				<TView mt={20} mb={20}>
+					<TText align='center' color='subtext1' size={"sm"}>
+						{t('login:terms_of_use_agree1')} <Link style={{ textDecorationLine: 'underline' }} href={'/login/fake_terms_of_use'}>{t('login:terms_of_use_agree2')}</Link>.
+					</TText>
+				</TView>
+			</TSafeArea>
 		</>
 	);
 };
 
 export default Login;
-
-
-
-
-
-// ------------------------------------------------------------
-// -----------------  The Loading Component    ----------------
-// ------------------------------------------------------------
-
-export const LoadingPageCompoment: React.FC = () => {
-
-	// Use the window informations
-	const { width, height } = useWindowDimensions();
-
-	return (
-		<>
-			<TView style={{ flex: 1, backgroundColor: 'white' }} pl={'lg'} pr={'lg'}>
-				<TView flex={1} justifyContent='flex-start' alignItems='center' mt={90} mb={20}>
-					<Image
-						source={require('../../assets/images/flower_logo.png')}
-						style={{ width: width * 0.8, height: height * 0.45, resizeMode: 'contain' }}
-						testID='flower_logo_png'
-					/>
-
-					<TActivityIndicator mt={100} mb={70} testID='load-indicator' />
-
-					<TText mt={80} size={20}>{t(`login:by_snowwhite_team`)}</TText>
-				</TView>
-			</TView>
-		</>
-	);
-};

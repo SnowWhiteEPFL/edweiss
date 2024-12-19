@@ -216,54 +216,69 @@ const CoursePage: ApplicationRoute = () => {
 					right: 20,
 					zIndex: 1000,
 				}}
+				key='addElements'
 				onPress={handleButtonPress}
 			>
-				<Icon name="add-circle" size={60} color='blue' />
+				<Icon testID='plus_button' name="add-circle" size={60} color='blue' />
 			</TTouchableOpacity>
 		);
 	}, []);
 
-	const addAssignmentCallback = useCallback((assignment: Assignment) => {
-		addAssignmentAction(id as CourseID, JSON.stringify(assignment));
+
+	const addAssignmentCallback = useCallback(async (assignment: Assignment): Promise<void> => {
 		setModalVisible(false);
+		await addAssignmentAction(id as CourseID, assignment);
 	}, [id]);
 
-	const addMaterialCallback = useCallback((material: Material) => {
-		addMaterialAction(id as CourseID, JSON.stringify(material));
+	const addMaterialCallback = useCallback(async (material: Material, deleteOnFirebase: (materialId: MaterialID) => Promise<void>): Promise<void> => {
 		setModalVisible(false);
-	}, [id]);
-
-	const updateAssignmentCallback = useCallback((assignment: Assignment, assignmentID?: AssignmentID) => {
-		if (assignmentID) {
-			updateAssignmentAction(id as CourseID, assignmentID, JSON.stringify(assignment));
+		const res = await addMaterialAction(id as CourseID, material);
+		if (res.status) {
+			try {
+				await deleteOnFirebase(res.data.materialID);
+			} catch (error) {
+				console.error(error);
+			}
 		}
+	}, [id]);
+
+	const updateAssignmentCallback = useCallback(async (assignment: Assignment, assignmentID: AssignmentID): Promise<void> => {
 		setAssignmentToEdit(null);
 		setModalEditAssignmentVisible(false);
+		await updateAssignmentAction(id as CourseID, assignmentID, assignment);
 	}, [id]);
 
-	const updateMaterialCallback = useCallback((material: Material, materialID?: MaterialID) => {
-		if (materialID) {
-			updateMaterialAction(id as CourseID, materialID, JSON.stringify(material));
-		}
+	const updateMaterialCallback = useCallback(async (material: Material, materialID: MaterialID, deleteOnFirebase: (materialId: MaterialID) => Promise<void>): Promise<void> => {
+		const json = JSON.stringify(material);
+		console.log(json);
+		console.log(JSON.parse(json));
 		setMaterialToEdit(null);
 		setModalEditMaterialVisible(false);
+		const res = await updateMaterialAction(id as CourseID, materialID, material);
+		if (res.status) {
+			try {
+				await deleteOnFirebase(materialID);
+			} catch (error) {
+				console.error(error);
+			}
+		}
 	}, [id]);
 
-	const updateCourseCallback = useCallback((course: UpdateCourseArgs) => {
-		updateCourseAction(id as CourseID, JSON.stringify(course));
+	const updateCourseCallback = useCallback(async (course: UpdateCourseArgs): Promise<void> => {
 		setModalParamVisible(false);
+		await updateCourseAction(id as CourseID, course);
 	}, [id]);
 
-	const removeAssignmentCallback = useCallback((assignmentID: AssignmentID) => {
-		removeAssignmentAction(id as CourseID, assignmentID);
+	const removeAssignmentCallback = useCallback(async (assignmentID: AssignmentID): Promise<void> => {
 		setAssignmentToEdit(null);
 		setModalEditAssignmentVisible(false);
+		await removeAssignmentAction(id as CourseID, assignmentID);
 	}, [id]);
 
-	const removeMaterialCallback = useCallback((materialID: MaterialID) => {
-		removeMaterialAction(id as CourseID, materialID);
+	const removeMaterialCallback = useCallback(async (materialID: MaterialID): Promise<void> => {
 		setMaterialToEdit(null);
 		setModalEditMaterialVisible(false);
+		await removeMaterialAction(id as CourseID, materialID);
 	}, [id]);
 
 	//Checks
@@ -280,25 +295,33 @@ const CoursePage: ApplicationRoute = () => {
 				align="center"
 				isBold
 				right={
-					userIsProfessor ? (
-						<TTouchableOpacity testID={testIDs.courseParametersTouchable} onPress={() => setModalParamVisible(true)}>
-							<Icon testID={testIDs.courseParametersIcon} name='cog' size={iconSizes.lg} mr={8} />
-						</TTouchableOpacity>
-					) : undefined
+					userIsProfessor && <TTouchableOpacity
+						testID={testIDs.courseParametersTouchable}
+						key='courseParameters'
+						onPress={() => setModalParamVisible(true)}
+					>
+						<Icon testID={testIDs.courseParametersIcon} name='cog' size={iconSizes.lg} />
+					</TTouchableOpacity>
 				}
 			/>
 
 			{/* ScrollView pour permettre le défilement */}
-			<TScrollView testID={testIDs.scrollView} p={16} backgroundColor="mantle" >
+			<TScrollView testID={testIDs.scrollView} pb={16} px={16} backgroundColor="mantle" >
 
-				<FancyButton mb={'sm'} icon='chatbubbles-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/forum` as any)}>
-					Forum
-				</FancyButton>
+				<TView alignItems='center' flexDirection='row' mb={'sm'} justifyContent='center'>
+					<FancyButton icon='chatbubbles-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/forum` as any)}>
+						Forum
+					</FancyButton>
+					<FancyButton icon='school-outline' outlined style={{ borderWidth: 0 }} onPress={() => router.push(`/courses/${id}/deck` as any)}>
+						Memento
+					</FancyButton>
+				</TView>
+
 
 				<TText testID={testIDs.courseDescription} size={16} color='text' mb={10} >{course.data.description}</TText>
 
 				{/* Section des Pending Assignments */}
-				<TText mb={10} size={18} color='darkBlue' bold testID={testIDs.upcomingAssignments} >{t(`course:upcoming_assignment_title`)}</TText>
+				<TText mb={10} mt={20} size={18} color='darkBlue' bold testID={testIDs.upcomingAssignments} >{t(`course:upcoming_assignment_title`)}</TText>
 
 				<For
 					each={upcomingAssignments && upcomingAssignments.length > 0 ? upcomingAssignments : undefined}
@@ -308,8 +331,8 @@ const CoursePage: ApplicationRoute = () => {
 				)}
 				</For>
 
-				{/* Bouton vers les Passed Assignments */}
-				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} alignItems='center' onPress={() => pushWithParameters(ArchiveRouteSignature, { courseId: course.id, assignments: previousAssignments })}>
+				{/* Bouton to the Passed Assignments */}
+				<TTouchableOpacity testID={testIDs.previousAssignmentTouchable} mt={5} alignItems='center' onPress={() => pushWithParameters(ArchiveRouteSignature, { courseId: course.id, assignments: previousAssignments })}>
 					<TView flexDirection='row' mt={8} mb={16} >
 						<Icon
 							testID={testIDs.previousAssignmentsIcon}
@@ -322,36 +345,39 @@ const CoursePage: ApplicationRoute = () => {
 					</TView>
 				</TTouchableOpacity>
 
-				<TText testID={testIDs.materialsTitle} mb={10} size={18} color='darkBlue' bold >{t(`course:materials_title`)}</TText>
+				<TView flexDirection='row' mb={10} mt={20} alignItems='center'>
+					<TText testID={testIDs.materialsTitle} mr={100} size={18} color='darkBlue' bold >{t(`course:materials_title`)}</TText>
 
-				{/* Bouton pour afficher/masquer les "futureMaterials" */}
-				<TTouchableOpacity testID={testIDs.toggleFutureMaterialsTouchable} alignItems='flex-start' onPress={toggleFutureMaterials}>
-					<TView flexDirection='row' mt={8} mb={8} >
-						<Icon
-							testID={testIDs.toggleFutureMaterialsIcon}
-							name={showFutureMaterials ? 'chevron-down' : 'chevron-forward'}
-							size={iconSizes.sm}
-							color='blue'
-							mr={8}
-						/>
-						<TText testID={testIDs.toggleFutureMaterialsText} color='blue' align="center">
-							{showFutureMaterials ? t('course:hide_future_materials') : t('course:show_future_materials')}
-						</TText>
-					</TView>
-				</TTouchableOpacity>
+					{/* Bouton pour afficher/masquer les "futureMaterials" */}
+					<TTouchableOpacity testID={testIDs.toggleFutureMaterialsTouchable} onPress={toggleFutureMaterials}>
+						<TView flexDirection='row' alignItems='center' mt={8} mb={8} >
+							<Icon
+								testID={testIDs.toggleFutureMaterialsIcon}
+								name={showFutureMaterials ? 'chevron-down' : 'chevron-forward'}
+								size={iconSizes.sm}
+								color='blue'
+								mr={8}
+							/>
+							<TText testID={testIDs.toggleFutureMaterialsText} color='blue' align="center">
+								{showFutureMaterials ? t('course:hide_future_materials') : t('course:show_future_materials')}
+							</TText>
+						</TView>
+					</TTouchableOpacity>
+				</TView>
 
-				{showFutureMaterials && (futureMaterials.sort((a, b) => a.data.to.seconds - b.data.to.seconds).map((material) => (
+
+				{showFutureMaterials && (futureMaterials.length > 0 ? (futureMaterials.sort((a, b) => a.data.to.seconds - b.data.to.seconds).map((material) => (
 					<TView testID={testIDs.futureMaterialView} key={material.id}>
-						<MaterialDisplay item={material.data} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} />
+						<MaterialDisplay key={material.data.title} item={material.data} courseId={id} materialId={material.id} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} />
 						<TView bb={1} mx={20} mb={12} borderColor='overlay0' />
 					</TView>
-				)))}
+				))) :
+					<TText size={16} color='text' mb={10} >{t('course:no_future_materials')}</TText>
+				)}
 
-				{currentMaterials.map((material) => (<MaterialDisplay item={material.data} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} key={material.id} />))}
+				{currentMaterials.map((material) => (<MaterialDisplay key={material.data.title} item={material.data} courseId={id} materialId={material.id} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} />))}
 
-				{/*<TView bb={1} my={10} borderColor='crust' />}*/}
-
-				{passedMaterials.sort((a, b) => b.data.to.seconds - a.data.to.seconds).map((material) => (<MaterialDisplay item={material.data} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} key={material.id} />))}
+				{passedMaterials.sort((a, b) => b.data.to.seconds - a.data.to.seconds).map((material) => (<MaterialDisplay key={material.data.title} item={material.data} courseId={id} materialId={material.id} isTeacher={userIsProfessor} onTeacherClick={() => { setMaterialToEdit(material); setModalEditMaterialVisible(true); }} />))}
 
 				<TView mb={30} />
 
@@ -366,8 +392,9 @@ const CoursePage: ApplicationRoute = () => {
 				animationType="fade"
 				transparent={true}
 				onRequestClose={() => setActionModalVisible(false)}
+				testID='actionModal'
 			>
-				<Animated.View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', opacity: fadeAnim }}>
+				<Animated.View testID='animatedViewActionSelection' style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)', opacity: fadeAnim }}>
 					<SelectActions onOutsideClick={closeModalOnOutsideClick} onSelectAssignment={() => handleActionSelect('addAssignment')} onSelectMaterial={() => handleActionSelect('addMaterial')} />
 				</Animated.View>
 			</Modal>
@@ -376,14 +403,15 @@ const CoursePage: ApplicationRoute = () => {
 				visible={modalVisible}
 				animationType="slide"
 				onRequestClose={() => setModalVisible(false)}
+				testID='addModal'
 			>
-				<TView flex={1} p={20} backgroundColor='mantle'>
-					<TTouchableOpacity alignItems="flex-start" onPress={() => { setModalVisible(false); }}>
-						<Icon name={'close'} size={iconSizes.lg} color="blue" mr={8} />
+				<TView testID='addElementView' flex={1} p={20} backgroundColor='mantle'>
+					<TTouchableOpacity testID='go-back-button' alignItems="flex-start" onPress={() => setModalVisible(false)}>
+						<Icon testID='go-back-button-icon' name={'close'} size={iconSizes.lg} color="blue" mr={8} />
 					</TTouchableOpacity>
 
 					{selectedAction === 'addAssignment' && (<AssignmentComponent mode='add' onSubmit={addAssignmentCallback} />)}
-					{selectedAction === 'addMaterial' && (<MaterialComponent mode='add' onSubmit={addMaterialCallback} />)}
+					{selectedAction === 'addMaterial' && (<MaterialComponent mode='add' courseId={id} onSubmit={addMaterialCallback} />)}
 				</TView>
 			</Modal>
 
@@ -391,6 +419,7 @@ const CoursePage: ApplicationRoute = () => {
 				visible={modalParamVisible}
 				animationType="slide"
 				onRequestClose={() => setModalParamVisible(false)}
+				testID='paramModal'
 			>
 				<CourseParameters course={course} onGiveUp={() => setModalParamVisible(false)} onFinish={updateCourseCallback} />
 			</Modal>
@@ -400,10 +429,11 @@ const CoursePage: ApplicationRoute = () => {
 				visible={modalEditAssignmentVisible && assignmentToEdit !== null}
 				animationType="slide"
 				onRequestClose={() => setModalEditAssignmentVisible(false)}
+				testID='editAssignmentModal'
 			>
-				<TView flex={1} p={20} backgroundColor='mantle'>
-					<TTouchableOpacity alignItems="flex-start" onPress={() => { setModalEditAssignmentVisible(false); }}>
-						<Icon name={'close'} size={iconSizes.lg} color="blue" mr={8} />
+				<TView testID='editAssignmentView' flex={1} p={20} backgroundColor='mantle'>
+					<TTouchableOpacity testID='go-back-button' alignItems="flex-start" onPress={() => { setModalEditAssignmentVisible(false); }}>
+						<Icon testID='go-back-button-icon' name={'close'} size={iconSizes.lg} color="blue" mr={8} />
 					</TTouchableOpacity>
 					{assignmentToEdit && (
 						<AssignmentComponent mode='edit' assignment={assignmentToEdit} onSubmit={updateAssignmentCallback} onDelete={removeAssignmentCallback} />
@@ -415,13 +445,14 @@ const CoursePage: ApplicationRoute = () => {
 				visible={modalEditMaterialVisible && materialToEdit !== null}
 				animationType="slide"
 				onRequestClose={() => setModalEditMaterialVisible(false)}
+				testID='editMaterialModal'
 			>
-				<TView flex={1} p={20} backgroundColor='mantle'>
-					<TTouchableOpacity alignItems="flex-start" onPress={() => { setModalEditMaterialVisible(false); }}>
-						<Icon name={'close'} size={iconSizes.lg} color="blue" mr={8} />
+				<TView testID='editMaterialView' flex={1} p={20} backgroundColor='mantle'>
+					<TTouchableOpacity testID='go-back-button' key={'docButton'} alignItems="flex-start" onPress={() => { setModalEditMaterialVisible(false); }}>
+						<Icon testID='go-back-button-icon' name={'close'} size={iconSizes.lg} color="blue" mr={8} />
 					</TTouchableOpacity>
 					{materialToEdit && (
-						<MaterialComponent mode='edit' material={materialToEdit} onSubmit={updateMaterialCallback} onDelete={removeMaterialCallback} />
+						<MaterialComponent key={'document'} mode='edit' material={materialToEdit} courseId={id} onSubmit={updateMaterialCallback} onDelete={removeMaterialCallback} />
 					)}
 				</TView>
 			</Modal>

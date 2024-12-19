@@ -1,7 +1,8 @@
 import { calculateTopOffset, formatDateToReadable, formatTime, getDaysOfWeekFromMonday } from '@/components/calendar/functions';
+import TText from '@/components/core/TText';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
-import TText from '@/components/core/TText';
+
 import { useUser } from '@/contexts/user';
 import { router } from 'expo-router';
 import React from 'react';
@@ -69,7 +70,7 @@ export const horizontaCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate
                                         const todoParams = event.todo
                                             ? { todo: JSON.stringify(event.todo) } // Serialize the object
                                             : {};
-                                        const assignmentPath = `/(app)/quiz/temporaryQuizStudentView`;
+                                        const assignmentPath = `/(app)/quiz/quizStudentView`;
                                         const assignmentParams = { quizId: event.assignmentID, courseId: event.course?.id }
 
                                         return (
@@ -78,7 +79,7 @@ export const horizontaCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate
                                                     if (event.type == "Course") {
                                                         router.push({ pathname: pathname as any, params });
                                                     } else if (event.type == "Todo") {
-                                                        router.push({ pathname: '/(app)/todo', params: todoParams });
+                                                        router.push({ pathname: '/(app)/(tabs)/todos', params: todoParams });
                                                     }
                                                     else {
                                                         router.push({ pathname: assignmentPath, params: assignmentParams });

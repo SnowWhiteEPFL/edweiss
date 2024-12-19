@@ -1,21 +1,27 @@
 import ReactComponent from '@/constants/Component';
 
+import { DocumentRouteSignature } from '@/app/(app)/courses/[id]/materials/[materialId]';
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
 import t from '@/config/i18config';
 import { iconSizes } from '@/constants/Sizes';
 import { IconType } from '@/constants/Style';
-import { Material, MaterialType } from '@/model/school/courses';
-import { getIconName, getIconTestID, getTestID, getTextTestID } from '@/utils/courses/materialDisplay';
+import { pushWithParameters } from '@/hooks/routeParameters';
+import { CourseID, Material, MaterialID, MaterialType } from '@/model/school/courses';
 import { Time } from '@/utils/time';
+import { router } from 'expo-router';
+import React from 'react';
+import { ProgressPopupHandle } from '../animations/ProgressPopup';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
+import DocumentDisplay from './DocumentDisplay';
 
 
 // Icons
 export const icons: { [key: string]: IconType } = {
-    slidesIcon: 'albums-outline',
+    slideIcon: 'albums-outline',
     exerciseIcon: 'document-text-outline',
+    imageIcon: 'image-outline',
     feedbackIcon: 'arrow-undo-outline',
     otherIcon: 'attach-outline',
 };
@@ -24,18 +30,21 @@ export const icons: { [key: string]: IconType } = {
 export const testIDs = {
     materialTitle: 'material-title',
     materialDescription: 'material-description',
-    slidesTouchable: 'slides-touchable',
-    slidesIcon: 'slides-icon',
-    slidesText: 'slides-text',
-    exercisesTouchable: 'exercises-touchable',
-    exercisesIcon: 'exercises-icon',
-    exercisesText: 'exercises-text',
+    slideTouchable: 'slide-touchable',
+    slideIcon: 'slide-icon',
+    slideText: 'slide-text',
+    exerciseTouchable: 'exercise-touchable',
+    exerciseIcon: 'exercise-icon',
+    exerciseText: 'exercise-text',
+    imageTouchable: 'other-touchable',
+    imageIcon: 'others-icon',
+    imageText: 'other-text',
     otherTouchable: 'other-touchable',
     otherIcon: 'others-icon',
     otherText: 'other-text',
-    feedbacksTouchable: 'feedbacks-touchable',
-    feedbacksIcon: 'feedbacks-icon',
-    feedbacksText: 'feedbacks-text',
+    feedbackTouchable: 'feedback-touchable',
+    feedbackIcon: 'feedback-icon',
+    feedbackText: 'feedback-text',
 };
 
 /**
@@ -48,7 +57,15 @@ export const testIDs = {
  * 
  * @returns JSX.Element - The rendered component for the assignment display.
  */
-const MaterialDisplay: ReactComponent<{ item: Material, isTeacher?: boolean, onTeacherClick?: () => void; }> = ({ item, isTeacher = false, onTeacherClick }) => {
+const MaterialDisplay: ReactComponent<{
+    item: Material,
+    courseId: CourseID,
+    materialId: MaterialID,
+    isTeacher?: boolean,
+    onTeacherClick?: () => void;
+    handle?: ProgressPopupHandle;
+    aiGenerateDeck?: (materialUrl: string) => Promise<void>
+}> = ({ item, courseId, materialId, isTeacher = false, onTeacherClick, handle, aiGenerateDeck }) => {
 
     const formatDateRange = (fromSeconds: number, toSeconds: number) => {
 
@@ -68,10 +85,11 @@ const MaterialDisplay: ReactComponent<{ item: Material, isTeacher?: boolean, onT
 
     // Type-safe order mapping
     const order: Record<MaterialType, number> = {
-        slides: 1,
-        exercises: 2,
-        other: 3,
-        feedbacks: 4,
+        slide: 1,
+        exercise: 2,
+        image: 3,
+        other: 4,
+        feedback: 5,
     };
 
     // Sort using the type-safe order mapping
@@ -83,39 +101,27 @@ const MaterialDisplay: ReactComponent<{ item: Material, isTeacher?: boolean, onT
         <TView mt={10} mb={10}>
             <TView flexDirection='row' justifyContent='space-between'>
                 <TText testID={testIDs.materialTitle} mb={10} size={18} color='darkBlue' bold>{item.title}</TText>
-                {isTeacher && <TTouchableOpacity onPress={onTeacherClick}>
-                    <Icon name='create' size={iconSizes.md} color='blue' />
+                {isTeacher && <TTouchableOpacity testID='editMaterial' onPress={onTeacherClick}>
+                    <Icon testID='editMaterialIcon' name='create' size={iconSizes.md} color='blue' />
                 </TTouchableOpacity>}
             </TView>
             <TText testID={testIDs.materialTitle} mb={4} size={14} color='darkBlue' bold>{formatDateRange(item.from.seconds, item.to.seconds)}</TText>
             <TText testID={testIDs.materialDescription} lineHeight='md' align='auto' size={15} color='darkNight' py={12} textBreakStrategy='highQuality'>{item.description}</TText>
 
             {sortedDocs.map((doc) => (
-                <TTouchableOpacity
-                    key={doc.url}
-                    testID={getTestID(doc.type)}
-                    flexDirection="row"
-                    alignItems="center"
-                    py={10}
-                    mb={10}
-                    bb={1}
-                    borderColor="crust"
-                    onPress={() => console.log(`Click on ${item.title}`)}
-                >
-                    <Icon
-                        testID={getIconTestID(doc.type)}
-                        name={getIconName(doc.type)}
-                        size={iconSizes.md}
-                    />
-                    <TText
-                        testID={getTextTestID(doc.type)}
-                        size={16}
-                        ml={10}
-                    >
-                        {doc.title}
-                    </TText>
-                </TTouchableOpacity>
+                <DocumentDisplay doc={doc} isTeacher={isTeacher} onDelete={undefined} key={doc.uri} onPress={async () => {
+                    if (aiGenerateDeck && handle) {
+                        handle.start()
+                        await aiGenerateDeck(`courses/${courseId}/materials/${materialId}/${doc.uri}`)
+                        handle.stop()
+
+                        router.back()
+                    } else {
+                        pushWithParameters(DocumentRouteSignature, { courseId: courseId, materialId: materialId, document: doc })
+                    }
+                }} />
             ))}
+
         </TView>
     );
 }

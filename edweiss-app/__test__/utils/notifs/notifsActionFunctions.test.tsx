@@ -23,9 +23,8 @@ describe('Notification Action Functions', () => {
     const mockType = 'info';
     const mockTitle = 'Test Notification';
     const mockMessage = 'This is a test notification message.';
-    const mockRead = false;
     const mockCourseID = 'course-id';
-    const mockDate = '2023-11-12T10:00:00Z';
+    const mockUserIds = ['user-id-1', 'user-id-2'];
 
     // Reset mocks before each test
     beforeEach(() => {
@@ -77,13 +76,12 @@ describe('Notification Action Functions', () => {
     describe('pushNotifAction', () => {
         it('should call callFunction with the correct parameters', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
-            await pushNotifAction(mockId, mockType, mockTitle, mockMessage, mockRead, mockCourseID, mockDate);
+            await pushNotifAction(mockType, mockTitle, mockMessage, mockUserIds, mockCourseID);
             expect(callFunction).toHaveBeenCalledWith(NotifList.Functions.pushNotif, {
                 type: mockType,
                 title: mockTitle,
                 message: mockMessage,
-                date: mockDate,
-                read: mockRead,
+                userIds: mockUserIds,
                 courseID: mockCourseID,
             });
         });
@@ -91,7 +89,7 @@ describe('Notification Action Functions', () => {
         it('should log a message if pushing notification fails (status 0)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 0 });
             console.log = jest.fn();
-            await pushNotifAction(mockId, mockType, mockTitle, mockMessage, mockRead, mockCourseID, mockDate);
+            await pushNotifAction(mockType, mockTitle, mockMessage, mockUserIds, mockCourseID);
             expect(console.log).toHaveBeenCalledWith('Notification failed to push');
         });
 
@@ -99,14 +97,8 @@ describe('Notification Action Functions', () => {
             const mockError = new Error('Test error');
             (callFunction as jest.Mock).mockRejectedValue(mockError);
             console.error = jest.fn();
-            await pushNotifAction(mockId, mockType, mockTitle, mockMessage, mockRead, mockCourseID, mockDate);
+            await pushNotifAction(mockType, mockTitle, mockMessage, mockUserIds, mockCourseID);
             expect(console.error).toHaveBeenCalledWith('Error pushing notification:', mockError);
-        });
-
-        it('should not call callFunction if id is invalid', async () => {
-            await pushNotifAction('', mockType, mockTitle, mockMessage, mockRead, mockCourseID, mockDate);
-            await pushNotifAction(null as unknown as string, mockType, mockTitle, mockMessage, mockRead, mockCourseID, mockDate);
-            expect(callFunction).not.toHaveBeenCalled();
         });
     });
 
