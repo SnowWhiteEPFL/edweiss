@@ -26,6 +26,7 @@ export async function addAssignmentAction(courseId: CourseID, assignment: Assign
         assignment.type,
         t(`notifications:new_assignment_due`),
         `${assignment.name} ` + t(`notifications:is_now_available`),
+        undefined,
         courseId
     );
 
