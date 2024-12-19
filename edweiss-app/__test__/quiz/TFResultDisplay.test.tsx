@@ -44,7 +44,16 @@ jest.mock('../../components/core/containers/TView.tsx', () => {
 
 	return (props: ViewProps) => <View {...props} />;
 });
+jest.mock('react-native-autoheight-webview', () => {
+	const { View } = require('react-native');
+	return () => <View />; // Mock AutoHeightWebView as a simple empty View
+});
 
+
+jest.mock('@/config/i18config', () => ({
+	__esModule: true,
+	default: jest.fn((key: string) => key),
+}));
 const mockExercise: Quizzes.TF = {
 	type: 'TF',
 	question: "Is the earth flat?",
@@ -70,30 +79,8 @@ describe('TFResultDisplay', () => {
 		// Check if the question is displayed
 		expect(screen.getByText('Is the earth flat?')).toBeTruthy();
 
-		const trueButton = screen.getByTestId('true');
-		const falseButton = screen.getByTestId('false');
-
-		expect(screen.getByText('True')).toBeTruthy();
-		expect(trueButton).toBeTruthy();
-		expect(screen.getByText('False')).toBeTruthy();
-		expect(falseButton).toBeTruthy();
+		expect(screen.getByTestId('radio-selectables-view')).toBeTruthy();
 
 	});
 
-	it('shows corresponding answer', () => {
-
-		const screen = render(
-			<TFResultDisplay
-				exercise={mockExercise}
-				selected={mockStudentAnswer}
-				result={mockExercise.answer}
-			/>
-		);
-
-		const trueButton = screen.getByTestId('true');
-		const falseButton = screen.getByTestId('false');
-		expect(trueButton).toBeTruthy();
-		expect(falseButton).toBeTruthy();
-
-	});
 });

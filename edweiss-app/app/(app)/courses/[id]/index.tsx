@@ -41,7 +41,7 @@ import { useDoc, useDynamicDocs, usePrefetchedDynamicDoc } from '@/hooks/firebas
 import { pushWithParameters } from '@/hooks/routeParameters';
 import { Assignment, AssignmentID, Course, CourseID, Material, MaterialID, UpdateCourseArgs } from '@/model/school/courses';
 import { AppUser } from '@/model/users';
-import { addAssignmentAction, addMaterialAction, removeAssignmentAction, removeMaterialAction, updateAssignmentAction, updateCourseAction, updateMaterialAction } from '@/utils/courses/coursesActionsFunctions';
+import { addMaterialAction, removeAssignmentAction, removeMaterialAction, updateAssignmentAction, updateCourseAction, updateMaterialAction } from '@/utils/courses/coursesActionsFunctions';
 import { Time } from '@/utils/time'; // Adjust the import path as necessary
 import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -227,7 +227,6 @@ const CoursePage: ApplicationRoute = () => {
 
 	const addAssignmentCallback = useCallback(async (assignment: Assignment): Promise<void> => {
 		setModalVisible(false);
-		await addAssignmentAction(id as CourseID, assignment);
 	}, [id]);
 
 	const addMaterialCallback = useCallback(async (material: Material, deleteOnFirebase: (materialId: MaterialID) => Promise<void>): Promise<void> => {
@@ -410,7 +409,7 @@ const CoursePage: ApplicationRoute = () => {
 						<Icon testID='go-back-button-icon' name={'close'} size={iconSizes.lg} color="blue" mr={8} />
 					</TTouchableOpacity>
 
-					{selectedAction === 'addAssignment' && (<AssignmentComponent mode='add' onSubmit={addAssignmentCallback} />)}
+					{selectedAction === 'addAssignment' && (<AssignmentComponent mode='add' courseId={id} onSubmit={addAssignmentCallback} />)}
 					{selectedAction === 'addMaterial' && (<MaterialComponent mode='add' courseId={id} onSubmit={addMaterialCallback} />)}
 				</TView>
 			</Modal>
