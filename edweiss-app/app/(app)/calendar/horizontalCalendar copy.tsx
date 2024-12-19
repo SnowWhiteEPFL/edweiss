@@ -2,7 +2,7 @@ import { calculateTopOffset, formatDateToReadable, formatTime, getDaysOfWeekFrom
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import TText from '@/components/core/TText';
-import { useUser } from '@/contexts/user';
+import { useAuth } from '@/contexts/auth';
 import { router } from 'expo-router';
 import React from 'react';
 import { ScrollView } from 'react-native';
@@ -32,7 +32,8 @@ import { EventsByDate, getNavigationDetails } from '.';
  * <HorizontalCalendar eventsByDate={eventsByDate} />
  */
 export const horizontaCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
-    const { user } = useUser();
+    const auth = useAuth();
+    const user = auth.authUser;
     const daysOfWeek = getDaysOfWeekFromMonday(); // Get days of the week starting from Monday
     const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`); // Generate an array of hours from 0:00 to 23:00
 
