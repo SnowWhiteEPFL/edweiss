@@ -7,10 +7,13 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import FancyButton from '@/components/input/FancyButton';
 import { signOut } from '@/config/firebase';
 import { useUser } from '@/contexts/user';
+import { switchPermissionsAction } from '@/utils/auth/authActionsFunctions';
 import React from 'react';
 
 const ProfileTab: ApplicationRoute = () => {
 	const { user } = useUser();
+
+	const [loading, setLoading] = React.useState(false);
 
 	return (
 		<>
@@ -28,6 +31,10 @@ const ProfileTab: ApplicationRoute = () => {
 						</TText>
 					</TView>
 				</TView>
+
+				<FancyButton loading={loading} backgroundColor={user.type === "student" ? 'maroon' : 'yellow'} textColor='crust' icon='build' onPress={async () => { setLoading(true); await switchPermissionsAction(); setLoading(false) }}>
+					Switch to {`${user.type === 'student' ? 'teacher' : 'student'}`} account
+				</FancyButton>
 
 				<FancyButton backgroundColor='transparent' textColor='red' icon='log-out' onPress={signOut}>
 					Disconnect
