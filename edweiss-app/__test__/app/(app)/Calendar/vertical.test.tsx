@@ -1,4 +1,4 @@
-import { EventsByDate } from '@/app/(app)/calendar';
+import { EventsByDate, getNavigationDetails } from '@/app/(app)/calendar';
 import VerticalCalendar from '@/app/(app)/calendar/VerticalCalendar';
 import { formatDateToReadable2, generateWeekDates } from '@/components/calendar/functions';
 
@@ -170,3 +170,45 @@ describe('VerticalCalendar', () => {
     });
 
 });
+
+describe('getNavigationDetails', () => {
+    const courseItemMock = {
+        id: 'course123',
+        data: { name: 'Math 101' } as Course,
+    };
+
+    const periodMock = {
+        activityId: 'activity456',
+    };
+
+    it('should return correct navigation details for a professor', () => {
+        const userMock = { data: { type: 'professor' } };
+
+        const result = getNavigationDetails(userMock, courseItemMock, periodMock, 0);
+
+        expect(result).toEqual({
+            pathname: '/(app)/startCourseScreen',
+            params: {
+                courseID: 'course123',
+                course: JSON.stringify(courseItemMock.data),
+                period: JSON.stringify(periodMock),
+                index: 0,
+            },
+        });
+    });
+
+    it('should return correct navigation details for a student', () => {
+        const userMock = { data: { type: 'student' } };
+
+        const result = getNavigationDetails(userMock, courseItemMock, periodMock, 0);
+
+        expect(result).toEqual({
+            pathname: '/(app)/lectures/slides',
+            params: {
+                courseNameString: 'Math 101',
+                lectureIdString: 'activity456',
+            },
+        });
+    });
+});
+
