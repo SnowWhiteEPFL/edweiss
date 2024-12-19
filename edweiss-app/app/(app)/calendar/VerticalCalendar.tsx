@@ -6,30 +6,12 @@ import Icon from '@/components/core/Icon';
 import TText from '@/components/core/TText';
 import { useUser } from '@/contexts/user';
 import { CustomEvents } from '@/model/school/Events';
-import { Course, CourseTimePeriod } from '@/model/school/courses';
 import { getCurrentTimeInMinutes } from '@/utils/calendar/getCurrentTimeInMinutes';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { FlatList, ScrollView, useWindowDimensions } from 'react-native';
-import { EventsByDate } from '.';
+import { EventsByDate, getNavigationDetails } from '.';
 
-export const getNavigationDetails = (user: any, courseItem: { id: string; data: Course }, period: CourseTimePeriod, index: number) => {
-    const isProfessor = user.type === 'professor';
-    return {
-        pathname: isProfessor ? '/(app)/startCourseScreen' : '/(app)/lectures/slides',
-        params: isProfessor
-            ? {
-                courseID: courseItem.id,
-                course: JSON.stringify(courseItem.data),
-                period: JSON.stringify(period),
-                index,
-            }
-            : {
-                courseNameString: courseItem.data.name,
-                lectureIdString: period.activityId,
-            },
-    };
-};
 
 const HOUR_BLOCK_HEIGHT = 80; // Height of an hour block
 
@@ -49,20 +31,6 @@ const verticalCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
         const interval = setInterval(() => setCurrentMinutes(getCurrentTimeInMinutes()), 60000);
         return () => clearInterval(interval);
     }, []);
-
-    const scrollToCurrentTime = () => {
-        // Scroll to the current time position in the calendar
-        const currentMinutes = new Date().getHours() * 60 + new Date().getMinutes();
-        const currentPosition = (currentMinutes / 60) * HOUR_BLOCK_HEIGHT; // Position in pixels
-        if (scrollViewRef.current) {
-            scrollViewRef.current.scrollTo({ y: currentPosition, animated: true });
-        }
-    };
-
-    useEffect(() => {
-        // Trigger scrolling to the current time on initial render
-        scrollToCurrentTime();
-    }, []); // [] ensures this useEffect runs only once during the initial render
 
     const renderBlocks = (events: CustomEvents[], item: string) => {
         // Render the hourly blocks and events for a specific day
