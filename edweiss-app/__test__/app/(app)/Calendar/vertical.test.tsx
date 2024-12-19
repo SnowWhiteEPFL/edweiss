@@ -3,6 +3,7 @@ import VerticalCalendar from '@/app/(app)/calendar/VerticalCalendar';
 import { formatDateToReadable2, generateWeekDates } from '@/components/calendar/functions';
 
 import { useAuth } from '@/contexts/auth';
+import { Course, CourseTimePeriod } from '@/model/school/courses';
 import { render, screen } from '@testing-library/react-native';
 import React from 'react';
 
@@ -179,7 +180,7 @@ describe('getNavigationDetails', () => {
 
     const periodMock = {
         activityId: 'activity456',
-    };
+    } as CourseTimePeriod;
 
     it('should return correct navigation details for a professor', () => {
         const userMock = { data: { type: 'professor' } };
