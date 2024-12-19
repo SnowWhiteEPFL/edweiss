@@ -1,7 +1,5 @@
-import { LectureQuizView } from '@/components/quiz/LectureQuizComponents';
+import { LectureQuizResultDisplay } from '@/components/quiz/LectureQuizComponents';
 import { Document } from '@/config/firebase';
-import { useUser } from '@/contexts/user';
-import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import Quizzes, { LectureQuizzes, LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
 import { AppUser } from '@/model/users';
@@ -314,81 +312,16 @@ jest.mock('@/contexts/user', () => ({
 	useUser: jest.fn()
 }));
 
-describe('LectureQuizView', () => {
 
-	beforeEach(() => {
-		//(useLocalSearchParams as jest.Mock).mockReturnValue({ params: { courseId: "courseId", lectureId: "lectureId", lectureEventId: "lectureEventId", prefetchedQuizEvent: "prefetchedQuizEvent" } });
-		jest.clearAllMocks();
-		//jest.resetModules()
-
-	});
-
-	it('renders loading if quiz event is undefined', () => {
-		(useUser as jest.Mock).mockReturnValue(({
-			user: {
-				name: "John Doe",
-				courses: [],
-				createdAt: { seconds: 0, nanoseconds: 0 },
-				type: "student",
-			} satisfies AppUser
-		}));
-
-		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([undefined, false])
-
-		const screen = render(<LectureQuizView
-			courseId='courseId'
-			lectureEventId='lectureEventId'
-			lectureId='lectureId'
-		/>)
-
-		expect(screen.getByTestId('quiz-event-undefined')).toBeTruthy()
+describe('LectureQuizResultDisplay', () => {
+	it('renders MCQ result display when given an MCQ', () => {
+		const screen = render(<LectureQuizResultDisplay testID='mockId' exercise={mockMCQ} result={{ type: "MCQAnswersIndices", value: mockMCQ.answersIndices }} studentAnswer={mockAnswerMCQ1} />)
+		expect(screen.getByTestId('MCQ')).toBeTruthy()
 	})
 
-	it('renders student view if user is student', () => {
-		(useUser as jest.Mock).mockReturnValue(({
-			user: {
-				name: "John Doe",
-				courses: [],
-				createdAt: { seconds: 0, nanoseconds: 0 },
-				type: "student",
-			} satisfies AppUser
-		}));
-
-		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockEventDoc, false])
-
-		//(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue(mockEvent)
-
-		const screen = render(<LectureQuizView
-			courseId='courseId'
-			lectureEventId='lectureEventId'
-			lectureId='lectureId'
-		/>)
-
-		expect(screen.getByTestId('lecture-quiz-student-view')).toBeTruthy()
-
+	it('renders TF result display when given a TF', () => {
+		const screen = render(<LectureQuizResultDisplay testID='mockId' exercise={mockTF} result={{ type: "TFAnswer", value: mockTF.answer }} studentAnswer={mockAnswerTF1} />)
+		expect(screen.getByTestId('TF')).toBeTruthy()
 	})
 
-	it('renders prof view if user is prof', () => {
-		(useUser as jest.Mock).mockReturnValue(({
-			user: {
-				name: "John Doe",
-				courses: [],
-				createdAt: { seconds: 0, nanoseconds: 0 },
-				type: "professor",
-			} satisfies AppUser
-		}));
-
-		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockEventDoc, false])
-		//(useUser as jest.Mock).mockReturnValue({ user: { type: "professor", courses: [] }, loaded: true });
-		//(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue(mockEvent)
-
-		const screen = render(<LectureQuizView
-			courseId='courseId'
-			lectureEventId='lectureEventId'
-			lectureId='lectureId'
-		/>)
-
-		expect(screen.getByTestId('lecture-quiz-prof-view')).toBeTruthy()
-
-	})
 })

@@ -9,8 +9,9 @@ import { IconType } from '@/constants/Style';
 import { pushWithParameters } from '@/hooks/routeParameters';
 import { CourseID, Material, MaterialID, MaterialType } from '@/model/school/courses';
 import { Time } from '@/utils/time';
+import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { RefObject } from 'react';
 import { ProgressPopupHandle } from '../animations/ProgressPopup';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
@@ -64,8 +65,11 @@ const MaterialDisplay: ReactComponent<{
     isTeacher?: boolean,
     onTeacherClick?: () => void;
     handle?: ProgressPopupHandle;
-    aiGenerateDeck?: (materialUrl: string) => Promise<void>
-}> = ({ item, courseId, materialId, isTeacher = false, onTeacherClick, handle, aiGenerateDeck }) => {
+    aiGenerateDeck?: (materialUrl: string) => Promise<void>,
+    aiGenerateQuiz?: (materialUrl: string) => Promise<void>,
+    modalRef?: RefObject<BottomSheetModalMethods>
+
+}> = ({ item, courseId, materialId, isTeacher = false, onTeacherClick, handle, aiGenerateDeck, aiGenerateQuiz, modalRef }) => {
 
     const formatDateRange = (fromSeconds: number, toSeconds: number) => {
 
@@ -116,6 +120,10 @@ const MaterialDisplay: ReactComponent<{
                         handle.stop()
 
                         router.back()
+                    } else if (aiGenerateQuiz && handle) {
+                        handle.start()
+                        await aiGenerateQuiz(`courses/${courseId}/materials/${materialId}/${doc.uri}`)
+                        handle.stop()
                     } else {
                         pushWithParameters(DocumentRouteSignature, { courseId: courseId, materialId: materialId, document: doc })
                     }

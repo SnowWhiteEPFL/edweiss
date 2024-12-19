@@ -1,12 +1,19 @@
-import { LectureQuizView } from '@/components/quiz/LectureQuizComponents';
-import { Document } from '@/config/firebase';
-import { useUser } from '@/contexts/user';
-import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
+import { defaultAnswer, sendToLectureEvent } from '@/components/quiz/LectureQuizComponents';
+import { callFunction, Document } from '@/config/firebase';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import Quizzes, { LectureQuizzes, LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
 import { AppUser } from '@/model/users';
-import { render } from '@testing-library/react-native';
 import { ActivityIndicatorProperties, ScrollViewProps, ViewProps } from 'react-native';
+
+
+jest.mock('@/config/firebase', () => ({
+	callFunction: jest.fn((_args: any) => {
+		return { status: 1, data: { id: "new-id" } };
+	}),
+	CollectionOf: jest.fn(() => ({ orderBy: jest.fn() }))
+}));
+
+
 
 jest.mock('@/contexts/auth', () => ({
 	useAuth: jest.fn(() => "uid"),
@@ -314,81 +321,24 @@ jest.mock('@/contexts/user', () => ({
 	useUser: jest.fn()
 }));
 
-describe('LectureQuizView', () => {
-
-	beforeEach(() => {
-		//(useLocalSearchParams as jest.Mock).mockReturnValue({ params: { courseId: "courseId", lectureId: "lectureId", lectureEventId: "lectureEventId", prefetchedQuizEvent: "prefetchedQuizEvent" } });
-		jest.clearAllMocks();
-		//jest.resetModules()
-
-	});
-
-	it('renders loading if quiz event is undefined', () => {
-		(useUser as jest.Mock).mockReturnValue(({
-			user: {
-				name: "John Doe",
-				courses: [],
-				createdAt: { seconds: 0, nanoseconds: 0 },
-				type: "student",
-			} satisfies AppUser
-		}));
-
-		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([undefined, false])
-
-		const screen = render(<LectureQuizView
-			courseId='courseId'
-			lectureEventId='lectureEventId'
-			lectureId='lectureId'
-		/>)
-
-		expect(screen.getByTestId('quiz-event-undefined')).toBeTruthy()
+describe('SendToLectureEvent', () => {
+	it('calls cloud function correctly', async () => {
+		await sendToLectureEvent(mockAnswerTF1, "courseId", "lectureId", "lectureEventId")
+		expect(callFunction).toHaveBeenCalledWith(LectureQuizzesAttempts.Functions.createLectureQuizAttempt, {
+			courseId: "courseId",
+			lectureId: "lectureId",
+			lectureEventId: "lectureEventId",
+			lectureQuizAttempt: mockAnswerTF1
+		})
+		expect(callFunction).toHaveBeenCalledTimes(1)
 	})
+})
 
-	it('renders student view if user is student', () => {
-		(useUser as jest.Mock).mockReturnValue(({
-			user: {
-				name: "John Doe",
-				courses: [],
-				createdAt: { seconds: 0, nanoseconds: 0 },
-				type: "student",
-			} satisfies AppUser
-		}));
-
-		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockEventDoc, false])
-
-		//(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue(mockEvent)
-
-		const screen = render(<LectureQuizView
-			courseId='courseId'
-			lectureEventId='lectureEventId'
-			lectureId='lectureId'
-		/>)
-
-		expect(screen.getByTestId('lecture-quiz-student-view')).toBeTruthy()
-
+describe('defaultAnswer', () => {
+	it('returns undefined for TF', async () => {
+		expect(defaultAnswer(mockTF)).toStrictEqual({ type: "TFAnswer", value: undefined })
 	})
-
-	it('renders prof view if user is prof', () => {
-		(useUser as jest.Mock).mockReturnValue(({
-			user: {
-				name: "John Doe",
-				courses: [],
-				createdAt: { seconds: 0, nanoseconds: 0 },
-				type: "professor",
-			} satisfies AppUser
-		}));
-
-		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockEventDoc, false])
-		//(useUser as jest.Mock).mockReturnValue({ user: { type: "professor", courses: [] }, loaded: true });
-		//(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue(mockEvent)
-
-		const screen = render(<LectureQuizView
-			courseId='courseId'
-			lectureEventId='lectureEventId'
-			lectureId='lectureId'
-		/>)
-
-		expect(screen.getByTestId('lecture-quiz-prof-view')).toBeTruthy()
-
+	it('returns [] for MCQ', async () => {
+		expect(defaultAnswer(mockMCQ)).toStrictEqual({ type: "MCQAnswersIndices", value: [] })
 	})
 })

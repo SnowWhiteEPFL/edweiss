@@ -2,6 +2,7 @@ import RouteHeader from '@/components/core/header/RouteHeader';
 import { ApplicationRoute } from '@/constants/Component';
 import React from 'react';
 
+import ProgressPopup, { useProgressPopup } from '@/components/animations/ProgressPopup';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TView from '@/components/core/containers/TView';
 import FancyButton from '@/components/input/FancyButton';
@@ -15,7 +16,7 @@ import { Redirect, useLocalSearchParams } from 'expo-router';
 import { t } from 'i18next';
 import { useRef, useState } from 'react';
 import Toast from 'react-native-toast-message';
-import { MCQFields, PublishLectureQuizModal, TFFields } from './createQuizPage';
+import { fillMCQFromGeneratedFields, MCQFields, PublishLectureQuizModal, TFFields } from './createQuizPage';
 
 const CreateLectureQuizPage: ApplicationRoute = () => {
 
@@ -24,6 +25,9 @@ const CreateLectureQuizPage: ApplicationRoute = () => {
 	const [exercise, setExercise] = useState<Quizzes.Exercise | undefined>(undefined);
 	const [isMCQ, setIsMCQ] = useState<boolean>(false);
 	const { user } = useUser();
+	const handle = useProgressPopup();
+	const [aiLoading, setAiLoading] = useState(false);
+
 
 	const publishLectureQuizModalRef = useRef<BottomSheetModal>(null);
 
@@ -109,9 +113,38 @@ const CreateLectureQuizPage: ApplicationRoute = () => {
 			</TView>
 			<TScrollView>
 				{isMCQ ? <MCQFields addToExerciseList={updateExerciseList}></MCQFields> : <TFFields addToExerciseList={updateExerciseList}></TFFields>}
+				<FancyButton icon='sparkles' loading={aiLoading} mt={10} mb={10} onPress={async () => {
+					setAiLoading(true);
+					handle.start();
+
+					console.log("Calling AI function...");
+
+					const res = await callFunction(Quizzes.Functions.generateQuizContentFromMaterial, {
+						courseId: courseId,
+						materialUrl: "Lecture_W13_Privacy.pdf"
+					});
+
+					console.log(JSON.stringify(res));
+
+					if (res.status == 1) {
+
+
+						setExercise(fillMCQFromGeneratedFields(res.data.generatedExercises[0].question, res.data.generatedExercises[0].propositions))
+
+
+					}
+
+					setAiLoading(false);
+					handle.stop();
+				}} backgroundColor='green' outlined style={{ borderWidth: 0 }}>
+					Generate with AI
+				</FancyButton>
+				<FancyButton onPress={() => controlPublishLectureQuiz()}> Publish lecture quiz </FancyButton>
+				<PublishLectureQuizModal modalRef={publishLectureQuizModalRef} publishLectureQuiz={publishLectureQuiz} />
 			</TScrollView>
-			<FancyButton onPress={() => controlPublishLectureQuiz()}> Publish lecture quiz </FancyButton>
-			<PublishLectureQuizModal modalRef={publishLectureQuizModalRef} publishLectureQuiz={publishLectureQuiz} />
+			<ProgressPopup handle={handle} />
+
+
 
 		</>
 	);
