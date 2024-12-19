@@ -24,7 +24,6 @@ describe('Notification Action Functions', () => {
     const mockTitle = 'Test Notification';
     const mockMessage = 'This is a test notification message.';
     const mockCourseID = 'course-id';
-    const mockUserIds = ['user-id-1', 'user-id-2'];
 
     // Reset mocks before each test
     beforeEach(() => {
@@ -76,12 +75,11 @@ describe('Notification Action Functions', () => {
     describe('pushNotifAction', () => {
         it('should call callFunction with the correct parameters', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 1 });
-            await pushNotifAction(mockType, mockTitle, mockMessage, mockUserIds, mockCourseID);
+            await pushNotifAction(mockType, mockTitle, mockMessage, mockCourseID);
             expect(callFunction).toHaveBeenCalledWith(NotifList.Functions.pushNotif, {
                 type: mockType,
                 title: mockTitle,
                 message: mockMessage,
-                userIds: mockUserIds,
                 courseID: mockCourseID,
             });
         });
@@ -89,7 +87,7 @@ describe('Notification Action Functions', () => {
         it('should log a message if pushing notification fails (status 0)', async () => {
             (callFunction as jest.Mock).mockResolvedValue({ status: 0 });
             console.log = jest.fn();
-            await pushNotifAction(mockType, mockTitle, mockMessage, mockUserIds, mockCourseID);
+            await pushNotifAction(mockType, mockTitle, mockMessage, mockCourseID);
             expect(console.log).toHaveBeenCalledWith('Notification failed to push');
         });
 
@@ -97,7 +95,7 @@ describe('Notification Action Functions', () => {
             const mockError = new Error('Test error');
             (callFunction as jest.Mock).mockRejectedValue(mockError);
             console.error = jest.fn();
-            await pushNotifAction(mockType, mockTitle, mockMessage, mockUserIds, mockCourseID);
+            await pushNotifAction(mockType, mockTitle, mockMessage, mockCourseID);
             expect(console.error).toHaveBeenCalledWith('Error pushing notification:', mockError);
         });
     });

@@ -25,5 +25,7 @@
 	"answer-box": {
 		"label": "Answer",
 		"placeholder": "Type your answer here!"
-	}
+	},
+
+	"answered_your_post": "answered your post"
 }
