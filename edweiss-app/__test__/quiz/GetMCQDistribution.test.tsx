@@ -98,6 +98,11 @@ jest.mock('@react-native-firebase/functions', () => ({
 	httpsCallable: jest.fn(() => () => Promise.resolve({ data: 'function response' })),
 }));
 
+jest.mock('react-native-autoheight-webview', () => {
+	const { View } = require('react-native');
+	return () => <View />; // Mock AutoHeightWebView as a simple empty View
+});
+
 // Mock Firebase Storage
 jest.mock('@react-native-firebase/storage', () => ({
 	ref: jest.fn(() => ({
@@ -133,7 +138,7 @@ describe('getMCQDistribution', () => {
 
 		const result = getMCQDistribution(studentAttempts, numberOfPropositions);
 
-		expect(result).toEqual([25, 25, 25]); // Ignore invalid index (result based on valid attempts)
+		expect(result).toEqual([100 / 3, 100 / 3, 100 / 3]); // Ignore invalid index (result based on valid attempts)
 		expect(consoleSpy).toHaveBeenCalledWith('Warning: in MCQ, Invalid proposition index 3 found in attempt');
 		consoleSpy.mockRestore();
 	});

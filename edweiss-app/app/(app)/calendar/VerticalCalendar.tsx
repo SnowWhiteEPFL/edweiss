@@ -4,8 +4,9 @@ import TView from '@/components/core/containers/TView';
 
 import Icon from '@/components/core/Icon';
 import TText from '@/components/core/TText';
-import { Course, CourseTimePeriod } from '@/model/school/courses';
+import { useUser } from '@/contexts/user';
 import { CustomEvents } from '@/model/school/Events';
+import { Course, CourseTimePeriod } from '@/model/school/courses';
 import { getCurrentTimeInMinutes } from '@/utils/calendar/getCurrentTimeInMinutes';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -13,7 +14,7 @@ import { FlatList, ScrollView, useWindowDimensions } from 'react-native';
 import { EventsByDate } from '.';
 
 export const getNavigationDetails = (user: any, courseItem: { id: string; data: Course }, period: CourseTimePeriod, index: number) => {
-    const isProfessor = user?.data?.type === 'professor';
+    const isProfessor = user.type === 'professor';
     return {
         pathname: isProfessor ? '/(app)/startCourseScreen' : '/(app)/lectures/slides',
         params: isProfessor
@@ -33,7 +34,7 @@ export const getNavigationDetails = (user: any, courseItem: { id: string; data: 
 const HOUR_BLOCK_HEIGHT = 80; // Height of an hour block
 
 const verticalCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
-
+    const { user } = useUser();
     const { width, height } = useWindowDimensions();
     const scrollViewRef = useRef<ScrollView>(null);
     const [currentMinutes, setCurrentMinutes] = useState(getCurrentTimeInMinutes());
@@ -128,9 +129,25 @@ const verticalCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
                                         ? event.endTime - event.startTime
                                         : 0; // Calculate duration in minutes
                                     const eventHeight = ((eventDuration / 60) * HOUR_BLOCK_HEIGHT) > 120 ? ((eventDuration / 60) * HOUR_BLOCK_HEIGHT) : event.type == "Course" ? 120 : HOUR_BLOCK_HEIGHT; // Convert to pixels
+                                    const { pathname, params } = event.period && event.course ? getNavigationDetails(user, event.course, event.period, index) : { pathname: '', params: {} };
+                                    const todoParams = event.todo
+                                        ? { todo: JSON.stringify(event.todo) } // Serialize the object
+                                        : {};
+                                    const assignmentPath = `/(app)/quiz/temporaryQuizStudentView`;
+                                    const assignmentParams = { quizId: event.assignmentID, courseId: event.course?.id }
 
                                     return (
-                                        <TView
+                                        <TTouchableOpacity
+                                            onPress={() => {
+                                                if (event.type == "Course") {
+                                                    router.push({ pathname: pathname as any, params });
+                                                } else if (event.type == "Todo") {
+                                                    router.push({ pathname: '/(app)/todo', params: todoParams });
+                                                }
+                                                else {
+                                                    router.push({ pathname: assignmentPath, params: assignmentParams });
+                                                }
+                                            }}
                                             key={i}
                                             style={{
                                                 top: calculateTopOffset(formatTime(event.startTime)), // Offset for the event
@@ -178,7 +195,7 @@ const verticalCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
                                                 </TText>
                                             )
                                             }
-                                        </TView>
+                                        </TTouchableOpacity>
                                     );
                                 })}
                             </TView>
@@ -203,7 +220,7 @@ const verticalCalendar = ({ eventsByDate }: { eventsByDate: EventsByDate }) => {
                 </ScrollView>
 
                 <TTouchableOpacity
-                    onPress={() => router.push('/(app)/todo')}
+                    onPress={() => router.push('/(app)/(tabs)/todos')}
                     p={10} radius={100}
                     backgroundColor='base'
                     m='md' mt={'sm'} mb={'sm'}

@@ -51,7 +51,6 @@ const CardDisplayComponent: ReactComponent<{
                 }} >
 
                 <TText bold mb="sm">Answer:</TText>
-                {/*<TText>{isAnswerVisible ? card.answer : 'Click to reveal the answer'}</TText>*/}
                 <RichText>
                     {isAnswerVisible ? card.answer : 'Click to reveal the answer'}
                 </RichText>

@@ -15,6 +15,10 @@ jest.mock('../../components/core/containers/TView.tsx', () => {
 	const { View } = require('react-native');
 	return (props: ViewProps) => <View {...props} />;
 });
+jest.mock('react-native-autoheight-webview', () => {
+	const { View } = require('react-native');
+	return () => <View />; // Mock AutoHeightWebView as a simple empty View
+});
 
 const mockExercise: Quizzes.MCQ = {
 	type: 'MCQ',

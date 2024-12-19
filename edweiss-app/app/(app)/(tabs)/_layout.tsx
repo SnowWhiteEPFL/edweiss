@@ -28,11 +28,11 @@ const TabLayout: ApplicationLayout = () => {
 				}}
 			/>
 			<Tabs.Screen
-				name="community"
+				name="todos"
 				options={{
-					title: 'Community',
+					title: 'Todos',
 					tabBarIcon: ({ color, focused }) => (
-						<TabBarIcon name={focused ? 'planet' : 'planet-outline'} color={color} />
+						<TabBarIcon name={focused ? 'checkbox' : 'checkbox-outline'} color={color} />
 					),
 				}}
 			/>

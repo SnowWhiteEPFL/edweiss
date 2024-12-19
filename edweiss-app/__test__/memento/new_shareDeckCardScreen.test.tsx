@@ -124,6 +124,20 @@ jest.mock('@/contexts/user', () => ({
     useUser: jest.fn(),
 }));
 
+const mockModifyDocument = jest.fn((deckId, update, callback) => {
+    if (callback) callback(deckId); // Execute callback if provided
+});
+
+const mockDeleteDocument = jest.fn((deckId, callback) => {
+    if (callback) callback(deckId); // Execute callback if provided
+});
+
+jest.mock('@/hooks/repository', () => ({
+    ...jest.requireActual('@/hooks/repository'),
+    useRepository: jest.fn(() => [[{ id: '1', data: { ownerID: ['tuan'], name: 'Deck 1', cards: [card1, card2] } }], { modifyDocument: mockModifyDocument, deleteDocument: mockDeleteDocument }]),
+    useRepositoryDocument: jest.fn(() => [{ id: '1', data: { ownerID: ['tuan'], name: 'Deck 1', cards: [card1, card2] } }, { modifyDocument: mockModifyDocument, deleteDocument: mockDeleteDocument }]),
+}));
+
 describe('Sharing Deck Screen', () => {
     it('should render the sharing screen', async () => {
         const mockUsers = [TeacherAuthMock, TeacherAuthMock2, StudentAuthMock];
@@ -146,6 +160,13 @@ describe('Sharing Deck Screen', () => {
         const user2 = getByText('Test User 2');
 
         fireEvent.press(user2);
+    });
+
+    it('can search for a user', async () => {
+        const { getByPlaceholderText, getByText } = render(<ShareScreen />);
+        const searchInput = getByPlaceholderText('Search for a user');
+        fireEvent.changeText(searchInput, 'Test User');
+        expect(getByText('Test User 2')).toBeTruthy();
     });
 });
 

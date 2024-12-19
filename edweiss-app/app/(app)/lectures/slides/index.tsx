@@ -47,7 +47,6 @@ const LectureScreen: ApplicationRoute = () => {
     const courseName = courseNameString as string;
     const lectureId = lectureIdString as string;
 
-
     // Modal References
     const modalRefTranscriptMode = useRef<BottomSheetModal>(null);
 
@@ -281,6 +280,7 @@ const LectureViewer: React.FC<{
     currentQuestion: Question | undefined;
     setNumPages: (numPages: number) => void;
     setCurrentPage: (currentPage: number) => void;
+
     page: number;
     isLandscape: boolean;
     courseId: string;
@@ -302,7 +302,7 @@ const LectureViewer: React.FC<{
             renderActivityIndicator={() => <ActivityIndicator size="large" />}
             enablePaging
             onLoadComplete={(totalPages) => setNumPages(totalPages)}
-            onPageChanged={(currentPage) => setCurrentPage(currentPage)}
+            onPageChanged={(currentPage, totalPages) => { setCurrentPage(currentPage); setNumPages(totalPages) }}
             onError={(error) => console.log(error)}
             page={page}
             horizontal

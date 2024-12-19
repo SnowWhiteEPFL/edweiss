@@ -5,6 +5,10 @@ admin.initializeApp();
 
 import { FunctionImplementation } from 'utils/firebase';
 
+// const res = admin.storage().bucket().get({
+// 	autoCreate: false
+// });
+
 import fs = require('fs');
 
 exportFnDir("./src/functions");

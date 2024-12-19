@@ -72,9 +72,9 @@ const Schedule: ReactComponent<{ courses: Document<Course>[] }> = ({ courses }) 
 				 */
 			}
 
-			<SchedulePoint color={courseColors["lab"]} time='tue. 08:15' name='Responsible Software' room='CO3' />
-			<SchedulePoint color={courseColors["lecture"]} time='tue. 10:15' name='Quantum Mechanics for Non-Physicists' room='INF100' />
-			<SchedulePoint color={courseColors["project"]} time='wed. 13:15' name='Software Entreprise' room='ELE20' />
+			<SchedulePoint color={courseColors["lecture"]} time='thu. 015:15' name='Computer Security' room='CE4' />
+			<SchedulePoint color={courseColors["lecture"]} time='thu. 17:15' name='Quantum Mechanics for Non-Physicists' room='INF100' />
+			<SchedulePoint color={courseColors["project"]} time='fri. 11:15' name='Software Entreprise' room='ELE20' />
 
 			{/* <TText align='center' color='subtext0' size={'sm'} mt={'sm'}>See more</TText> */}
 		</TTouchableOpacity>
