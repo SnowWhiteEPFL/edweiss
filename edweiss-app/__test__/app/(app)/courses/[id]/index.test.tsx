@@ -18,6 +18,15 @@ jest.mock('@/utils/courses/coursesActionsFunctions', () => {
     };
 });
 
+jest.mock('react-native-autoheight-webview', () => {
+    const { View, Text } = require('react-native');
+    return ({ source, style }: { source: { html?: string }, style: any }) => (
+        <View style={style}>
+            <Text testID="webview-content">{source?.html || 'No content'}</Text>
+        </View>
+    );
+});
+
 jest.mock('@/components/core/containers/TView.tsx', () => {
     const { View } = require('react-native');
     return (props: ViewProps) => <View {...props} />;
