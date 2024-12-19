@@ -58,7 +58,7 @@ const AiGenerateScreen: ApplicationRoute = () => {
 
     return (
         <>
-            <RouteHeader title="Automate Deck creation" isBold align='center' />
+            <RouteHeader title="Choose a PDF document" isBold align='center' />
             <TScrollView p={16} backgroundColor="mantle">
                 {currentMaterials.map((material) => (<MaterialDisplay item={material.data} courseId={courseId} materialId={material.id} handle={handle} aiGenerateDeck={generateByAI} key={material.id} />))}
 

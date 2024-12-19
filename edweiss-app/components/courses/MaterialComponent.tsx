@@ -721,8 +721,9 @@ const MaterialComponent: ReactComponent<MaterialProps> = ({ mode, courseId, onSu
                     <For
                         each={docs.length > 0 ? docs.reverse() : undefined}
                         fallback={<TText size={16} testID={testIDs.noAssignmentDue}>{t('course:no_documents')}</TText>}
-                    >{(doc) => (
+                    >{(doc, index) => (
                         <DocumentDisplay
+                            key={doc.uri + `${index}`}
                             doc={doc}
                             isTeacher
                             onDelete={(docToDelete) => { console.log(`click on ${docToDelete.title}`); handleOnDeleteDocument(docToDelete); }}

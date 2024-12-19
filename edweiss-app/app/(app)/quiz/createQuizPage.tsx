@@ -15,24 +15,33 @@ import RadioSelectables, { RadioSelectable } from '@/components/input/RadioSelec
 import { MCQResultDisplay, TFResultDisplay } from '@/components/quiz/QuizComponents';
 import { callFunction, Collections, getDocument } from '@/config/firebase';
 import { useAuth } from '@/contexts/auth';
+import { ApplicationRouteSignature, useRouteParameters } from '@/hooks/routeParameters';
 import Quizzes, { QuizzesAttempts } from '@/model/quizzes';
+import { addAssignmentAction } from '@/utils/courses/coursesActionsFunctions';
 import { Time } from '@/utils/time';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router } from 'expo-router';
 import { t } from 'i18next';
 import React, { RefObject, useEffect, useRef, useState } from 'react';
 import Toast from 'react-native-toast-message';
 
+export const CreateQuizPageSignature: ApplicationRouteSignature<{
+	courseId: string,
+	previousQuizName: string,
+	previousDueDate: Date
+}> = {
+	path: "/(app)/quiz/createQuizPage"
+}
 
 const CreateQuizPage: ApplicationRoute = () => {
 
-	const { courseId } = useLocalSearchParams()
+	const { courseId, previousQuizName, previousDueDate } = useRouteParameters(CreateQuizPageSignature)
 	const { uid } = useAuth()
 	const [exercises, setExercises] = useState<Quizzes.Exercise[]>([]);
-	const [quizName, setQuizName] = useState<string>("");
-	const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+	const [quizName, setQuizName] = useState<string>(previousQuizName == undefined ? "" : previousQuizName);
+	const [dueDate, setDueDate] = useState<Date>(new Date(previousDueDate));
 	const [showDate, setShowDate] = useState<boolean>(false);
 	const [showTime, setShowTime] = useState<boolean>(false);
 	const [aiLoading, setAiLoading] = useState(false);
@@ -45,6 +54,7 @@ const CreateQuizPage: ApplicationRoute = () => {
 	useEffect(() => {
 
 		console.log(JSON.stringify(exercises))
+		console.log(courseId)
 	}, [exercises]);
 
 	async function checkUserType() {
@@ -175,6 +185,13 @@ const CreateQuizPage: ApplicationRoute = () => {
 
 		if (res.status === 1) {
 			console.log(`OKAY, submitted quiz with id ${res.data.id}`);
+			const notif = await addAssignmentAction(courseId, newQuiz)
+			if (notif.status === 1) {
+				console.log("Assignment action submitted")
+			}
+			else {
+				console.log(notif.error.message)
+			}
 		} else {
 			console.log(`Error while submitting attempt`);
 		}
@@ -196,7 +213,9 @@ const CreateQuizPage: ApplicationRoute = () => {
 							setShowDate={setShowDate}
 							setShowTime={setShowTime}
 							showDate={showDate}
-							showTime={showTime} />
+							showTime={showTime}
+							quizName={quizName}
+						/>
 					</TView>
 
 					<TText color='subtext0' align='center'>
@@ -206,7 +225,7 @@ const CreateQuizPage: ApplicationRoute = () => {
 
 
 
-				<FancyButton style={{ borderWidth: 0 }} outlined icon='add' backgroundColor='blue' onPress={() => addModalRef.current?.present()} > Add exercise</FancyButton>
+				<FancyButton style={{ borderWidth: 0 }} outlined icon='add' backgroundColor='blue' onPress={() => addModalRef.current?.present()}> Add exercise</FancyButton>
 				<GenerateAiButton aiLoading={aiLoading} handle={handle} setAiLoading={setAiLoading} courseId={courseId as string} materialUrl='China-101.pdf' addToExerciseList={addToExerciseList} />
 				<AddExerciseModal modalRef={addModalRef} updateExerciseList={addToExerciseList} />
 				<ProgressPopup handle={handle} />
@@ -217,7 +236,18 @@ const CreateQuizPage: ApplicationRoute = () => {
 	return (
 		<>
 
-			<NameAndDateCustom dueDate={dueDate} onChangeDate={onChangeDate} onChangeTime={onChangeTime} setQuizName={setQuizName} setShowDate={setShowDate} setShowTime={setShowTime} showDate={showDate} showTime={showTime}></NameAndDateCustom>
+			<NameAndDateCustom
+				dueDate={dueDate}
+				onChangeDate={onChangeDate}
+				onChangeTime={onChangeTime}
+				setQuizName={setQuizName}
+				setShowDate={setShowDate}
+				setShowTime={setShowTime}
+				showDate={showDate}
+				showTime={showTime}
+				quizName={quizName}
+			/>
+
 
 			<TScrollView>
 
@@ -256,10 +286,10 @@ const CreateQuizPage: ApplicationRoute = () => {
 export default CreateQuizPage;
 
 
-export const NameAndDateCustom: ReactComponent<{ dueDate: Date | undefined, setQuizName: React.Dispatch<React.SetStateAction<string>>, showDate: boolean, setShowDate: React.Dispatch<React.SetStateAction<boolean>>, showTime: boolean, setShowTime: React.Dispatch<React.SetStateAction<boolean>>, onChangeDate: (date: Date | undefined) => void, onChangeTime: (date: Date | undefined) => void }> = ({ dueDate, setQuizName, showDate, setShowDate, showTime, setShowTime, onChangeDate, onChangeTime }) => {
+export const NameAndDateCustom: ReactComponent<{ dueDate: Date | undefined, setQuizName: React.Dispatch<React.SetStateAction<string>>, quizName: string, showDate: boolean, setShowDate: React.Dispatch<React.SetStateAction<boolean>>, showTime: boolean, setShowTime: React.Dispatch<React.SetStateAction<boolean>>, onChangeDate: (date: Date | undefined) => void, onChangeTime: (date: Date | undefined) => void }> = ({ dueDate, setQuizName, showDate, setShowDate, showTime, setShowTime, onChangeDate, onChangeTime, quizName }) => {
 	return (<>
 		<RouteHeader title='Create a new quiz' />
-		<FancyTextInput mb='md' label='Quiz name' onChangeText={setQuizName} icon='text' placeholder='Fill in the name' />
+		<FancyTextInput mb='md' label='Quiz name' value={quizName} onChangeText={setQuizName} icon='text' placeholder='Fill in the name' />
 		<TView ml={'md'} flexDirection='row' flexColumnGap='md' alignItems='center' justifyContent='center'>
 			<Icon name='time-sharp' />
 			<TText > Due date :

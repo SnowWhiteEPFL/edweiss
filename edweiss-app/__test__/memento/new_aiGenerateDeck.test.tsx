@@ -187,7 +187,7 @@ describe('AI generate screen', () => {
                             description: "Description of Material 2",
                             from: { seconds: seconds5, nanoseconds: 0 },
                             to: { seconds: seconds6, nanoseconds: 0 },
-                            docs: [{ uri: "uri2", title: "Document 2", type: "exercise" }],
+                            docs: [{ uri: "uri2.pdf", title: "Document 2", type: "exercise" }],
                         },
                     },
                     {

@@ -51,6 +51,7 @@ jest.mock('expo-router', () => {
                 </>
             )),
         },
+        useLocalSearchParams: jest.fn(() => ({})), // Ajout du mock pour useLocalSearchParams
     };
 });
 
