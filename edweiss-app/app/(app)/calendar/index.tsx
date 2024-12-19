@@ -16,7 +16,7 @@ export interface EventsByDate {
 
 // Function to get navigation details based on user type and course information
 export const getNavigationDetails = (user: any, courseItem: { id: string; data: Course }, period: CourseTimePeriod, index: number) => {
-  const isProfessor = user?.data?.type === 'professor';
+  const isProfessor = user?.type === 'professor';
   return {
     pathname: isProfessor ? '/(app)/startCourseScreen' : '/(app)/lectures/slides',
     params: isProfessor
