@@ -1,4 +1,4 @@
-import EventsPerDayScreen, { getNavigationDetails } from '@/app/(app)/calendar';
+import EventsPerDayScreen, { EventsByDate, getNavigationDetails, renderPortraitView } from '@/app/(app)/calendar';
 import { Course, CourseTimePeriod } from '@/model/school/courses';
 import '@testing-library/jest-native/extend-expect';
 import { render, screen, waitFor } from '@testing-library/react-native';
@@ -219,5 +219,29 @@ describe('getNavigationDetails', () => {
         lectureIdString: 'activity456',
       },
     });
+  });
+});
+
+
+describe('renderPortraitView', () => {
+  it('should display "Loading..." when loading is true', () => {
+    // Arrange
+    const eventsByDate: EventsByDate = {};  // Exemple d'objet vide pour eventsByDate
+    const { getByText } = render(renderPortraitView(true, eventsByDate));
+
+    // Assert
+    expect(getByText('Loading...')).toBeTruthy();  // Vérifie si le texte "Loading..." est affiché
+  });
+
+  it('should render VerticalCalendar when loading is false', () => {
+    // Arrange
+    const eventsByDate: EventsByDate = {
+      '2024-12-19': [{ name: 'Event 1', startTime: 60, type: 'Todo' }],
+    };  // Exemple d'événements fictifs
+
+    const { getByText } = render(renderPortraitView(false, eventsByDate));
+
+    // Assert
+    expect(getByText('VerticalCalendar')).toBeTruthy();  // Vérifie si le composant mocké VerticalCalendar est affiché
   });
 });

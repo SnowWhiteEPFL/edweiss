@@ -14,6 +14,14 @@ export interface EventsByDate {
   [key: string]: CustomEvents[];
 }
 
+
+// Function to render portrait view
+export const renderPortraitView = (loading: boolean, eventsByDate: EventsByDate) => (
+  <TView flex={1}>
+    {loading ? <TText align='center' p={100}>Loading...</TText> : <VerticalCalendar eventsByDate={eventsByDate} />}
+  </TView>
+);
+
 // Function to get navigation details based on user type and course information
 export const getNavigationDetails = (user: any, courseItem: { id: string; data: Course }, period: CourseTimePeriod, index: number) => {
   const isProfessor = user?.data?.type === 'professor';
@@ -134,16 +142,11 @@ const EventsPerDayScreen = () => {
     fetchAllEvents(); // Fetch events on component mount
   }, []);
 
-  // Function to render portrait view
-  const renderPortraitView = () => (
-    <TView flex={1}>
-      {loading ? <TText align='center' p={100}>Loading...</TText> : <VerticalCalendar eventsByDate={eventsByDate} />}
-    </TView>
-  );
+
 
   return (
     <TView flex={1}>
-      {isPortrait ? renderPortraitView() : <HorizontalTableView loading={loading} eventsByDate={eventsByDate} />}
+      {isPortrait ? renderPortraitView(loading, eventsByDate) : <HorizontalTableView loading={loading} eventsByDate={eventsByDate} />}
     </TView>
   );
 };
