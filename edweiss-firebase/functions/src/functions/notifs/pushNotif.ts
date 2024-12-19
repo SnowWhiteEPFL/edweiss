@@ -38,6 +38,6 @@ export const pushNotif = onAuthentifiedCall(Functions.pushNotif, async (userId, 
 	assertString(args.message, "invalid_arg");
 	assertIsIn(args.type, validTypes, "invalid_arg");
 
-	return sendNotif(userId, args.title, args.message, args.type as AssignmentType, args.userID, args.courseID);
+	return await sendNotif(userId, args.title, args.message, args.type as AssignmentType, args.userID, args.courseID);
 
 });

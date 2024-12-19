@@ -17,7 +17,10 @@ export async function markAsReadAction(id: string) {
 
 export async function pushNotifAction(type: string, title: string, message: string, userID?: UserID, courseID?: CourseID) {
     try {
-        const res = await callFunction(NotifList.Functions.pushNotif, { type: type, title: title, message: message, userID: userID, courseID: courseID });
+        console.log('Pushing notification:', type, title, message, userID, courseID);
+        const args = { type: type, title: title, message: message, userID: userID, courseID: courseID };
+        const res = await callFunction(NotifList.Functions.pushNotif, args);
+        console.log('Notification pushed:', res);
         if (res.status == 0) { console.log('Notification failed to push : ', res.error); }
     }
     catch (error) { console.error('Error pushing notification:', error); }

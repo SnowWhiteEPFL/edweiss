@@ -1,7 +1,7 @@
 import NotifList from 'model/notifs';
 import { AssignmentType, CourseID } from 'model/school/courses';
 import { UserID } from 'model/users';
-import { CollectionOf, Collections, query, where } from 'utils/firestore';
+import { clean, CollectionOf, Collections, query, where } from 'utils/firestore';
 import { fail, ok } from 'utils/status';
 import { Time } from 'utils/time';
 
@@ -36,14 +36,15 @@ export default async function sendNotif(owner: UserID, title: string, message: s
                 };
 
                 try {
-                    await notifCollection.add(notifToInsert);
+                    await notifCollection.add(clean(notifToInsert));
                 } catch (error) {
-                    return fail("firebase_error");
+                    return fail("firebase_error : " + error);
                 }
             }
 
         } catch (error) {
             console.error("Erreur lors de l'envoi des notifications :", error);
+            return fail("firebase_error : " + error);
         }
 
     } else {
@@ -59,9 +60,9 @@ export default async function sendNotif(owner: UserID, title: string, message: s
         };
 
         try {
-            await notifCollection.add(notifToInsert);
+            await notifCollection.add(clean(notifToInsert));
         } catch (error) {
-            return fail("firebase_error");
+            return fail("firebase_error: " + error);
         }
     }
 
