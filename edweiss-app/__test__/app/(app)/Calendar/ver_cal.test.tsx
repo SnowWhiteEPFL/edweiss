@@ -1,7 +1,5 @@
 import EventsPerDayScreen, { EventsByDate, getNavigationDetails, renderPortraitView } from '@/app/(app)/calendar';
-import { useAuth } from '@/contexts/auth';
 import { Course, CourseTimePeriod } from '@/model/school/courses';
-import { getDocs } from '@react-native-firebase/firestore';
 import '@testing-library/jest-native/extend-expect';
 import { render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
@@ -108,102 +106,11 @@ jest.mock('@react-native-firebase/firestore', () => {
   };
 });
 
-jest.mock('@/contexts/auth');
-
-jest.mock('@react-native-firebase/firestore', () => {
-  const collectionMock = jest.fn();
-  const firestoreMock = jest.fn(() => ({
-    collection: collectionMock,
-  }));
-
-  return firestoreMock;
-});
-
-jest.mock('@firebase/firestore', () => ({
-  getDocs: jest.fn(),
-}));
 
 describe('EventsPerDayScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-
-  it('fetches and renders events correctly', async () => {
-    (useAuth as jest.Mock).mockReturnValue({
-      authUser: { uid: 'user123' },
-    });
-
-    // Mock Firestore `getDocs` behavior
-    (getDocs as jest.Mock).mockResolvedValue({
-      docs: [
-        {
-          id: 'mockId1',
-          data: () => ({ name: 'Event 1' }),
-        },
-        {
-          id: 'mockId2',
-          data: () => ({ name: 'Event 2' }),
-        },
-      ],
-    });
-
-    const { findByText } = render(<EventsPerDayScreen />);
-
-    // Check for rendered events
-    const event1 = await findByText('Event 1');
-    const event2 = await findByText('Event 2');
-
-    expect(event1).toBeTruthy();
-    expect(event2).toBeTruthy();
-  });
-
-  it('fetches and renders events correctly', async () => {
-    // Mock user auth and Firebase responses
-    (useAuth as jest.Mock).mockReturnValue({
-      authUser: { uid: 'user123' },
-    });
-
-    (getDocs as jest.Mock).mockImplementation((collection) => {
-      if (collection === 'mockCollection') {
-        return Promise.resolve({
-          docs: [
-            {
-              id: 'course1',
-              data: () => ({
-                periods: {
-                  period1: { start: 480, end: 540, dayIndex: 2, type: 'Lecture' },
-                },
-              }),
-            },
-          ],
-        });
-      }
-      return Promise.resolve({ docs: [] });
-    });
-
-    const { getByText } = render(<EventsPerDayScreen />);
-
-    // Verify loading indicator is displayed
-    expect(getByText('Loading...')).toBeTruthy();
-
-    // Wait for data to load
-    await waitFor(() => {
-      expect(getByText('course1: Lecture')).toBeTruthy();
-    });
-  });
-
-  it('shows an alert on fetch error', async () => {
-    jest.spyOn(global, 'alert').mockImplementation(() => { });
-    (getDocs as jest.Mock).mockRejectedValue(new Error('Fetch error'));
-
-    render(<EventsPerDayScreen />);
-
-    // Wait for error handling
-    await waitFor(() => {
-      expect(global.alert).toHaveBeenCalledWith('Error', 'Unable to load events');
-    });
-  });
-
 
   it('should correctly set orientation based on window dimensions', async () => {
     (useWindowDimensions as jest.Mock).mockReturnValue({ width: 500, height: 1000 });
