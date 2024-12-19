@@ -24,6 +24,7 @@ import FancyTextInput from '@/components/input/FancyTextInput';
 import { CardListDisplay } from '@/components/memento/CardListDisplayComponent';
 import CreateDeleteEditCardModal from '@/components/memento/CreateDeleteEditCardModal';
 import { CardModalDisplay } from '@/components/memento/ModalDisplay';
+import SmthWrongComponent from '@/components/memento/SmthWrongComponent';
 import { callFunction, CollectionOf } from '@/config/firebase';
 import { iconSizes } from '@/constants/Sizes';
 import { useUser } from '@/contexts/user';
@@ -64,7 +65,7 @@ const CardListScreen: ApplicationRoute = () => {
 
 	if (typeof deckId != 'string') return <Redirect href={'/'} />;
 
-	if (!users) return null;
+	if (!users) return <SmthWrongComponent message='Error loading users...' />;
 
 	const deck = decks?.find(deck => deck.id === deckId);
 
@@ -186,7 +187,7 @@ const CardListScreen: ApplicationRoute = () => {
 				title={deck?.data.name}
 				right={
 					<>
-						{current_user_type == 'professor' && <FancyButton backgroundColor='green' outlined loading={loading} onPress={() => {
+						{current_user_type == 'professor' && <FancyButton backgroundColor='transparent' textColor='green' loading={loading} onPress={() => {
 							publishDeck();
 						}}>
 							Publish Deck

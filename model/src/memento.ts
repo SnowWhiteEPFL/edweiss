@@ -11,7 +11,7 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
-import { FunctionFolder, FunctionOf } from './functions';
+import { FunctionFolder, FunctionOf, NoError } from './functions';
 import { CourseID } from './school/courses';
 import { UserID } from './users';
 
@@ -55,6 +55,7 @@ namespace Memento {
 		deleteCards: FunctionOf<{ deckId: any; cardIndices: number[]; courseId: CourseID }, { id: string; }, 'card_not_found'>("deleteCards"),
 		shareDeck: FunctionOf<{ deckId: any; other_user: UserID; courseId: CourseID }, { id: string; }, 'deck_not_found'>("shareDeck"),
 		shareCards: FunctionOf<{ deckId: any; cardIndices: number[]; other_user: UserID; courseId: CourseID }, { id: string; }, 'deck_not_found'>("shareCards"),
+		createDeckFromMaterial: FunctionOf<{ courseId: CourseID, materialUrl: string }, { id: string, deck: Deck }, NoError>("createDeckFromMaterial")
 	});
 
 }

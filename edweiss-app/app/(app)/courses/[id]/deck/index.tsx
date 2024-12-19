@@ -10,13 +10,14 @@
 // --------------- Import Modules & Components ----------------
 // ------------------------------------------------------------
 
-import TText from '@/components/core/TText';
 import TScrollView from '@/components/core/containers/TScrollView';
 import TTouchableOpacity from '@/components/core/containers/TTouchableOpacity';
 import TView from '@/components/core/containers/TView';
 import RouteHeader from '@/components/core/header/RouteHeader';
+import TText from '@/components/core/TText';
 import FancyButton from '@/components/input/FancyButton';
 import FancyTextInput from '@/components/input/FancyTextInput';
+import SmthWrongComponent from '@/components/memento/SmthWrongComponent';
 import { callFunction, CollectionOf } from '@/config/firebase';
 import t from '@/config/i18config';
 import ReactComponent, { ApplicationRoute } from '@/constants/Component';
@@ -52,7 +53,7 @@ const DeckScreen: ApplicationRoute = () => {
 	const [decks, handler] = useRepository(DecksRepository);
 
 	const users = useDynamicDocs(CollectionOf<AppUser>('users'));
-	if (!users) return undefined;
+	if (!users) return <SmthWrongComponent message='Oops, Error loading users ... ' />;
 
 	// For each users, map user.id to user.data.name
 	const ids_names_map = new Map<string, string>();
@@ -184,6 +185,18 @@ const DeckScreen: ApplicationRoute = () => {
 					/>)
 				)}
 			</TScrollView>
+
+			<FancyButton
+				icon='sparkles'
+				onPress={() => router.push(`courses/${courseId}/deck/aiGenerateDeck` as any)}
+				backgroundColor='green'
+				outlined
+				mb={'md'}
+				style={{ alignSelf: 'flex-end', borderWidth: 0 }}
+			>
+				Generate with AI
+			</FancyButton>
+
 		</>
 	);
 };

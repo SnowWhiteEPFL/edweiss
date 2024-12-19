@@ -9,6 +9,9 @@ import { IconType } from '@/constants/Style';
 import { pushWithParameters } from '@/hooks/routeParameters';
 import { CourseID, Material, MaterialID, MaterialType } from '@/model/school/courses';
 import { Time } from '@/utils/time';
+import { router } from 'expo-router';
+import React from 'react';
+import { ProgressPopupHandle } from '../animations/ProgressPopup';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import Icon from '../core/Icon';
 import DocumentDisplay from './DocumentDisplay';
@@ -54,7 +57,15 @@ export const testIDs = {
  * 
  * @returns JSX.Element - The rendered component for the assignment display.
  */
-const MaterialDisplay: ReactComponent<{ item: Material, courseId: CourseID, materialId: MaterialID, isTeacher?: boolean, onTeacherClick?: () => void; }> = ({ item, courseId, materialId, isTeacher = false, onTeacherClick }) => {
+const MaterialDisplay: ReactComponent<{
+    item: Material,
+    courseId: CourseID,
+    materialId: MaterialID,
+    isTeacher?: boolean,
+    onTeacherClick?: () => void;
+    handle?: ProgressPopupHandle;
+    aiGenerateDeck?: (materialUrl: string) => Promise<void>
+}> = ({ item, courseId, materialId, isTeacher = false, onTeacherClick, handle, aiGenerateDeck }) => {
 
     const formatDateRange = (fromSeconds: number, toSeconds: number) => {
 
@@ -98,8 +109,19 @@ const MaterialDisplay: ReactComponent<{ item: Material, courseId: CourseID, mate
             <TText testID={testIDs.materialDescription} lineHeight='md' align='auto' size={15} color='darkNight' py={12} textBreakStrategy='highQuality'>{item.description}</TText>
 
             {sortedDocs.map((doc) => (
-                <DocumentDisplay doc={doc} isTeacher={isTeacher} onDelete={undefined} key={doc.uri} onPress={() => pushWithParameters(DocumentRouteSignature, { courseId: courseId, materialId: materialId, document: doc })} />
+                <DocumentDisplay doc={doc} isTeacher={isTeacher} onDelete={undefined} key={doc.uri} onPress={async () => {
+                    if (aiGenerateDeck && handle) {
+                        handle.start()
+                        await aiGenerateDeck(`courses/${courseId}/materials/${materialId}/${doc.uri}`)
+                        handle.stop()
+
+                        router.back()
+                    } else {
+                        pushWithParameters(DocumentRouteSignature, { courseId: courseId, materialId: materialId, document: doc })
+                    }
+                }} />
             ))}
+
         </TView>
     );
 }
