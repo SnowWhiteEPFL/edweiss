@@ -111,11 +111,14 @@ const MaterialDisplay: ReactComponent<{
             {sortedDocs.map((doc) => (
                 <DocumentDisplay doc={doc} isTeacher={isTeacher} onDelete={undefined} key={doc.uri} onPress={async () => {
                     if (aiGenerateDeck && handle) {
-                        handle.start()
-                        await aiGenerateDeck(`courses/${courseId}/materials/${materialId}/${doc.uri}`)
-                        handle.stop()
+                        // Check if doc.uri ends with .pdf
+                        if (doc.uri.toLowerCase().endsWith('.pdf')) {
+                            handle.start()
+                            await aiGenerateDeck(`courses/${courseId}/materials/${materialId}/${doc.uri}`)
+                            handle.stop()
 
-                        router.back()
+                            router.back()
+                        }
                     } else {
                         pushWithParameters(DocumentRouteSignature, { courseId: courseId, materialId: materialId, document: doc })
                     }
