@@ -51,6 +51,13 @@ jest.mock('@/contexts/auth', () => ({
     useAuth: jest.fn(),					// mock authentication
 }));
 
+jest.mock('@/contexts/user', () => ({
+    useUser: jest.fn(() => ({
+        user: { id: '123', name: 'Mocked User', type: 'student' },
+    })),
+}));
+
+
 jest.mock('@/config/firebase', () => ({
     callFunction: jest.fn(),
 }));
@@ -80,7 +87,7 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 describe('VerticalCalendar', () => {
     const mockAuthUser = { id: 1, name: 'Test User' };
     const eventsByDate: EventsByDate = {
-        '2024-12-18': [
+        '2024-12-24': [
             {
                 name: 'Event 1',
                 startTime: 0,
