@@ -131,7 +131,7 @@ Check our [Figma](https://www.figma.com/design/BBD2dqgIbEF96IhNpyv7MW/EdWeiss?no
 
 
 
-**Quizzes :**
+### Quizzes :
 As a student, go to the course page and click on one of the quizzes to immediately start doing it. 
 As a professor, to create a quiz, go to the course page, then click on the plus sign bottom right. Then click on add assignment, then click on the colored button to turn it into quiz. The screen should look like this.
 ![Screenshot_2024-12-20-01-32-17-960_com edweiss](https://github.com/user-attachments/assets/9aa7a9d0-682b-4c31-bc47-648808ebbac3)
