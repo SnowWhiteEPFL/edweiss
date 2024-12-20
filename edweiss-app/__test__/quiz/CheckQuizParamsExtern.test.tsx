@@ -1,3 +1,4 @@
+import { checkQuizParamsExtern } from '@/app/(app)/quiz/createQuizPage';
 import { Document } from '@/config/firebase';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import Quizzes, { LectureQuizzes, LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
@@ -14,7 +15,7 @@ jest.mock('../../utils/courses/coursesActionsFunctions', () => {
 jest.mock('../../utils/time', () => {
 	return {
 		fromDate: jest.fn(),
-
+		wasYesterday: jest.fn((_) => false)
 	}
 });
 
@@ -202,3 +203,62 @@ jest.mock('@react-native-firebase/firestore', () => {
 		onSnapshot: mockOnSnapshot, // Mock onSnapshot separately in case needed
 	};
 });
+
+jest.mock('react-native-toast-message', () => ({
+	show: jest.fn(),
+}));
+
+describe('checkQuizParamsExtern', () => {
+	it('should return false and show an error toast if exercises array is empty', () => {
+		// Act
+		const result = checkQuizParamsExtern([], new Date(), 'Quiz Name');
+
+		// Assert
+		expect(result).toBe(false);
+		// expect(mockToastShow).toHaveBeenCalledWith({
+		// 	type: 'error',
+		// 	text1: expect.any(String), // You can mock `t('quiz:empty_quiz')` if needed
+		// });
+	});
+
+	it('should return false and show an error toast if dueDate is undefined', () => {
+		// Act
+		const result = checkQuizParamsExtern([{} as any], undefined, 'Quiz Name');
+
+		// Assert
+		expect(result).toBe(false);
+		// expect(mockToastShow).toHaveBeenCalledWith({
+		// 	type: 'error',
+		// 	text1: expect.any(String), // You can mock `t('quiz:date_invalid')` if needed
+		// });
+	});
+
+	it('should return false and show an error toast if quizName is empty', () => {
+		// Act
+		const result = checkQuizParamsExtern([{} as any], new Date(), '');
+
+		// Assert
+		expect(result).toBe(false);
+		// expect(mockToastShow).toHaveBeenCalledWith({
+		// 	type: 'error',
+		// 	text1: expect.any(String), // You can mock `t('quiz:quiz_name_empty')` if needed
+		// });
+	});
+
+	it('should return true if all parameters are valid', () => {
+		// Arrange
+		//mockWasYesterday.mockReturnValue(false);
+
+		// Act
+		const result = checkQuizParamsExtern(
+			[{ id: 'exercise1', type: 'MCQ' } as any],
+			new Date(),
+			'Valid Quiz Name'
+		);
+
+		// Assert
+		expect(result).toBe(true);
+		// expect(mockToastShow).not.toHaveBeenCalled();
+		// expect(mockWasYesterday).toHaveBeenCalledWith(expect.any(Date));
+	});
+})

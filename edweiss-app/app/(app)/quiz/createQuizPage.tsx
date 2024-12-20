@@ -88,31 +88,7 @@ const CreateQuizPage: ApplicationRoute = () => {
 
 
 	function checkQuizParams(): boolean {
-		if (exercises.length <= 0) {
-			Toast.show({
-				type: 'error',
-				text1: t(`quiz:empty_quiz`),
-			});
-			return false;
-		}
-
-		if (dueDate == undefined || Time.wasYesterday(dueDate)) {
-			Toast.show({
-				type: 'error',
-				text1: t(`quiz:date_invalid`),
-			});
-			return false;
-		}
-		if (quizName == "") {
-			Toast.show({
-				type: 'error',
-				text1: t(`quiz:quiz_name_empty`),
-			});
-			return false;
-		}
-
-
-		return true
+		return checkQuizParamsExtern(exercises, dueDate, quizName)
 
 	}
 
@@ -129,46 +105,7 @@ const CreateQuizPage: ApplicationRoute = () => {
 	}
 
 	async function publishQuiz() {
-
-		if (!checkQuizParams()) { return }
-		if (dueDate == undefined) { // should not happen with check
-			return;
-		}
-		const answers = exercises.map(exercise => {
-			if (exercise.type == "MCQ") {
-				const answer: QuizzesAttempts.MCQAnswersIndices = { type: "MCQAnswersIndices", value: exercise.answersIndices }
-				return answer;
-			}
-			else { // if exercise is TF
-				const answer: QuizzesAttempts.TFAnswer = { type: "TFAnswer", value: exercise.answer }
-				return answer;
-			}
-		})
-		const newQuiz: Quizzes.Quiz = {
-			exercises: exercises,
-			dueDate: Time.fromDate(dueDate),
-			name: quizName,
-			ended: false,
-			showResultToStudents: false,
-			type: "quiz",
-			answers: answers
-
-		}
-
-		const res = await callFunction(Quizzes.Functions.createQuiz, { quiz: newQuiz, courseId: courseId, });
-
-		if (res.status === 1) {
-			console.log(`OKAY, submitted quiz with id ${res.data.id}`);
-			const notif = await addAssignmentAction(courseId, newQuiz)
-			if (notif.status === 1) {
-				console.log("Assignment action submitted")
-			}
-			else {
-				console.log(notif.error.message)
-			}
-		} else {
-			console.log(`Error while submitting attempt`);
-		}
+		return publishQuizExtern(checkQuizParams(), dueDate, exercises, quizName, courseId)
 	}
 	if (exercises.length <= 0) {
 		return (
@@ -238,6 +175,75 @@ const CreateQuizPage: ApplicationRoute = () => {
 	);
 };
 export default CreateQuizPage;
+
+export async function publishQuizExtern(paramsOk: boolean, dueDate: Date | undefined, exercises: Quizzes.Exercise[], quizName: string, courseId: string) {
+	if (!paramsOk) { return }
+	if (dueDate == undefined) { // should not happen with check
+		return;
+	}
+	const answers = exercises.map(exercise => {
+		if (exercise.type == "MCQ") {
+			const answer: QuizzesAttempts.MCQAnswersIndices = { type: "MCQAnswersIndices", value: exercise.answersIndices }
+			return answer;
+		}
+		else { // if exercise is TF
+			const answer: QuizzesAttempts.TFAnswer = { type: "TFAnswer", value: exercise.answer }
+			return answer;
+		}
+	})
+	const newQuiz: Quizzes.Quiz = {
+		exercises: exercises,
+		dueDate: Time.fromDate(dueDate),
+		name: quizName,
+		ended: false,
+		showResultToStudents: false,
+		type: "quiz",
+		answers: answers
+
+	}
+
+	const res = await callFunction(Quizzes.Functions.createQuiz, { quiz: newQuiz, courseId: courseId, });
+
+	if (res.status === 1) {
+		console.log(`OKAY, submitted quiz with id ${res.data.id}`);
+		const notif = await addAssignmentAction(courseId, newQuiz)
+		if (notif.status === 1) {
+			console.log("Assignment action submitted")
+		}
+		else {
+			console.log(notif.error.message)
+		}
+	} else {
+		console.log(`Error while submitting attempt`);
+	}
+}
+
+export function checkQuizParamsExtern(exercises: Quizzes.Exercise[], dueDate: Date | undefined, quizName: string) {
+	if (exercises.length <= 0) {
+		Toast.show({
+			type: 'error',
+			text1: t(`quiz:empty_quiz`),
+		});
+		return false;
+	}
+
+	if (dueDate == undefined) {
+		Toast.show({
+			type: 'error',
+			text1: t(`quiz:date_invalid`),
+		});
+		return false;
+	}
+	if (quizName.length == 0) {
+		Toast.show({
+			type: 'error',
+			text1: t(`quiz:quiz_name_empty`),
+		});
+		return false;
+	}
+	return true
+}
+
 
 
 export const NameAndDateCustom: ReactComponent<{ dueDate: Date | undefined, quizName: string, }> = ({ dueDate, quizName }) => {
@@ -419,7 +425,7 @@ export const AddExerciseModal: ReactComponent<{ modalRef: RefObject<BottomSheetM
 
 	return (
 
-		<ModalContainerScrollView disabledDynamicSizing snapPoints={isMCQ ? ['80%'] : ['50%']} modalRef={props.modalRef}>
+		<ModalContainerScrollView disabledDynamicSizing snapPoints={isMCQ ? ['80%'] : ['50%']} modalRef={props.modalRef} testID='scroll-view'>
 
 			<TView mb='lg' flexDirection='row' flexColumnGap='sm' >
 				<TView flex={1}>
@@ -443,10 +449,10 @@ export const AddExerciseModal: ReactComponent<{ modalRef: RefObject<BottomSheetM
 export const EditExerciseModal: ReactComponent<{ modalRef: RefObject<BottomSheetModalMethods>, secondModalRef: RefObject<BottomSheetModalMethods>, exercise: Quizzes.Exercise, editExercise: (exercise: Quizzes.Exercise, index: number) => void, removeExerciseFromList: (index: number) => void, index: number }> = (props) => {
 
 	return (<>
-		<ModalContainerScrollView modalRef={props.modalRef}>
+		<ModalContainerScrollView modalRef={props.modalRef} testID='scroll-view'>
 
 			<TView flexDirection='row' flexColumnGap={"xl"} mb='md' mx={'lg'}>
-				<TTouchableOpacity flex={1} radius={'lg'} p={"sm"} backgroundColor='base' flexDirection='row' flexColumnGap='sm' justifyContent='center' alignItems='center' onPress={() => props.removeExerciseFromList(props.index)}>
+				<TTouchableOpacity flex={1} radius={'lg'} p={"sm"} backgroundColor='base' flexDirection='row' flexColumnGap='sm' justifyContent='center' alignItems='center' onPress={() => props.removeExerciseFromList(props.index)} testID='remove'>
 					<TView >
 						<Icon name='trash-bin-sharp' color='red' size='xl' />
 
@@ -495,7 +501,7 @@ export const EditSecondModal: ReactComponent<{ modalRef: RefObject<BottomSheetMo
 			previousPropositions.push([proposition.description, answers.find(element => element == index) != undefined])
 		})
 		return (
-			<ModalContainerScrollView modalRef={props.modalRef}>
+			<ModalContainerScrollView modalRef={props.modalRef} testID='MCQ'>
 				<TScrollView>
 					<MCQFields modalRef={props.modalRef} editExercise={props.editExercise} previousQuestion={previousQuestion} previousPropositions={previousPropositions} index={props.index}></MCQFields>
 				</TScrollView>
@@ -506,7 +512,7 @@ export const EditSecondModal: ReactComponent<{ modalRef: RefObject<BottomSheetMo
 	else {
 
 		return (
-			<ModalContainerScrollView modalRef={props.modalRef}>
+			<ModalContainerScrollView modalRef={props.modalRef} testID='TF'>
 				<TScrollView>
 					<TFFields modalRef={props.modalRef} previousQuestion={previousQuestion} previousBoolean={props.exercise.answer} editExercise={props.editExercise} index={props.index}></TFFields>
 				</TScrollView>

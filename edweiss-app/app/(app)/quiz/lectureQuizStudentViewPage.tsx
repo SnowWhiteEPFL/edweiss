@@ -14,7 +14,7 @@ export const LectureQuizStudentViewSignature: ApplicationRouteSignature<{
 	path: "/(app)/quiz/lectureQuizStudentViewPage"
 }
 
-const lectureQuizStudentViewPage: ApplicationRoute = () => {
+const LectureQuizStudentViewPage: ApplicationRoute = () => {
 	const { courseId, lectureId, lectureEventId, prefetchedQuiz } = useRouteParameters(LectureQuizStudentViewSignature);
 
 	const pathToLectureEvents = "courses/" + courseId + "/lectures/" + lectureId + "/lectureEvents"
@@ -28,7 +28,7 @@ const lectureQuizStudentViewPage: ApplicationRoute = () => {
 	</TView>)
 
 };
-export default lectureQuizStudentViewPage;
+export default LectureQuizStudentViewPage;
 
 
 

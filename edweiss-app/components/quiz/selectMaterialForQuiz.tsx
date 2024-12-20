@@ -9,19 +9,15 @@ import { useDynamicDocs } from '@/hooks/firebase/firestore';
 import Quizzes from '@/model/quizzes';
 import { Material } from '@/model/school/courses';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { ProgressPopupHandle } from '../animations/ProgressPopup';
 
 
 const SelectMaterialForQuizModal: ReactComponent<{ courseId: string, handle: ProgressPopupHandle, addToExerciseList: (exercise: Quizzes.Exercise) => void, modalRef: React.RefObject<BottomSheetModalMethods> }> = (props) => {
 
-	// 				<GenerateAiButton aiLoading={aiLoading} modalRef={selectMaterialModalRef}  />
-
 	const materialCollection = useDynamicDocs(
 		CollectionOf<Material>(`courses/${props.courseId}/materials`)
 	) || [];
-	//const [decks, handler] = useRepository(DecksRepository);
-	const [aiLoading, setAiLoading] = useState(false);
 
 	const currentMaterials = useMemo(() => {
 		return materialCollection.filter((material) => {
@@ -42,7 +38,6 @@ const SelectMaterialForQuizModal: ReactComponent<{ courseId: string, handle: Pro
 
 
 	const generateByAi = async (materialUrl: string) => {
-		setAiLoading(true);
 		props.handle.start();
 
 		console.log("Calling AI function...");
@@ -63,15 +58,14 @@ const SelectMaterialForQuizModal: ReactComponent<{ courseId: string, handle: Pro
 
 		}
 
-		setAiLoading(false);
 		props.handle.stop();
 
 	}
 
 	return (
 		<>
-			<ModalContainerScrollView modalRef={props.modalRef} snapPoints={['90%']} disabledDynamicSizing>
-				<TScrollView p={16} backgroundColor="mantle">
+			<ModalContainerScrollView modalRef={props.modalRef} snapPoints={['90%']} disabledDynamicSizing testID='modal-scroll'>
+				<TScrollView p={16} backgroundColor="mantle" testID='scroll-view'>
 					{currentMaterials.map((material) => (<MaterialDisplay item={material.data} courseId={props.courseId} materialId={material.id} aiGenerateQuiz={generateByAi} handle={props.handle} key={material.id} />))}
 
 					{passedMaterials.sort((a, b) => b.data.to.seconds - a.data.to.seconds).map((material) => (<MaterialDisplay item={material.data} courseId={props.courseId} materialId={material.id} aiGenerateQuiz={generateByAi} handle={props.handle} key={material.id} />))}
