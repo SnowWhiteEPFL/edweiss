@@ -212,6 +212,7 @@ export default DeckScreen;
  * 
  * @param deck: Memento.Deck
  * @param creator: string
+ * @param courseId: CourseID
  * @param deckId: string
  * @param isSelected: boolean indicating if the deck is selected
  * @param toggleSelection: function to toggle deck selection
