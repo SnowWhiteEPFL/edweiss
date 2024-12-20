@@ -115,17 +115,22 @@ const MaterialDisplay: ReactComponent<{
             {sortedDocs.map((doc) => (
                 <DocumentDisplay doc={doc} isTeacher={isTeacher} onDelete={undefined} key={doc.uri} onPress={async () => {
                     if (aiGenerateDeck && handle) {
+                        // Check if doc.uri ends with .pdf
+                        if (doc.uri.toLowerCase().endsWith('.pdf')) {
+                            handle.start()
+                            await aiGenerateDeck(`courses/${courseId}/materials/${materialId}/${doc.uri}`)
+                            handle.stop()
 
-                        handle.start()
-                        await aiGenerateDeck(`courses/${courseId}/materials/${materialId}/${doc.uri}`)
-                        handle.stop()
+                            router.back()
+                        }
 
-                        router.back()
                     } else if (aiGenerateQuiz && handle) {
-                        handle.start()
-                        await aiGenerateQuiz(`courses/${courseId}/materials/${materialId}/${doc.uri}`)
-                        handle.stop()
+                        if (doc.uri.toLowerCase().endsWith('.pdf')) {
+                            handle.start()
+                            await aiGenerateQuiz(`courses/${courseId}/materials/${materialId}/${doc.uri}`)
+                            handle.stop()
 
+                        }
                     } else {
                         pushWithParameters(DocumentRouteSignature, { courseId: courseId, materialId: materialId, document: doc })
                     }
