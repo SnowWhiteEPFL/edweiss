@@ -14,6 +14,12 @@ import { Material } from '@/model/school/courses';
 import React, { useMemo } from 'react';
 import { DecksRepository } from './_layout';
 
+
+/**
+ * @desciption AiGenerateScreen component that allows users to generate a deck of flashcards from a PDF document.
+ * 
+ * @returns {ApplicationRoute} AiGenerateScreen component
+ */
 const AiGenerateScreen: ApplicationRoute = () => {
 
     const { id: courseId } = useStringParameters();

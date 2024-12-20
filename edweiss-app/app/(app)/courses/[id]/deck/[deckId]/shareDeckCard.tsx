@@ -22,6 +22,11 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { DecksRepository } from '../_layout';
 
+/**
+ * @desciption ShareScreen component that allows users to share a deck or cards with another user.
+ * 
+ * @returns {ApplicationRoute} ShareScreen component
+ */
 const ShareScreen: ApplicationRoute = () => {
     const { id: courseId, deckId, type, indices_of_cards_to_share } = useStringParameters();
     const { uid } = useAuth();
@@ -59,9 +64,10 @@ const ShareScreen: ApplicationRoute = () => {
     // Filter out users whose name is "Anonymous"
     const users_data_filtered_anonym = users_data_filtered_course.filter(user => user.name !== 'Anonymous');
 
+    // Filter out users based on the searched user
     const searched_users_based_on_searchedUser = users_data_filtered_anonym.filter(user => user.name.toLowerCase().includes(searchedUser.toLowerCase()));
 
-
+    // Share the deck with another user
     async function shareDeck(user: UserID) {
         handler.modifyDocument(deckId, {
             cards: cards
@@ -72,6 +78,7 @@ const ShareScreen: ApplicationRoute = () => {
         router.back();
     }
 
+    // Share the cards with another user
     async function shareCard(user: UserID, cardIndices: number[]) {
         handler.modifyDocument(deckId, {
             cards: cards

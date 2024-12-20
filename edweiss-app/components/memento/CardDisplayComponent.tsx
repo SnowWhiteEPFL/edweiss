@@ -10,6 +10,13 @@ import Icon from '../core/Icon';
 import TTouchableOpacity from '../core/containers/TTouchableOpacity';
 import RichText from '../core/rich-text/RichText';
 
+/**
+ * Card Display Component
+ * 
+ * @param {Memento.Card} card - Card object
+ * 
+ * @returns {ReactComponent} Card Display Component
+ */
 const CardDisplayComponent: ReactComponent<{
     card: Memento.Card
 }> = ({ card }) => {

@@ -25,6 +25,9 @@ import CreateDeleteEditCardModal from './CreateDeleteEditCardModal';
  * CardModalDisplay
  * Display the card details in a modal
  * 
+ * @param {CourseID} courseId - Course ID
+ * @param {string} deckId - Deck ID
+ * @param {RepositoryHandler<Memento.Deck>} handler - Deck handler
  * @param {Memento.Card[]} cards - List of cards
  * @param {string} id - Deck id
  * @param {React.RefObject<BottomSheetModalMethods>} modalRef - Reference to the modal

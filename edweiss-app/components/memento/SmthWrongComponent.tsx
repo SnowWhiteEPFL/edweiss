@@ -5,6 +5,13 @@ import TView from '@/components/core/containers/TView';
 import { router } from 'expo-router';
 import FancyButton from '../input/FancyButton';
 
+/**
+ * SmthWrongComponent
+ * 
+ * @param {string} message - Message to display
+ * 
+ * @returns {ReactComponent} SmthWrongComponent
+ */
 const SmthWrongComponent: ReactComponent<{
     message: string;
 }> = ({ message }) => {

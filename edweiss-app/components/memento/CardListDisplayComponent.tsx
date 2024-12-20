@@ -53,6 +53,7 @@ export const CardListDisplay: React.FC<{
 
     const cardIndex = deck?.data.cards.findIndex(c => c.question == card.question);
 
+    // Update the card status
     async function updateCard(new_status: Memento.LearningStatus) {
         if (deck == undefined || cardIndex == undefined) return;
 

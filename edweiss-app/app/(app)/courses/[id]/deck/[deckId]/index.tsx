@@ -78,16 +78,19 @@ const CardListScreen: ApplicationRoute = () => {
 
 	const current_user_type = user.type;
 
+	// For each users, map user.id to user.data.name and filter only students
 	const ids_names_map = new Map<string, string>();
 	users.filter(user => user.data.type === "student").forEach(user => {
 		ids_names_map.set(user.id, user.data.name);
 	});
 
+	// For each users, map user.id to user.data.name and filter only professors
 	const ids_professor_map = new Map<string, string>();
 	users.filter(user => user.data.type === "professor").forEach(user => {
 		ids_professor_map.set(user.id, user.data.name);
 	});
 
+	// Filter only students who are enrolled in the course and are not anonymous
 	const users_data_filtered_students = users.filter(user => user.data.type === "student").filter(user => user.data.courses.includes(courseId)).filter(user => user.data.name !== 'Anonymous');
 
 	// Toggle card selection
@@ -134,6 +137,7 @@ const CardListScreen: ApplicationRoute = () => {
 		router.back();
 	}
 
+	// Update deck
 	async function updateDeck(name: string) {
 		if (decks == undefined) return;
 
@@ -169,12 +173,14 @@ const CardListScreen: ApplicationRoute = () => {
 		setLoading(false);
 	}
 
+	// Error message for updating deck name
 	function error_selected() {
 		if (existedDeckName) return 'This name has already been used';
 		if (emptyField) return 'Please fill in the field';
 		return undefined;
 	}
 
+	// Text for the play button
 	function playingTextSelection() {
 		if (cards.length === 0) return "No cards to play"
 		if (selectedCards.length == 0) return "Play all cards"

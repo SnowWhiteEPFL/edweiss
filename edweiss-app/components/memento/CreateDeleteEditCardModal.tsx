@@ -20,6 +20,21 @@ import TText from '../core/TText';
 import FancyButton from '../input/FancyButton';
 import FancyTextInput from '../input/FancyTextInput';
 
+/**
+ * Create Delete Edit Card Modal
+ * 
+ * @param {CourseID} courseId - Course ID
+ * @param {string} deckId - Deck ID
+ * @param {string} mode - Mode
+ * @param {string} prev_question - Previous question
+ * @param {string} prev_answer - Previous answer
+ * @param {number} cardIndex - Card Index
+ * @param {boolean} visible - Visibility
+ * @param {React.Dispatch<React.SetStateAction<boolean>>} setVisible - Set Visibility
+ * @param {() => void} specialDeleteCard - Special Delete Card
+ * 
+ * @returns {ReactComponent} Create Delete Edit Card Modal
+ */
 const CreateDeleteEditCardModal: ReactComponent<{
     courseId: CourseID,
     deckId: string,
