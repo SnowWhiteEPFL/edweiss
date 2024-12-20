@@ -91,11 +91,12 @@ Check our [Figma](https://www.figma.com/design/BBD2dqgIbEF96IhNpyv7MW/EdWeiss?no
 ### Course Page :
 - After clicking on a course on the home page, you will see different elements
     - The **name** at the top
-    - The **forum** of the course to ask questions.
+    - The **forum** of the course to ask questions. If someone repond to your post, you receive a notification. The notification page is accessible from the home page.
     - The **Memento** to create with AI quizzes from the given documents in the materials of the course
     - The **description** of the course
     - The due **assignments** (if in orange this means you have less than 24 hours berfore the deadline)
           - If you clik on an assignment that is a **quiz**, you will be directed to the corresponding quiz. You will also be able to generate AI questions.
+          - Each time an assignment is added, every people registered to the course receive a notification. The notif page is visible from the home page.
     - A button to consult the **passed assignments**
     - The **Materials**. A material is a period defined by the teacher to which a description and different document are assigned to. E.g. Week 14 from ... to ...
     - In those Materials, the teacher can upload **documents**, allowing the students to **open** and **download** them. Those document are used to create quizes and flash cards (memento) with AI.
