@@ -134,7 +134,7 @@ Accessible from the above course page, it is a place for students to discuss, as
   - In the **Decks screen**, click on **Generate with AI** to open a page listing all the course materials.  
     - Select a material to let AI generate a deck for you.
 
-![photo_2024-12-20_02-06-06](https://github.com/user-attachments/assets/f8321a36-a568-4f61-9b60-fa05a7462c1c)
+![WhatsApp Image 2024-12-20 at 02 13 08_2f6abad5](https://github.com/user-attachments/assets/86a47822-11de-4e37-a306-11e0421e3c78)
 
 
 ### Quizzes
