@@ -44,7 +44,6 @@ const CardDisplayComponent: ReactComponent<{
                         size="lg"
                     />
                 </TView>
-                {/*<TText>{card.question}</TText>*/}
                 <RichText>
                     {card.question}
                 </RichText>
