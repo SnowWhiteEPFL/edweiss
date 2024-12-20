@@ -84,7 +84,24 @@ Also, please turn on VSCode formatting !
 
 ## 📚 Ressources
 Check our [Figma](https://www.figma.com/design/BBD2dqgIbEF96IhNpyv7MW/EdWeiss?node-id=0-1&t=qQd63l3nEltoppuT-1) design.
-(Last update : 15.11.2024)
+(Last update : 15.12.2024)
+
+## 📲 Application Functionalities/Features
+
+**Course Page :**
+- After clicking on a course on the home page, you will see different elements
+    - The **name** at the top
+    - The **forum** of the course to ask questions.
+    - The **momento** to create with AI quizzes from the given documents in the materials of the course
+    - The **description** of the course
+    - The due **assignments** (if in orange this means you have less than 24 hours berfore the deadline)
+          - If you clik on an assignment that is a **quiz**, you will be directed to the corresponding quiz. You will also be able to generate AI questions.
+    - A button to consult the **passed assignments**
+    - The **Materials**. A material is a period defined by the teacher to which a description and different document are assigned to. E.g. Week 14 from ... to ...
+    - In those Materials, the teacher can upload **documents**, allowing the students to **open** and **download** them. Those document are used to create quizes and flash cards (memento) with AI.
+
+  ![IMG_1148](https://github.com/user-attachments/assets/a43c310a-cf1e-4df1-9aa8-21f1b0f80178)
+
 
 ## Admin
 (Last update : 06.12.2024)

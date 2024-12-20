@@ -1,10 +1,16 @@
 import { Timestamp } from 'firebase-admin/firestore';
 import { Forum } from 'model/forum';
+import NotifList from 'model/notifs';
 import { isAssistantOf, isProfessorOf } from 'model/school/courses';
 import { onSanitizedCall } from 'utils/firebase';
 import { CollectionOf, Collections, clean, getDocumentAndRef, getRequiredDocument } from 'utils/firestore';
 import { Predicate } from 'utils/sanitizer';
 import { INVALID_COURSE_ID, NOT_IN_COURSE, USER_NOT_FOUND, fail, ok } from 'utils/status';
+import { Time } from 'utils/time';
+
+type Notif = NotifList.Notif;
+type NotifType = NotifList.NotifType;
+
 
 export const createAnswer = onSanitizedCall(Forum.Functions.createAnswer, {
 	courseId: Predicate.isNonEmptyString,
@@ -17,7 +23,6 @@ export const createAnswer = onSanitizedCall(Forum.Functions.createAnswer, {
 		return NOT_IN_COURSE;
 
 	const course = await getRequiredDocument(Collections.courses, args.courseId, INVALID_COURSE_ID);
-
 	const [post, postRef] = await getDocumentAndRef(CollectionOf<Forum.Post>(`courses/${args.courseId}/forum`), args.postId);
 
 	if (post == undefined)
@@ -59,6 +64,28 @@ export const createAnswer = onSanitizedCall(Forum.Functions.createAnswer, {
 	} catch (e) {
 		throw fail("firebase 2");
 	}
+
+	if (post.byId == userId) {
+		const notifCollection = CollectionOf<Notif>(`users/${post.byId}/notifications`);
+		const titlePreview = `${user.name} answered your post`.length > 30 ? `${`${user.name} answered your post`.substring(0, 29)}...` : `${user.name} answered your post`;
+		const messagePreview = args.content.length > 40 ? `${args.content.substring(0, 40)}...` : args.content;
+
+		const notifToInsert: Notif = {
+			type: 'post' as NotifType,
+			title: titlePreview,
+			message: messagePreview,
+			read: false,
+			date: Time.now(),
+			courseID: args.courseId
+		};
+
+		try {
+			await notifCollection.add(notifToInsert);
+		} catch (error) {
+			return fail("failed_to_push_notif");
+		}
+	}
+
 
 	return ok({ id: resId });
 });

@@ -19,7 +19,7 @@ namespace NotifList {
     export const Functions = FunctionFolder("notifs", {
         markAsUnread: FunctionOf<{ id: string; }, {}, 'invalid_arg' | 'firebase_error'>("markAsUnread"),
         markAsRead: FunctionOf<{ id: string; }, {}, 'invalid_arg' | 'firebase_error'>("markAsRead"),
-        pushNotif: FunctionOf<{ type: string, title: string, message: string, userIds?: UserID[], courseID?: CourseID; }, {}, 'invalid_arg' | 'firebase_error'>("pushNotif"),
+        pushNotif: FunctionOf<{ type: string, title: string, message: string, userID?: UserID, courseID?: CourseID; }, {}, 'invalid_arg' | 'firebase_error'>("pushNotif"),
         deleteNotif: FunctionOf<{ id: string; }, {}, 'invalid_arg' | 'firebase_error'>("deleteNotif"),
     });
 }

@@ -34,6 +34,7 @@ export type AppUser = StudentUser | ProfessorUser;
 export namespace Auth {
 	export const Functions = FunctionFolder("auth", {
 		createAccount: FunctionOf<{ name: string; }, {}, 'already_existing_account'>("createAccount"),
+		switchPermissions: FunctionOf<{}, {}, 'cannot_switch_permission'>("switchPermissions"),
 	});
 }
 
