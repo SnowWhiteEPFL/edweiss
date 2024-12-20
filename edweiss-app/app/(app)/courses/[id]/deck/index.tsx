@@ -208,11 +208,10 @@ export default DeckScreen;
 // ------------------------------------------------------------
 
 /**
- * Deck Display Component that displays a deck with its name and creator.
+ * Deck Display Component that displays a deck with its name and last modified time.
  * 
  * @param deck: Memento.Deck
- * @param creator: string
- * @param deckId: string
+ * @param id: deck id
  * @param isSelected: boolean indicating if the deck is selected
  * @param toggleSelection: function to toggle deck selection
  * @param onLongPress: function to handle long press
