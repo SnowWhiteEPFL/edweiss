@@ -88,11 +88,11 @@ Check our [Figma](https://www.figma.com/design/BBD2dqgIbEF96IhNpyv7MW/EdWeiss?no
 
 ## 📲 Application Functionalities/Features
 
-**Course Page :**
+### Course Page :
 - After clicking on a course on the home page, you will see different elements
     - The **name** at the top
     - The **forum** of the course to ask questions.
-    - The **momento** to create with AI quizzes from the given documents in the materials of the course
+    - The **Memento** to create with AI quizzes from the given documents in the materials of the course
     - The **description** of the course
     - The due **assignments** (if in orange this means you have less than 24 hours berfore the deadline)
           - If you clik on an assignment that is a **quiz**, you will be directed to the corresponding quiz. You will also be able to generate AI questions.
@@ -101,7 +101,36 @@ Check our [Figma](https://www.figma.com/design/BBD2dqgIbEF96IhNpyv7MW/EdWeiss?no
     - In those Materials, the teacher can upload **documents**, allowing the students to **open** and **download** them. Those document are used to create quizes and flash cards (memento) with AI.
 
   ![IMG_1148](https://github.com/user-attachments/assets/a43c310a-cf1e-4df1-9aa8-21f1b0f80178)
+ 
+### Memento Page
+
+- From the course page, click on **Memento** to view:  
+  - The **Decks screen** displays all the decks of the course (created by you or the teacher).  
+    - To create a deck, insert a name into the text box and click on the **Create Deck** button.  
+    - Click on a deck to view the following:  
+      - **Card List Screen**, where all cards belonging to the deck are displayed (initially empty).  
+      - On the **Card List Screen**, you will find:  
+        - **No cards to play**, a button disabled if the deck has no cards.  
+        - **Create card**, a button to add a card to the deck.  
+        - **Publish Deck**, available if you are the course professor. This sends the deck to all students in the course.  
+        - **Settings**, a button in the top-right corner to edit the deck's name (if you own it), delete it, or share it.  
+          - Clicking on the **Share** button opens a screen listing all users in the same class.  
+          - Use the **Search Bar** to find users. Click on a user’s name or icon to share the deck with them.  
+      - If the deck contains cards:  
+        - Long press on a card to enter **multiple card selection mode**.  
+          - While in this mode, select additional cards to:  
+            - **Delete** selected cards.  
+            - **Share** selected cards using the same sharing process as for decks.  
+        - Use **Play all cards** to play and test your knowledge of all the cards in the deck.  
+          - This redirects you to the **Test Your Might!** screen.  
+            - On the **Test Your Might!** screen:  
+              - Click **Got it!** or **Not yet** to mark your progress.  
+              - Use the **Settings** button in the top-right corner to edit or delete the current card.  
+  - In the **Decks screen**, click on **Generate with AI** to open a page listing all the course materials.  
+    - Select a material to let AI generate a deck for you.
+
+
 
 
 ## Admin
-(Last update : 06.12.2024)
+(Last update : 20.12.2024)
