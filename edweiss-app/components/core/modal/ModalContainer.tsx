@@ -42,7 +42,7 @@ const ModalContainer: ReactComponent<{ snapPoints?: (string | number)[], modalRe
 
 export default ModalContainer;
 
-export const ModalContainerScrollView: ReactComponent<{ snapPoints?: (string | number)[], disabledDynamicSizing?: boolean, modalRef: React.RefObject<BottomSheetModalMethods>, children?: ReactNode; }> = (props) => {
+export const ModalContainerScrollView: ReactComponent<{ snapPoints?: (string | number)[], testID?: string, disabledDynamicSizing?: boolean, modalRef: React.RefObject<BottomSheetModalMethods>, children?: ReactNode; }> = (props) => {
 	const backgroundColor = useColor("mantle");
 	const handleIndicatorColor = useColor("base");
 

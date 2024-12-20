@@ -1,12 +1,16 @@
-import LectureQuizStudentViewPage from '@/app/(app)/quiz/lectureQuizStudentViewPage';
-import { Document } from '@/config/firebase';
-import { useAuth } from '@/contexts/auth';
-import { useDocs, usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
-import LectureDisplay from '@/model/lectures/lectureDoc';
-import Quizzes, { LectureQuizzes, LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
+import { EditSecondModal } from '@/app/(app)/quiz/createQuizPage';
+import { ProgressPopupHandle } from '@/components/animations/ProgressPopup';
+import Quizzes from '@/model/quizzes';
+import { Material } from '@/model/school/courses';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { render } from '@testing-library/react-native';
 import { ActivityIndicatorProperties, ScrollViewProps, ViewProps } from 'react-native';
 
+
+jest.mock('react-native-autoheight-webview', () => {
+	const { View } = require('react-native');
+	return () => <View />; // Mock AutoHeightWebView as a simple empty View
+});
 jest.mock('@/contexts/auth', () => ({
 	useAuth: jest.fn(),
 }));
@@ -92,10 +96,36 @@ jest.mock('@react-native-firebase/firestore', () => {
 		onSnapshot: mockOnSnapshot, // Mock onSnapshot separately in case needed
 	};
 });
+const mockMaterial: Material = {
+	title: "Introduction to React",
+	description: "This material covers the basics of React, including components, state, and props.",
+	from: { nanoseconds: 0, seconds: 0 },
+	to: { nanoseconds: 1000, seconds: 1000 },
+	docs: [
+		{
+			uri: "https://example.com/slide1",
+			title: "React Basics",
+			type: "slide",
+		},
+		{
+			uri: "https://example.com/exercise1",
+			title: "React Exercise 1",
+			type: "exercise",
+		},
+		{
+			uri: "https://example.com/image1",
+			title: "React Architecture",
+			type: "image",
+		},
+	],
+};
 jest.mock('@/hooks/firebase/firestore', () => ({
 	useDoc: jest.fn(),
 	usePrefetchedDynamicDoc: jest.fn(),
-	useDocs: jest.fn()
+	useDocs: jest.fn(),
+	useDynamicDocs: jest.fn((collection) => {
+		return [{ data: mockMaterial, id: "mockId" }]
+	})
 }));
 
 
@@ -148,57 +178,45 @@ jest.mock('../../components/quiz/QuizComponents.tsx', () => ({
 jest.mock('expo-router', () => ({
 	...jest.requireActual('expo-router'),
 	useLocalSearchParams: jest.fn(() => {
-		return { params: JSON.stringify({ courseId: "courseId", lectureId: "lectureId", lectureEventId: "lectureEventId", prefetchedQuizEvent: undefined }) };
+		return { params: JSON.stringify({ courseId: "courseId", lectureId: "lectureId", lectureEventId: "lectureEventId", prefetchedQuizEvent: "prefetchedQuizEvent" }) };
 	}),
 	router: {
 		push: jest.fn(),
 		back: jest.fn()
 	},
 }));
-
-jest.mock('@/config/i18config', () => ({
-	__esModule: true, // This ensures it's treated as a module with a default export
-	default: jest.fn((key: string) => key), // Mock `t` to return the key as the translation
+jest.mock('@/hooks/firebase/firestore', () => ({
+	useDoc: jest.fn(),
+	usePrefetchedDynamicDoc: jest.fn(),
+	useDocs: jest.fn()
 }));
+jest.mock('react-native-pdf', () => {
+	const { View } = require('react-native');
+	return (props: ViewProps) => <View {...props} />;
+})
 
+const handle: ProgressPopupHandle = {
+	state: "none",
+	remove: jest.fn(),
+	start: jest.fn(),
+	stop: jest.fn()
+}
 
-jest.mock('../../components/core/header/RouteHeader', () => {
-	const { Text, View } = require('react-native');
-	return ({ title, right }: { title: string; right?: React.ReactNode }) => (
-		<View>
-			<Text>{title}</Text>
-			{right && <View>{right}</View>}
-		</View>
-	);
-});
+jest.mock('../../components/core/modal/ModalContainer.tsx', () => {
+	const React = require('react');
+	const { View } = require('react-native');
 
-const mockOnUpdate = jest.fn()
-jest.mock('../../components/quiz/QuizComponents.tsx', () => {
-	const { TouchableOpacity, Text, View } = require('react-native');
 	return {
-		MCQDisplay: ({ onUpdate }: { onUpdate: (selectedIds: number[] | boolean | undefined, exId: number) => void }) => (
-			<TouchableOpacity onPress={() => onUpdate([2], 0)} testID="mcq-display" >
-				<Text>MCQ Display</Text>
-			</TouchableOpacity >
-		),
-		TFDisplay: ({ onUpdate }: { onUpdate: (selectedIds: number[] | boolean | undefined, exId: number) => void }) => (
-			<TouchableOpacity onPress={() => onUpdate(true, 1)} testID="tf-display">
-				<Text>TF Display</Text>
-			</TouchableOpacity>
-		),
-		MCQResultDisplay: () => (
-			<View testID="mcq-result-display">
-				<Text>MCQ Result Display</Text>
-			</View>
-		),
-		TFResultDisplay: () => (
-			<View testID="tf-result-display">
-				<Text>TF Result Display</Text>
-			</View>
-		),
+		ModalContainerScrollView: jest.fn((props: any) => <View {...props}>{props.children}</View>)
 	}
+
 });
 
+const mockTF: Quizzes.TF = {
+	type: 'TF',
+	question: 'The earth is flat.',
+	answer: false
+};
 const mockMCQ: Quizzes.MCQ = {
 	type: 'MCQ',
 	question: 'What is the capital of France?',
@@ -211,95 +229,23 @@ const mockMCQ: Quizzes.MCQ = {
 	numberOfAnswers: 1,
 	answersIndices: [2],
 };
-const mockTF: Quizzes.TF = {
-	type: 'TF',
-	question: 'The earth is flat.',
-	answer: false
-};
 
-const mockExercises: Quizzes.Exercise[] = [mockMCQ, mockTF];
+describe('EditSecondModal', () => {
 
-const mockAnswerMCQ1: QuizzesAttempts.MCQAnswersIndices = {
-	type: 'MCQAnswersIndices',
-	value: [2]
-};
-const mockAnswerTF1: QuizzesAttempts.TFAnswer = {
-	type: 'TFAnswer',
-	value: true
-};
-const mockAnswerMCQ2: QuizzesAttempts.MCQAnswersIndices = {
-	type: 'MCQAnswersIndices',
-	value: [2]
-};
-const mockAnswerTF2: QuizzesAttempts.TFAnswer = {
-	type: 'TFAnswer',
-	value: false
-};
-const mockAnswerMCQ3: QuizzesAttempts.MCQAnswersIndices = {
-	type: 'MCQAnswersIndices',
-	value: [1]
-};
-const mockAnswerTF3: QuizzesAttempts.TFAnswer = {
-	type: 'TFAnswer',
-	value: undefined
-};
+	it('renders MCQ scroll view modal for mcq', () => {		// Mock the handle function
+		const secondModalRef = { current: { open: jest.fn(), close: jest.fn(), present: jest.fn(), dismiss: jest.fn(), snapToIndex: jest.fn(), snapToPosition: jest.fn(), expand: jest.fn(), collapse: jest.fn(), forceClose: jest.fn() } }; // Mock modalRef
+		const screen = render(<BottomSheetModalProvider>
+			<EditSecondModal index={0} modalRef={secondModalRef} editExercise={jest.fn()} exercise={mockMCQ} />
+		</BottomSheetModalProvider>)
+		expect(screen.getByTestId('MCQ')).toBeTruthy()
+	})
+	it('renders TF scroll view modal for tf', () => {		// Mock the handle function
+		const secondModalRef = { current: { open: jest.fn(), close: jest.fn(), present: jest.fn(), dismiss: jest.fn(), snapToIndex: jest.fn(), snapToPosition: jest.fn(), expand: jest.fn(), collapse: jest.fn(), forceClose: jest.fn() } }; // Mock modalRef
 
-const mockStudentAnswers1 = [mockAnswerMCQ1, mockAnswerTF1];
-const mockStudentAnswers2 = [mockAnswerMCQ2, mockAnswerTF2];
-const mockStudentAnswers3 = [mockAnswerMCQ3, mockAnswerTF3];
-
-const mockResultMCQ: QuizzesAttempts.MCQAnswersIndices = {
-	type: 'MCQAnswersIndices',
-	value: [2]
-};
-const mockResultTF: QuizzesAttempts.TFAnswer = {
-	type: 'TFAnswer',
-	value: false
-};
-
-const mockResults = [mockResultMCQ, mockResultTF]
-
-const mockQuiz: LectureQuizzes.LectureQuiz = {
-	answer: mockResultTF,
-	ended: false,
-	showResultToStudents: true,
-	exercise: mockTF,
-}
-const mockEvent: LectureDisplay.QuizLectureEvent = {
-	quizModel: mockQuiz,
-	done: false,
-	id: "",
-	pageNumber: 0,
-	type: "quiz"
-}
-const mockAttemptsData: QuizzesAttempts.QuizAttempt[] = [
-	{ attempts: 2, answers: mockStudentAnswers1 },
-	{ attempts: 1, answers: mockStudentAnswers2 },
-	{ attempts: 1, answers: mockStudentAnswers3 }
-];
-const mockAttemptsDoc: Document<LectureQuizzesAttempts.LectureQuizAttempt>[] = [
-	{ data: { type: "TFAnswer", value: true }, id: 'A' },
-	{ data: { type: "TFAnswer", value: false }, id: 'B' },
-	{ data: { type: "TFAnswer", value: undefined }, id: 'C' }
-]
-
-describe('LectureQuizStudentViewPage', () => {
-
-	beforeEach(() => {
-		//(useLocalSearchParams as jest.Mock).mockReturnValue({ params: { courseId: "courseId", lectureId: "lectureId", lectureEventId: "lectureEventId", prefetchedQuizEvent: "prefetchedQuizEvent" } });
-		jest.clearAllMocks();
-	});
-
-	it('renders lecture quiz student view', () => {
-		(useAuth as jest.Mock).mockReturnValue("uid");
-		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([{ data: mockEvent }, false]);
-		(useDocs as jest.Mock).mockReturnValue(mockAttemptsDoc);
-
-
-		const screen = render(<LectureQuizStudentViewPage />);
-
-		expect(screen.getByTestId('lecture-quiz-student-view-view')).toBeTruthy();
-	});
-
+		const screen = render(<BottomSheetModalProvider>
+			<EditSecondModal index={0} modalRef={secondModalRef} editExercise={jest.fn()} exercise={mockTF} />
+		</BottomSheetModalProvider>)
+		expect(screen.getByTestId('TF')).toBeTruthy()
+	})
 
 })

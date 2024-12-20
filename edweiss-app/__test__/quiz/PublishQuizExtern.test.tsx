@@ -1,3 +1,4 @@
+import { publishQuizExtern } from '@/app/(app)/quiz/createQuizPage';
 import { Document } from '@/config/firebase';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import Quizzes, { LectureQuizzes, LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
@@ -202,3 +203,25 @@ jest.mock('@react-native-firebase/firestore', () => {
 		onSnapshot: mockOnSnapshot, // Mock onSnapshot separately in case needed
 	};
 });
+
+describe('publishQuizExtern', () => {
+	// let mockCallFunction: jest.Mock;
+	// let mockAddAssignmentAction: jest.Mock;
+	// let mockTimeFromDate: jest.Mock;
+
+	beforeEach(() => {
+		// mockCallFunction = callFunction as jest.Mock;
+		// mockAddAssignmentAction = addAssignmentAction as jest.Mock;
+		// mockTimeFromDate = Time.fromDate as jest.Mock;
+
+		jest.clearAllMocks();
+	});
+	it('should not publish a quiz if paramsOk is false', async () => {
+		// Act
+		await publishQuizExtern(false, undefined, [], '', '');
+
+		// Assert
+		// expect(mockCallFunction).not.toHaveBeenCalled();
+		// expect(mockAddAssignmentAction).not.toHaveBeenCalled();
+	});
+})

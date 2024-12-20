@@ -1,11 +1,9 @@
-import { LectureQuizView } from '@/components/quiz/LectureQuizComponents';
+import { LectureQuizDisplay } from '@/components/quiz/LectureQuizComponents';
 import { Document } from '@/config/firebase';
-import { useUser } from '@/contexts/user';
-import { usePrefetchedDynamicDoc } from '@/hooks/firebase/firestore';
 import LectureDisplay from '@/model/lectures/lectureDoc';
 import Quizzes, { LectureQuizzes, LectureQuizzesAttempts, QuizzesAttempts } from '@/model/quizzes';
 import { AppUser } from '@/model/users';
-import { render } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 import { ActivityIndicatorProperties, ScrollViewProps, ViewProps } from 'react-native';
 
 jest.mock('@/contexts/auth', () => ({
@@ -314,81 +312,29 @@ jest.mock('@/contexts/user', () => ({
 	useUser: jest.fn()
 }));
 
-describe('LectureQuizView', () => {
+const mockSend = jest.fn()
+const mockOnUpdate = jest.fn()
 
-	beforeEach(() => {
-		//(useLocalSearchParams as jest.Mock).mockReturnValue({ params: { courseId: "courseId", lectureId: "lectureId", lectureEventId: "lectureEventId", prefetchedQuizEvent: "prefetchedQuizEvent" } });
-		jest.clearAllMocks();
-		//jest.resetModules()
-
-	});
-
-	it('renders loading if quiz event is undefined', () => {
-		(useUser as jest.Mock).mockReturnValue(({
-			user: {
-				name: "John Doe",
-				courses: [],
-				createdAt: { seconds: 0, nanoseconds: 0 },
-				type: "student",
-			} satisfies AppUser
-		}));
-
-		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([undefined, false])
-
-		const screen = render(<LectureQuizView
-			courseId='courseId'
-			lectureEventId='lectureEventId'
-			lectureId='lectureId'
-		/>)
-
-		expect(screen.getByTestId('quiz-event-undefined')).toBeTruthy()
+describe('LectureQuizDisplay', () => {
+	it('renders MCQ display when given an MCQ', () => {
+		const screen = render(<LectureQuizDisplay testID='mockId' exercise={mockMCQ} onUpdate={mockOnUpdate} send={mockSend} studentAnswer={mockAnswerMCQ1} />)
+		expect(screen.getByTestId('MCQ')).toBeTruthy()
+	})
+	it('submits when MCQ displayed', () => {
+		const screen = render(<LectureQuizDisplay testID='mockId' exercise={mockMCQ} onUpdate={mockOnUpdate} send={mockSend} studentAnswer={mockAnswerMCQ1} />)
+		expect(screen.getByTestId('submit')).toBeTruthy()
+		fireEvent.press(screen.getByTestId('submit'))
+		expect(mockSend).toHaveBeenCalled()
 	})
 
-	it('renders student view if user is student', () => {
-		(useUser as jest.Mock).mockReturnValue(({
-			user: {
-				name: "John Doe",
-				courses: [],
-				createdAt: { seconds: 0, nanoseconds: 0 },
-				type: "student",
-			} satisfies AppUser
-		}));
-
-		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockEventDoc, false])
-
-		//(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue(mockEvent)
-
-		const screen = render(<LectureQuizView
-			courseId='courseId'
-			lectureEventId='lectureEventId'
-			lectureId='lectureId'
-		/>)
-
-		expect(screen.getByTestId('lecture-quiz-student-view')).toBeTruthy()
-
+	it('renders TF display when given a TF', () => {
+		const screen = render(<LectureQuizDisplay testID='mockId' exercise={mockTF} onUpdate={mockOnUpdate} send={mockSend} studentAnswer={mockAnswerTF1} />)
+		expect(screen.getByTestId('TF')).toBeTruthy()
 	})
-
-	it('renders prof view if user is prof', () => {
-		(useUser as jest.Mock).mockReturnValue(({
-			user: {
-				name: "John Doe",
-				courses: [],
-				createdAt: { seconds: 0, nanoseconds: 0 },
-				type: "professor",
-			} satisfies AppUser
-		}));
-
-		(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue([mockEventDoc, false])
-		//(useUser as jest.Mock).mockReturnValue({ user: { type: "professor", courses: [] }, loaded: true });
-		//(usePrefetchedDynamicDoc as jest.Mock).mockReturnValue(mockEvent)
-
-		const screen = render(<LectureQuizView
-			courseId='courseId'
-			lectureEventId='lectureEventId'
-			lectureId='lectureId'
-		/>)
-
-		expect(screen.getByTestId('lecture-quiz-prof-view')).toBeTruthy()
-
+	it('submits when TF displayed', () => {
+		const screen = render(<LectureQuizDisplay testID='mockId' exercise={mockTF} onUpdate={mockOnUpdate} send={mockSend} studentAnswer={mockAnswerTF1} />)
+		expect(screen.getByTestId('submit')).toBeTruthy()
+		fireEvent.press(screen.getByTestId('submit'))
+		expect(mockSend).toHaveBeenCalled()
 	})
 })

@@ -82,10 +82,8 @@ export const LectureQuizProfView: ReactComponent<{ quizEvent: Document<LectureDi
 
 	const studentAttemptsData = studentAttempts.map(doc => doc.data);
 
-
 	return (
 		<>
-
 			{(quiz?.showResultToStudents && studentAttempts.length > 0) && <>
 				<TView testID='distribution'>
 					<SingleDistributionDisplay exercise={quiz.exercise} exerciseAttempts={studentAttemptsData} />
@@ -105,10 +103,7 @@ export const LectureQuizProfView: ReactComponent<{ quizEvent: Document<LectureDi
 			{quizEvent == undefined && <>
 				<TText></TText>
 			</>
-
 			}
-
-
 		</>
 	);
 
@@ -122,27 +117,11 @@ export const LectureQuizStudentView: ReactComponent<{ courseId: string, lectureI
 	const quiz = quizEvent?.data.quizModel
 	const exercise = quiz?.exercise;
 
-
 	useEffect(() => {
-
 		if (quiz == undefined || exercise == undefined)
 			return;
-
-		const defaultAnswer = () => {
-			if (exercise.type == "MCQ") {
-				const MCQAnswer: QuizzesAttempts.MCQAnswersIndices = { type: "MCQAnswersIndices", value: [] }
-				return MCQAnswer;
-			}
-			else {
-				const TFAnswer: QuizzesAttempts.TFAnswer = { type: "TFAnswer", value: undefined }
-				return TFAnswer;
-			}
-		}
-
-		setStudentAnswer(defaultAnswer());
+		setStudentAnswer(defaultAnswer(exercise));
 	}, [quizEvent]);
-
-
 
 	const onUpdate = useCallback((newAnswer: number[] | boolean | undefined) => {
 		const newFormattedAnswer: LectureQuizzesAttempts.LectureQuizAttempt = exercise?.type == "MCQ" ? { type: "MCQAnswersIndices", value: newAnswer as number[] } : { type: "TFAnswer", value: newAnswer as boolean }
@@ -158,7 +137,6 @@ export const LectureQuizStudentView: ReactComponent<{ courseId: string, lectureI
 		return <Redirect href={'/'} />;
 	}
 
-
 	async function send() {
 		if (studentAnswer == undefined) {
 			console.log("Undefined answer, submitted before loading default")
@@ -172,7 +150,7 @@ export const LectureQuizStudentView: ReactComponent<{ courseId: string, lectureI
 			(quiz.showResultToStudents && previousAttempt != undefined) &&
 			<>
 				<TView testID='lecture-quiz-result-display-view'>
-					{/* <LectureQuizResultDisplay key={quizEvent.id + "result"} studentAnswer={previousAttempt.data} exercise={exercise} result={quiz.answer} testId='quiz-result-display' /> */}
+					<LectureQuizResultDisplay key={quizEvent.id + "result"} studentAnswer={previousAttempt.data} exercise={exercise} result={quiz.answer} testID='quiz-result-display' />
 				</TView>
 			</>
 		}
@@ -180,7 +158,7 @@ export const LectureQuizStudentView: ReactComponent<{ courseId: string, lectureI
 			!quiz.showResultToStudents &&
 			<>
 				<TView testID='lecture-quiz-display-view'>
-					{/* <LectureQuizDisplay key={quizEvent.id + "display"} studentAnswer={studentAnswer} exercise={exercise} onUpdate={onUpdate} send={send} testId='quiz-display' /> */}
+					<LectureQuizDisplay key={quizEvent.id + "display"} studentAnswer={studentAnswer} exercise={exercise} onUpdate={onUpdate} send={send} testID='quiz-display' />
 				</TView>
 			</>
 		}
@@ -196,75 +174,95 @@ export const LectureQuizStudentView: ReactComponent<{ courseId: string, lectureI
 
 };
 
-export const LectureQuizDisplay: ReactComponent<{ studentAnswer: QuizzesAttempts.Answer | undefined, exercise: Quizzes.Exercise, onUpdate: (answer: number[] | boolean | undefined, id: number) => void, send: () => void, testId: string }> = ({ studentAnswer, exercise, onUpdate, send, testId }) => {
-	if (exercise.type == "MCQ" && studentAnswer != undefined) {
-		return (
-			<TView justifyContent='center' style={{ height: "100%" }}>
-				<TView backgroundColor="base" radius='lg' mx={'md'} p={"md"}>
-					<MCQDisplay
-						key={exercise.question + "display"}
-						exercise={exercise}
-						selectedIds={studentAnswer.value as number[]}
-						onUpdate={onUpdate} exId={0}
-						disableBottomBar />
-					<FancyButton
-						onPress={() => {
-							if (send != undefined) {
-								send();
-							}
-						}}
-						outlined
-						style={{ borderWidth: 0 }}
-						icon='save-sharp'
-						testID='submit'>
-						Submit
-					</FancyButton>
-				</TView>
-			</TView>
-
-		);
+export const defaultAnswer = (exercise: Quizzes.Exercise) => {
+	if (exercise.type == "MCQ") {
+		const MCQAnswer: QuizzesAttempts.MCQAnswersIndices = { type: "MCQAnswersIndices", value: [] }
+		return MCQAnswer;
 	}
-	else if (exercise.type == "TF" && studentAnswer != undefined) { // if type == "TF"
-		return (
-
-			<TView justifyContent='center' style={{ height: "100%" }}>
-				<TView backgroundColor="base" radius='lg' mx={'md'} p={"md"}>
-					<TFDisplay
-						key={exercise.question + "display"}
-						exercise={exercise}
-						selected={studentAnswer.value as boolean | undefined}
-						onUpdate={onUpdate} exId={0}
-						disableBottomBar />
-					<FancyButton
-						onPress={() => {
-							if (send != undefined) {
-								send();
-							}
-							//router.back();
-						}}
-						outlined
-						style={{ borderWidth: 0 }}
-						icon='save-sharp'
-						testID='submit'>
-						Submit
-					</FancyButton>
-				</TView>
-			</TView>
-
-		);
-	} else {
-		return <TActivityIndicator />
+	else {
+		const TFAnswer: QuizzesAttempts.TFAnswer = { type: "TFAnswer", value: undefined }
+		return TFAnswer;
 	}
+}
+
+export const LectureQuizDisplay: ReactComponent<{ studentAnswer: QuizzesAttempts.Answer | undefined, exercise: Quizzes.Exercise, onUpdate: (answer: number[] | boolean | undefined, id: number) => void, send: () => void, testID: string }> = ({ studentAnswer, exercise, onUpdate, send, testID }) => {
+	//if (exercise.type == "MCQ" && studentAnswer != undefined) {
+	return (
+		<>
+			{
+				exercise.type == "MCQ" && studentAnswer != undefined &&
+				<>
+					<TView justifyContent='center' style={{ height: "100%" }}>
+						<TView backgroundColor="base" radius='lg' mx={'md'} p={"md"} testID='MCQ'>
+							<MCQDisplay
+								key={exercise.question + "display"}
+								exercise={exercise}
+								selectedIds={studentAnswer.value as number[]}
+								onUpdate={onUpdate} exId={0}
+								disableBottomBar />
+							<FancyButton
+								onPress={() => {
+									send();
+								}}
+								outlined
+								style={{ borderWidth: 0 }}
+								icon='save-sharp'
+								testID='submit'>
+								{t('quiz:quiz_display.submit')}
+							</FancyButton>
+						</TView>
+					</TView>
+				</>
+			}
+			{
+				exercise.type == "TF" && studentAnswer != undefined &&
+				<>
+					<TView justifyContent='center' style={{ height: "100%" }}>
+						<TView backgroundColor="base" radius='lg' mx={'md'} p={"md"} testID='TF'>
+							<TFDisplay
+								key={exercise.question + "display"}
+								exercise={exercise}
+								selected={studentAnswer.value as boolean | undefined}
+								onUpdate={onUpdate} exId={0}
+								disableBottomBar />
+							<FancyButton
+								onPress={() => {
+									send();
+								}}
+								outlined
+								style={{ borderWidth: 0 }}
+								icon='save-sharp'
+								testID='submit'>
+								{t('quiz:quiz_display.submit')}
+							</FancyButton>
+						</TView>
+					</TView>
+				</>
+			}
+			{
+				studentAnswer == undefined &&
+				<>
+					<TActivityIndicator />
+				</>
+			}
+		</>
+	)
+
 };
 
-export const LectureQuizResultDisplay: ReactComponent<{ studentAnswer: QuizzesAttempts.Answer, result: QuizzesAttempts.Answer, exercise: Quizzes.Exercise, testId: string }> = ({ studentAnswer, result, exercise, testId }) => {
+export const LectureQuizResultDisplay: ReactComponent<{ studentAnswer: QuizzesAttempts.Answer, result: QuizzesAttempts.Answer, exercise: Quizzes.Exercise, testID: string }> = ({ studentAnswer, result, exercise, testID }) => {
 
 	if (exercise.type == "MCQ" && studentAnswer != undefined) {
 		return (
 
 			<TView justifyContent='center' style={{ height: "100%" }}>
-				<TView backgroundColor="base" radius='lg' mx={'md'} p={"md"}>
-					<MCQResultDisplay key={exercise.question + "result"} exercise={exercise} selectedIds={studentAnswer.value as number[]} results={result.value as number[]} disableBottomBar />
+				<TView backgroundColor="base" radius='lg' mx={'md'} p={"md"} testID='MCQ'>
+					<MCQResultDisplay
+						key={exercise.question + "result"}
+						exercise={exercise}
+						selectedIds={studentAnswer.value as number[]}
+						results={result.value as number[]}
+						disableBottomBar />
 
 				</TView>
 			</TView>
@@ -273,7 +271,7 @@ export const LectureQuizResultDisplay: ReactComponent<{ studentAnswer: QuizzesAt
 	else if (exercise.type == "TF" && studentAnswer != undefined) { // if type == "TF"
 		return (
 			<TView justifyContent='center' style={{ height: "100%" }}>
-				<TView backgroundColor="base" radius='lg' mx={'md'} p={"md"}>
+				<TView backgroundColor="base" radius='lg' mx={'md'} p={"md"} testID='TF'>
 					<TFResultDisplay
 						key={exercise.question + "result"}
 						exercise={exercise}
