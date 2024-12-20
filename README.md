@@ -108,5 +108,6 @@ As a professor, to create a quiz, go to the course page, then click on the plus 
 ![Screenshot_2024-12-20-01-32-17-960_com edweiss](https://github.com/user-attachments/assets/9aa7a9d0-682b-4c31-bc47-648808ebbac3)
 
 Then manually add at least one exercise with the + button; or click on generate with AI to then select a pdf to generate from.
+Long press on an exercise to edit or remove it from the quiz.
 ## Admin
 (Last update : 06.12.2024)
