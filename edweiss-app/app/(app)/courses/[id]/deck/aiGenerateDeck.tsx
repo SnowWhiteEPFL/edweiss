@@ -48,6 +48,7 @@ const AiGenerateScreen: ApplicationRoute = () => {
 
     if (!decks) return <SmthWrongComponent message='Oops, Error loading decks ... ' />;
 
+    // Generate deck from document 
     const generateByAI = async (materialUrl: string) => {
         console.log("Generating deck from material: ", materialUrl);
         const res = await callFunction(Memento.Functions.createDeckFromMaterial, {
