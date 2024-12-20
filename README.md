@@ -25,7 +25,7 @@ To address these challenges, several learning tools and organization platforms e
 
 To overcome these challenges, we propose the creation of EdWeiss, a comprehensive "super app" that integrates these various functionalities using a modular approach.
 
-## Modules description
+## Modules description (Original plan)
 
 A module is a tool that is developped as a separate unit. Each module represents a different functionality of EdWeiss, and brought together, create the complete application. Here is a list of our features:
 
@@ -101,6 +101,11 @@ Check our [Figma](https://www.figma.com/design/BBD2dqgIbEF96IhNpyv7MW/EdWeiss?no
     - In those Materials, the teacher can upload **documents**, allowing the students to **open** and **download** them. Those document are used to create quizes and flash cards (memento) with AI.
 
   ![IMG_1148](https://github.com/user-attachments/assets/a43c310a-cf1e-4df1-9aa8-21f1b0f80178)
+
+### Forum
+Accessible from the above course page, it is a place for students to discuss, ask questions and get answers quickly. It's basically an integrated fully featured EdStem platform. It also uses `RichText`, meaning that $LaTeX$, #markdown# and ``` syntax highlighted code ``` can be used to enrich the questions.
+
+![image](https://github.com/user-attachments/assets/0c45d701-ece8-4b8e-aade-a40f2a86bbbb)
  
 ### Memento Page
 
