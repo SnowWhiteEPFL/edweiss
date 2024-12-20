@@ -126,15 +126,6 @@ const MaterialDisplay: ReactComponent<{
                         await aiGenerateQuiz(`courses/${courseId}/materials/${materialId}/${doc.uri}`)
                         handle.stop()
 
-                        // Check if doc.uri ends with .pdf
-                        if (doc.uri.toLowerCase().endsWith('.pdf')) {
-                            handle.start()
-                            await aiGenerateDeck(`courses/${courseId}/materials/${materialId}/${doc.uri}`)
-                            handle.stop()
-
-                            router.back()
-                        }
-
                     } else {
                         pushWithParameters(DocumentRouteSignature, { courseId: courseId, materialId: materialId, document: doc })
                     }
